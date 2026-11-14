@@ -1,0 +1,28 @@
+{
+  "official_commit": "e6a8799cc14819def1bdb8fe68b018fd774fe4c9",
+  "tested_git_tree": "38fab1057013c86c283b601e414f4a83c2633b84",
+  "tested_patch_sha256": "43fe87beb47155afa5f70a6859e214eb2e3473fca5f3044587f4b35716334a99",
+  "standalone_test_sha256": "915a7ef7373d53c9d9d6346a0bed32f83b3ffc02a6ee16ebce86e1e07b69143e",
+  "production_change_sha256": "0ae0eb0b2a5b1e253d0b4663c7320aea7e244ac7e3fc686b08b9e5f115e8f7f5",
+  "runtime": {
+    "before": {
+      "target": "GPUTarget(backend='cuda', arch=3, warp_size=1)",
+      "torch": "2.9.0+cu129",
+      "physical_card": "7",
+      "compiler_sha256": "8971d25e7145279bc330d3bd3e4080a020b15d2208d2886bbbb13ee95b23f6e2",
+      "native_sha256": "4bf75710e97440c77fbfb9e5665fcd4211277f0a0a65f6dc29f866324ba4ae3f"
+    },
+    "after": {
+      "target": "GPUTarget(backend='cuda', arch=3, warp_size=1)",
+      "torch": "2.9.0+cu129",
+      "physical_card": "7",
+      "compiler_sha256": "7a9d16b63f040957bd2007c1de1ddfc41b2b9fc5b0744c6495208a85a7de26b5",
+      "native_sha256": "4bf75710e97440c77fbfb9e5665fcd4211277f0a0a65f6dc29f866324ba4ae3f"
+    }
+  },
+  "max_absolute_error_run": "../after.json",
+  "fresh_cache_pytest": {
+    "before": "before/pytest.log",
+    "after": "after/pytest.log"
+  }
+}

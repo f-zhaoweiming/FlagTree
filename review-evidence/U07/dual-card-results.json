@@ -1,0 +1,246 @@
+{
+  "3-before": {
+    "environment": {
+      "torch": "2.9.0+cu129",
+      "card": "3",
+      "triton_target": "GPUTarget(backend='cuda', arch=3, warp_size=1)",
+      "native": "4bf75710e97440c77fbfb9e5665fcd4211277f0a0a65f6dc29f866324ba4ae3f",
+      "compiler": "8971d25e7145279bc330d3bd3e4080a020b15d2208d2886bbbb13ee95b23f6e2",
+      "test": "915a7ef7373d53c9d9d6346a0bed32f83b3ffc02a6ee16ebce86e1e07b69143e",
+      "fixture": "83caf7458002a3295f9d4eb7e77421928608b08b2d4158dfc838307fb0f496fc"
+    },
+    "image": "sha256:e02e90ef4da5361d02aea39ac141e961c92408169c58c04fdd37211ee5ef790c",
+    "tests": {
+      "original": {
+        "exit_code": 124,
+        "start": "2026-11-14T08:32:31+08:00",
+        "end": "2026-11-14T08:33:03+08:00",
+        "key_error": true,
+        "pytest_summary": [
+          "1 failed in 2.13s"
+        ],
+        "synchronized": false,
+        "submitted": false
+      },
+      "host-1": {
+        "exit_code": 1,
+        "start": "2026-11-14T08:33:03+08:00",
+        "end": "2026-11-14T08:33:06+08:00",
+        "key_error": true,
+        "pytest_summary": [
+          "1 failed in 2.14s"
+        ],
+        "synchronized": false,
+        "submitted": false
+      },
+      "host-2": {
+        "exit_code": 1,
+        "start": "2026-11-14T08:33:06+08:00",
+        "end": "2026-11-14T08:33:08+08:00",
+        "key_error": true,
+        "pytest_summary": [
+          "1 failed in 2.15s"
+        ],
+        "synchronized": false,
+        "submitted": false
+      }
+    }
+  },
+  "3-after": {
+    "environment": {
+      "torch": "2.9.0+cu129",
+      "card": "3",
+      "triton_target": "GPUTarget(backend='cuda', arch=3, warp_size=1)",
+      "native": "4bf75710e97440c77fbfb9e5665fcd4211277f0a0a65f6dc29f866324ba4ae3f",
+      "compiler": "7a9d16b63f040957bd2007c1de1ddfc41b2b9fc5b0744c6495208a85a7de26b5",
+      "test": "915a7ef7373d53c9d9d6346a0bed32f83b3ffc02a6ee16ebce86e1e07b69143e",
+      "fixture": "83caf7458002a3295f9d4eb7e77421928608b08b2d4158dfc838307fb0f496fc"
+    },
+    "image": "sha256:e02e90ef4da5361d02aea39ac141e961c92408169c58c04fdd37211ee5ef790c",
+    "tests": {
+      "original": {
+        "exit_code": 124,
+        "start": "2026-11-14T08:33:11+08:00",
+        "end": "2026-11-14T08:33:42+08:00",
+        "key_error": false,
+        "pytest_summary": [],
+        "synchronized": false,
+        "submitted": false
+      },
+      "host-1": {
+        "exit_code": 0,
+        "start": "2026-11-14T08:33:42+08:00",
+        "end": "2026-11-14T08:33:46+08:00",
+        "key_error": false,
+        "pytest_summary": [
+          "1 passed in 2.85s"
+        ],
+        "synchronized": false,
+        "submitted": false,
+        "numerical": {
+          "elements": 65536,
+          "max_abs": 1.543387770652771e-05,
+          "threshold": 0.0003,
+          "outside": 0
+        }
+      },
+      "host-2": {
+        "exit_code": 0,
+        "start": "2026-11-14T08:33:46+08:00",
+        "end": "2026-11-14T08:33:49+08:00",
+        "key_error": false,
+        "pytest_summary": [
+          "1 passed in 2.87s"
+        ],
+        "synchronized": false,
+        "submitted": false,
+        "numerical": {
+          "elements": 65536,
+          "max_abs": 1.543387770652771e-05,
+          "threshold": 0.0003,
+          "outside": 0
+        }
+      },
+      "linspace": {
+        "exit_code": 124,
+        "start": "2026-11-14T08:33:49+08:00",
+        "end": "2026-11-14T08:34:07+08:00",
+        "key_error": false,
+        "pytest_summary": [],
+        "synchronized": false,
+        "submitted": true
+      },
+      "silu": {
+        "exit_code": 124,
+        "start": "2026-11-14T08:34:07+08:00",
+        "end": "2026-11-14T08:34:24+08:00",
+        "key_error": false,
+        "pytest_summary": [],
+        "synchronized": false,
+        "submitted": true
+      }
+    }
+  },
+  "7-before": {
+    "environment": {
+      "torch": "2.9.0+cu129",
+      "card": "7",
+      "triton_target": "GPUTarget(backend='cuda', arch=3, warp_size=1)",
+      "native": "4bf75710e97440c77fbfb9e5665fcd4211277f0a0a65f6dc29f866324ba4ae3f",
+      "compiler": "8971d25e7145279bc330d3bd3e4080a020b15d2208d2886bbbb13ee95b23f6e2",
+      "test": "915a7ef7373d53c9d9d6346a0bed32f83b3ffc02a6ee16ebce86e1e07b69143e",
+      "fixture": "83caf7458002a3295f9d4eb7e77421928608b08b2d4158dfc838307fb0f496fc"
+    },
+    "image": "sha256:e02e90ef4da5361d02aea39ac141e961c92408169c58c04fdd37211ee5ef790c",
+    "tests": {
+      "original": {
+        "exit_code": 124,
+        "start": "2026-11-14T08:32:31+08:00",
+        "end": "2026-11-14T08:33:02+08:00",
+        "key_error": true,
+        "pytest_summary": [
+          "1 failed in 2.09s"
+        ],
+        "synchronized": false,
+        "submitted": false
+      },
+      "host-1": {
+        "exit_code": 1,
+        "start": "2026-11-14T08:33:02+08:00",
+        "end": "2026-11-14T08:33:05+08:00",
+        "key_error": true,
+        "pytest_summary": [
+          "1 failed in 2.10s"
+        ],
+        "synchronized": false,
+        "submitted": false
+      },
+      "host-2": {
+        "exit_code": 1,
+        "start": "2026-11-14T08:33:05+08:00",
+        "end": "2026-11-14T08:33:07+08:00",
+        "key_error": true,
+        "pytest_summary": [
+          "1 failed in 2.10s"
+        ],
+        "synchronized": false,
+        "submitted": false
+      }
+    }
+  },
+  "7-after": {
+    "environment": {
+      "torch": "2.9.0+cu129",
+      "card": "7",
+      "triton_target": "GPUTarget(backend='cuda', arch=3, warp_size=1)",
+      "native": "4bf75710e97440c77fbfb9e5665fcd4211277f0a0a65f6dc29f866324ba4ae3f",
+      "compiler": "7a9d16b63f040957bd2007c1de1ddfc41b2b9fc5b0744c6495208a85a7de26b5",
+      "test": "915a7ef7373d53c9d9d6346a0bed32f83b3ffc02a6ee16ebce86e1e07b69143e",
+      "fixture": "83caf7458002a3295f9d4eb7e77421928608b08b2d4158dfc838307fb0f496fc"
+    },
+    "image": "sha256:e02e90ef4da5361d02aea39ac141e961c92408169c58c04fdd37211ee5ef790c",
+    "tests": {
+      "original": {
+        "exit_code": 124,
+        "start": "2026-11-14T08:33:10+08:00",
+        "end": "2026-11-14T08:33:41+08:00",
+        "key_error": false,
+        "pytest_summary": [],
+        "synchronized": false,
+        "submitted": false
+      },
+      "host-1": {
+        "exit_code": 0,
+        "start": "2026-11-14T08:33:41+08:00",
+        "end": "2026-11-14T08:33:45+08:00",
+        "key_error": false,
+        "pytest_summary": [
+          "1 passed in 2.80s"
+        ],
+        "synchronized": false,
+        "submitted": false,
+        "numerical": {
+          "elements": 65536,
+          "max_abs": 1.543387770652771e-05,
+          "threshold": 0.0003,
+          "outside": 0
+        }
+      },
+      "host-2": {
+        "exit_code": 0,
+        "start": "2026-11-14T08:33:45+08:00",
+        "end": "2026-11-14T08:33:48+08:00",
+        "key_error": false,
+        "pytest_summary": [
+          "1 passed in 2.79s"
+        ],
+        "synchronized": false,
+        "submitted": false,
+        "numerical": {
+          "elements": 65536,
+          "max_abs": 1.543387770652771e-05,
+          "threshold": 0.0003,
+          "outside": 0
+        }
+      },
+      "linspace": {
+        "exit_code": 124,
+        "start": "2026-11-14T08:33:48+08:00",
+        "end": "2026-11-14T08:34:05+08:00",
+        "key_error": false,
+        "pytest_summary": [],
+        "synchronized": false,
+        "submitted": true
+      },
+      "silu": {
+        "exit_code": 124,
+        "start": "2026-11-14T08:34:05+08:00",
+        "end": "2026-11-14T08:34:23+08:00",
+        "key_error": false,
+        "pytest_summary": [],
+        "synchronized": false,
+        "submitted": true
+      }
+    }
+  }
+}

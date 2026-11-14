@@ -1,0 +1,17 @@
+P800 driver excerpts, 2026-11-14 (timestamps UTC+08:00).
+2026-11-14T08:33:02.423615+08:00 card 7  _ZN14xpukernel_xpu38linspaceIfffEEvPT_PKT0_PKT1_ffl .ncl=12 .nco=64
+2026-11-14T08:33:02.424507+08:00 card 7  cluster[1]: ..reason[29] task timeout
+2026-11-14T08:33:03.583399+08:00 card 3  _ZN14xpukernel_xpu38linspaceIfffEEvPT_PKT0_PKT1_ffl .ncl=12 .nco=64
+2026-11-14T08:33:03.584182+08:00 card 3  cluster[0]: ..reason[29] task timeout
+2026-11-14T08:33:41.735429+08:00 card 7  _ZN14xpukernel_xpu38linspaceIfffEEvPT_PKT0_PKT1_ffl .ncl=12 .nco=64
+2026-11-14T08:33:41.736418+08:00 card 7  cluster[1]: ..reason[29] task timeout
+2026-11-14T08:33:42.895505+08:00 card 3  _ZN14xpukernel_xpu38linspaceIfffEEvPT_PKT0_PKT1_ffl .ncl=12 .nco=64
+2026-11-14T08:33:42.896159+08:00 card 3  cluster[0]: ..reason[29] task timeout
+2026-11-14T08:34:05.927619+08:00 card 7  _ZN14xpukernel_xpu38linspaceIfffEEvPT_PKT0_PKT1_ffl .ncl=12 .nco=64
+2026-11-14T08:34:05.928591+08:00 card 7  cluster[1]: ..reason[29] task timeout
+2026-11-14T08:34:07.087321+08:00 card 3  _ZN14xpukernel_xpu38linspaceIfffEEvPT_PKT0_PKT1_ffl .ncl=12 .nco=64
+2026-11-14T08:34:07.087793+08:00 card 3  cluster[0]: ..reason[29] task timeout
+2026-11-14T08:34:23.063504+08:00 card 7  _ZN14xpukernel_xpu38silu_fwdIfEEvPKT_PS1_l .ncl=12 .nco=64
+2026-11-14T08:34:23.063891+08:00 card 7  cluster[1]: ..reason[29] task timeout
+2026-11-14T08:34:24.223455+08:00 card 3  _ZN14xpukernel_xpu38silu_fwdIfEEvPKT_PS1_l .ncl=12 .nco=64
+2026-11-14T08:34:24.223744+08:00 card 3  cluster[0]: ..reason[29] task timeout

@@ -1,0 +1,6 @@
+before host-1 1 failed in 2.14s
+before host-2 1 failed in 2.15s
+after host-1 1 passed in 2.85s
+{"elements": 65536, "max_abs": 1.543387770652771e-05, "threshold": 0.0003, "outside": 0}
+after host-2 1 passed in 2.87s
+{"elements": 65536, "max_abs": 1.543387770652771e-05, "threshold": 0.0003, "outside": 0}
