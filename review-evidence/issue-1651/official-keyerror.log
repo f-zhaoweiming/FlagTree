@@ -1,0 +1,30 @@
+# Diagnostic excerpt; test filename normalized for publication.
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____________________ test_sdnn_silu_lut_with_host_reference ____________________
+test_silu_host_input.py:10: in test_sdnn_silu_lut_with_host_reference
+    _silu_kernel[(8,)](src, out, BLOCK=8192, num_warps=8, num_stages=1, is_sdnn=True)
+/rt/triton/runtime/jit.py:837: in launch
+    return fallback(*args, **kwargs)
+/rt/triton/runtime/jit.py:807: in <lambda>
+    fallback = lambda *args, **kwargs: self.run(grid=grid, warmup=False, *args, **kwargs)  # noqa: E731
+/rt/triton/runtime/jit.py:752: in run
+    kernel = self._do_compile(key, signature, device, constexprs, options, attrs, warmup)
+/rt/triton/runtime/jit.py:979: in _do_compile
+    kernel = self.compile(src, target=target, options=options.__dict__)
+/rt/triton/compiler/compiler.py:428: in compile
+    cur_module = run_stage(ext, compile_ir, cur_module)
+/rt/triton/compiler/compiler.py:349: in run_stage
+    next_module = compile_ir(module, metadata)
+/rt/triton/backends/xpu/compiler.py:892: in <lambda>
+    stages["llir"] = lambda src, metadata: self.make_llir(src, metadata, options)
+/rt/triton/backends/xpu/compiler.py:652: in make_llir
+    XPUBackend.make_ewtable(mod, metadata, opt)
+/rt/triton/backends/xpu/compiler.py:641: in make_ewtable
+    table = get_range_table(fn, info.dtype, info.mode, info.size, info.min, info.interval)
+/rt/triton/backends/xpu/compiler.py:589: in get_range_table
+    fn = {
+E   KeyError: 'tt.silu'
+=========================== short test summary info ============================
+FAILED test_silu_host_input.py::test_sdnn_silu_lut_with_host_reference - KeyEr...
+1 failed in 2.10s
