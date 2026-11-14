@@ -11,6 +11,7 @@ endif()
 
 add_triton_library(TritonTransforms
   Combine.cpp
+  EliminateIntermediateMemory.cpp
   LoopAwareCSE.cpp
   LoopInvariantCodeMotion.cpp
   LoopPeeling.cpp

@@ -63,6 +63,26 @@ void init_triton_passes_common(py::module &&m) {
 
 void init_triton_passes_ttir(py::module &&m) {
   using namespace mlir::triton;
+  m.def(
+      "add_eliminate_intermediate_memory",
+      [](mlir::PassManager &pm, const std::vector<unsigned> &privateArguments,
+         bool assumeDisjointArguments, int64_t numCTAs, int64_t clusterSize,
+         unsigned maxTranscendentalDepth, unsigned maxTranscendentalWork) {
+        TritonEliminateIntermediateMemoryOptions options;
+        options.privateArguments.append(privateArguments.begin(),
+                                        privateArguments.end());
+        options.assumeDisjointArguments = assumeDisjointArguments;
+        options.numCTAs = numCTAs;
+        options.clusterSize = clusterSize;
+        options.maxTranscendentalDepth = maxTranscendentalDepth;
+        options.maxTranscendentalWork = maxTranscendentalWork;
+        pm.addPass(createTritonEliminateIntermediateMemory(options));
+      },
+      py::arg("pm"), py::arg("private_arguments") = std::vector<unsigned>{},
+      py::kw_only(), py::arg("assume_disjoint_arguments") = false,
+      py::arg("num_ctas") = 1, py::arg("cluster_size") = 1,
+      py::arg("max_transcendental_depth") = 8,
+      py::arg("max_transcendental_work") = 4096);
   ADD_PASS_WRAPPER_0("add_combine", createTritonCombineOps);
   ADD_PASS_WRAPPER_0("add_reorder_broadcast", createTritonReorderBroadcast);
   ADD_PASS_WRAPPER_0("add_rewrite_tensor_pointer",

@@ -306,9 +306,15 @@ struct NamedBarrierWaitOpConversion
   LogicalResult
   matchAndRewrite(triton::nvidia_gpu::NamedBarrierWaitOp op, OpAdaptor adaptor,
                   ConversionPatternRewriter &rewriter) const override {
+    // Persistent dataflow groups reach this barrier from different control
+    // paths. PTX's aligned form requires CTA-uniform execution of the same
+    // instruction; the counted, unaligned form synchronizes these groups.
+    StringRef intrinsic = op->hasAttr("tle.tile_dataflow.full_group_sync")
+                              ? "llvm.nvvm.barrier.cta.sync.count"
+                              : "llvm.nvvm.barrier.cta.sync.aligned.count";
     LLVM::createLLVMIntrinsicCallOp(
-        rewriter, op.getLoc(), "llvm.nvvm.barrier.cta.sync.aligned.count",
-        TypeRange{}, {adaptor.getBar(), adaptor.getNumThreads()});
+        rewriter, op.getLoc(), intrinsic, TypeRange{},
+        {adaptor.getBar(), adaptor.getNumThreads()});
     rewriter.eraseOp(op);
     return success();
   }

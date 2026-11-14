@@ -309,6 +309,11 @@ OpFoldResult BroadcastOp::fold(FoldAdaptor adaptor) {
 
   if (auto denseElemsAttr = dyn_cast<SplatElementsAttr>(value)) {
     auto shapedType = cast<ShapedType>(getType());
+    // A loop-carried splat can reach a broadcast with a different element
+    // type (e.g. an f32 -inf initialiser fed through an i32 index path).
+    // resizeSplat asserts on that mismatch, so bail out of the fold instead.
+    if (denseElemsAttr.getElementType() != shapedType.getElementType())
+      return {};
     return denseElemsAttr.resizeSplat(shapedType);
   }
   return {};

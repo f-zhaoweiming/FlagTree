@@ -11,6 +11,7 @@
 #include "triton/Analysis/VectorizabilityAnalysis.h"
 #include "triton/Dialect/TritonXPU/IR/Dialect.h"
 #include "triton/Dialect/TritonXPU/Transforms/Passes.h"
+#include "triton/Dialect/TritonXPU/Transforms/ReconcileLayoutUtils.h"
 #include "llvm/Support/raw_ostream.h"
 #include "mlir/Transforms/GreedyPatternRewriteDriver.h"
 #include <map>
@@ -2711,11 +2712,6 @@ struct TritonXPUVectorizePass
       mod.walk([&](triton::xpu::ConvertLayoutOp cvtOp) { cvtOpclean(cvtOp); });
     }
 
-    // Div -> Mul
-    if (Div2Mul) {
-      mod.walk([&](triton::xpu::VvdivFOp vvdivFOp) { VvdivToVvmul(vvdivFOp); });
-    }
-
     // SV Optimization offline
     if (SV_Fusion) {
       // SVOptimization For LoadOp
@@ -2775,11 +2771,24 @@ struct TritonXPUVectorizePass
       Value expVal = nullptr;
       auto addLhsOp = addOp.getLhs().getDefiningOp();
       auto addRhsOp = addOp.getRhs().getDefiningOp();
+      // The "1.0" added to exp may be a different VConstOp than the divisor's
+      // numerator; compare splat values instead of op pointers.
+      auto isSplatOne = [](Value v) -> bool {
+        auto def = v.getDefiningOp();
+        if (!def)
+          return false;
+        if (auto vc = dyn_cast<triton::xpu::VConstOp>(def)) {
+          if (auto dense = dyn_cast<DenseFPElementsAttr>(vc.getValue())) {
+            return dense.isSplat() && dense.getSplatValue<APFloat>().convertToFloat() == 1.0f;
+          }
+        }
+        return false;
+      };
       if (isa_and_nonnull<triton::xpu::VExpFOp>(addLhsOp) &&
-          addRhsOp == lhsOp) {
+          isSplatOne(addOp.getRhs())) {
         expVal = addOp.getLhs();
       } else if (isa_and_nonnull<triton::xpu::VExpFOp>(addRhsOp) &&
-                 addLhsOp == lhsOp) {
+                 isSplatOne(addOp.getLhs())) {
         expVal = addOp.getRhs();
       }
       if (!expVal)
@@ -2791,9 +2800,25 @@ struct TritonXPUVectorizePass
       // We pass the exp's input directly (which is -x*log2e) to VSigmoidFOp.
       auto expOp = expVal.getDefiningOp<triton::xpu::VExpFOp>();
       Value negXLog2e = expOp.getValue();
-      // Verify it's from svsubf (negation pattern)
-      if (!negXLog2e.getDefiningOp<triton::xpu::SvsubFOp>())
-        return;
+      // Verify it's a negation of x*log2e. The vendor pattern expects the
+      // scalar-vector form svsubf(0, x*log2e); a full-vector `-x` (the common
+      // case in elementwise kernels) stays as vvsubf(0, x*log2e) after SV
+      // optimization, so accept that form too with a zero splat LHS.
+      if (!negXLog2e.getDefiningOp<triton::xpu::SvsubFOp>()) {
+        auto vsub = negXLog2e.getDefiningOp<triton::xpu::VvsubFOp>();
+        if (!vsub)
+          return;
+        auto lhsDef = vsub.getLhs().getDefiningOp();
+        bool lhsIsZero = false;
+        if (auto vconst = dyn_cast_or_null<triton::xpu::VConstOp>(lhsDef)) {
+          if (auto dense = dyn_cast<DenseFPElementsAttr>(vconst.getValue())) {
+            lhsIsZero = dense.isSplat() &&
+                        dense.getSplatValue<APFloat>().convertToFloat() == 0.0f;
+          }
+        }
+        if (!lhsIsZero)
+          return;
+      }
 
       // Pattern matched! Replace with VSigmoidFOp
       // VSigmoidFOp input is -x*log2e (ready for exp2)
@@ -2808,6 +2833,11 @@ struct TritonXPUVectorizePass
         expOp.erase();
       LLVM_DEBUG(llvm::dbgs() << "[Vectorization]: Sigmoid Fusion applied.\n");
     });
+
+    // Div -> Mul
+    if (Div2Mul) {
+      mod.walk([&](triton::xpu::VvdivFOp vvdivFOp) { VvdivToVvmul(vvdivFOp); });
+    }
 
     // MAC Optimization offline
     if (VMAC_Fusion) {
@@ -2835,6 +2865,11 @@ struct TritonXPUVectorizePass
       if (failed(applyPatternsGreedily(mod, std::move(patterns))))
         signalPassFailure();
     }
+
+    // Vectorization retypes tensor ops to vector<16 x T>; a value that crosses a
+    // loop-carried boundary can keep a tensor encoding while its sibling was
+    // retyped, so reconcile once more before the verifier runs.
+    reconcileClusterLayouts(mod);
 
     LLVM_DEBUG(llvm::dbgs() << __FILE__ << " END\n" << mod << "\n");
   }

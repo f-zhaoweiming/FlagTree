@@ -1,6 +1,6 @@
 from triton.backends.compiler import BaseBackend, GPUTarget, Language
 from triton._C.libtriton import ir, passes, llvm, nvidia
-from triton._C.libtriton import tle
+from triton._C import libtriton
 from triton import knobs
 from triton.runtime.errors import PTXASError
 from triton.runtime._distributed import DistributedRtContext
@@ -17,7 +17,13 @@ import os
 import subprocess
 from pathlib import Path
 from triton._common_ir import ENABLED as COMMON_IR_ENABLED
-from .distributed import Distributed
+
+# TLE is optional; core Triton compilation also supports extension-free builds.
+tle = getattr(libtriton, "tle", None)
+
+
+def _uses_tle(options):
+    return tle is not None
 
 
 def min_dot_size(target: GPUTarget):
@@ -120,6 +126,11 @@ class CUDAOptions:
     ptx_options: Optional[str] = knobs.nvidia.ptxas_options
     ir_override: Optional[str] = None  # filename of a user-defined IR (*.{ttir|ttgir|llir|ptx})
     enable_fp_fusion: bool = True
+    enable_tile_dataflow: bool = False
+    tile_dataflow_force: bool = False
+    tile_dataflow_min_speedup: float = 1.1
+    tile_dataflow_max_partitions: int = 4
+    tile_dataflow_coalesce: bool = True
     enable_reflect_ftz: bool = True  # ftz in libdevice
     launch_cooperative_grid: bool = False
     launch_pdl: bool = False
@@ -142,20 +153,23 @@ class CUDAOptions:
             extern_libs['libdevice'] = knobs.nvidia.libdevice_path or str(default_libdir / 'libdevice.10.bc')
 
         # flagtree tle raw: libnvshmem_device when @dialect(library="nvshmem") enabled in utils.
-        try:
-            from triton.experimental.tle.raw.nvshmem.utils import (
-                is_nvshmem_device_bc_enabled,
-                resolve_nvshmem_device_bitcode,
-            )
-            if is_nvshmem_device_bc_enabled():
-                nvshmem_bc = resolve_nvshmem_device_bitcode(arch=self.arch)
-                if nvshmem_bc is not None:
-                    extern_libs.update({"libnvshmem_device": str(nvshmem_bc)})
-        except Exception:
-            pass
+        if _uses_tle(self):
+            try:
+                from triton.experimental.tle.raw.nvshmem.utils import (
+                    is_nvshmem_device_bc_enabled,
+                    resolve_nvshmem_device_bitcode,
+                )
+                if is_nvshmem_device_bc_enabled():
+                    nvshmem_bc = resolve_nvshmem_device_bitcode(arch=self.arch)
+                    if nvshmem_bc is not None:
+                        extern_libs.update({"libnvshmem_device": str(nvshmem_bc)})
+            except Exception:
+                pass
 
         # flagtree tle distributed: Add distributed bitcode library(libflagcx_device.bc) if distributed features are enabled.
-        extern_libs.update(Distributed().get_extern_libs())
+        if _uses_tle(self):
+            from .distributed import Distributed
+            extern_libs.update(Distributed().get_extern_libs())
         object.__setattr__(self, 'extern_libs', tuple(extern_libs.items()))
         assert self.num_warps > 0 and (self.num_warps & (self.num_warps - 1)) == 0, \
                "num_warps must be a power of 2"
@@ -190,12 +204,18 @@ class CUDABackend(BaseBackend):
         self.binary_ext = "cubin"
 
     def parse_options(self, opts) -> Any:
+        for name in opts:
+            if name.startswith("kernel_call_fusion"):
+                raise ValueError(f"{name} belongs to the removed kernel-call fusion pass; "
+                                 "use triton.experimental.fusion.compile on an operator graph")
         # Enable debug mode for ConSan, so device-side assertions are not optimized out
         if "instrumentation_mode" in opts and opts["instrumentation_mode"] == "consan":
             opts["debug"] = True
 
         args = {'arch': knobs.runtime.override_arch or f"sm{self.target.arch}"}
         args.update({k: opts[k] for k in CUDAOptions.__dataclass_fields__.keys() if k in opts if opts[k] is not None})
+        if args.get("enable_tile_dataflow") and tle is None:
+            raise ValueError("Tile-dataflow scheduling requires TLE")
         capability = int(self._parse_arch(args["arch"]))
 
         # begin flagtree tle
@@ -206,6 +226,8 @@ class CUDABackend(BaseBackend):
             raise ValueError(f"cluster_dims values must be positive ints, got {cluster_dims!r}")
         cluster_dims = tuple(cluster_dims)
         args["cluster_dims"] = cluster_dims
+        if tle is None and cluster_dims != (1, 1, 1):
+            raise ValueError("Explicit cluster_dims require a TLE-enabled compiler; use core num_ctas instead")
         # end flagtree tle
 
         if args.get("num_ctas", 1) > 1 and capability < 90:
@@ -237,6 +259,8 @@ class CUDABackend(BaseBackend):
         return CUDAOptions(**args)
 
     def pack_metadata(self, metadata):
+        if tle is None:
+            return metadata.num_warps, metadata.num_ctas, metadata.shared
         cluster_dims = getattr(metadata, "cluster_dims", (1, 1, 1))
         if not isinstance(cluster_dims, (tuple, list)) or len(cluster_dims) != 3:
             cluster_dims = (1, 1, 1)
@@ -273,7 +297,7 @@ class CUDABackend(BaseBackend):
     @staticmethod
     def make_ttir(mod, metadata, opt, capability):
         # flagtree tle raw
-        kernel_init_hooks = mod.get_operation().get_str_attr("tle.raw.kernel_init_hooks")
+        kernel_init_hooks = mod.get_operation().get_str_attr("tle.raw.kernel_init_hooks") if _uses_tle(opt) else None
         metadata["kernel_init_hooks"] = kernel_init_hooks.split(",") if kernel_init_hooks else []
 
         pm = ir.pass_manager(mod.context)
@@ -291,7 +315,7 @@ class CUDABackend(BaseBackend):
         passes.common.add_symbol_dce(pm)
         passes.ttir.add_loop_unroll(pm)
         # flagtree: Plan logical roots after TTIR cleanup and before assigning register layouts.
-        if hasattr(tle.passes, "add_plan_logical_domains"):
+        if _uses_tle(opt) and hasattr(tle.passes, "add_plan_logical_domains"):
             # Logical copy planning needs the CTA warp count before TTGPU conversion.
             mod.set_attr("ttg.num-warps", ir.builder(mod.context).get_int32_attr(opt.num_warps))
             tle.passes.add_plan_logical_domains(pm)
@@ -310,24 +334,31 @@ class CUDABackend(BaseBackend):
         # Keep the source pointer DAG visible in TTIR, just like the device
         # remote path. Fuse node transfers only at the TTIR -> TTGIR boundary,
         # while pointer provenance and original argument ordinals are intact.
-        tle.passes.add_fuse_node_remote_transfers(pm)
+        if _uses_tle(opt):
+            tle.passes.add_fuse_node_remote_transfers(pm)
         # flagtree tle distributed
         if DistributedRtContext().is_lite_mode:
+            if not _uses_tle(opt):
+                raise ValueError("Distributed TLE launches require a TLE-enabled compiler")
             tle.passes.add_params_for_distribution(pm)
         passes.ttir.add_convert_to_ttgpuir(pm, f"cuda:{capability}", opt.num_warps, 32, opt.num_ctas)
         # flagtree tle raw
-        tle.raw_passes.add_tle_convert_arg_to_memdesc(pm)
-        tle.raw_passes.add_tle_remove_redundant_copy(pm)
+        if _uses_tle(opt):
+            tle.raw_passes.add_tle_convert_arg_to_memdesc(pm)
+            tle.raw_passes.add_tle_remove_redundant_copy(pm)
         # flagtree tle: lower tle.extract_tile
-        tle.passes.add_lower_extract_tile(pm)
+        if _uses_tle(opt):
+            tle.passes.add_lower_extract_tile(pm)
         # flagtree tle: lower tle.insert_tile
-        tle.passes.add_lower_insert_tile(pm)
+        if _uses_tle(opt):
+            tle.passes.add_lower_insert_tile(pm)
         # Canonicalize static gmem->local_ptr(shared) chunk copies after TTIR
         # has been converted to TTGPU encodings, but before local-pointer
         # lowering obscures the load->store pattern. This rewrites the
         # source-level chunk staging into direct async copies targeting
         # memdesc subviews of the final shared operand buffer.
-        tle.passes.add_optimize_local_pointer_async_stores(pm)
+        if _uses_tle(opt):
+            tle.passes.add_optimize_local_pointer_async_stores(pm)
         # flagtree pass: fold an ordered join/transpose/reshape K concatenation
         # into a single op before any layout is assigned, so the operand
         # encodings are chosen for one wide operand. Left as a join chain, the
@@ -343,15 +374,18 @@ class CUDABackend(BaseBackend):
         nvidia.passes.ttnvgpuir.add_plan_cta(pm)
         passes.ttgpuir.add_remove_layout_conversions(pm, knobs.nvidia.rlc_enhance)
         passes.ttgpuir.add_optimize_thread_locality(pm)
-        tle.passes.add_early_assign_memory_space(pm)
+        if _uses_tle(opt):
+            tle.passes.add_early_assign_memory_space(pm)
         # begin flagtree tle
-        tle.passes.add_select_encodings(pm)
-        tle.passes.add_insert_local_pointer_barriers(pm)
-        tle.passes.add_optimize_local_pointer_loads(pm)
-        tle.passes.add_optimize_local_pointer_stores(pm)
+        if _uses_tle(opt):
+            tle.passes.add_select_encodings(pm)
+            tle.passes.add_insert_local_pointer_barriers(pm)
+            tle.passes.add_optimize_local_pointer_loads(pm)
+            tle.passes.add_optimize_local_pointer_stores(pm)
         # end flagtree tle
         passes.ttgpuir.add_accelerate_matmul(pm)
-        tle.passes.add_lower_wgmma(pm)
+        if _uses_tle(opt):
+            tle.passes.add_lower_wgmma(pm)
         # flagtree pass: merge segmented dot chains whose operands are proven
         # ordered slices of one wider operand. Runs after accelerate-matmul so
         # the mma layout is known, and before remove-layout-conversions so the
@@ -364,23 +398,28 @@ class CUDABackend(BaseBackend):
         # not see, so match once more over the settled register layouts.
         if hasattr(passes.ttgpuir, "add_merge_segmented_dot"):
             passes.ttgpuir.add_merge_segmented_dot(pm)
-        tle.passes.add_promote_local_store_staging(pm)
+        if _uses_tle(opt):
+            tle.passes.add_promote_local_store_staging(pm)
         nvidia.passes.ttnvgpuir.add_optimize_descriptor_encoding(pm)
         passes.ttir.add_loop_aware_cse(pm)
-        tle.passes.add_lower_barriers(pm)
+        if _uses_tle(opt):
+            tle.passes.add_lower_barriers(pm)
         if capability // 10 in [8, 9]:
             passes.ttgpuir.add_fuse_nested_loops(pm)
             passes.common.add_canonicalizer(pm)
             passes.ttir.add_triton_licm(pm)
             passes.common.add_canonicalizer(pm)
             passes.ttgpuir.add_combine_tensor_select_and_if(pm)
-            tle.passes.add_lower_pipe_to_nvws(pm)
+            if _uses_tle(opt):
+                tle.passes.add_lower_pipe_to_nvws(pm)
             nvidia.passes.hopper.add_hopper_warpspec(pm, opt.num_stages, dump_enabled)
-            tle.passes.add_downgrade_invalid_async_copy(pm)
+            if _uses_tle(opt):
+                tle.passes.add_downgrade_invalid_async_copy(pm)
             passes.ttgpuir.add_assign_latencies(pm, opt.num_stages)
             passes.ttgpuir.add_schedule_loops(pm)
-            tle.passes.add_tile_style_pipeline_schedule(pm)
-            tle.passes.add_materialize_tile_style_pipeline(pm)
+            if _uses_tle(opt):
+                tle.passes.add_tile_style_pipeline_schedule(pm)
+                tle.passes.add_materialize_tile_style_pipeline(pm)
             passes.ttgpuir.add_pipeline(pm, opt.num_stages, dump_enabled)
         elif capability // 10 >= 10:
             passes.ttgpuir.add_fuse_nested_loops(pm)
@@ -389,7 +428,8 @@ class CUDABackend(BaseBackend):
             passes.ttgpuir.add_optimize_accumulator_init(pm)
             passes.ttgpuir.add_hoist_tmem_alloc(pm, False)
             nvidia.passes.ttnvgpuir.add_promote_lhs_to_tmem(pm)
-            tle.passes.add_downgrade_invalid_async_copy(pm)
+            if _uses_tle(opt):
+                tle.passes.add_downgrade_invalid_async_copy(pm)
             passes.ttgpuir.add_assign_latencies(pm, opt.num_stages)
             passes.ttgpuir.add_schedule_loops(pm)
             passes.ttgpuir.add_warp_specialize(pm, opt.num_stages)
@@ -406,26 +446,26 @@ class CUDABackend(BaseBackend):
         passes.ttgpuir.add_prefetch(pm)
         passes.ttgpuir.add_optimize_dot_operands(pm, capability >= 80)
         passes.ttgpuir.add_coalesce_async_copy(pm)
-        tle.passes.add_downgrade_invalid_async_copy(pm)
+        if _uses_tle(opt):
+            tle.passes.add_downgrade_invalid_async_copy(pm)
         nvidia.passes.ttnvgpuir.add_optimize_tmem_layouts(pm)
         if capability // 10 >= 9:
             # flagtree tle: Apply TLE TMA copy lowering before standard NVIDIA TMA lowering
-            tle.passes.add_lower_tma_copy(pm)
-            tle.passes.add_schedule_tma_store_sync(pm)
+            if _uses_tle(opt):
+                tle.passes.add_lower_tma_copy(pm)
+                tle.passes.add_schedule_tma_store_sync(pm)
             nvidia.passes.ttnvgpuir.add_tma_lowering(pm)
         passes.ttgpuir.add_remove_layout_conversions(pm, knobs.nvidia.rlc_enhance)
         nvidia.passes.ttnvgpuir.add_interleave_tmem(pm)
         passes.ttgpuir.add_reduce_data_duplication(pm)
         passes.ttgpuir.add_reorder_instructions(pm)
         # flagtree tle: Lowering load with tt.load.async attribute
-        tle.passes.add_lower_async_load(pm)
+        if _uses_tle(opt):
+            tle.passes.add_lower_async_load(pm)
         passes.ttir.add_loop_aware_cse(pm)
         passes.common.add_symbol_dce(pm)
         nvidia.passes.ttnvgpuir.add_fence_insertion(pm, capability)
         nvidia.passes.ttnvgpuir.add_lower_mma(pm)
-        # Materialize physical named barrier ids in the user-visible TTGIR
-        # after warp-specialization structure is known.
-        tle.passes.add_allocate_named_barriers(pm)
         passes.common.add_sccp(pm)
         passes.common.add_cse(pm)
         passes.common.add_canonicalizer(pm)
@@ -435,8 +475,19 @@ class CUDABackend(BaseBackend):
         if hasattr(passes.ttgpuir, "add_expand_concat_dot_operand"):
             passes.ttgpuir.add_expand_concat_dot_operand(pm)
 
+        if opt.enable_tile_dataflow:
+            tle.passes.add_tile_dataflow_schedule(pm, opt.tile_dataflow_force, opt.tile_dataflow_min_speedup,
+                                                 opt.tile_dataflow_max_partitions, opt.tile_dataflow_coalesce)
+
+        # Reserve IDs for every warp group, including groups introduced by
+        # tile-dataflow scheduling, before assigning user named barriers.
+        if _uses_tle(opt):
+            tle.passes.add_allocate_named_barriers(pm)
+
         pm.run(mod, 'make_ttgir')
-        metadata["tle_node_buffer_bindings"] = mod.get_operation().get_str_attr("tle.node_buffer_bindings") or ""
+        if _uses_tle(opt):
+            metadata["tile_dataflow_cost_model"] = mod.get_operation().get_str_attr("tle.tile_dataflow.cost_model") or ""
+            metadata["tle_node_buffer_bindings"] = mod.get_operation().get_str_attr("tle.node_buffer_bindings") or ""
         # begin flagtree tle
         # launch_cooperative_grid may be toggled during frontend semantic lowering
         # (e.g. device_mesh + distributed_barrier grid mode), so refresh it here.
@@ -462,7 +513,12 @@ class CUDABackend(BaseBackend):
         passes.gluon.add_canonicalizer(pm)
         passes.ttgpuir.add_combine_tensor_select_and_if(pm)
 
+        if options.enable_tile_dataflow:
+            tle.passes.add_tile_dataflow_schedule(pm, options.tile_dataflow_force, options.tile_dataflow_min_speedup,
+                                                 options.tile_dataflow_max_partitions, options.tile_dataflow_coalesce)
+
         pm.run(mod, 'gluon_to_ttgir')
+        metadata["tile_dataflow_cost_model"] = mod.get_operation().get_str_attr("tle.tile_dataflow.cost_model") or ""
         metadata["tensordesc_meta"] = mod.get_tensordesc_metadata()
         return mod
 
@@ -487,16 +543,19 @@ class CUDABackend(BaseBackend):
         passes.ttgpuir.add_allocate_global_scratch_memory(pm)
         nvidia.passes.ttnvgpuir.add_proxy_fence_insertion(pm, capability)
         # flagtree tle raw: Materialize deferred tle_raw sources before inlining DSL regions.
-        from .deferred_raw import (
-            finish_deferred_raw_materialize,
-            deferred_raw_materialize,
-        )
-        deferred_raw_materialize(pm, mod)
+        if _uses_tle(options):
+            from .deferred_raw import (
+                finish_deferred_raw_materialize,
+                deferred_raw_materialize,
+            )
+            deferred_raw_materialize(pm, mod)
         # Inline TLE DSL regions before TritonGPU->LLVM lowering so no
         # `tle.dsl_region` op survives into the conversion pipeline.
-        tle.raw_passes.add_tle_dsl_region_inline(pm)
+        if _uses_tle(options):
+            tle.raw_passes.add_tle_dsl_region_inline(pm)
         # Keep this as an idempotent guard for externally provided TTGIR.
-        tle.passes.add_allocate_named_barriers(pm)
+        if _uses_tle(options):
+            tle.passes.add_allocate_named_barriers(pm)
         # instrumentation point here so we can override IRs above (e.g., ttir and ttgir)
         if CUDABackend.instrumentation:
             CUDABackend.instrumentation.patch("ttgpuir_to_llvmir", pm, mod.context)
@@ -517,7 +576,8 @@ class CUDABackend(BaseBackend):
             CUDABackend.instrumentation.patch("llvmir_to_llvm", pm, mod.context)
 
         pm.run(mod, 'make_llir')
-        finish_deferred_raw_materialize()
+        if _uses_tle(options):
+            finish_deferred_raw_materialize()
 
         if knobs.compilation.dump_ir_extract_di_local_variables:
             # comments below on why separate it

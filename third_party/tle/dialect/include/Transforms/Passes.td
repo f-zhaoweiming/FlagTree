@@ -194,6 +194,47 @@ def TritonTlePromoteLocalStoreStaging
                            "mlir::triton::tle::TleDialect"];
 }
 
+def TritonTleTileDataflowSchedule
+    : Pass<"triton-tle-tile-dataflow-schedule", "mlir::ModuleOp"> {
+  let summary = "schedule independent tile dataflow branches on warp groups";
+  let description = [{
+    Build a tile dataflow graph from SSA and conservative RAW/WAR/WAW memory
+    dependencies. Identify independent straight-line operand branches before
+    a join, and materialize their execution with ttg.warp_specialize. Tensor
+    captures and worker results use shared-memory communication. Existing
+    allocation, membar analysis and warp-specialize lowering own storage and
+    synchronization; this pass does not emit hardware barriers directly.
+
+    Unknown effects, control flow, volatile accesses and asynchronous operations
+    are scheduling boundaries. The scheduler selects multi-branch antichains and successive fork/join waves
+    across the block DAG in a single-CTA NVIDIA kernel. It does not recognize named operator chains,
+    fuse separate Python launches, or pipeline loop-carried dependencies.
+  }];
+  let options = [
+    Option<"minBranchOps", "min-branch-ops", "unsigned", "2",
+           "Minimum tensor work operations in each branch">,
+    Option<"maxPartitions", "max-partitions", "unsigned", "4",
+           "Maximum simultaneous branches, also limited by CTA thread capacity">,
+    Option<"maxSharedBytes", "max-shared-bytes", "unsigned", "32768",
+           "Maximum additional shared-memory bytes for one fork">,
+    Option<"forceSchedule", "force", "bool", "false",
+           "Bypass profitability, but never dependency or capture legality">,
+    Option<"coalesceWaves", "coalesce-waves", "bool", "true",
+           "Keep compatible successive waves in persistent worker groups">,
+    Option<"minSpeedup", "min-speedup", "double", "1.1",
+           "Required saving as (margin - 1) times intrinsic wave cost, plus whole-function resource losses">,
+    Option<"syncCost", "sync-cost", "double", "128.0",
+           "Fork/join and worker dispatch cost in weighted instruction units">,
+    Option<"sharedBandwidth", "shared-bandwidth", "double", "128.0",
+           "Shared-memory bytes transferred per weighted instruction unit">,
+    Option<"overlap", "overlap", "double", "0.5",
+           "Fraction of smaller branch work hidden by concurrent execution">
+  ];
+  let dependentDialects = ["mlir::arith::ArithDialect",
+                           "mlir::triton::gpu::TritonGPUDialect",
+                           "mlir::triton::TritonDialect"];
+}
+
 def TritonTleTileStylePipelineSchedule
     : Pass<"triton-tle-tile-style-pipeline-schedule", "mlir::ModuleOp"> {
   let summary =

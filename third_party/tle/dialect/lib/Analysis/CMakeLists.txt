@@ -2,6 +2,8 @@ add_triton_library(TritonTLEAnalysis
   AxisInfoExt.cpp
   TleMemoryEffectAnalysis.cpp
   TlePipeEffectAnalysis.cpp
+  TileDataflowGraph.cpp
+  TileDataflowResources.cpp
 
   DEPENDS
   TritonGPUTableGen

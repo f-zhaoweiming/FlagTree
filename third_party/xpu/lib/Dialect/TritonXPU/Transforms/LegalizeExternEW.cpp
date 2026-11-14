@@ -84,6 +84,31 @@ struct FastDividefToArithDivfPattern
   }
 };
 
+// exp2(x) -> exp(x * ln2)
+//
+// The XPU backend maps math::ExpOp onto the ISA instruction exp.f.rn, which
+// computes e^x (see the note above). math::Exp2Op has no dedicated lowering of
+// its own, so it also ends up on exp.f.rn and returns e^x instead of 2^x --
+// tl.exp2 is wrong on this backend. Rewriting exp2(x) as exp(x * ln2) restores
+// 2^x semantics while still using the hardware instruction.
+struct Exp2ToExpScaledPattern : public OpRewritePattern<math::Exp2Op> {
+  using OpRewritePattern::OpRewritePattern;
+  LogicalResult matchAndRewrite(math::Exp2Op op,
+                                PatternRewriter &rewriter) const override {
+    Value x = op.getOperand();
+    auto rt = dyn_cast<RankedTensorType>(x.getType());
+    if (!rt || !rt.getElementType().isF32())
+      return failure();
+    auto loc = op.getLoc();
+    Attribute ln2Attr = DenseElementsAttr::get(
+        rt, rewriter.getF32FloatAttr(0.6931471805599453f));
+    auto ln2 = rewriter.create<arith::ConstantOp>(loc, cast<TypedAttr>(ln2Attr));
+    auto scaled = rewriter.create<arith::MulFOp>(loc, rt, x, ln2);
+    rewriter.replaceOpWithNewOp<math::ExpOp>(op, scaled);
+    return success();
+  }
+};
+
 } // namespace
 
 struct TritonXPULegalizeExternEW
@@ -95,8 +120,8 @@ struct TritonXPULegalizeExternEW
   void runOnOperation() override {
     MLIRContext *context = &getContext();
     RewritePatternSet patterns(context);
-    patterns.add<FastExpfToMathExpPattern, FastDividefToArithDivfPattern>(
-        context);
+    patterns.add<FastExpfToMathExpPattern, FastDividefToArithDivfPattern,
+                 Exp2ToExpScaledPattern>(context);
     if (failed(applyPatternsGreedily(getOperation(), std::move(patterns)))) {
       signalPassFailure();
     }

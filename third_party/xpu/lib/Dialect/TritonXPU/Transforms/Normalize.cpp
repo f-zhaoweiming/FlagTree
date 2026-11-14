@@ -26,6 +26,7 @@
 #include "triton/Analysis/VectorizabilityAnalysis.h"
 #include "triton/Dialect/TritonXPU/IR/Dialect.h"
 #include "triton/Dialect/TritonXPU/Transforms/Passes.h"
+#include "triton/Dialect/TritonXPU/Transforms/ReconcileLayoutUtils.h"
 #include "mlir/Transforms/GreedyPatternRewriteDriver.h"
 // clang-format on
 
@@ -341,6 +342,14 @@ struct TritonXPUNormalize
     if (bf16ToFP32VecOptOff) {
       mod->setAttr(kBF16ToFP32VecOptOffAttrName, UnitAttr::get(context));
     }
+
+    // Normalize creates elementwise ops (maximum/minimum fusion) whose
+    // operands may carry a different cluster encoding than the result. Reconcile
+    // before the verifier runs, otherwise the plain path fails with
+    // "... requires the same encoding for all operands and results".
+    int64_t reconciled = reconcileClusterLayouts(mod);
+    LLVM_DEBUG(llvm::dbgs() << "[normalize] reconciled " << reconciled
+                            << " convert_layout\n");
 
     LLVM_DEBUG(llvm::dbgs() << __FILE__ << " END\n" << mod << "\n");
   }

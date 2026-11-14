@@ -5,6 +5,7 @@ import triton
 import re
 from pathlib import Path
 from triton import knobs
+from triton._C import libtriton
 from triton.runtime.build import compile_module_from_src
 from triton.runtime import _allocation
 from triton.backends.compiler import GPUTarget
@@ -267,7 +268,7 @@ def make_launcher(constants, signature, tensordesc_meta):
     params = [f"&arg{i}" for i, ty in signature.items() if ty != "constexpr"]
     params.append("&global_scratch")
     params.append("&profile_scratch")
-    tle_cpp_define = "#define __TLE__ 1"
+    tle_cpp_define = "#define __TLE__ 1" if hasattr(libtriton, "tle") else ""
     src = f"""
 #include \"cuda.h\"
 #include <dlfcn.h>
@@ -790,6 +791,10 @@ def wrap_handle_tensordesc(launcher, signature, tensordesc_meta):
 class CudaLauncher(object):
 
     def __init__(self, src, metadata):
+        if (getattr(metadata, "kernel_call_fusion", None) is not None or
+                getattr(metadata, "kernel_call_fusion_launch_grid", 0)):
+            raise RuntimeError("This kernel was compiled by the removed kernel-call fusion pass; "
+                               "recompile from an operator graph before launching it")
         constants = src.constants if hasattr(src, "constants") else dict()
         arg_idx = lambda x: (src.fn.arg_names.index(x), ) if isinstance(x, str) else x
         constants = {arg_idx(idx): value for idx, value in constants.items()}
@@ -821,7 +826,6 @@ class CudaLauncher(object):
         self.launch_pdl = metadata.launch_pdl
 
     def __call__(self, gridX, gridY, gridZ, stream, function, *args):
-
         def allocate_scratch(size, align, allocator):
             if size > 0:
                 grid_size = gridX * gridY * gridZ

@@ -28,6 +28,53 @@
 
 include "mlir/Pass/PassBase.td"
 
+def TritonEliminateIntermediateMemory
+    : Pass<"triton-eliminate-intermediate-memory", "mlir::ModuleOp"> {
+  let summary = "eliminate proven CTA-local intermediate global-memory accesses";
+  let description = [{
+    A standalone TTIR memory optimization, run after inlining and CSE. Forward
+    same-address loads from their preceding stores, preserving the stored dtype
+    and observable masked-load other values. Remove stores only for explicitly
+    private argument buffers after proving that no uses of those pointers remain.
+    Non-private stores stay observable. Rejection leaves the body unchanged and
+    records the reason in the triton.intermediate_memory_elimination attribute.
+    A configurable profitability guard avoids extending long transcendental
+    dependency chains across forwarded loads, which can regress code generation.
+    It bounds both dependency depth and static depth times tile elements, a
+    conservative proxy for unrolled transcendental code expansion.
+
+    The caller must explicitly guarantee disjoint storage for distinct pointer
+    arguments and unobservable final contents for private arguments. Mutable
+    accesses must share a contiguous program_id(0) * BLOCK + arange(0, BLOCK)
+    mapping in a one-dimensional launch with one CTA per program and no cluster.
+    A one-dimensional grid may contain many independent programs; inter-CTA
+    communication and incompatible per-program tile ownership are unsupported.
+    The entry function must have a single block. Pure nested regions may remain,
+    but are outside the mask-select proof; the profitability guard conservatively
+    rejects forwarding into a nested region containing transcendental math or
+    forwarding a region-produced value with unknown transcendental depth.
+    The pass does not combine launches, retile operators, specialize launch-grid
+    bounds, allocate host buffers, or invoke a graph compiler. It is not enabled
+    in the default compilation pipeline.
+  }];
+  let options = [
+    ListOption<"privateArguments", "private-arguments", "unsigned",
+               "Entry argument indices of private intermediate buffers">,
+    Option<"assumeDisjointArguments", "assume-disjoint-arguments", "bool", "false",
+           "Caller guarantees distinct pointer arguments have disjoint storage">,
+    Option<"numCTAs", "num-ctas", "int64_t", "1",
+           "CTAs per program; must be one">,
+    Option<"clusterSize", "cluster-size", "int64_t", "1",
+           "Product of launch cluster dimensions; must be one">,
+    Option<"maxTranscendentalDepth", "max-transcendental-depth", "unsigned", "8",
+           "Maximum transcendental dependency depth extended by forwarding; zero disables the profitability guard">,
+    Option<"maxTranscendentalWork", "max-transcendental-work", "unsigned", "4096",
+           "Maximum forwarding depth times tile element count; zero disables this work subguard">
+  ];
+  let dependentDialects = ["mlir::arith::ArithDialect",
+                           "mlir::triton::TritonDialect"];
+}
+
 def TritonCombineOps : Pass</*cli-arg*/"triton-combine", /*Op*/"mlir::ModuleOp"> {
   let summary = "combine ops";
   let description = [{

@@ -251,6 +251,21 @@ def TritonXPULoopInvariantStaging
   let dependentDialects = ["mlir::triton::xpu::TritonXPUDialect"];
 }
 
+def TritonXPUReconcileLayouts : Pass<"tritonxpu-reconcile-layouts", "mlir::ModuleOp"> {
+  let summary = "Reconcile cluster encodings for loop-carried values and elementwise ops.";
+
+  let description = [{
+    The plain (non-TLE) path has no CoreTiling equivalent, so a loop-carried
+    accumulator can keep the converter's default encoding while the reduction
+    result that updates it comes back with a slice encoding. The arith verifier
+    then rejects the pair ("requires the same encoding for all operands and
+    results"). This pass inserts triton_xpu.convert_layout where a value must
+    match an operand/result or an scf.for iter_arg.
+  }];
+
+  let dependentDialects = ["mlir::triton::xpu::TritonXPUDialect"];
+}
+
 def TritonXPULoopGrid : Pass<"tritonxpu-loop-grid", "mlir::ModuleOp"> {
   let summary = "Create loop on triton programs for out-of-bounds grid_size.";
 

@@ -607,6 +607,17 @@ void MembarAnalysis::update(Operation *op, BlockInfo *blockInfo,
     return;
   }
 
+#ifdef __TLE__
+  // The dataflow scheduler proves that every thread in each participating
+  // warp group reaches this blocking rendezvous. Ordinary named barriers may
+  // cover only a subset of those threads and must not clear their hazards.
+  if (isa<triton::nvidia_gpu::NamedBarrierWaitOp>(op) &&
+      op->hasAttr("tle.tile_dataflow.full_group_sync")) {
+    blockInfo->sync();
+    return;
+  }
+#endif
+
   if (isa<triton::gpu::AsyncWaitOp, triton::nvidia_gpu::TMAStoreWaitOp>(op) &&
       !isa<gpu::BarrierOp, triton::gpu::LocalBarrierOp>(op->getNextNode())) {
     // If the current op is an async wait and the next op is not a barrier we

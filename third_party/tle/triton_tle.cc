@@ -1210,6 +1210,20 @@ void init_triton_tle_passes(py::module &&m) {
                      tle::createTritonTlePromoteLocalStoreStaging);
   ADD_PASS_WRAPPER_0("add_tile_style_pipeline_schedule",
                      tle::createTritonTleTileStylePipelineSchedule);
+  m.def(
+      "add_tile_dataflow_schedule",
+      [](mlir::PassManager &pm, bool force, double minSpeedup,
+         unsigned maxPartitions, bool coalesceWaves) {
+        tle::TritonTleTileDataflowScheduleOptions options;
+        options.forceSchedule = force;
+        options.minSpeedup = minSpeedup;
+        options.maxPartitions = maxPartitions;
+        options.coalesceWaves = coalesceWaves;
+        pm.addPass(tle::createTritonTleTileDataflowSchedule(options));
+      },
+      py::arg("pm"), py::arg("force") = false,
+      py::arg("min_speedup") = 1.1, py::arg("max_partitions") = 4,
+      py::arg("coalesce_waves") = true);
   ADD_PASS_WRAPPER_0("add_materialize_tile_style_pipeline",
                      tle::createTritonTleMaterializeTileStylePipeline);
   ADD_PASS_WRAPPER_0("add_downgrade_invalid_async_copy",

@@ -22,6 +22,7 @@ import os
 import runpy  # FlagPrism: load the external build policy.
 import platform
 import shutil
+import shlex
 import sys
 import sysconfig
 import functools
@@ -40,6 +41,26 @@ downloader = utils.tools.DownloadManager()
 configs = configs
 flagtree_backend = configs.flagtree_backend
 FLAGCX_SUPPORT_BACKENDS = {"nvidia", "iluvatar"}
+
+
+def _generic_tle_explicitly_disabled():
+    """Match setup.py's explicit TLE option and final appended CMake override."""
+    value = os.environ.get("FLAGTREE_TLE")
+    arguments = iter(shlex.split(os.environ.get("TRITON_APPEND_CMAKE_ARGS", "")))
+    for argument in arguments:
+        if argument == "-D":
+            definition = next(arguments, "")
+        elif argument.startswith("-D"):
+            definition = argument[2:]
+        else:
+            continue
+        name, separator, override = definition.partition("=")
+        if separator and name.partition(":")[0] == "FLAGTREE_TLE":
+            value = override
+    if value is None:
+        return False
+    value = value.strip().upper()
+    return value in {"", "0", "OFF", "NO", "FALSE", "N", "IGNORE", "NOTFOUND"} or value.endswith("-NOTFOUND")
 
 
 def get_console_colors() -> Tuple[str, str]:
@@ -894,14 +915,17 @@ download_flagtree_third_party("flir", condition=(flagtree_backend == "tsingmicro
    refer to https://github.com/flagos-ai/FlagCX
 '''
 
-relocate_flagcx = get_hook_instance("relocate_flagcx")
-if relocate_flagcx:
-    relocate_flagcx()
+# An explicitly disabled generic TLE build needs no NVIDIA distributed runtime.
+# Iluvatar has its own TLE extension and keeps its existing FlagCX setup.
+if flagtree_backend not in ("", "nvidia") or not _generic_tle_explicitly_disabled():
+    relocate_flagcx = get_hook_instance("relocate_flagcx")
+    if relocate_flagcx:
+        relocate_flagcx()
 
-flagcx_wheel = PathFinder.find_spec("flagcx", sys.path)
-download_flagtree_third_party("flagcx", condition=not flagcx_wheel
-                              and (flagtree_backend or "nvidia") in FLAGCX_SUPPORT_BACKENDS, hook="handle_flagcx",
-                              required=True)
+    flagcx_wheel = PathFinder.find_spec("flagcx", sys.path)
+    download_flagtree_third_party("flagcx", condition=not flagcx_wheel
+                                  and (flagtree_backend or "nvidia") in FLAGCX_SUPPORT_BACKENDS, hook="handle_flagcx",
+                                  required=True)
 
 download_flagtree_third_party("cuda-tile", condition=(flagtree_backend == "tileir"), required=True)
 

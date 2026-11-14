@@ -35,6 +35,7 @@ from typing import Any, Callable, Dict, Optional, Tuple, Type, Union, Iterable, 
 from .. import knobs, language
 from flagtree import _flagprism  # FlagPrism
 from .._C.libtriton import ir, gluon_ir
+from .._C import libtriton
 from ..language import constexpr, str_to_ty, tensor, tuple as tl_tuple
 from ..language.core import _unwrap_if_constexpr, base_value, base_type
 # ideally we wouldn't need any runtime component
@@ -365,6 +366,7 @@ class CodeGenerator(ast.NodeVisitor):
                  noinline=False, caller_context=None, file_name: Optional[str] = None, begin_line=0):
         self.context = context
         self.is_gluon = is_gluon
+        self._tle_enabled = hasattr(libtriton, "tle")
         if is_gluon:
             from triton.experimental.gluon.language._semantic import GluonSemantic
             self.builder = gluon_ir.GluonOpBuilder(context)
@@ -373,7 +375,7 @@ class CodeGenerator(ast.NodeVisitor):
             from triton.language.semantic import TritonSemantic
             self.builder = ir.builder(context)
             # flagtree tle: Track logical tensor descriptors with TLE frontend semantics.
-            if hasattr(self.builder, "mark_logical_tensor_descriptor"):
+            if self._tle_enabled and hasattr(self.builder, "mark_logical_tensor_descriptor"):
                 from triton.experimental.tle.language.gpu.semantic import TLEFrontendSemantic
                 self.semantic = TLEFrontendSemantic(self.builder)
             else:
@@ -1276,18 +1278,19 @@ class CodeGenerator(ast.NodeVisitor):
         disable_licm = False
         reorder = False  # flagtree reorder-loop-loads
         # flagtree tle
-        try:
-            from ..experimental.tle import language as tle
-            tle_pipeline = tle.gpu.pipeline
-            tle_range = tle.range  # flagtree reorder-loop-loads
-        except (ImportError, AttributeError):
-            tle_pipeline = None
-            tle_range = None
-        try:
-            from ..experimental.tle import language as tle
-            tle_dsa_pipeline = tle.dsa.pipeline
-        except (ImportError, AttributeError):
-            tle_dsa_pipeline = None
+        tle_pipeline = tle_range = tle_dsa_pipeline = None
+        if self._tle_enabled:
+            try:
+                from ..experimental.tle import language as tle
+                tle_pipeline = tle.gpu.pipeline
+                tle_range = tle.range  # flagtree reorder-loop-loads
+            except (ImportError, AttributeError):
+                pass
+            try:
+                from ..experimental.tle import language as tle
+                tle_dsa_pipeline = tle.dsa.pipeline
+            except (ImportError, AttributeError):
+                pass
 
         # flagtree tle: check supported
         if IteratorClass in (tle_pipeline, tle_range, tle_dsa_pipeline) and IteratorClass is not None:
@@ -1554,6 +1557,10 @@ class CodeGenerator(ast.NodeVisitor):
 
     # flagtree tle: check supported
     def _require_tle_primitive(self, primitive):
+        if not self._tle_enabled:
+            if getattr(primitive, "__module__", "").startswith("triton.experimental.tle."):
+                raise RuntimeError("TLE primitives are not supported by this core Triton compilation")
+            return
         from triton.experimental.tle import primitive_name
 
         try:
@@ -1885,7 +1892,7 @@ def ast_to_ttir(fn, src, context, options, codegen_fns, module_map, module=None)
     generator.visit(tree)
     module = generator.module
     # flagtree tle: Validate logical tensor descriptors before verifying the module.
-    if hasattr(generator.builder, "validate_logical_tensor_descriptors"):
+    if generator._tle_enabled and hasattr(generator.builder, "validate_logical_tensor_descriptors"):
         generator.builder.validate_logical_tensor_descriptors(module)
     # module takes ownership of the context
     module.context = context

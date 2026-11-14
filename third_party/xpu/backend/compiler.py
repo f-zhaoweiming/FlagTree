@@ -16,6 +16,8 @@ from typing import Tuple, Optional
 import hashlib
 from pathlib import Path
 
+from .launch_config import DEFAULT_LAUNCH, resolve_launch_config
+
 # The desensitized LLVM 19 package ships no `opt`; the read-in step is
 # `opt`-only, so disable it when the staged toolchain lacks it.  An explicit
 # TRITON_LLVM19_READIN from the environment wins over this default.
@@ -137,6 +139,7 @@ def _xtdk_lld_version(tool_dir: str) -> str:
 # [raise FrozenInstanceError]
 @dataclass(frozen=True)
 class XPUOptions:
+    resource_kind: str = "auto"
     arch: int = 3
     assert arch in [2, 3, 4, 5], "Invalid XPU ARCH"
     grid: tuple = (1, 1, 1)  # grid launch params
@@ -146,6 +149,14 @@ class XPUOptions:
 
     cluster_num: int = 12 if arch == 3 else 8
     core_num: int = 64
+    # Physical launch topology, distinct from the compile-time tiling knobs
+    # above (cluster_num/core_num feed the XPU passes and must not be reused
+    # here).  -1 keeps the historical per-arch/per-mode default:
+    #   cluster (num_clusters, num_cores); SDNN (num_sdnns, num_cores).
+    # An explicit value is passed as the launch-time ncluster/ncores pair and
+    # is validated/resolved by launch_config.resolve_launch_config().
+    launch_clusters: int = DEFAULT_LAUNCH
+    launch_cores: int = DEFAULT_LAUNCH
     buffer_size_limit: int = int(os.environ.get("TRITONXPU_BUFFER_SIZE", 512))
     groups_per_cluster: int = int(os.environ.get("TRITONXPU_GROUPS_PER_CLUSTER", 1))
     unroll_num: int = int(os.environ.get("TRITONXPU_UNROLL_NUM", 2))
@@ -227,6 +238,26 @@ class XPUOptions:
     load_tile_size: int = 131072
 
     def __post_init__(self):
+        from .resource_context import validate_resource
+        validate_resource(self.resource_kind)
+        if self.resource_kind == "cluster" and self.is_sdnn:
+            raise ValueError("Cluster resource conflicts with is_sdnn=True")
+        # Fail before cache lookup/compilation.  Keep the -1 sentinel in the
+        # options object: a later parse may discover is_sdnn=True from the AST
+        # and must then validate against the SDNN cap, not a frozen cluster
+        # default.  Launcher generation resolves and embeds the effective pair.
+        resolve_launch_config(self.arch, self.is_sdnn or self.resource_kind == "sdnn", self.launch_clusters,
+                              self.launch_cores)
+        # The cluster lowering still tiles work for core_num cores (64 by
+        # default); changing only the physical ncores can therefore create a
+        # compile-time/runtime participant mismatch.  Do not silently imply
+        # that a downscaled launch is equivalent: record it loudly, and let
+        # the benchmark pair core_num with launch_cores for cluster kernels.
+        if (not self.is_sdnn and self.launch_cores != DEFAULT_LAUNCH and self.launch_cores != self.core_num):
+            warnings.warn(
+                f"launch_cores={self.launch_cores} differs from compile-time "
+                f"core_num={self.core_num}; generate/benchmark a paired core_num "
+                f"and verify device correctness", UserWarning, stacklevel=2)
         default_libdir = Path(__file__).parent / f"xpu{self.arch}"
         extern_libs = {} if self.extern_libs is None else dict(self.extern_libs)
         if not extern_libs.get("libdevice", None):
@@ -264,6 +295,21 @@ class XPUOptions:
         hash_dict["extern_libs"] = tuple((k, file_hash(v)) for k, v in sorted(hash_dict["extern_libs"]))
         key = "_".join([f"{name}-{val}" for name, val in sorted(hash_dict.items())])
         return hashlib.sha256(key.encode("utf-8")).hexdigest()
+
+
+def _record_effective_launch(metadata, opt):
+    """Store the validated launch pair after ``is_sdnn`` is final.
+
+    The options keep -1 until here so a TTIR pass can reclassify a kernel as
+    SDNN without carrying a cluster-sized default into the SDNN validation
+    cap.  The compiled metadata (and JSON cache record) then shows the actual
+    ncluster/ncores pair used by the generated launcher.
+    """
+    if "is_sdnn" not in metadata:
+        return
+    clusters, cores = resolve_launch_config(opt.arch, bool(metadata["is_sdnn"]), opt.launch_clusters, opt.launch_cores)
+    metadata["launch_clusters"] = clusters
+    metadata["launch_cores"] = cores
 
 
 class XPUBackend(BaseBackend):
@@ -316,7 +362,12 @@ class XPUBackend(BaseBackend):
     def make_ttxir(mod, metadata, opt):
         metadata["xpu_arch"] = opt.arch
         metadata["is_tle"] = XPUBackend.is_tle_kernel(mod)
-        metadata["is_sdnn"] = opt.is_sdnn or xpu.is_sdnn_kernel(mod)
+        from .resource_context import effective_sdnn
+        metadata["is_sdnn"] = effective_sdnn(opt.resource_kind, opt.is_sdnn, xpu.is_sdnn_kernel(mod),
+                                             metadata["is_tle"])
+        metadata["resource_kind"] = opt.resource_kind
+        metadata["effective_resource_kind"] = "sdnn" if metadata["is_sdnn"] else "cluster"
+        _record_effective_launch(metadata, opt)
         # tensor_args drives the launch-time scaled-buffer quantization (findmax +
         # cast_te) in device/xpu3/launch.cpp, which replaces the input pointer with
         # a fresh quantized buffer and APPENDS a scale param. That is only correct
@@ -426,6 +477,7 @@ class XPUBackend(BaseBackend):
                 # arguments that xpuLaunchKernel passes at the end of kernel_params.
                 xpu.passes.ttxpuir.add_tritonxpu_cf_to_scf_pass(pm)
                 xpu.passes.ttxpuir.add_tritonxpu_loop_grid_pass(pm)
+            xpu.passes.ttxpuir.add_tritonxpu_reconcile_layouts_pass(pm)
             passes.common.add_canonicalizer(pm)
             passes.common.add_cse(pm)
             passes.common.add_symbol_dce(pm)
@@ -436,6 +488,10 @@ class XPUBackend(BaseBackend):
                     xpu.passes.ttsdnnir.add_triton_convert_type_pass(pm, opt.arch, 2)
                 else:
                     xpu.passes.ttsdnnir.add_triton_convert_type_pass(pm, opt.arch, TTSDNN_F_MATMUL_FAST_MODE)
+            if opt.arch == 3:
+                # The prebuilt rank-1 split-pointer lowering drops modulo.
+                # Capture its address contract before that information is lost.
+                xpu.passes.ttsdnnir.add_capture_rank1_wrap_pass(pm)
             xpu.passes.ttsdnnir.add_convert_triton_to_tritonsdnn_pass(pm, opt.arch, opt.load_tile_size)
             passes.ttir.add_loop_aware_cse(pm)
             xpu.passes.ttsdnnir.add_linalg_to_tritonsdnn_pass(pm, opt.arch)
@@ -474,6 +530,10 @@ class XPUBackend(BaseBackend):
                 xpu.passes.ttsdnnir.add_tritonsdnn_ew_act_table_pass(pm, res)
             else:
                 xpu.passes.ttsdnnir.add_tritonsdnn_ew_act_table_pass(pm, None)
+            if opt.arch == 3:
+                # Repair after fusion: earlier SDNN passes cannot consume the
+                # loop of DMA segments used to preserve all wrap boundaries.
+                xpu.passes.ttsdnnir.add_repair_rank1_wrap_pass(pm)
             xpu.passes.ttsdnnir.add_tritonsdnn_loop_grid_pass(pm)
             xpu.passes.ttsdnnir.add_tritonsdnn_hoist_loop_invariant_dma_pass(pm, opt.arch)
             # FlagTree: defer_event_coloring (arch5-only wiring) needs the
@@ -572,7 +632,18 @@ class XPUBackend(BaseBackend):
             pm.run(mod, 'make_ttxir')
         except Exception as e:
             from triton import OutOfResources
-            raise OutOfResources(0, 0, f"uni_sram {e}")
+            # Only a genuine source-buffer overflow is an OutOfResources. Wrapping
+            # every pipeline failure as "uni_sram" hid verifier/type errors behind
+            # a memory-limit message for months (e.g. the loop-carried encoding
+            # mismatch surfacing as 'arith.subf requires the same encoding').
+            # Keep OutOfResources for real allocation failures, and let anything
+            # else keep its own type/message so the pass name and location survive.
+            msg = str(e)
+            resource_markers = ('Buffer alloc failed', 'out of resource',
+                                'uni_sram', 'SRAM', 'local-memory budget')
+            if isinstance(e, OutOfResources) or any(m in msg for m in resource_markers):
+                raise OutOfResources(0, 0, f"uni_sram {e}") from e
+            raise
 
         return mod
 
@@ -591,6 +662,12 @@ class XPUBackend(BaseBackend):
                 "math.exp2": np.exp2,
                 "math.log2": np.log2,
                 "tt.gelu": np_gelu,
+                # Native SDNN LUT functions recognised by the prebuilt
+                # ttronsdnn-ew-act-table pass. Native sigmoid is
+                # 0.5*tanh(x/2)+0.5, so its table is the tanh one.
+                "tt.tanh": np.tanh,
+                "tt.sigmoid": np.tanh,
+                "tt.silu": lambda x: x / (1.0 + np.exp(-x)),
             }[fn]
             dtype = {0: np.float32, 1: np.float16}[dtype]
             table = [0.0] * size * 2
@@ -650,6 +727,9 @@ class XPUBackend(BaseBackend):
     @staticmethod
     def make_llir(mod, metadata, opt):
         XPUBackend.make_ewtable(mod, metadata, opt)
+        # Also covers IR-entry pipelines that skip make_ttxir; idempotent when
+        # make_ttxir already recorded the pair.
+        _record_effective_launch(metadata, opt)
         # The emitters below (createIntrinsicCallByName / createCallIntrinsic)
         # need this process's table before they run, or the fact is not born on
         # the instruction -- landing B and B' can only patch up.  See
@@ -872,7 +952,8 @@ class XPUBackend(BaseBackend):
         return f"{_xtdk_lld_version(tool_dir)}-{self.target}-{flags}"
 
     def parse_options(self, options: dict) -> object:
-        args = {"arch": self.target.arch}
+        from .resource_context import current_resource
+        args = {"arch": self.target.arch, "resource_kind": current_resource()}
         args.update({k: options[k] for k in XPUOptions.__dataclass_fields__.keys() if k in options})
         return XPUOptions(**args)
 

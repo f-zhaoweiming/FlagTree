@@ -10,6 +10,7 @@ TLE is a language extension for Triton that exposes shared memory and pipeline c
 - **Data Movement**: `tle.copy()` - Efficient bidirectional copying between memory spaces
 - **Local Operations**: `tle.local_ptr(buffer, indices=None)` + `tl.load/tl.store` - Access shared/tensor memory through pointer tensors (`indices=None` means full buffer view)
 - **Pipeline Optimization**: `tle.pipeline()` - Hardware-aware pipeline iteration
+- **Automatic Branch Scheduling**: [Tile dataflow scheduling](TILE_DATAFLOW.md) - Opt-in scheduling across the block dependency graph, with up to four simultaneous branches by default and successive fork/join waves. A cost model considers synchronization, shared transfers and occupancy before choosing parallel execution. Enable with `enable_tile_dataflow=True`; inspect decisions in `compiled.metadata.tile_dataflow_cost_model`.
 
 ## Memory Scopes & Layouts
 

@@ -10,9 +10,7 @@
 #include "mlir/Dialect/Arith/IR/Arith.h"
 #include "mlir/Dialect/Arith/Transforms/Passes.h"
 #include "mlir/Dialect/ControlFlow/IR/ControlFlow.h"
-#ifdef __TLE__
 #include "mlir/Dialect/GPU/IR/GPUDialect.h"
-#endif
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/Dialect/LLVMIR/LLVMTypes.h"
 #include "mlir/Dialect/LLVMIR/NVVMDialect.h"
@@ -32,6 +30,7 @@
 #include "tle/dialect/include/Conversion/TleToLLVM/PackOpToLLVM.h"
 #include "tle/dialect/include/Conversion/TleToLLVM/SignalOpToLLVM.h"
 #include "tle/dialect/include/IR/Dialect.h"
+#include "tle/dialect/include/Transforms/PatternTleToLLVM.h"
 #endif
 #include "triton/Analysis/Allocation.h"
 #include "triton/Analysis/AxisInfo.h"
@@ -45,8 +44,6 @@
 #include "PatternTritonGPUOpToLLVM.h"
 #include "triton/Conversion/TritonGPUToLLVM/PatternTritonGPUOpToLLVM.h"
 #include "triton/Conversion/TritonGPUToLLVM/TypeConverter.h"
-
-#include "tle/dialect/include/Transforms/PatternTleToLLVM.h"
 
 namespace mlir {
 namespace triton {
