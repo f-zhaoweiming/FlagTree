@@ -72,6 +72,48 @@ public:
       auto loc = gm2lmOp.getLoc();
       OpBuilder builder(gm2lmOp);
       if (auto other = gm2lmOp.getOther()) {
+        // A boolean DMA predicate selects individual elements. Initialize the
+        // corresponding full other tensor: repeating its first slice loses
+        // position-dependent defaults. Index zero lets StoreOp use the value's
+        // logical extent even when the DMA reuses a larger LM allocation.
+        if (auto len = gm2lmOp.getLen();
+            len && getElementTypeOrSelf(len.getType()).isInteger(1)) {
+          // An entire row has one predicate per core. Valid rows overwrite
+          // every local element, so only invalid rows need the `other` fill.
+          // Preserve the full tensor for false rows, including non-splat other.
+          // Column masks, multiple rows/core and partial packets keep the old
+          // unconditional initialization below.
+          if (m->hasAttr("flagtree.row_shared")) {
+            auto broadcast = len.getDefiningOp<triton::xpu::BroadcastOp>();
+            auto type = dyn_cast<RankedTensorType>(other.getType());
+            auto maskType = dyn_cast<RankedTensorType>(len.getType());
+            auto sourceType = broadcast ? dyn_cast<RankedTensorType>(broadcast.getSrc().getType()) : RankedTensorType();
+            auto layout = type ? dyn_cast_or_null<triton::xpu::ClusterLayoutAttr>(type.getEncoding()) : triton::xpu::ClusterLayoutAttr();
+            if (type && maskType && sourceType && layout && type.getRank() == 2 &&
+                sourceType.getRank() == 2 && sourceType.getShape()[1] == 1 &&
+                type.getShape() == maskType.getShape() &&
+                layout.getSizePerCore()[0] == 1 &&
+                getTotalElemsPerThread(sourceType) == 1 &&
+                getTotalElemsPerThread(gm2lmOp.getPtr().getType()) == getTotalElemsPerThread(type)) {
+              auto valid = builder.create<triton::xpu::ExtractOp>(
+                  loc, builder.getI1Type(), builder.getI32IntegerAttr(0), broadcast.getSrc());
+              auto truth = builder.create<arith::ConstantIntOp>(loc, 1, 1);
+              auto invalid = builder.create<arith::XOrIOp>(loc, valid, truth);
+              auto branch = builder.create<scf::IfOp>(loc, invalid, false);
+              OpBuilder fill = branch.getThenBodyBuilder();
+              auto zero = fill.create<arith::ConstantIntOp>(loc, 0, 32);
+              fill.create<triton::xpu::StoreOp>(loc, gm2lmOp.getBufPtr(), other,
+                  Value(), zero, -1, false, Dtype::UNKNOWN, MemorySyncMode::SYNC);
+              m->setAttr("xpu.conditional_row_other", builder.getUnitAttr());
+              return;
+            }
+          }
+          auto zero = builder.create<arith::ConstantIntOp>(loc, 0, 32);
+          builder.create<triton::xpu::StoreOp>(
+              loc, gm2lmOp.getBufPtr(), other, Value(), zero, -1, false,
+              Dtype::UNKNOWN, MemorySyncMode::SYNC);
+          return;
+        }
         Value extractOther = other;
         unsigned iterNum = 1;
         if (auto otherTy = dyn_cast<RankedTensorType>(other.getType())) {

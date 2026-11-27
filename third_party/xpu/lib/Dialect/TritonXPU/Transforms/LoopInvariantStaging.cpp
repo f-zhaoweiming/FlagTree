@@ -222,6 +222,10 @@ struct TritonXPULoopInvariantStaging
       TritonXPULoopInvariantStaging>::TritonXPULoopInvariantStagingBase;
 
   void runOnOperation() override {
+    // Column staging already owns part of the upper SM window. This pass's
+    // dynamic allocator is independent, so do not overlap the reservations.
+    if (getOperation()->hasAttr("xpu.row_shared_bytes"))
+      return;
     ModuleOp m = getOperation();
 
     SmallVector<std::pair<scf::ForOp, triton::xpu::GM2LMOp>> candidates;

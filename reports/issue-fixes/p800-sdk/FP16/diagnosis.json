@@ -1,0 +1,1878 @@
+{
+  "receipt": "review-local/p800-interface-benchmark-20261126/ops_diagnosis-43.138.5.189-0-20261125T180612212368Z.json",
+  "receipt_sha256": "a552fdaca385a92a272d11599aa913d66be78410616bf1e9f4ab79e384f2558f",
+  "source_sha256": {
+    "benchmark.py": "3a20fe08a9c31a16f708a8aa2086a272c16393d2f4fdee0f9a4e80da529a9dd5",
+    "ops_diagnosis.py": "c31402b0862acbe592d88e3a46a74459c477eca45b556239d33aa6435045417a"
+  },
+  "image": "sha256:63580d62f783f62be7c6b3e2ad55ab59992653792024270389f5cbd6f92eaa55",
+  "device": "P800",
+  "physical_card": 0,
+  "checks": {
+    "pci": true,
+    "memory_empty": true,
+    "utilization_zero": true,
+    "no_processes": true,
+    "device_node_pci": true,
+    "no_compute_openers": true,
+    "owned_running_container": true
+  },
+  "occupancy_samples": 12,
+  "foreign_samples": 0,
+  "wheel_sha256": "7c17a6a8014366ba1f2cfaa06d8cfe838f4333f5d97c53eefe28bf83750f5f19",
+  "wheel_elf_sha256": {
+    "xpu_flash_ops.cpython-310-x86_64-linux-gnu.so": "53b4514dbe7f71f32c1b16b603abe30917d0cad35bbd7e9a712786f14af525aa",
+    "xpu_kunlun_ops.cpython-310-x86_64-linux-gnu.so": "5b297c4f252c9279b9c7ec8dc232d631b25bce8e628a0e28b8dc751f68413a74"
+  },
+  "scope": "ELF addresses are relative to the published host extensions. Comparison uses the same paired XMLIR runtime and actual device calls.",
+  "host_instructions": {
+    "gelu": [
+      "0x137e10 call impl_gelu<float16>",
+      "0x150494 call api::gelu<float16>(Context*, float16 const*, float16*, long, float const*, float*)"
+    ],
+    "add_layernorm": [
+      "0x28953e compare input type with 5 (Half)",
+      "0x289542 jump if equal to 0x2895d0",
+      "0x2895d3 compare weight type with 6 (Float)",
+      "0x2895db jump on mismatch to 0x28955f",
+      "0x28957d call torchCheckFail",
+      "0x2895e0 compare output type with 5 (Half)",
+      "0x289658 dispatch to impl_add_layernorm<float16,float,float16>"
+    ]
+  },
+  "finite_binary16_domain": {
+    "public": {
+      "exact_eager_diff": 24277,
+      "tanh_eager_diff": 27339,
+      "cpu_correctly_rounded_diff": 23955,
+      "nonfinite": 0,
+      "elements": 63488
+    },
+    "xdnn_exact": {
+      "exact_eager_diff": 24277,
+      "tanh_eager_diff": 27339,
+      "cpu_correctly_rounded_diff": 23955,
+      "nonfinite": 0,
+      "elements": 63488
+    },
+    "xdnn_tanh": {
+      "exact_eager_diff": 26904,
+      "tanh_eager_diff": 24175,
+      "cpu_correctly_rounded_diff": 26952,
+      "nonfinite": 0,
+      "elements": 63488
+    },
+    "public_fp32": {
+      "exact_eager_diff": 24277,
+      "tanh_eager_diff": 27339,
+      "cpu_correctly_rounded_diff": 23955,
+      "nonfinite": 0,
+      "elements": 63488
+    },
+    "aten_out": {
+      "exact_eager_diff": 0,
+      "tanh_eager_diff": 3649,
+      "cpu_correctly_rounded_diff": 369,
+      "nonfinite": 0,
+      "elements": 63488
+    }
+  },
+  "cases": [
+    {
+      "api": "gelu",
+      "route": "public",
+      "shape": [
+        16,
+        64
+      ],
+      "exact_diff": 142,
+      "tanh_diff": 422,
+      "legacy_diff": 0,
+      "actual": {
+        "elements": 1024,
+        "nonfinite": 0,
+        "max_abs": 0.0016815662384033203,
+        "rmse": 0.00019612941500967595,
+        "max_normalized": 1.5762298503629815,
+        "outside_fp32_band": 13
+      },
+      "eager": {
+        "elements": 1024,
+        "nonfinite": 0,
+        "max_abs": 0.0016815662384033203,
+        "rmse": 0.0001949183556240272,
+        "max_normalized": 1.5762298503629815,
+        "outside_fp32_band": 13
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "aten_out",
+      "shape": [
+        16,
+        64
+      ],
+      "exact_diff": 0,
+      "tanh_diff": 289,
+      "legacy_diff": 142,
+      "actual": {
+        "elements": 1024,
+        "nonfinite": 0,
+        "max_abs": 0.0016815662384033203,
+        "rmse": 0.0001949183556240272,
+        "max_normalized": 1.5762298503629815,
+        "outside_fp32_band": 13
+      },
+      "eager": {
+        "elements": 1024,
+        "nonfinite": 0,
+        "max_abs": 0.0016815662384033203,
+        "rmse": 0.0001949183556240272,
+        "max_normalized": 1.5762298503629815,
+        "outside_fp32_band": 13
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "public_fp32",
+      "shape": [
+        16,
+        64
+      ],
+      "exact_diff": 142,
+      "tanh_diff": 422,
+      "legacy_diff": 0,
+      "actual": {
+        "elements": 1024,
+        "nonfinite": 0,
+        "max_abs": 0.0016815662384033203,
+        "rmse": 0.00019612941500967595,
+        "max_normalized": 1.5762298503629815,
+        "outside_fp32_band": 13
+      },
+      "eager": {
+        "elements": 1024,
+        "nonfinite": 0,
+        "max_abs": 0.0016815662384033203,
+        "rmse": 0.0001949183556240272,
+        "max_normalized": 1.5762298503629815,
+        "outside_fp32_band": 13
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "xdnn_False",
+      "shape": [
+        16,
+        64
+      ],
+      "exact_diff": 142,
+      "tanh_diff": 422,
+      "legacy_diff": 0,
+      "actual": {
+        "elements": 1024,
+        "nonfinite": 0,
+        "max_abs": 0.0016815662384033203,
+        "rmse": 0.00019612941500967595,
+        "max_normalized": 1.5762298503629815,
+        "outside_fp32_band": 13
+      },
+      "eager": {
+        "elements": 1024,
+        "nonfinite": 0,
+        "max_abs": 0.0016815662384033203,
+        "rmse": 0.0001949183556240272,
+        "max_normalized": 1.5762298503629815,
+        "outside_fp32_band": 13
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "xdnn_True",
+      "shape": [
+        16,
+        64
+      ],
+      "exact_diff": 373,
+      "tanh_diff": 141,
+      "legacy_diff": 290,
+      "actual": {
+        "elements": 1024,
+        "nonfinite": 0,
+        "max_abs": 0.0016815662384033203,
+        "rmse": 0.00023113597011789884,
+        "max_normalized": 1.7249022615847693,
+        "outside_fp32_band": 29
+      },
+      "eager": {
+        "elements": 1024,
+        "nonfinite": 0,
+        "max_abs": 0.0016815662384033203,
+        "rmse": 0.0001949183556240272,
+        "max_normalized": 1.5762298503629815,
+        "outside_fp32_band": 13
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        16,
+        64
+      ],
+      "pattern": "random",
+      "route": "all_half",
+      "error": "RuntimeError('add_layernorm not support x/weight/output dtype')"
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        16,
+        64
+      ],
+      "pattern": "random",
+      "route": "wide_affine",
+      "out": {
+        "actual": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.0023241043090820312,
+          "rmse": 0.00042011883057813365,
+          "max_normalized": 2.552738883513508,
+          "outside_fp32_band": 122
+        },
+        "eager": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.0020639896392822266,
+          "rmse": 0.0004144855674404457,
+          "max_normalized": 2.175627194568727,
+          "outside_fp32_band": 119
+        },
+        "diff": 142,
+        "passed": false
+      },
+      "residual": {
+        "actual": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.001817941665649414,
+          "rmse": 0.0004374572196919928,
+          "max_normalized": 2.9809865113372678,
+          "outside_fp32_band": 100
+        },
+        "eager": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.001817941665649414,
+          "rmse": 0.0004374572196919928,
+          "max_normalized": 2.9809865113372678,
+          "outside_fp32_band": 100
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        16,
+        64
+      ],
+      "pattern": "random",
+      "route": "fp32_fused",
+      "out": {
+        "actual": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.0020639896392822266,
+          "rmse": 0.0003536964639988338,
+          "max_normalized": 2.1281150681346217,
+          "outside_fp32_band": 81
+        },
+        "eager": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.0020639896392822266,
+          "rmse": 0.0004144855674404457,
+          "max_normalized": 2.175627194568727,
+          "outside_fp32_band": 119
+        },
+        "diff": 309,
+        "passed": true
+      },
+      "residual": {
+        "actual": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.001817941665649414,
+          "rmse": 0.0004374572196919928,
+          "max_normalized": 2.9809865113372678,
+          "outside_fp32_band": 100
+        },
+        "eager": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.001817941665649414,
+          "rmse": 0.0004374572196919928,
+          "max_normalized": 2.9809865113372678,
+          "outside_fp32_band": 100
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        16,
+        64
+      ],
+      "pattern": "random",
+      "route": "rounded_residual",
+      "out": {
+        "actual": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.0020639896392822266,
+          "rmse": 0.0004144855674404457,
+          "max_normalized": 2.175627194568727,
+          "outside_fp32_band": 119
+        },
+        "eager": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.0020639896392822266,
+          "rmse": 0.0004144855674404457,
+          "max_normalized": 2.175627194568727,
+          "outside_fp32_band": 119
+        },
+        "diff": 0,
+        "passed": true
+      },
+      "residual": {
+        "actual": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.001817941665649414,
+          "rmse": 0.0004374572196919928,
+          "max_normalized": 2.9809865113372678,
+          "outside_fp32_band": 100
+        },
+        "eager": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.001817941665649414,
+          "rmse": 0.0004374572196919928,
+          "max_normalized": 2.9809865113372678,
+          "outside_fp32_band": 100
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        16,
+        64
+      ],
+      "pattern": "high_bias",
+      "route": "all_half",
+      "error": "RuntimeError('add_layernorm not support x/weight/output dtype')"
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        16,
+        64
+      ],
+      "pattern": "high_bias",
+      "route": "wide_affine",
+      "out": {
+        "actual": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.05516862869262695,
+          "rmse": 0.017691316867632773,
+          "max_normalized": 137.62536632157705,
+          "outside_fp32_band": 999
+        },
+        "eager": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.05419206619262695,
+          "rmse": 0.017427255908277577,
+          "max_normalized": 134.3818163307801,
+          "outside_fp32_band": 998
+        },
+        "diff": 967,
+        "passed": false
+      },
+      "residual": {
+        "actual": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.0659027099609375,
+          "rmse": 0.02410948836095171,
+          "max_normalized": 2.7015096991954333,
+          "outside_fp32_band": 356
+        },
+        "eager": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.0659027099609375,
+          "rmse": 0.02410948836095171,
+          "max_normalized": 2.7015096991954333,
+          "outside_fp32_band": 356
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        16,
+        64
+      ],
+      "pattern": "high_bias",
+      "route": "fp32_fused",
+      "out": {
+        "actual": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.03071880340576172,
+          "rmse": 0.010775101761280426,
+          "max_normalized": 76.25043307366546,
+          "outside_fp32_band": 989
+        },
+        "eager": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.05419206619262695,
+          "rmse": 0.017427255908277577,
+          "max_normalized": 134.3818163307801,
+          "outside_fp32_band": 998
+        },
+        "diff": 1004,
+        "passed": true
+      },
+      "residual": {
+        "actual": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.0659027099609375,
+          "rmse": 0.02410948836095171,
+          "max_normalized": 2.7015096991954333,
+          "outside_fp32_band": 356
+        },
+        "eager": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.0659027099609375,
+          "rmse": 0.02410948836095171,
+          "max_normalized": 2.7015096991954333,
+          "outside_fp32_band": 356
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        16,
+        64
+      ],
+      "pattern": "high_bias",
+      "route": "rounded_residual",
+      "out": {
+        "actual": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.05419206619262695,
+          "rmse": 0.017427255908277577,
+          "max_normalized": 134.3818163307801,
+          "outside_fp32_band": 998
+        },
+        "eager": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.05419206619262695,
+          "rmse": 0.017427255908277577,
+          "max_normalized": 134.3818163307801,
+          "outside_fp32_band": 998
+        },
+        "diff": 0,
+        "passed": true
+      },
+      "residual": {
+        "actual": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.0659027099609375,
+          "rmse": 0.02410948836095171,
+          "max_normalized": 2.7015096991954333,
+          "outside_fp32_band": 356
+        },
+        "eager": {
+          "elements": 1024,
+          "nonfinite": 0,
+          "max_abs": 0.0659027099609375,
+          "rmse": 0.02410948836095171,
+          "max_normalized": 2.7015096991954333,
+          "outside_fp32_band": 356
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "public",
+      "shape": [
+        64,
+        1024
+      ],
+      "exact_diff": 9253,
+      "tanh_diff": 28699,
+      "legacy_diff": 0,
+      "actual": {
+        "elements": 65536,
+        "nonfinite": 0,
+        "max_abs": 0.0019233226776123047,
+        "rmse": 0.0002059422786822244,
+        "max_normalized": 2.0038852836918526,
+        "outside_fp32_band": 1212
+      },
+      "eager": {
+        "elements": 65536,
+        "nonfinite": 0,
+        "max_abs": 0.0019233226776123047,
+        "rmse": 0.00020558543306404257,
+        "max_normalized": 2.0038852836918526,
+        "outside_fp32_band": 1213
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "aten_out",
+      "shape": [
+        64,
+        1024
+      ],
+      "exact_diff": 0,
+      "tanh_diff": 19970,
+      "legacy_diff": 9253,
+      "actual": {
+        "elements": 65536,
+        "nonfinite": 0,
+        "max_abs": 0.0019233226776123047,
+        "rmse": 0.00020558543306404257,
+        "max_normalized": 2.0038852836918526,
+        "outside_fp32_band": 1213
+      },
+      "eager": {
+        "elements": 65536,
+        "nonfinite": 0,
+        "max_abs": 0.0019233226776123047,
+        "rmse": 0.00020558543306404257,
+        "max_normalized": 2.0038852836918526,
+        "outside_fp32_band": 1213
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "public_fp32",
+      "shape": [
+        64,
+        1024
+      ],
+      "exact_diff": 9253,
+      "tanh_diff": 28699,
+      "legacy_diff": 0,
+      "actual": {
+        "elements": 65536,
+        "nonfinite": 0,
+        "max_abs": 0.0019233226776123047,
+        "rmse": 0.0002059422786822244,
+        "max_normalized": 2.0038852836918526,
+        "outside_fp32_band": 1212
+      },
+      "eager": {
+        "elements": 65536,
+        "nonfinite": 0,
+        "max_abs": 0.0019233226776123047,
+        "rmse": 0.00020558543306404257,
+        "max_normalized": 2.0038852836918526,
+        "outside_fp32_band": 1213
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "xdnn_False",
+      "shape": [
+        64,
+        1024
+      ],
+      "exact_diff": 9253,
+      "tanh_diff": 28699,
+      "legacy_diff": 0,
+      "actual": {
+        "elements": 65536,
+        "nonfinite": 0,
+        "max_abs": 0.0019233226776123047,
+        "rmse": 0.0002059422786822244,
+        "max_normalized": 2.0038852836918526,
+        "outside_fp32_band": 1212
+      },
+      "eager": {
+        "elements": 65536,
+        "nonfinite": 0,
+        "max_abs": 0.0019233226776123047,
+        "rmse": 0.00020558543306404257,
+        "max_normalized": 2.0038852836918526,
+        "outside_fp32_band": 1213
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "xdnn_True",
+      "shape": [
+        64,
+        1024
+      ],
+      "exact_diff": 25841,
+      "tanh_diff": 9176,
+      "legacy_diff": 20036,
+      "actual": {
+        "elements": 65536,
+        "nonfinite": 0,
+        "max_abs": 0.002389669418334961,
+        "rmse": 0.0002433004397284963,
+        "max_normalized": 2.3455396169785057,
+        "outside_fp32_band": 2429
+      },
+      "eager": {
+        "elements": 65536,
+        "nonfinite": 0,
+        "max_abs": 0.0019233226776123047,
+        "rmse": 0.00020558543306404257,
+        "max_normalized": 2.0038852836918526,
+        "outside_fp32_band": 1213
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        64,
+        1024
+      ],
+      "pattern": "random",
+      "route": "all_half",
+      "error": "RuntimeError('add_layernorm not support x/weight/output dtype')"
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        64,
+        1024
+      ],
+      "pattern": "random",
+      "route": "wide_affine",
+      "out": {
+        "actual": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.0036954879760742188,
+          "rmse": 0.0004316363862087243,
+          "max_normalized": 3.8691876196628545,
+          "outside_fp32_band": 8315
+        },
+        "eager": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.0036954879760742188,
+          "rmse": 0.0004315864416784451,
+          "max_normalized": 3.8691876196628545,
+          "outside_fp32_band": 8311
+        },
+        "diff": 2704,
+        "passed": false
+      },
+      "residual": {
+        "actual": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.0033698081970214844,
+          "rmse": 0.0004329049305923644,
+          "max_normalized": 5.228982021142929,
+          "outside_fp32_band": 6038
+        },
+        "eager": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.0033698081970214844,
+          "rmse": 0.0004329049305923644,
+          "max_normalized": 5.228982021142929,
+          "outside_fp32_band": 6038
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        64,
+        1024
+      ],
+      "pattern": "random",
+      "route": "fp32_fused",
+      "out": {
+        "actual": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.003376483917236328,
+          "rmse": 0.00036994027454635025,
+          "max_normalized": 3.8691876196628545,
+          "outside_fp32_band": 5760
+        },
+        "eager": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.0036954879760742188,
+          "rmse": 0.0004315864416784451,
+          "max_normalized": 3.8691876196628545,
+          "outside_fp32_band": 8311
+        },
+        "diff": 15325,
+        "passed": true
+      },
+      "residual": {
+        "actual": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.0033698081970214844,
+          "rmse": 0.0004329049305923644,
+          "max_normalized": 5.228982021142929,
+          "outside_fp32_band": 6038
+        },
+        "eager": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.0033698081970214844,
+          "rmse": 0.0004329049305923644,
+          "max_normalized": 5.228982021142929,
+          "outside_fp32_band": 6038
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        64,
+        1024
+      ],
+      "pattern": "random",
+      "route": "rounded_residual",
+      "out": {
+        "actual": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.0036954879760742188,
+          "rmse": 0.0004315864416784451,
+          "max_normalized": 3.8691876196628545,
+          "outside_fp32_band": 8311
+        },
+        "eager": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.0036954879760742188,
+          "rmse": 0.0004315864416784451,
+          "max_normalized": 3.8691876196628545,
+          "outside_fp32_band": 8311
+        },
+        "diff": 0,
+        "passed": true
+      },
+      "residual": {
+        "actual": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.0033698081970214844,
+          "rmse": 0.0004329049305923644,
+          "max_normalized": 5.228982021142929,
+          "outside_fp32_band": 6038
+        },
+        "eager": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.0033698081970214844,
+          "rmse": 0.0004329049305923644,
+          "max_normalized": 5.228982021142929,
+          "outside_fp32_band": 6038
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        64,
+        1024
+      ],
+      "pattern": "high_bias",
+      "route": "all_half",
+      "error": "RuntimeError('add_layernorm not support x/weight/output dtype')"
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        64,
+        1024
+      ],
+      "pattern": "high_bias",
+      "route": "wide_affine",
+      "out": {
+        "actual": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.05343818664550781,
+          "rmse": 0.016809365729343335,
+          "max_normalized": 148.46221362802459,
+          "outside_fp32_band": 64023
+        },
+        "eager": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.05343818664550781,
+          "rmse": 0.016801381131382697,
+          "max_normalized": 147.8481578549375,
+          "outside_fp32_band": 64016
+        },
+        "diff": 45643,
+        "passed": false
+      },
+      "residual": {
+        "actual": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.06995391845703125,
+          "rmse": 0.023822662457988756,
+          "max_normalized": 2.8412313770979645,
+          "outside_fp32_band": 21696
+        },
+        "eager": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.06995391845703125,
+          "rmse": 0.023822662457988756,
+          "max_normalized": 2.8412313770979645,
+          "outside_fp32_band": 21696
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        64,
+        1024
+      ],
+      "pattern": "high_bias",
+      "route": "fp32_fused",
+      "out": {
+        "actual": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.02999359369277954,
+          "rmse": 0.010422485467536198,
+          "max_normalized": 87.50929269635847,
+          "outside_fp32_band": 63159
+        },
+        "eager": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.05343818664550781,
+          "rmse": 0.016801381131382697,
+          "max_normalized": 147.8481578549375,
+          "outside_fp32_band": 64016
+        },
+        "diff": 61773,
+        "passed": true
+      },
+      "residual": {
+        "actual": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.06995391845703125,
+          "rmse": 0.023822662457988756,
+          "max_normalized": 2.8412313770979645,
+          "outside_fp32_band": 21696
+        },
+        "eager": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.06995391845703125,
+          "rmse": 0.023822662457988756,
+          "max_normalized": 2.8412313770979645,
+          "outside_fp32_band": 21696
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        64,
+        1024
+      ],
+      "pattern": "high_bias",
+      "route": "rounded_residual",
+      "out": {
+        "actual": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.05343818664550781,
+          "rmse": 0.016801381131382697,
+          "max_normalized": 147.8481578549375,
+          "outside_fp32_band": 64016
+        },
+        "eager": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.05343818664550781,
+          "rmse": 0.016801381131382697,
+          "max_normalized": 147.8481578549375,
+          "outside_fp32_band": 64016
+        },
+        "diff": 0,
+        "passed": true
+      },
+      "residual": {
+        "actual": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.06995391845703125,
+          "rmse": 0.023822662457988756,
+          "max_normalized": 2.8412313770979645,
+          "outside_fp32_band": 21696
+        },
+        "eager": {
+          "elements": 65536,
+          "nonfinite": 0,
+          "max_abs": 0.06995391845703125,
+          "rmse": 0.023822662457988756,
+          "max_normalized": 2.8412313770979645,
+          "outside_fp32_band": 21696
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "public",
+      "shape": [
+        577,
+        1024
+      ],
+      "exact_diff": 83283,
+      "tanh_diff": 261539,
+      "legacy_diff": 0,
+      "actual": {
+        "elements": 590848,
+        "nonfinite": 0,
+        "max_abs": 0.002003908157348633,
+        "rmse": 0.00020782320949754257,
+        "max_normalized": 2.172837017141314,
+        "outside_fp32_band": 11127
+      },
+      "eager": {
+        "elements": 590848,
+        "nonfinite": 0,
+        "max_abs": 0.002003908157348633,
+        "rmse": 0.0002075349533664036,
+        "max_normalized": 2.172837017141314,
+        "outside_fp32_band": 11122
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "aten_out",
+      "shape": [
+        577,
+        1024
+      ],
+      "exact_diff": 0,
+      "tanh_diff": 182521,
+      "legacy_diff": 83283,
+      "actual": {
+        "elements": 590848,
+        "nonfinite": 0,
+        "max_abs": 0.002003908157348633,
+        "rmse": 0.0002075349533664036,
+        "max_normalized": 2.172837017141314,
+        "outside_fp32_band": 11122
+      },
+      "eager": {
+        "elements": 590848,
+        "nonfinite": 0,
+        "max_abs": 0.002003908157348633,
+        "rmse": 0.0002075349533664036,
+        "max_normalized": 2.172837017141314,
+        "outside_fp32_band": 11122
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "public_fp32",
+      "shape": [
+        577,
+        1024
+      ],
+      "exact_diff": 83283,
+      "tanh_diff": 261539,
+      "legacy_diff": 0,
+      "actual": {
+        "elements": 590848,
+        "nonfinite": 0,
+        "max_abs": 0.002003908157348633,
+        "rmse": 0.00020782320949754257,
+        "max_normalized": 2.172837017141314,
+        "outside_fp32_band": 11127
+      },
+      "eager": {
+        "elements": 590848,
+        "nonfinite": 0,
+        "max_abs": 0.002003908157348633,
+        "rmse": 0.0002075349533664036,
+        "max_normalized": 2.172837017141314,
+        "outside_fp32_band": 11122
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "xdnn_False",
+      "shape": [
+        577,
+        1024
+      ],
+      "exact_diff": 83283,
+      "tanh_diff": 261539,
+      "legacy_diff": 0,
+      "actual": {
+        "elements": 590848,
+        "nonfinite": 0,
+        "max_abs": 0.002003908157348633,
+        "rmse": 0.00020782320949754257,
+        "max_normalized": 2.172837017141314,
+        "outside_fp32_band": 11127
+      },
+      "eager": {
+        "elements": 590848,
+        "nonfinite": 0,
+        "max_abs": 0.002003908157348633,
+        "rmse": 0.0002075349533664036,
+        "max_normalized": 2.172837017141314,
+        "outside_fp32_band": 11122
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "xdnn_True",
+      "shape": [
+        577,
+        1024
+      ],
+      "exact_diff": 234708,
+      "tanh_diff": 83213,
+      "legacy_diff": 183277,
+      "actual": {
+        "elements": 590848,
+        "nonfinite": 0,
+        "max_abs": 0.0024018287658691406,
+        "rmse": 0.0002432961980699343,
+        "max_normalized": 2.356275249717697,
+        "outside_fp32_band": 22115
+      },
+      "eager": {
+        "elements": 590848,
+        "nonfinite": 0,
+        "max_abs": 0.002003908157348633,
+        "rmse": 0.0002075349533664036,
+        "max_normalized": 2.172837017141314,
+        "outside_fp32_band": 11122
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        577,
+        1024
+      ],
+      "pattern": "random",
+      "route": "all_half",
+      "error": "RuntimeError('add_layernorm not support x/weight/output dtype')"
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        577,
+        1024
+      ],
+      "pattern": "random",
+      "route": "wide_affine",
+      "out": {
+        "actual": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.0043468475341796875,
+          "rmse": 0.00043517218164088956,
+          "max_normalized": 4.222706866986134,
+          "outside_fp32_band": 75543
+        },
+        "eager": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.0043468475341796875,
+          "rmse": 0.00043500277971975716,
+          "max_normalized": 4.222706866986134,
+          "outside_fp32_band": 75470
+        },
+        "diff": 25755,
+        "passed": false
+      },
+      "residual": {
+        "actual": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.0036497116088867188,
+          "rmse": 0.0004322202414278964,
+          "max_normalized": 5.792447515595301,
+          "outside_fp32_band": 54161
+        },
+        "eager": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.0036497116088867188,
+          "rmse": 0.0004322202414278964,
+          "max_normalized": 5.792447515595301,
+          "outside_fp32_band": 54161
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        577,
+        1024
+      ],
+      "pattern": "random",
+      "route": "fp32_fused",
+      "out": {
+        "actual": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.003940105438232422,
+          "rmse": 0.0003718783144096701,
+          "max_normalized": 4.222706866986134,
+          "outside_fp32_band": 52255
+        },
+        "eager": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.0043468475341796875,
+          "rmse": 0.00043500277971975716,
+          "max_normalized": 4.222706866986134,
+          "outside_fp32_band": 75470
+        },
+        "diff": 137217,
+        "passed": true
+      },
+      "residual": {
+        "actual": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.0036497116088867188,
+          "rmse": 0.0004322202414278964,
+          "max_normalized": 5.792447515595301,
+          "outside_fp32_band": 54161
+        },
+        "eager": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.0036497116088867188,
+          "rmse": 0.0004322202414278964,
+          "max_normalized": 5.792447515595301,
+          "outside_fp32_band": 54161
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        577,
+        1024
+      ],
+      "pattern": "random",
+      "route": "rounded_residual",
+      "out": {
+        "actual": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.0043468475341796875,
+          "rmse": 0.00043500277971975716,
+          "max_normalized": 4.222706866986134,
+          "outside_fp32_band": 75470
+        },
+        "eager": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.0043468475341796875,
+          "rmse": 0.00043500277971975716,
+          "max_normalized": 4.222706866986134,
+          "outside_fp32_band": 75470
+        },
+        "diff": 0,
+        "passed": true
+      },
+      "residual": {
+        "actual": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.0036497116088867188,
+          "rmse": 0.0004322202414278964,
+          "max_normalized": 5.792447515595301,
+          "outside_fp32_band": 54161
+        },
+        "eager": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.0036497116088867188,
+          "rmse": 0.0004322202414278964,
+          "max_normalized": 5.792447515595301,
+          "outside_fp32_band": 54161
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        577,
+        1024
+      ],
+      "pattern": "high_bias",
+      "route": "all_half",
+      "error": "RuntimeError('add_layernorm not support x/weight/output dtype')"
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        577,
+        1024
+      ],
+      "pattern": "high_bias",
+      "route": "wide_affine",
+      "out": {
+        "actual": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.054437994956970215,
+          "rmse": 0.016943602147555362,
+          "max_normalized": 169.1379109560095,
+          "outside_fp32_band": 577032
+        },
+        "eager": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.05483520030975342,
+          "rmse": 0.01693721210175646,
+          "max_normalized": 165.98674400183694,
+          "outside_fp32_band": 577040
+        },
+        "diff": 420376,
+        "passed": false
+      },
+      "residual": {
+        "actual": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.06998443603515625,
+          "rmse": 0.02381781940648723,
+          "max_normalized": 2.848561899679746,
+          "outside_fp32_band": 196374
+        },
+        "eager": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.06998443603515625,
+          "rmse": 0.02381781940648723,
+          "max_normalized": 2.848561899679746,
+          "outside_fp32_band": 196374
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        577,
+        1024
+      ],
+      "pattern": "high_bias",
+      "route": "fp32_fused",
+      "out": {
+        "actual": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.03127419948577881,
+          "rmse": 0.010462587973955379,
+          "max_normalized": 89.61650770931263,
+          "outside_fp32_band": 569305
+        },
+        "eager": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.05483520030975342,
+          "rmse": 0.01693721210175646,
+          "max_normalized": 165.98674400183694,
+          "outside_fp32_band": 577040
+        },
+        "diff": 557824,
+        "passed": true
+      },
+      "residual": {
+        "actual": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.06998443603515625,
+          "rmse": 0.02381781940648723,
+          "max_normalized": 2.848561899679746,
+          "outside_fp32_band": 196374
+        },
+        "eager": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.06998443603515625,
+          "rmse": 0.02381781940648723,
+          "max_normalized": 2.848561899679746,
+          "outside_fp32_band": 196374
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        577,
+        1024
+      ],
+      "pattern": "high_bias",
+      "route": "rounded_residual",
+      "out": {
+        "actual": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.05483520030975342,
+          "rmse": 0.01693721210175646,
+          "max_normalized": 165.98674400183694,
+          "outside_fp32_band": 577040
+        },
+        "eager": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.05483520030975342,
+          "rmse": 0.01693721210175646,
+          "max_normalized": 165.98674400183694,
+          "outside_fp32_band": 577040
+        },
+        "diff": 0,
+        "passed": true
+      },
+      "residual": {
+        "actual": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.06998443603515625,
+          "rmse": 0.02381781940648723,
+          "max_normalized": 2.848561899679746,
+          "outside_fp32_band": 196374
+        },
+        "eager": {
+          "elements": 590848,
+          "nonfinite": 0,
+          "max_abs": 0.06998443603515625,
+          "rmse": 0.02381781940648723,
+          "max_normalized": 2.848561899679746,
+          "outside_fp32_band": 196374
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "public",
+      "shape": [
+        2048,
+        2048
+      ],
+      "exact_diff": 591559,
+      "tanh_diff": 1854289,
+      "legacy_diff": 0,
+      "actual": {
+        "elements": 4194304,
+        "nonfinite": 0,
+        "max_abs": 0.0020079612731933594,
+        "rmse": 0.00020810078884967923,
+        "max_normalized": 2.196647299506661,
+        "outside_fp32_band": 79054
+      },
+      "eager": {
+        "elements": 4194304,
+        "nonfinite": 0,
+        "max_abs": 0.0020079612731933594,
+        "rmse": 0.0002077763188883131,
+        "max_normalized": 2.196647299506661,
+        "outside_fp32_band": 78944
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "aten_out",
+      "shape": [
+        2048,
+        2048
+      ],
+      "exact_diff": 0,
+      "tanh_diff": 1294456,
+      "legacy_diff": 591559,
+      "actual": {
+        "elements": 4194304,
+        "nonfinite": 0,
+        "max_abs": 0.0020079612731933594,
+        "rmse": 0.0002077763188883131,
+        "max_normalized": 2.196647299506661,
+        "outside_fp32_band": 78944
+      },
+      "eager": {
+        "elements": 4194304,
+        "nonfinite": 0,
+        "max_abs": 0.0020079612731933594,
+        "rmse": 0.0002077763188883131,
+        "max_normalized": 2.196647299506661,
+        "outside_fp32_band": 78944
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "public_fp32",
+      "shape": [
+        2048,
+        2048
+      ],
+      "exact_diff": 591559,
+      "tanh_diff": 1854289,
+      "legacy_diff": 0,
+      "actual": {
+        "elements": 4194304,
+        "nonfinite": 0,
+        "max_abs": 0.0020079612731933594,
+        "rmse": 0.00020810078884967923,
+        "max_normalized": 2.196647299506661,
+        "outside_fp32_band": 79054
+      },
+      "eager": {
+        "elements": 4194304,
+        "nonfinite": 0,
+        "max_abs": 0.0020079612731933594,
+        "rmse": 0.0002077763188883131,
+        "max_normalized": 2.196647299506661,
+        "outside_fp32_band": 78944
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "xdnn_False",
+      "shape": [
+        2048,
+        2048
+      ],
+      "exact_diff": 591559,
+      "tanh_diff": 1854289,
+      "legacy_diff": 0,
+      "actual": {
+        "elements": 4194304,
+        "nonfinite": 0,
+        "max_abs": 0.0020079612731933594,
+        "rmse": 0.00020810078884967923,
+        "max_normalized": 2.196647299506661,
+        "outside_fp32_band": 79054
+      },
+      "eager": {
+        "elements": 4194304,
+        "nonfinite": 0,
+        "max_abs": 0.0020079612731933594,
+        "rmse": 0.0002077763188883131,
+        "max_normalized": 2.196647299506661,
+        "outside_fp32_band": 78944
+      }
+    },
+    {
+      "api": "gelu",
+      "route": "xdnn_True",
+      "shape": [
+        2048,
+        2048
+      ],
+      "exact_diff": 1665177,
+      "tanh_diff": 588366,
+      "legacy_diff": 1300837,
+      "actual": {
+        "elements": 4194304,
+        "nonfinite": 0,
+        "max_abs": 0.0024161338806152344,
+        "rmse": 0.0002437297772376046,
+        "max_normalized": 2.3699280105532505,
+        "outside_fp32_band": 157839
+      },
+      "eager": {
+        "elements": 4194304,
+        "nonfinite": 0,
+        "max_abs": 0.0020079612731933594,
+        "rmse": 0.0002077763188883131,
+        "max_normalized": 2.196647299506661,
+        "outside_fp32_band": 78944
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        2048,
+        2048
+      ],
+      "pattern": "random",
+      "route": "all_half",
+      "error": "RuntimeError('add_layernorm not support x/weight/output dtype')"
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        2048,
+        2048
+      ],
+      "pattern": "random",
+      "route": "wide_affine",
+      "out": {
+        "actual": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.00530242919921875,
+          "rmse": 0.0004313081186554174,
+          "max_normalized": 4.529667519596646,
+          "outside_fp32_band": 526538
+        },
+        "eager": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.00530242919921875,
+          "rmse": 0.0004311674741065677,
+          "max_normalized": 4.529667519596646,
+          "outside_fp32_band": 526371
+        },
+        "diff": 134141,
+        "passed": false
+      },
+      "residual": {
+        "actual": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.0038423538208007812,
+          "rmse": 0.0004327062740759267,
+          "max_normalized": 6.107561122601616,
+          "outside_fp32_band": 385812
+        },
+        "eager": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.0038423538208007812,
+          "rmse": 0.0004327062740759267,
+          "max_normalized": 6.107561122601616,
+          "outside_fp32_band": 385812
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        2048,
+        2048
+      ],
+      "pattern": "random",
+      "route": "fp32_fused",
+      "out": {
+        "actual": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.004788398742675781,
+          "rmse": 0.00036800498751127464,
+          "max_normalized": 4.529667519596646,
+          "outside_fp32_band": 362328
+        },
+        "eager": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.00530242919921875,
+          "rmse": 0.0004311674741065677,
+          "max_normalized": 4.529667519596646,
+          "outside_fp32_band": 526371
+        },
+        "diff": 943455,
+        "passed": true
+      },
+      "residual": {
+        "actual": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.0038423538208007812,
+          "rmse": 0.0004327062740759267,
+          "max_normalized": 6.107561122601616,
+          "outside_fp32_band": 385812
+        },
+        "eager": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.0038423538208007812,
+          "rmse": 0.0004327062740759267,
+          "max_normalized": 6.107561122601616,
+          "outside_fp32_band": 385812
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        2048,
+        2048
+      ],
+      "pattern": "random",
+      "route": "rounded_residual",
+      "out": {
+        "actual": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.00530242919921875,
+          "rmse": 0.0004311674741065677,
+          "max_normalized": 4.529667519596646,
+          "outside_fp32_band": 526371
+        },
+        "eager": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.00530242919921875,
+          "rmse": 0.0004311674741065677,
+          "max_normalized": 4.529667519596646,
+          "outside_fp32_band": 526371
+        },
+        "diff": 0,
+        "passed": true
+      },
+      "residual": {
+        "actual": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.0038423538208007812,
+          "rmse": 0.0004327062740759267,
+          "max_normalized": 6.107561122601616,
+          "outside_fp32_band": 385812
+        },
+        "eager": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.0038423538208007812,
+          "rmse": 0.0004327062740759267,
+          "max_normalized": 6.107561122601616,
+          "outside_fp32_band": 385812
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        2048,
+        2048
+      ],
+      "pattern": "high_bias",
+      "route": "all_half",
+      "error": "RuntimeError('add_layernorm not support x/weight/output dtype')"
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        2048,
+        2048
+      ],
+      "pattern": "high_bias",
+      "route": "wide_affine",
+      "out": {
+        "actual": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.05637168884277344,
+          "rmse": 0.016859961307812893,
+          "max_normalized": 168.54878498549485,
+          "outside_fp32_band": 4096820
+        },
+        "eager": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.05666637420654297,
+          "rmse": 0.016859022786331796,
+          "max_normalized": 167.3743211520747,
+          "outside_fp32_band": 4096320
+        },
+        "diff": 2684534,
+        "passed": false
+      },
+      "residual": {
+        "actual": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.0702362060546875,
+          "rmse": 0.02382927744437478,
+          "max_normalized": 2.8809253238973787,
+          "outside_fp32_band": 1396984
+        },
+        "eager": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.0702362060546875,
+          "rmse": 0.02382927744437478,
+          "max_normalized": 2.8809253238973787,
+          "outside_fp32_band": 1396984
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        2048,
+        2048
+      ],
+      "pattern": "high_bias",
+      "route": "fp32_fused",
+      "out": {
+        "actual": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.03337740898132324,
+          "rmse": 0.010403110730812152,
+          "max_normalized": 99.89475138903488,
+          "outside_fp32_band": 4040603
+        },
+        "eager": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.05666637420654297,
+          "rmse": 0.016859022786331796,
+          "max_normalized": 167.3743211520747,
+          "outside_fp32_band": 4096320
+        },
+        "diff": 3910580,
+        "passed": true
+      },
+      "residual": {
+        "actual": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.0702362060546875,
+          "rmse": 0.02382927744437478,
+          "max_normalized": 2.8809253238973787,
+          "outside_fp32_band": 1396984
+        },
+        "eager": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.0702362060546875,
+          "rmse": 0.02382927744437478,
+          "max_normalized": 2.8809253238973787,
+          "outside_fp32_band": 1396984
+        },
+        "diff": 0,
+        "passed": true
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        2048,
+        2048
+      ],
+      "pattern": "high_bias",
+      "route": "rounded_residual",
+      "out": {
+        "actual": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.05666637420654297,
+          "rmse": 0.016859022786331796,
+          "max_normalized": 167.3743211520747,
+          "outside_fp32_band": 4096320
+        },
+        "eager": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.05666637420654297,
+          "rmse": 0.016859022786331796,
+          "max_normalized": 167.3743211520747,
+          "outside_fp32_band": 4096320
+        },
+        "diff": 0,
+        "passed": true
+      },
+      "residual": {
+        "actual": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.0702362060546875,
+          "rmse": 0.02382927744437478,
+          "max_normalized": 2.8809253238973787,
+          "outside_fp32_band": 1396984
+        },
+        "eager": {
+          "elements": 4194304,
+          "nonfinite": 0,
+          "max_abs": 0.0702362060546875,
+          "rmse": 0.02382927744437478,
+          "max_normalized": 2.8809253238973787,
+          "outside_fp32_band": 1396984
+        },
+        "diff": 0,
+        "passed": true
+      }
+    }
+  ]
+}

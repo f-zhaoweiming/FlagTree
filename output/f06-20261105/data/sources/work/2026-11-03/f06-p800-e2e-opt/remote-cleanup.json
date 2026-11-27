@@ -1,0 +1,18 @@
+{
+  "status": "completed",
+  "removed_directory": "/data2/zhaoweiming/f06-e2e-opt-20261103",
+  "directory_absent": true,
+  "archive_sha256": "391113f98e7f41ecef283a6aaf124e15845ca2809d5fa44063ff48966ae9efa3",
+  "verified_files": 36937,
+  "final_counts": {
+    "cases": 216,
+    "passed": 216
+  },
+  "free_before_bytes": 5453310640128,
+  "free_after_bytes": 5480945184768,
+  "free_space_change_bytes": 27634544640,
+  "removed_registry_entries": [
+    "/data2/zhaoweiming/f06-e2e-opt-20261103/env"
+  ],
+  "completed_at": 1793706923.1045942
+}

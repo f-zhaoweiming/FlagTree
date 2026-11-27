@@ -17,34 +17,24 @@ import operator
 import os
 import tempfile
 
-_VERSION = 'flat-add-v1'
+_VERSION = 'flat-add-v2'
 _XBLOCKS = (1024, 2048, 4096, 8192, 16384)
 # gelu chains overflow the XPU vectorizer for very wide blocks (LLVM SmallVector abort)
 _XBLOCK_CAP = {'silu': 16384, 'relu': 16384, 'gelu_tanh': 8192, 'gelu_exact': 8192}
 _WARPS = (4, 8)
 _KINDS = {'silu': 1, 'gelu_tanh': 2, 'gelu_exact': 3, 'relu': 4}
 
-# Measured fallback policy for the flat activation kernels (see the weekly
-# report tables): GELU at 64x1024 loses ~25% to eager, and fp32 SiLU at
-# 2048x2048 loses ~8%; declining lets the graph run eager instead.
+# Size fallback for the measured large FP32 SiLU case.
 def _fallback_enabled():
     return os.environ.get('FLAGTREE_FALLBACK_HEURISTIC', '1') != '0'
 
-_DTYPES = ('float32', 'float16')
+_TLE_DTYPES = ('float32', 'float16')
 
 
 def _is(node, targets, name):
     target = getattr(node, 'target', None)
     return target in targets or getattr(target, '__name__', '') == name
 
-
-def _kernel_source_marker():
-    """Wrapper-shaped source so the existing single-launch audit still applies."""
-    return ("@triton.jit\n"
-            "def flagtree_p800_flat_region(a_ptr, b_ptr, o_ptr, kind, p, xblock):\n"
-            "    ...\n\n"
-            "def call(args):\n"
-            "    triton_unk_fused_0.run(*args)\n")
 
 
 def _output_nodes(gm):
@@ -93,12 +83,10 @@ def match(gm, inputs):
     m, n = int(a.shape[0]), int(a.shape[1])
     if m <= 0 or n <= 0 or int(b.shape[0]) != n:
         return None
-    # The kernel indexes a flat [m*n] range without a mask; every launchable
-    # XBLOCK must divide the range or the tail is read/written out of bounds.
-    if not any((m * n) % xblock == 0 for xblock in _XBLOCKS):
+    if m * n > 0x7fffffff:
         return None
     dt = str(a.dtype).replace('torch.', '')
-    if dt not in _DTYPES:
+    if dt not in ('float32', 'float16', 'bfloat16'):
         return None
     if str(b.dtype) != str(a.dtype):
         return None
@@ -128,8 +116,12 @@ def match(gm, inputs):
             act, act_node = 'relu', node
         if act_node is not None:
             break
-    if act_node is None or act_node not in _output_nodes(gm):
+    if act_node is None or _output_nodes(gm) != {act_node}:
         return None
+    if dt == 'bfloat16' and act in ('relu', 'silu') and m * n > 65536:
+        from ._p800_vector_rows import configuration
+        if configuration(act, dt, m, n) is None:
+            return None
     if not act_node.args:
         return None
     add_node = act_node.args[0]
@@ -139,7 +131,7 @@ def match(gm, inputs):
         return None
     if add_node.kwargs.get('alpha') not in (None, 1):
         return None
-    if not _placeholder_operands(add_node):
+    if not _placeholder_operands(add_node) or set(add_node.args[:2]) != {n for n in nodes if n.op == 'placeholder'}:
         return None
     if _fallback_enabled():
         # After the sigmoid-identity GELU(tanh) rewrite and the wider XBLOCK cap
@@ -147,7 +139,9 @@ def match(gm, inputs):
         # exact 1.02-1.64x), so only the fp32 2048^2 SiLU shape still declines
         # (measured 0.92x).
         if act == 'silu' and dt == 'float32' and m * n >= 2048 * 2048:
-            return None
+            from ._p800_vector_rows import configuration
+            if configuration(act, dt, m, n) is None:
+                return None
     return dict(kind=act, m=m, n=n, dtype=dt, total=m * n)
 
 
@@ -155,15 +149,47 @@ def _kernel():
     import triton
     import triton.language as tl
 
+    @triton.jit
+    def bf16_bits(value, FINAL: tl.constexpr = False):
+        word = value.to(tl.uint32, bitcast=True)
+        upper = (word + 0x7fff + ((word >> 16) & 1)) >> 16
+        if FINAL:
+            return upper
+        return tl.where((word & 0x7fffffff) > 0x7f800000, 0x7fc0, upper)
+
     # Pointers must stay out of the specialization key: otherwise every new
     # allocation re-specialises the kernel (official XPU guidance: "指针别进
     # specialization key" + "first ≈ median 说明每次调用都在重新加载 kernel").
-    @triton.jit(do_not_specialize=['a_ptr', 'b_ptr', 'o_ptr'])
+    @triton.jit(do_not_specialize=['a_ptr', 'b_ptr', 'o_ptr'],
+                do_not_specialize_on_alignment=['a_ptr', 'b_ptr', 'o_ptr'])
     def _flat_add_act(a_ptr, b_ptr, o_ptr, KIND: tl.constexpr, P: tl.constexpr,
-                      XBLOCK: tl.constexpr):
+                      XBLOCK: tl.constexpr, TOTAL: tl.constexpr, FINAL_ONLY: tl.constexpr = False):
         i = tl.program_id(0) * XBLOCK + tl.arange(0, XBLOCK)
-        v = tl.load(a_ptr + i) + tl.load(b_ptr + (i % P))
-        v = v.to(tl.float32)
+        if a_ptr.dtype.element_ty == tl.bfloat16:
+            a_bits = tl.load(a_ptr.to(tl.pointer_type(tl.uint16)) + i, mask=i < TOTAL, other=0)
+            b_bits = tl.load(b_ptr.to(tl.pointer_type(tl.uint16)) + (i % P))
+            a = (a_bits.to(tl.uint32) << 16).to(tl.float32, bitcast=True)
+            b = (b_bits.to(tl.uint32) << 16).to(tl.float32, bitcast=True)
+            if FINAL_ONLY:
+                v = a + b
+            else:
+                rounded = bf16_bits(a + b)
+                if KIND == 4:
+                    # The compatibility ReLU preserves negative zero (0x8000).
+                    result = tl.where(rounded > 0x8000, 0, rounded).to(tl.uint16)
+                    tl.store(o_ptr.to(tl.pointer_type(tl.uint16)) + i, result, mask=i < TOTAL)
+                    return
+                v = (rounded << 16).to(tl.float32, bitcast=True)
+        else:
+            if TOTAL % XBLOCK:
+                a = tl.load(a_ptr + i, mask=i < TOTAL, other=0.0)
+            else:
+                a = tl.load(a_ptr + i)
+            b = tl.load(b_ptr + (i % P))
+            if FINAL_ONLY:
+                v = a.to(tl.float32) + b.to(tl.float32)
+            else:
+                v = (a + b).to(tl.float32)
         if KIND == 1:
             out = v * tl.sigmoid(v)
         elif KIND == 2:
@@ -178,8 +204,13 @@ def _kernel():
             inv = 0.7071067811865476
             out = 0.5 * v * (1.0 + tl.math.erf(v * inv))
         else:
-            out = tl.maximum(v, 0.0)
-        tl.store(o_ptr + i, out)
+            out = tl.where(v != v, v, tl.maximum(v, 0.0))
+        if a_ptr.dtype.element_ty == tl.bfloat16:
+            tl.store(o_ptr.to(tl.pointer_type(tl.uint16)) + i, bf16_bits(out, FINAL_ONLY).to(tl.uint16), mask=i < TOTAL)
+        elif TOTAL % XBLOCK:
+            tl.store(o_ptr + i, out, mask=i < TOTAL)
+        else:
+            tl.store(o_ptr + i, out)
 
     return _flat_add_act
 
@@ -222,7 +253,7 @@ def _tle_kernel():
             elif KIND == 3:
                 out = 0.5 * v * (1.0 + tl.math.erf(v * 0.7071067811865476))
             else:
-                out = tl.maximum(v, 0.0)
+                out = tl.where(v != v, v, tl.maximum(v, 0.0))
             tl.store(p, out.to(DT))
             tle.gpu.copy(buf, o_desc, [R, N], [base + r0, 0])
 
@@ -254,6 +285,16 @@ def _store(key, record):
         json.dump(dict(record, version=_VERSION), fh)
 
 
+def _device_tile_us(launch, a, b, out, candidate):
+    from statistics import median
+    from ._resource_benchmark import _capture, replay_us
+
+    # Short kernels can finish before Python submits the next launch. Replay
+    # a pre-filled queue so tile selection compares the actual executables.
+    graph, _ = _capture(lambda: launch(a, b, out, candidate), (), 32)
+    return median(replay_us(graph, 32) for _ in range(5))
+
+
 def suggest_xblock(gm, inputs):
     """Cheap guess used by the planner before any measurement (no device work)."""
     spec = match(gm, inputs)
@@ -264,17 +305,58 @@ def compile(spec, tensors):  # pragma: no cover - exercised on device
     """Return (callable, proof). Tuning happens on the first real call."""
     import torch
 
+    from ._p800_bound_launch import bind
+    from ._resource_codegen import bind_evidence
+
     key = '%s|%s|%dx%d|%s' % (_VERSION, spec['kind'], spec['m'], spec['n'], spec['dtype'])
-    proof = {'route': 'flat_add', 'resource': 'cluster', 'resource_verified': True,
-             'source_code': _kernel_source_marker(), 'emitted': 'flat', 'region': dict(spec), 'match_key': key,
+    final_only = spec.get('final_round_only', False)
+    if final_only:
+        key += '|fp32-final-only'
+    replay_tiles = (spec['kind'] == 'gelu_tanh' and spec['dtype'] == 'float16' and spec['total'] <= 65536
+                    or spec['dtype'] == 'float32' and spec['kind'] in ('silu', 'gelu_exact')
+                    and spec['total'] <= 512 * 1024)
+    if replay_tiles:
+        key += '|device-tile-timing-v1'
+    if spec['kind'] == 'relu' and spec['dtype'] == 'bfloat16':
+        key += '|preserve-negative-zero'
+    proof = {'route': 'flat_add', 'resource': 'cluster', 'resource_verified': False,
+             'direct_launches': 1, 'emitted': 'flat', 'region': dict(spec), 'match_key': key,
              'tiles': None, 'autotune': 'cached' if _load(key) else 'pending'}
+    from . import _p800_vector_rows
+    config = _p800_vector_rows.configuration(spec['kind'], spec['dtype'], spec['m'], spec['n'])
+    if (final_only and spec['dtype'] == 'bfloat16' and spec['kind'] in ('silu', 'gelu_tanh')
+            and 0 < spec['n'] <= 1024 and spec['n'] % 32):
+        from ._p800_layernorm import toolchain_available
+        if toolchain_available():
+            mode = 10 if spec['kind'] == 'silu' else 11
+            return _p800_vector_rows.prepare(spec, (mode, 32, (spec['m'] + 11) // 12, 12), proof)
+    if final_only and (spec['dtype'] == 'bfloat16' and spec['kind'] in ('silu', 'gelu_tanh')
+                       or spec['dtype'] == 'float16' and spec['kind'] == 'silu' and spec['m'] >= 512):
+        from ._p800_layernorm import toolchain_available
+        width = 64 if spec['total'] <= 128*1024 else 128 if spec['total'] <= 1024*1024 else 512
+        # Mixed activation reuses one aligned bias slice on successive tiles.
+        while width >= 32 and (spec['n'] % width or (12 * 64 * width) % spec['n']):
+            width //= 2
+        if width >= 32 and toolchain_available():
+            mode = 2 if spec['kind'] == 'silu' else 3
+            return _p800_vector_rows.prepare(spec, (mode, width, 1, 12), proof)
+    if config is not None and not final_only:
+        return _p800_vector_rows.prepare(spec, config, proof)
+    if (spec['kind'] == 'gelu_exact' and not spec.get('pointer_gelu')
+            and (spec['dtype'] == 'bfloat16' or final_only and spec['dtype'] == 'float16')):
+        from ._p800_layernorm import toolchain_available
+        if toolchain_available():
+            from . import _p800_bf16_gelu
+            width = _p800_bf16_gelu.tile_width(spec['m'], spec['n'])
+            if width is not None:
+                return _p800_bf16_gelu.prepare(spec, width, proof)
     state = dict(kernel=None, tile=None)
 
     def launch(a, b, out, tile):
         total = spec['m'] * spec['n']
         grid = ((total + tile['xblock'] - 1) // tile['xblock'],)
-        state['kernel'][grid](a, b, out, KIND=_KINDS[spec['kind']], P=spec['n'],
-                              XBLOCK=tile['xblock'], num_warps=tile['warps'], num_stages=1)
+        state['kernel'][grid](a, b, out, KIND=_KINDS[spec['kind']], P=spec['n'], TOTAL=total,
+                              XBLOCK=tile['xblock'], FINAL_ONLY=final_only, num_warps=tile['warps'], num_stages=1)
 
     def _make_launcher(a, b):
         tile = prepare(a, b)
@@ -284,9 +366,35 @@ def compile(spec, tensors):  # pragma: no cover - exercised on device
         kind = _KINDS[spec['kind']]
         xb, warps = tile['xblock'], tile['warps']
 
+        from triton import knobs
+        from triton.runtime import driver
+        import sys
+        runtime_jit = sys.modules[type(kernel).__module__]
+        prism = getattr(runtime_jit, '_flagprism', None)
+        dtype = a.dtype
+        device = driver.active.get_current_device()
+        get_device = driver.active.get_current_device
+        get_stream = driver.active.get_current_stream
+        compiled = None
+        runner = None
+
         def launch(a, b, out):
-            kernel[grid](a, b, out, KIND=kind, P=spec['n'], XBLOCK=xb,
-                         num_warps=warps, num_stages=1)
+            nonlocal compiled, runner
+            if (runner is not None and not kernel.pre_run_hooks and not knobs.runtime.debug
+                    and not getattr(knobs.compilation, 'instrumentation_mode', '')
+                    and (prism is None or not prism._registered_components())
+                    and a.dtype == b.dtype == dtype and get_device() == device
+                    and a.device.index == device and b.device == a.device):
+                # CompiledKernel expects constexprs in signature order. Stream
+                # selection remains per call, including during graph capture.
+                runner(a, b, out, kind, spec['n'], xb, total, final_only, stream=get_stream(device))
+                return compiled
+            binary = kernel[grid](a, b, out, KIND=kind, P=spec['n'], XBLOCK=xb, TOTAL=total,
+                                  FINAL_ONLY=final_only, num_warps=warps, num_stages=1)
+            if runner is None and a.device.index == device and b.device == a.device and get_device() == device:
+                compiled = binary
+                runner = binary[(grid[0], 1, 1)]
+            return binary
 
         return launch
 
@@ -295,17 +403,19 @@ def compile(spec, tensors):  # pragma: no cover - exercised on device
             return state['tile']
         state['kernel'] = _kernel()
         tile = _load(key)
-        if tile is None:
+        cap = _XBLOCK_CAP.get(spec['kind'], 1024)
+        blocks = [xb for xb in _XBLOCKS if xb <= cap]
+        if tile is None or tile.get('xblock') not in blocks:
             out = torch.empty_like(a)
             best = None
-            cap = _XBLOCK_CAP.get(spec['kind'], 1024)
-            for xb in [x for x in _XBLOCKS if x <= cap]:
+            best_device = None
+            for xb in blocks:
                 for warps in _WARPS:
                     cand = dict(xblock=xb, warps=warps)
                     try:
                         launch(a, b, out, cand)
                         torch.cuda.synchronize()
-                        z = a + b
+                        z = a.float() + b.float() if final_only else a + b
                         if spec['kind'] == 'silu':
                             ref = torch.nn.functional.silu(z)
                         elif spec['kind'] == 'relu':
@@ -314,9 +424,18 @@ def compile(spec, tensors):  # pragma: no cover - exercised on device
                             ref = torch.nn.functional.gelu(z, approximate='tanh')
                         else:
                             ref = torch.nn.functional.gelu(z, approximate='none')
-                        err = float((out.float() - ref.float()).abs().max())
+                        err = float((out.float() - ref.to(out.dtype).float()).abs().max())
                         if err > 5e-2:
                             continue
+                        if replay_tiles:
+                            try:
+                                device_us = _device_tile_us(launch, a, b, out, cand)
+                            except RuntimeError:
+                                pass
+                            else:
+                                if best_device is None or device_us < best_device[0]:
+                                    best_device = (device_us, cand)
+                                continue
                         start, end = torch.cuda.Event(True), torch.cuda.Event(True)
                         start.record()
                         for _ in range(20):
@@ -328,40 +447,28 @@ def compile(spec, tensors):  # pragma: no cover - exercised on device
                         continue
                     if best is None or us < best[0]:
                         best = (us, cand)
+            best = best_device or best
             if best is None:
                 raise RuntimeError('flagtree flat region: no valid tile for %r' % (spec,))
             tile = dict(best[1], us=round(best[0], 2))
-            _store(key, tile)
+            if replay_tiles:
+                tile['timing'] = 'device_graph' if best_device is not None else 'launch_loop_fallback'
+            if not replay_tiles or best_device is not None:
+                _store(key, tile)
         state['tile'] = tile
         proof['tiles'] = dict(tile)
         proof['autotune'] = 'cached' if tile.get('version') == _VERSION else 'measured'
         return tile
 
-    probe_state = {}
-
-    def probe(a, b):
-        # Compile once with the real tensors; an unsupported activation must fail
-        # here (so the caller can keep the native region) instead of at call time.
-        kernel = _kernel()
-        out = torch.empty_like(a)
-        total = spec['m'] * spec['n']
-        xb = min(_XBLOCK_CAP.get(spec['kind'], 1024), max(1024, total // 64))
-        grid = ((total + xb - 1) // xb,)
-        kernel[grid](a, b, out, KIND=_KINDS[spec['kind']], P=spec['n'], XBLOCK=xb,
-                     num_warps=4, num_stages=1)
-        torch.cuda.synchronize()
-        probe_state['ok'] = True
+    tle_layout = (spec['dtype'] in _TLE_DTYPES and spec['n'] in (512, 1024, 2048)
+                  and spec['m'] % _TLE_PROGRAMS == 0 and spec['m'] // _TLE_PROGRAMS > 0
+                  and (spec['m'] // _TLE_PROGRAMS) % _TLE_R == 0)
 
     def run(xs):
         a = xs[0]
         # Opt-in TLE software-pipelined path (see _tle_kernel): measured
         # separately from the pointer kernel; falls back on any failure.
-        tle_ok = (os.environ.get('FLAGTREE_FLAT_TLE', '0') == '1'
-                  and spec['n'] in (512, 1024, 2048)
-                  and spec['m'] % _TLE_PROGRAMS == 0
-                  and (spec['m'] // _TLE_PROGRAMS) % _TLE_R == 0
-                  and spec['m'] // _TLE_PROGRAMS > 0)
-        if tle_ok and not state.get('tle_failed'):
+        if tle_layout and not state.get('tle_failed') and os.environ.get('FLAGTREE_FLAT_TLE', '0') == '1':
             try:
                 from triton.tools.tensor_descriptor import TensorDescriptor
                 import triton.language as _tl
@@ -374,22 +481,36 @@ def compile(spec, tensors):  # pragma: no cover - exercised on device
                 ad = TensorDescriptor.from_tensor(a, [_TLE_R, spec['n']])
                 bd = TensorDescriptor.from_tensor(xs[1], [spec['n']])
                 od = TensorDescriptor.from_tensor(out, [_TLE_R, spec['n']])
-                state['tle_kernel'][(_TLE_PROGRAMS,)](
+                binary = state['tle_kernel'][(_TLE_PROGRAMS,)](
                     ad, bd, od, KIND=_KINDS[spec['kind']], N=spec['n'],
                     R=_TLE_R, ROWS=rows, DT=dt, num_warps=4, num_stages=2)
+                bind_evidence(proof, binary)
                 proof['tiles'] = {'route': 'tle', 'r': _TLE_R, 'programs': _TLE_PROGRAMS}
                 return (out,)
             except Exception as exc:
                 if os.environ.get('FLAGTREE_FLAT_DEBUG'):
                     print('[flat] TLE path failed:', type(exc).__name__, str(exc)[:200], flush=True)
+                proof['resource_verified'] = False
                 state['tle_failed'] = True
+        warm = state.get('warm')
+        if warm is not None:
+            out = warm(a, xs[1])
+            if out is not None:
+                return (out,)
         launch = state.get('launcher')
         if launch is None:
             if a.dim() != 2 or a.shape[0] != spec['m'] or a.shape[1] != spec['n']:
                 raise RuntimeError('flagtree flat region: shape changed at call time')
             launch = state['launcher'] = _make_launcher(a, xs[1])
         out = torch.empty_like(a)
-        launch(a, xs[1], out)
+        binary = launch(a, xs[1], out)
+        if not proof['resource_verified']:
+            bind_evidence(proof, binary)
+            xb = state['tile']['xblock']
+            programs = (spec['total'] + xb - 1) // xb
+            state['warm'] = bind(state['kernel'], binary, (programs, 1, 1), (a, xs[1]),
+                                 (spec['m'], spec['n']), (), 'cluster')
+            proof['prepared_launch'] = state['warm'] is not None
         return (out,)
 
     return run, proof

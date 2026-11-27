@@ -733,13 +733,20 @@ class JITFunction(JITCallable, KernelInterface[T]):
             hook(*args, **kwargs)
 
         kernel_cache, kernel_key_cache, target, backend, binder = self.device_caches[device]
-        # XPU bakes the launch grid into XPUOptions during compilation. Keep
-        # compilation metadata consistent with the grid used at launch.
-        if backend.binary_ext == 'xpubin':
-            kwargs['grid'] = grid
         # specialization is list[tuple[str, Any]], where first element of tuple is
         # the type and the second parameter is the 'specialization' value.
         bound_args, specialization, options = binder(*args, **kwargs)
+        if backend.binary_ext == 'xpubin':
+            # XPU uses the grid during compilation. Cache its value, not the
+            # identity of a callable recreated by the operator on every call.
+            # Resolve after binding so constexpr/default arguments are available,
+            # and reuse this exact grid for the eventual device launch.
+            if callable(grid):
+                grid = grid(bound_args)
+            if grid is not None:
+                grid = tuple(grid)
+            kwargs['grid'] = grid
+            options['grid'] = grid
 
         key = compute_cache_key(kernel_key_cache, specialization, options)
         kernel = kernel_cache.get(key, None)
@@ -805,7 +812,9 @@ class JITFunction(JITCallable, KernelInterface[T]):
         `debug` / `instrumentation_mode` knob change.
         """
         fallback = lambda *args, **kwargs: self.run(grid=grid, warmup=False, *args, **kwargs)  # noqa: E731
-        if knobs.runtime.disable_launch_fast_path:
+        if knobs.runtime.disable_launch_fast_path or callable(grid):
+            # Callable grids use run() and may be short-lived closures. Keeping
+            # them in _bound_launchers retains a new closure on every invocation.
             return fallback
         try:
             launcher = self._bound_launchers.get(grid)

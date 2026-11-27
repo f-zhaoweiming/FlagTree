@@ -19,17 +19,55 @@ def _cpu(value):
     return tree_map(lambda x: x.detach().cpu().clone(), value)
 
 
-def assert_close(got, want, tolerance):
+def assert_close(got, want, tolerance, *, output_dtype=None):
     import torch
     a, sa = _leaves(got)
     b, sb = _leaves(want)
     if sa != sb:
         raise AssertionError('output structure changed')
     for x, y in zip(a, b):
+        if output_dtype is not None:
+            if x.dtype != output_dtype or y.dtype != torch.float32 or x.shape != y.shape:
+                raise AssertionError('expected the model output dtype and shape against an FP32 eager reference')
+            if output_dtype in (torch.float16, torch.bfloat16):
+                _assert_final_round(x, y, tolerance)
+                continue
         x, y = x.detach().cpu(), y.detach().cpu()
         torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
         assert torch.equal(torch.isnan(x), torch.isnan(y)), 'NaN propagation changed'
         assert torch.equal(torch.isinf(x), torch.isinf(y)), 'Inf propagation changed'
+
+
+def _assert_final_round(output, reference, tolerance):
+    """Check whether one final SDK cast can map an in-tolerance FP32 result to the observed value."""
+    import torch
+    actual = output.detach().cpu()
+    ref = reference.detach().to(output.device)
+    rounded = ref.to(output.dtype).cpu()
+    mismatch = (actual != rounded) & ~(actual.isnan() & rounded.isnan())
+    if not mismatch.any():
+        return
+    # Preserve the actual SDK's overflow and NaN conversion, including nonstandard payloads.
+    target = ref.cpu()[mismatch]
+    observed = actual[mismatch].float()
+    if not (target.isfinite() & rounded[mismatch].isfinite() & observed.isfinite()).all():
+        raise AssertionError('nonfinite output differs from the final FP32 eager conversion')
+    # RNE is monotone on finite values. Project just the mismatches into the model dtype;
+    # this admits adjacent bins at a true midpoint without granting an extra ULP everywhere.
+    delta = tolerance['atol'] + tolerance['rtol'] * target.double().abs()
+    low, high = target.double() - delta, target.double() + delta
+    # Round the endpoints inward to FP32 so a zero or tiny tolerance cannot admit an
+    # out-of-tolerance FP32 predecessor or successor.
+    lower, upper = low.float(), high.float()
+    lower = torch.where(lower.double() < low, torch.nextafter(lower, torch.full_like(lower, math.inf)), lower)
+    upper = torch.where(upper.double() > high, torch.nextafter(upper, torch.full_like(upper, -math.inf)), upper)
+    lower = lower.to(output.device).to(output.dtype).cpu().float()
+    upper = upper.to(output.device).to(output.dtype).cpu().float()
+    bad = (observed < lower) | (observed > upper)
+    if bad.any():
+        i = bad.nonzero()[0].item()
+        raise AssertionError(f'output {observed[i].item()} is outside [{lower[i].item()}, {upper[i].item()}] '
+                             f'after one final cast from the FP32 reference {target[i].item()}')
 
 
 def _tensor_bytes(x):
@@ -61,27 +99,48 @@ def _validate(fn, reference, inputs, tolerance):
     tensors = [x for x in inputs if isinstance(x, torch.Tensor)]
     attrs = list(reference.parameters()) + list(reference.buffers())
     originals = [_tensor_bytes(x).clone() for x in tensors + attrs]
+    compare = getattr(reference, '_f06_assert_close', assert_close)
     checks = {}
     expected = _cpu(reference(*inputs))
     actual = fn(*inputs)
-    assert_close(actual, expected, tolerance)
+    compare(actual, expected, tolerance)
     checks['ordinary'] = True
-    held = [actual, fn(*inputs), fn(*inputs)]
+    held = [actual] + [fn(*inputs) for _ in range(4)]
     for index in range(len(_leaves(actual)[0])):
         assert len({_leaves(y)[0][index].data_ptr() for y in held}) == len(held), 'output storage reused'
     changed = _changed(inputs)
-    assert_close(fn(*changed), _cpu(reference(*changed)), tolerance)
+    compare(fn(*changed), _cpu(reference(*changed)), tolerance)
     checks['changed'] = True
     for value in held:
-        assert_close(value, expected, tolerance)
+        compare(value, expected, tolerance)
     checks['repeat'] = True
-    special = tuple(x.detach().clone() if isinstance(x, torch.Tensor) else x for x in inputs)
-    first = next(x for x in special if isinstance(x, torch.Tensor) and x.is_floating_point())
-    # Build on CPU: exclude all input preparation/transfer from GPU timing.
-    marked = first.cpu()
-    marked.reshape(-1)[:5] = torch.tensor([float('nan'), float('inf'), -float('inf'), 0., -0.], dtype=first.dtype)
-    first.copy_(marked)
-    assert_close(fn(*special), _cpu(reference(*special)), tolerance)
+    floating = [i for i, x in enumerate(inputs)
+                if isinstance(x, torch.Tensor) and x.is_floating_point() and x.numel()]
+    for index in floating:
+        original = inputs[index].detach().cpu().contiguous()
+        # Mixing NaN and infinities in one row can mask incorrect Inf handling
+        # in a reduction. Exercise each operand, including broadcast operands.
+        for label, marks in (('mixed', [math.nan, math.inf, -math.inf, 0., -0.]),
+                             ('NaN', [math.nan]), ('+Inf', [math.inf]), ('-Inf', [-math.inf])):
+            marked = original.clone()
+            values = marked.new_tensor(marks[:marked.numel()])
+            marked.view(-1)[:values.numel()] = values
+            special = list(inputs)
+            special[index] = marked.to(inputs[index].device)
+            want = _cpu(reference(*special))
+            try:
+                compare(fn(*special), want, tolerance)
+            except AssertionError as exc:
+                raise AssertionError(f'special input {index} ({label}): {exc}') from exc
+    # Eager implementations may lose precision on near-constant rows. A
+    # numerically stable kernel must still respect this graph's eager contract.
+    if any('layer_norm' in str(n.target) for n in reference.graph.nodes):
+        conditioned = list(inputs)
+        for i, x in enumerate(inputs):
+            if isinstance(x, torch.Tensor) and x.ndim == 2 and x.is_floating_point():
+                conditioned[i] = (1000 + .1 * x.float()).to(x.dtype)
+                break
+        compare(fn(*conditioned), _cpu(reference(*conditioned)), tolerance)
     checks['special'] = True
     for original, tensor in zip(originals, tensors + attrs):
         assert torch.equal(original, _tensor_bytes(tensor)), 'input/parameter mutated'
@@ -120,6 +179,37 @@ def _capture(fn, inputs, calls):
     return graph, output
 
 
+def replay_us(graph, calls):
+    import torch
+    torch.cuda.synchronize()
+    for repeats in (1, 4, 16):
+        # Replace both event handles when their elapsed time is unusable.
+        start, end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+        start.record()
+        for _ in range(repeats):
+            graph.replay()
+        end.record()
+        end.synchronize()
+        us = start.elapsed_time(end) * 1000 / (calls * repeats)
+        if math.isfinite(us) and us > 0:
+            return us
+    raise InvalidReplayTiming('invalid replay elapsed time')
+
+
+class InvalidReplayTiming(RuntimeError):
+    """All event pairs failed to measure a completed replay."""
+
+
+def _calibration_sample(graph, record):
+    try:
+        return graph.sample()
+    except InvalidReplayTiming:
+        # Keep the same validated capture and sample count. Execution and
+        # correctness failures must still reject the candidate immediately.
+        record['timing_retries'] += 1
+        return graph.sample()
+
+
 class GraphMeasurement:
     """One validated capture, reused for selection or independent final samples."""
     def __init__(self, fn, reference, inputs, tolerance, *, calls=None):
@@ -131,19 +221,16 @@ class GraphMeasurement:
         torch.cuda.synchronize()
         if calls is None:
             pilot, output = _capture(fn, inputs, 8)
-            a, b = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
-            a.record(); pilot.replay(); b.record(); b.synchronize()
-            us = a.elapsed_time(b) * 1000 / 8
-            if not math.isfinite(us) or us <= 0:
-                raise RuntimeError('invalid native GPU event timing')
+            us = replay_us(pilot, 8)
             calls = max(1, min(4096, math.ceil(4000 / us)))
             del pilot, output
         self.calls = calls
         self.graph, self.output = _capture(fn, inputs, calls)
         self.inputs, self.fn = inputs, fn
         originals = [x.detach().clone() if isinstance(x, torch.Tensor) else x for x in inputs]
+        compare = getattr(reference, '_f06_assert_close', assert_close)
         want = _cpu(reference(*inputs))
-        assert_close(self.output, want, tolerance)
+        compare(self.output, want, tolerance)
         try:
             changed = _changed(inputs)
             for x, y in zip(inputs, changed):
@@ -159,25 +246,18 @@ class GraphMeasurement:
                 y.fill_(float('nan'))
             self.graph.replay()
             torch.cuda.synchronize()
-            assert_close(self.output, _cpu(reference(*inputs)), tolerance)
+            compare(self.output, _cpu(reference(*inputs)), tolerance)
         finally:
             for x, y in zip(inputs, originals):
                 if isinstance(x, torch.Tensor):
                     x.copy_(y)
         self.graph.replay()
         torch.cuda.synchronize()
-        assert_close(self.output, want, tolerance)
+        compare(self.output, want, tolerance)
         self.fresh_data_passed = True
 
     def sample(self):
-        import torch
-        a, b = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
-        torch.cuda.synchronize()
-        a.record(); self.graph.replay(); b.record(); b.synchronize()
-        us = a.elapsed_time(b) * 1000 / self.calls
-        if not math.isfinite(us) or us <= 0:
-            raise RuntimeError('invalid replay elapsed time')
-        return us
+        return replay_us(self.graph, self.calls)
 
     def close(self):
         import torch
@@ -197,7 +277,7 @@ def end_to_end(fn, inputs, count=31):
     return samples
 
 
-def paired_end_to_end(functions, inputs, *, count=128, seed=6103, warmup=24):
+def paired_end_to_end(functions, inputs, *, count=128, seed=6103, warmup=24, before_call=None):
     """Ordinary-call wall latency; randomized forward/reverse pairs.
 
     Output release and completion synchronization are included; pre-sync and
@@ -206,8 +286,10 @@ def paired_end_to_end(functions, inputs, *, count=128, seed=6103, warmup=24):
     import torch
     if count < 2 or count % 2:
         raise ValueError('an even sample count >= 2 is required')
-    for fn in functions.values():
+    for name, fn in functions.items():
         for _ in range(warmup):
+            if before_call is not None:
+                before_call(name)
             fn(*inputs)
     torch.cuda.synchronize()
     result = {name: [] for name in functions}
@@ -218,6 +300,8 @@ def paired_end_to_end(functions, inputs, *, count=128, seed=6103, warmup=24):
         rng.shuffle(order)
         for direction in (order, list(reversed(order))):
             for name in direction:
+                if before_call is not None:
+                    before_call(name)
                 torch.cuda.synchronize()
                 start = time.perf_counter_ns()
                 functions[name](*inputs)
@@ -253,7 +337,7 @@ class GraphGroup:
             graph.close()
 
 
-def measure_candidates(functions, reference, inputs, tolerance, *, retain=None):
+def measure_candidates(functions, reference, inputs, tolerance, *, retain=None, public_timer=None):
     """Common batch size, rotating capture order and three independent captures.
 
     P800 native operators can have capture-dependent latency. A separately
@@ -266,12 +350,13 @@ def measure_candidates(functions, reference, inputs, tolerance, *, retain=None):
     for name, fn in functions.items():
         try:
             checks = validate(fn, reference, inputs, tolerance)
+            record = dict(checks=checks, status='ready', timing_retries=0)
             pilot = GraphMeasurement(fn, reference, inputs, tolerance, calls=8)
             try:
-                pilots[name] = statistics.median(pilot.sample() for _ in range(3))
+                pilots[name] = statistics.median(_calibration_sample(pilot, record) for _ in range(3))
             finally:
                 pilot.close()
-            records[name] = dict(checks=checks, status='ready')
+            records[name] = record
         except Exception:
             records[name] = dict(status='rejected', error=traceback.format_exc())
     if not pilots:
@@ -293,27 +378,45 @@ def measure_candidates(functions, reference, inputs, tolerance, *, retain=None):
                     if len(captures) == 3 and records[name]['status'] == 'ready']
         by_capture = {name: [[], [], []] for name in admitted}
         ordinary_functions = {name: functions[name] for name in admitted}
-        e2e_before = paired_end_to_end(ordinary_functions, inputs, seed=6103)
+        timer = public_timer or paired_end_to_end
+        e2e_before = timer(ordinary_functions, inputs, seed=6103)
         # Warm every retained capture after validation/allocations, then
         # interleave candidates in both directions to limit time drift.
+        def sample(name, index):
+            try:
+                return _calibration_sample(groups[name][index], records[name])
+            except Exception:
+                records[name].update(status='rejected', error=traceback.format_exc())
+                return None
+
         for index in range(3):
             for name in admitted:
-                groups[name][index].sample()
+                if records[name]['status'] == 'ready':
+                    sample(name, index)
         for order in [admitted, list(reversed(admitted))]:
             for sample_index in range(3):
                 for offset in range(3):
                     index = (sample_index + offset) % 3
                     for name in order:
-                        by_capture[name][index].append(groups[name][index].sample())
-        e2e_after = paired_end_to_end(ordinary_functions, inputs, seed=6203)
+                        if records[name]['status'] == 'ready':
+                            value = sample(name, index)
+                            if value is not None:
+                                by_capture[name][index].append(value)
+        admitted = [name for name in admitted if records[name]['status'] == 'ready']
+        e2e_after = timer({name: functions[name] for name in admitted}, inputs, seed=6203)
         for name in admitted:
             captures, samples = groups[name], by_capture[name]
             flat = [v for row in samples for v in row]
             records[name].update(status='passed', gpu_samples_us=flat,
                 gpu_us=statistics.median(flat), calls_per_graph=calls,
                 capture_samples_us=samples, capture_medians_us=[statistics.median(s) for s in samples])
-            records[name].update(e2e_protocol='randomized_ab_ba_v1',
+            records[name].update(e2e_protocol='public_module_ab_ba_v1' if public_timer else 'randomized_ab_ba_v1',
                 e2e_round_samples_us=[e2e_before[name], e2e_after[name]])
+            if public_timer and 'vs_direct' in e2e_before:
+                controls = (e2e_before['vs_direct'], e2e_after['vs_direct'])
+                records[name]['vs_direct_round_samples_us'] = [round_[name] for round_ in controls]
+                if name == 'eager':
+                    records[name]['direct_eager_round_samples_us'] = [round_['direct_eager'] for round_ in controls]
             records[name]['checks']['graph_fresh_data'] = all(g.fresh_data_passed for g in captures)
             if retain is not None:
                 retain[name] = GraphGroup(captures)

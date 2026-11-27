@@ -154,7 +154,7 @@ def activation_text(source):
                 safe=used|{half,result}
                 if any(n not in safe and not harmless(u,v) for n,(u,v,_) in muls.items()):
                     continue
-                prefix='%fusion_fast_tanh_'
+                prefix='%f06_fast_tanh_'
                 replacement='\n    '.join([
                     f'{prefix}lo = arith.constant dense<-1.600000e+01> : {ty}',
                     f'{prefix}hi = arith.constant dense<1.600000e+01> : {ty}',
@@ -185,7 +185,7 @@ def activation_text(source):
                 if len(re.findall(re.escape(negative)+r'\b',source))!=2:continue
                 old=f'{negative} = arith.negf {x} : {ty}'
                 if negative in subtract_neg:old=f'{negative} = arith.subf {subtract_neg[negative][0]}, {x} : {ty}'
-                prefix='%fusion_fast_sigmoid_'
+                prefix='%f06_fast_sigmoid_'
                 replacement='\n    '.join([
                     f'{prefix}lo = arith.constant dense<-3.40282347e+38> : {ty}',
                     f'{prefix}hi = arith.constant dense<3.40282347e+38> : {ty}',
@@ -290,7 +290,7 @@ def gelu_final_specials(source,record):
     dst=record['result'];x=record['input']
     m=re.search(r'(?P<dst>'+re.escape(dst)+r') = arith.mulf (?P<a>%\w+), (?P<b>%\w+) : (?P<ty>tensor<(?:\d+x)+f32>)',source)
     assert m is not None
-    ty=m['ty'];it=ty.replace('f32>','i32>');bt=ty.replace('f32>','i1>');p='%fusion_gelu_special_'
+    ty=m['ty'];it=ty.replace('f32>','i32>');bt=ty.replace('f32>','i1>');p='%f06_gelu_special_'
     body='\n    '.join([
         f'{p}raw = arith.mulf {m["a"]}, {m["b"]} : {ty}',
         f'{p}inf = arith.constant dense<2139095040> : {it}',
@@ -320,7 +320,7 @@ def single_reduction_multiply(source, *, allow_pointwise=False):
     valid_reduction = reductions == 1 and re.search(
         r'(%\w+) = arith\.addf %\w+, %\w+ : f32\s+tt\.reduce\.return \1 : f32', source)
     if (not (valid_reduction or (allow_pointwise and reductions == 0)) or len(matches) != 1
-            or any(x in source for x in ('tt.dot ', 'tt.extern_elementwise ', 'math.', '%fusion_mul_'))):
+            or any(x in source for x in ('tt.dot ', 'tt.extern_elementwise ', 'math.', '%f06_mul_'))):
         return source, None
     m, = matches
     ty = m['ty']; it = ty.replace('f32>', 'i32>'); bt = ty.replace('f32>', 'i1>')
@@ -355,7 +355,7 @@ def single_reduction_multiply(source, *, allow_pointwise=False):
         f'$fixed = arith.select $special, $nonfinite, $rawbits : {bt}, {it}',
         f'{dst} = arith.bitcast $fixed : {it} to {ty}',
     ]
-    block = '\n'.join(m['i'] + line.replace('$', '%fusion_mul_') for line in ops)
+    block = '\n'.join(m['i'] + line.replace('$', '%f06_mul_') for line in ops)
     return source[:m.start()] + block + source[m.end():], dict(
         kind='single_multiply', result=dst, products=1, finite_arithmetic='unchanged',
         repair='NaN or infinity times signed zero -> quiet NaN; other infinite products -> signed infinity')
@@ -388,8 +388,8 @@ def _vector_multiply_mode():
             if record is None:
                 return mod
             mod = act.parse(mod, changed, Path(directory) / 'vector-multiply.mlir')
-        metadata.update(fusion_experimental_mode=name, fusion_experimental_policy=identity,
-                        fusion_vector_multiply=json.dumps(record))
+        metadata.update(f06_experimental_mode=name, f06_experimental_policy=identity,
+                        f06_vector_multiply=json.dumps(record))
         return mod
 
     try:
@@ -429,8 +429,8 @@ def _mode(name):
 
     def prepare(mod,metadata):
         if not act._ENABLED.get():return old_prepare(mod,metadata)
-        metadata['fusion_experimental_policy']=identity
-        metadata['fusion_experimental_mode']=name
+        metadata['f06_experimental_policy']=identity
+        metadata['f06_experimental_mode']=name
         with tempfile.TemporaryDirectory(prefix='special-opt-',dir=os.environ['TRITON_CACHE_DIR']) as directory:
             source=act.serialize(mod,directory,'before_activation_opt')
             changed,record=activation_text(source) if name in ('activation','optimized','parallel') else (source,None)
@@ -439,7 +439,7 @@ def _mode(name):
                     changed, mul = single_reduction_multiply(source)
                     if mul is not None:
                         metadata.update(native_exact_gelu='[]', native_relu='[]', native_tanh_bounds='[]',
-                                        native_ieee_multiply=json.dumps([mul]), fusion_single_multiply=True)
+                                        native_ieee_multiply=json.dumps([mul]), f06_single_multiply=True)
                         return act.parse(mod, changed, Path(directory)/'single-multiply.mlir')
                 return old_prepare(mod,metadata)
             repairs=[]
@@ -449,20 +449,20 @@ def _mode(name):
                 record['strategy']='native bounds; one input classification; original operand order'
             mod=act.parse(mod,changed,Path(directory)/'activation-opt.mlir')
         metadata.update(native_exact_gelu='[]',native_relu='[]',native_ieee_multiply='[]',native_tanh_bounds='[]',
-                        fusion_special_optimization=json.dumps(record))
+                        f06_special_optimization=json.dumps(record))
         metadata['native_ieee_multiply']=json.dumps(repairs)
         return mod
 
     def stage(native):
         if name in ('activation','optimized','parallel'):
             def activation_order(mod,metadata,options):
-                activation=json.loads(metadata.get('fusion_special_optimization','null'))
+                activation=json.loads(metadata.get('f06_special_optimization','null'))
                 if activation is None or activation['kind']=='gelu_tanh':return mod
                 with tempfile.TemporaryDirectory(prefix='activation-order-',dir=os.environ['TRITON_CACHE_DIR']) as directory:
                     source=act.serialize(mod,directory,'before_order')
                     changed,record=order_output_multiply(source,activation['kind'],before_bufferization=True)
                     mod=act.parse(mod,changed,Path(directory)/'activation-order.mlir')
-                metadata['fusion_native_special_rewrite']=json.dumps(record)
+                metadata['f06_native_special_rewrite']=json.dumps(record)
                 return mod
             with tempfile.TemporaryDirectory(prefix='activation-stage-',dir=os.environ['TRITON_CACHE_DIR']) as directory:
                 native=_install_stage(native,activation_order,Path(directory)/'pipeline.py',after='add_tritonsdnn_optimize_rc_layout_pass')
@@ -471,7 +471,7 @@ def _mode(name):
             installed=old_stage(native)
         def wrapped(mod,metadata,options):
             mod=installed(mod,metadata,options)
-            if name == 'parallel' and metadata.get('fusion_single_multiply'):
+            if name == 'parallel' and metadata.get('f06_single_multiply'):
                 from ._p800_parallel_rne import rewrite_single_multiply, supported_launch
                 if not supported_launch(options):
                     raise RuntimeError('parallel multiply requires eight native control cores')
@@ -481,17 +481,17 @@ def _mode(name):
                     if len(repairs) != 1:
                         raise RuntimeError('unsupported single-multiply scalar layout')
                     mod=act.parse(mod,changed,Path(directory)/'parallel-multiply.mlir')
-                metadata['fusion_parallel_multiply']=json.dumps(repairs)
-            record=json.loads(metadata.get('fusion_special_optimization','null'))
+                metadata['f06_parallel_multiply']=json.dumps(repairs)
+            record=json.loads(metadata.get('f06_special_optimization','null'))
             if record is None:return mod
             if record['kind']=='gelu_tanh':return mod
             with tempfile.TemporaryDirectory(prefix='special-order-',dir=os.environ['TRITON_CACHE_DIR']) as directory:
                 source=act.serialize(mod,directory,'before_native_order')
-                audit=Path(os.environ.get('FUSION_OPT_AUDIT_DIR',os.environ['TRITON_CACHE_DIR']))/'special-ir'
+                audit=Path(os.environ.get('F06_OPT_AUDIT_DIR',os.environ['TRITON_CACHE_DIR']))/'special-ir'
                 audit.mkdir(parents=True,exist_ok=True)
                 (audit/(hashlib.sha256(source.encode()).hexdigest()+'.mlir')).write_text(source)
                 changed,ordering=order_output_multiply(source,record['kind'])
-            metadata['fusion_special_operand_order']=json.dumps(ordering)
+            metadata['f06_special_operand_order']=json.dumps(ordering)
             return mod
         return wrapped
 
@@ -523,8 +523,8 @@ def _install_stage(native, callback, path, *, after='add_linalg_to_tritonsdnn_pa
                     and node.value.func.attr == after):
                 self.count += 1
                 return [node] + ast.parse(
-                    "pm.run(mod, 'fusion_native_probe_boundary')\n"
-                    "mod = _fusion_probe_hook(mod, metadata, opt)\n"
+                    "pm.run(mod, 'f06_native_probe_boundary')\n"
+                    "mod = _f06_probe_hook(mod, metadata, opt)\n"
                     "pm = ir.pass_manager(mod.context)\n"
                     "pm.enable_debug()"
                 ).body
@@ -536,7 +536,7 @@ def _install_stage(native, callback, path, *, after='add_linalg_to_tritonsdnn_pa
     ast.fix_missing_locations(tree)
     source = ast.unparse(tree)
     path.write_text(source)
-    namespace = dict(native.__globals__, _fusion_probe_hook=callback)
+    namespace = dict(native.__globals__, _f06_probe_hook=callback)
     exec(compile(source, str(path), 'exec'), namespace)
     return namespace['make_ttxir']
 

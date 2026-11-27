@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #f6f8fb; }
+  body { width: 1600px; height: 1010px; overflow: hidden;
+         font-family: "Noto Sans CJK SC", "Noto Sans CJK JP", sans-serif; color: #0f172a; }
+  .wrap { padding: 30px 44px 24px; height: 100%; display: flex; flex-direction: column; }
+  h1 { margin: 0; font-size: 33px; letter-spacing: .4px; font-weight: 800; }
+  h1 .hl { color: #dc2626; }
+  .sub { margin: 7px 0 0; font-size: 16.5px; color: #475569; }
+  .lanes { margin-top: 18px; display: grid; grid-template-columns: 1fr 44px 1fr; }
+  .lane-title { display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 700; margin-bottom: 10px; }
+  .tag { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; letter-spacing: .4px; }
+  .tag.bad { background: #fee2e2; color: #b91c1c; }
+  .tag.ok  { background: #d1fae5; color: #047857; }
+  .node { position: relative; border: 1px solid #dbe3ef; background: #fff; border-radius: 10px;
+          padding: 11px 14px; font-size: 16px; line-height: 1.4; box-shadow: 0 1px 2px rgba(15,23,42,.05); }
+  .node small { display: block; color: #64748b; font-size: 12.8px; line-height: 1.38; margin-top: 2px; }
+  .node code { font-family: "DejaVu Sans Mono", monospace; font-size: 13.8px;
+               background: #eef2f7; border-radius: 4px; padding: 0 4px; }
+  .node.bad { border-left: 5px solid #dc2626; background: #fffafa; }
+  .node.ok  { border-left: 5px solid #059669; background: #fbfffd; }
+  .node.vendor { border-left: 5px solid #d97706; background: #fffdf5; }
+  .node.dev { border-left: 5px solid #2563eb; background: #f8fbff; }
+  .arrow { height: 31px; display: flex; align-items: center; justify-content: flex-start;
+           padding-left: 30px; position: relative; gap: 8px; }
+  .arrow::before { content: ""; position: absolute; left: 40px; top: 0; bottom: 0; width: 2px; background: #cbd5e1; }
+  .arrow .g { position: relative; z-index: 1; width: 22px; height: 22px; border-radius: 50%;
+              display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800;
+              background: #fff; border: 1.5px solid #cbd5e1; color: #64748b; }
+  .arrow.bad .g { border-color: #fca5a5; color: #b91c1c; background: #fef2f2; }
+  .arrow.bad::before { background: #fca5a5; }
+  .arrow.ok .g { border-color: #6ee7b7; color: #047857; background: #ecfdf5; }
+  .arrow.ok::before { background: #6ee7b7; }
+  .arrow .lbl { font-size: 12.6px; font-weight: 700; padding: 2px 8px; border-radius: 5px;
+                background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+  .arrow.ok .lbl { background: #d1fae5; color: #047857; border-color: #a7f3d0; }
+  .arrow .lbl.amber { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+  .divider { position: relative; }
+  .divider::before { content: ""; position: absolute; left: 50%; top: 4px; bottom: 4px; width: 2px;
+                     background: repeating-linear-gradient(#cbd5e1 0 8px, transparent 8px 16px); }
+  .note { margin-top: 12px; border: 1.5px dashed #f59e0b; background: #fffbeb; color: #92400e;
+          border-radius: 10px; padding: 11px 14px; font-size: 13.8px; line-height: 1.5; }
+  .note b { color: #b45309; }
+  .panel { margin-top: 12px; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 10px;
+           padding: 11px 14px 12px; }
+  .panel-title { font-size: 14px; font-weight: 800; color: #334155; margin-bottom: 7px; letter-spacing: .3px; }
+  .row { display: flex; gap: 9px; font-size: 13.6px; line-height: 1.45; color: #334155; padding: 3px 0; }
+  .row .n { flex: 0 0 auto; width: 18px; height: 18px; border-radius: 50%; background: #e2e8f0;
+            color: #475569; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .row b { color: #0f172a; }
+  .foot { margin-top: 18px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .stat { border-radius: 10px; padding: 10px 14px; border: 1px solid; display: flex; flex-direction: column; gap: 2px; }
+  .stat b { font-size: 14px; }
+  .stat span { font-size: 12.8px; line-height: 1.35; }
+  .stat.bad { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+  .stat.bad b { color: #b91c1c; }
+  .stat.ok { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+  .stat.ok b { color: #047857; }
+  .stamp { position: absolute; right: 10px; top: 9px; font-size: 10.5px; font-weight: 800; letter-spacing: .5px;
+           color: #b91c1c; border: 1.5px solid #fca5a5; border-radius: 4px; padding: 2px 6px; transform: rotate(-4deg); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>TLE 在 XPU / P800 上卡在哪：<span class="hl">通用 TLE 被整层排除，只剩厂商搬运子集</span></h1>
+  <p class="sub">左边是 tle_cn.md / 主树描述的通用 TLE，每一层都在 XPU 上断开；右边是 P800 上实际安装、能执行的厂商 TLE 覆写层。</p>
+
+  <div class="lanes">
+    <section class="lane">
+      <div class="lane-title">文档 / 主树里的通用 TLE <span class="tag bad">目标路径 · 全部断开</span></div>
+
+      <div class="node">Kernel 按文档写：<code>tle.dsa.mul(...)</code> · <code>tle.dsa.local_ptr(...)</code> · TLE-Lite
+        <small>tle_cn.md 3.3.2 描述的 DSA 三操作数数学与指针物化</small></div>
+      <div class="arrow bad"><span class="g">✕</span><span class="lbl">AttributeError: no attribute 'mul'</span></div>
+
+      <div class="node bad">Python 前端 <code>triton.experimental.tle</code>
+        <small>主树 core.py 里确实有 mul/local_ptr，但 XPU 轮不到它</small></div>
+      <div class="arrow bad"><span class="g">✕</span><span class="lbl">整包被 XPU overlay 替换</span></div>
+
+      <div class="node bad">构建门禁：<code>FLAGTREE_TLE=OFF</code>
+        <small>FlagTreeOptions.cmake 对 xpu 强制关闭；setup_tools/utils/xpu.py 不合并主树 TLE</small></div>
+      <div class="arrow bad"><span class="g">✕</span><span class="lbl">通用绑定未编译</span></div>
+
+      <div class="node bad">pybind <code>create_dsa_*</code>
+        <small>本地重编的 libtriton 里只有 create_dsa_copy，没有 create_dsa_mul</small></div>
+      <div class="arrow bad"><span class="g">✕</span><span class="lbl">DsaToCore 无数学</span></div>
+
+      <div class="node bad"><code>mlir.dsa</code> 方言 → <code>DsaToCore</code>
+        <small>只降 alloc / copy / bitcast 到 memref；add/sub/mul 没有 pattern</small></div>
+      <div class="arrow bad"><span class="g">✕</span><span class="lbl">XPU lib 0 处引用 dsa</span></div>
+
+      <div class="node bad">XPU 后端 lowering <code>third_party/xpu/lib</code>
+        <small>没有任何 dsa 方言的消费方，无法把新 op 接到 SDNN/DMA</small></div>
+      <div class="arrow"><span class="g">?</span><span class="lbl amber">厂商预编译，不可见</span></div>
+
+      <div class="node vendor">厂商预编译 SDNN / DSA 对象
+        <span class="stamp">SOURCE CLOSED</span>
+        <small>数学 lowering 只可能在这里；仓库里只有 CMakeLists.txt，没有源码</small></div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="lane">
+      <div class="lane-title">XPU 实际安装的厂商 TLE <span class="tag ok">能执行的子集</span></div>
+
+      <div class="node ok">Kernel 实际能写：<code>tle.raw.call(...)</code>
+        <small><code>tle.gpu.alloc / copy / local_ptr</code> · <code>tle.dsa.alloc / copy / to_tensor</code></small></div>
+      <div class="arrow ok"><span class="g">✓</span><span class="lbl">已安装</span></div>
+
+      <div class="node ok">XPU TLE 覆写层
+        <small>third_party/xpu/python/triton/experimental/tle；semantic/spaces/types 是厂商 .abi3.so</small></div>
+      <div class="arrow ok"><span class="g">✓</span><span class="lbl">已编译</span></div>
+
+      <div class="node ok">厂商绑定 + XPU TLE pass
+        <small>tle.dsa.copy/fill/subview → SDNN DMA；tle.raw 走 xpu3 payload 管线</small></div>
+      <div class="arrow ok"><span class="g">✓</span><span class="lbl">已接通</span></div>
+
+      <div class="node vendor">厂商预编译 SDNN 对象
+        <small>SDNN / DMA / 向量化；改不了，只能调用</small></div>
+      <div class="arrow ok"><span class="g">✓</span><span class="lbl">可执行</span></div>
+
+      <div class="node dev">P800 设备
+        <small>tle.dsa 纯 DMA 实测 1.17 TB/s；tle.raw 内核可跑</small></div>
+
+      <div class="note"><b>代价：</b>想在 buffer 上做数学，只能 <code>to_tensor</code> 读回寄存器，再走 libdevice 的
+        16-lane 调用（每 16 个元素一次 vstore + mfence + exp），实测比厂商 eager 慢 <b>2.7×</b>。</div>
+
+      <div class="panel">
+        <div class="panel-title">要打通：三选一（按可落地性排序）</div>
+        <div class="row"><span class="n">1</span><div><b>tle.raw 内联 XTDK kernel</b>：现在就能走，把厂商 C++ 内核作为 xpu3 payload 注入</div></div>
+        <div class="row"><span class="n">2</span><div><b>厂商补 DSA 数学 lowering + Python API</b>：在预编译对象里加 dsa.exp/sigmoid 等</div></div>
+        <div class="row"><span class="n">3</span><div><b>厂商开放 DSA→SDNN 管线源码</b>：我们自己加 lowering，接到现有 DMA 通路</div></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="foot">
+    <div class="stat bad"><b>断点 1 · API 层</b><span>tle.dsa.mul / add / local_ptr 在 XPU 上不存在</span></div>
+    <div class="stat bad"><b>断点 2 · 构建层</b><span>FLAGTREE_TLE 对 xpu 强制 OFF，主树 TLE 不参与打包</span></div>
+    <div class="stat bad"><b>断点 3 · 降级层</b><span>DsaToCore 只降 alloc/copy/bitcast，SDNN 只有 .o</span></div>
+    <div class="stat ok"><b>仍可用 · 搬运/raw</b><span>tle.dsa.copy · tle.gpu · tle.raw（DMA 与手写内核）</span></div>
+  </div>
+</div>
+</body>
+</html>

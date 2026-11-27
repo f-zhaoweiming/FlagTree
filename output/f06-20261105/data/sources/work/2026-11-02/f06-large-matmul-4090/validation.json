@@ -1,0 +1,21 @@
+{
+  "raw_records": 1368,
+  "valid_timed_records": 1240,
+  "affected_cases": 36,
+  "all_cases": 216,
+  "tests": {
+    "testsRun": 44,
+    "failures": [],
+    "errors": [],
+    "skipped": [],
+    "successful": true
+  },
+  "unchanged_historical_tolerances_and_input_bindings": true,
+  "unchanged_full_suite_failure_set": true,
+  "policy_only_on_36_affected_cases": true,
+  "all_sample_counts_and_divisors_correct": true,
+  "compiler_counters_unchanged": true,
+  "no_native_graph_or_fallback": true,
+  "gpu_monitoring_samples": 150,
+  "no_foreign_gpu_compute_observed": true
+}

@@ -1,0 +1,352 @@
+--- a/torch/_inductor/autotune_process.py
++++ b/torch/_inductor/autotune_process.py
+@@ -6,10 +6,12 @@
+ import dataclasses
+ import functools
+ import logging
++import math
+ import os
+ import pickle
+ import queue
+ import selectors
++import statistics
+ import subprocess
+ import sys
+ import time
+@@ -47,7 +49,7 @@
+     from torch._inductor.select_algorithm import PartialRender, TritonTemplateCaller
+ 
+ from . import config
+-from .runtime.benchmarking import benchmarker
++from .runtime.benchmarking import benchmarker, gemm_timing_group_size
+ from .virtualized import V
+ 
+ 
+@@ -554,10 +556,24 @@
+         else:
+             device_idx = device_interface.current_device()
+         with device_interface.device(device_idx):  # type: ignore[attr-defined]
+-            res = benchmarker.benchmark_gpu(fn)
+-            device_interface.synchronize()  # shake out any CUDA errors
+-
+-        return res
++            group_size = gemm_timing_group_size.get()
++
++            def run_group():
++                for _ in range(group_size):
++                    fn()
++
++            for _ in range(3):
++                started = time.perf_counter_ns()
++                if group_size == 1:
++                    res = benchmarker.benchmark_gpu(fn)
++                else:
++                    intervals = benchmarker.benchmark_gpu(run_group, return_mode="all")
++                    res = statistics.median(intervals) if intervals else math.nan
++                device_interface.synchronize()  # shake out any CUDA errors
++                wall_ms = (time.perf_counter_ns() - started) / 1e6
++                if math.isfinite(res) and 0 < res <= 1.01 * wall_ms + 1.0:
++                    return res / group_size
++            raise RuntimeError(f"Invalid GPU benchmark duration after retries: {res!r} ms")
+ 
+ 
+ class CPUDeviceBenchmarkMixin:
+--- a/torch/_inductor/codecache.py
++++ b/torch/_inductor/codecache.py
+@@ -11,12 +11,14 @@
+ import itertools
+ import json
+ import logging
++import math
+ import os
+ import pickle
+ import pkgutil
+ import re
+ import shlex
+ import shutil
++import statistics
+ import struct
+ import subprocess
+ import sys
+@@ -264,7 +266,43 @@
+         self.update_local_cache(cache)
+ 
+ 
++def _valid_benchmark_ms(value: Any) -> bool:
++    return (
++        isinstance(value, (int, float))
++        and not isinstance(value, bool)
++        and value > 0
++        and math.isfinite(value)
++    )
++
++
++def _benchmark_valid_choices(
++    choices: list[ChoiceCaller],
++    benchmark: Callable[[Any], dict[ChoiceCaller, float]],
++) -> dict[ChoiceCaller, float]:
++    samples = benchmark(choices)
++    assert all(c in samples for c in choices)
++    for _ in range(2):
++        # +inf is the dispatcher's sentinel for failed/unsupported kernels.
++        # Nonfinite numeric event readings have already been retried at source.
++        retry = [
++            c for c in choices
++            if not _valid_benchmark_ms(samples[c]) and samples[c] != math.inf
++        ]
++        if not retry:
++            break
++        fresh = benchmark(retry)
++        assert all(c in fresh for c in retry)
++        samples.update(fresh)
++    return {c: samples[c] for c in choices if _valid_benchmark_ms(samples[c])}
++
++
+ class PersistentCache(CacheBase):
++    @staticmethod
++    def get_local_cache_path() -> Path:
++        # Old files contain bare device intervals, including positive clock
++        # jumps indistinguishable from real timings without a host window.
++        return CacheBase.get_local_cache_path().with_suffix(".timings-v5")
++
+     def lookup(
+         self,
+         choices: list[ChoiceCaller],
+@@ -286,35 +324,76 @@
+         precision = torch.get_float32_matmul_precision()
+         cache_key = f"{inputs}_{hint_override}" if hint_override is not None else inputs
+ 
+-        timings = {}
+-
+-        def check_cache(cache: dict[str, Any]) -> bool:
+-            """Check if `cache` contains data for all the choices"""
+-            hit = True
+-            for choice in choices:
+-                choice_hash = choice.hash_key()
+-                if choice_hash in cache.get(op, {}).get(cache_key, {}).get(
+-                    precision, {}
+-                ):
+-                    # cache hit
+-                    timings[choice] = cache[op][cache_key][precision][choice_hash]
+-                else:
+-                    # cache miss
+-                    hit = False
+-                    break
+-            return hit
+-
+-        local_cache = self.get_local_cache() if config.autotune_local_cache else {}
+-        if (not check_cache(local_cache)) and (benchmark is not None):
+-            # re-benchmark everything to try to get consistent numbers from the same machine
+-            timings = benchmark(choices)
+-            assert all(choice in timings for choice in choices)
+-            local_cache.setdefault(op, {})
+-            local_cache[op].setdefault(cache_key, {}).setdefault(precision, {})
+-            for choice, timing in timings.items():
+-                local_cache[op][cache_key][precision][choice.hash_key()] = timing
+-
+-            self.update_local_cache(local_cache)
++        use_cache = config.autotune_local_cache
++        choice_keys = {choice: choice.hash_key() for choice in choices}
++        cache = self.get_local_cache() if use_cache else {}
++        bucket = cache.get(op, {}).get(cache_key, {}).get(precision, {})
++        timings = {
++            choice: bucket[key]
++            for choice, key in choice_keys.items()
++            if _valid_benchmark_ms(bucket.get(key))
++        }
++        measured = False
++        if len(timings) != len(choices) and benchmark is not None:
++            measured = True
++            timings = _benchmark_valid_choices(choices, benchmark)
++            if op in ("mm", "addmm", "bmm", "baddbmm") and len(timings) >= 2:
++                best, runner_up = sorted(timings.values())[:2]
++                if runner_up <= 1.05 * best:
++                    # One close sequential sweep can reflect transient clock/load changes.
++                    # Repeat all viable choices in different orders, so even an initially
++                    # slower choice must be confirmed before it can win or be cached.
++                    reverse = _benchmark_valid_choices(list(reversed(timings)), benchmark)
++                    remaining = [c for c in timings if c in reverse]
++                    middle = len(remaining) // 2
++                    rotated = remaining[middle:] + remaining[:middle]
++                    final = _benchmark_valid_choices(rotated, benchmark) if rotated else {}
++                    timings = {
++                        c: statistics.median((timings[c], reverse[c], final[c]))
++                        for c in final
++                    }
++
++                    if timings and not config.autotune_in_subproc and all(
++                        c.info_dict().get("backend") == "Triton" for c in timings
++                    ):
++                        best = min(timings.values())
++                        close_tiles = {
++                            str(c.info_dict().get("tile_shape"))
++                            for c, value in timings.items()
++                            if value <= 1.05 * best
++                        }
++                        if len(close_tiles) > 1:
++                            # Amortize per-event and cache-clearing effects between
++                            # kernels launched repeatedly by the compiled program.
++                            # Re-score every surviving choice under the same protocol.
++                            from .runtime.benchmarking import gemm_timing_group_size
++
++                            token = gemm_timing_group_size.set(16)
++                            try:
++                                timings = _benchmark_valid_choices(list(timings), benchmark)
++                            finally:
++                                gemm_timing_group_size.reset(token)
++
++        if use_cache and (measured or any(not _valid_benchmark_ms(t) for t in bucket.values())):
++            # Merge under a short lock: benchmarking and device synchronization
++            # must never hold the file lock. Atomic replace alone loses parallel updates.
++            from torch.utils._filelock import FileLock
++
++            path = self.get_local_cache_path()
++            path.parent.mkdir(parents=True, exist_ok=True)
++            with FileLock(str(path) + ".lock", timeout=LOCK_TIMEOUT):
++                cache = self.get_local_cache()
++                latest = cache.setdefault(op, {}).setdefault(cache_key, {}).setdefault(precision, {})
++                for key in list(latest):
++                    if not _valid_benchmark_ms(latest[key]):
++                        del latest[key]
++                if measured:
++                    for choice, key in choice_keys.items():
++                        if choice in timings:
++                            latest[key] = timings[choice]
++                        elif key in latest and latest[key] == bucket.get(key):
++                            del latest[key]
++                self.update_local_cache(cache)
+ 
+         return timings
+ 
+--- a/torch/_inductor/select_algorithm.py
++++ b/torch/_inductor/select_algorithm.py
+@@ -2494,6 +2494,9 @@
+                     lambda choices: autotune(choices, hint_override=hint_override),
+                     hint_override=hint_override,
+                 )
++                # A failed representative must also prune its workspace variants.
++                rejected = {c.kernel_hash_key() for c in candidates if c not in timings}
++                choices = [c for c in choices if c.kernel_hash_key() not in rejected]
+                 choices = self.prune_choices_postscreen(
+                     choices, timings, name, inputs_key, self.prescreening_cache
+                 )
+@@ -2541,10 +2544,8 @@
+             autotune_elapse = time.time() - autotune_start_ts
+             log.debug("Autotuning elapsed time: %.02fs", autotune_elapse)
+ 
+-            if timings and all(
+-                not math.isfinite(timing) for timing in timings.values()
+-            ):
+-                raise NoValidChoicesError
++            if has_autotuned and not timings:
++                raise NoValidChoicesError("No finite positive autotune timings")
+ 
+             if (
+                 has_autotuned
+--- a/torch/_inductor/runtime/benchmarking.py
++++ b/torch/_inductor/runtime/benchmarking.py
+@@ -1,5 +1,7 @@
+ import inspect
++import math
+ import time
++from contextvars import ContextVar
+ from functools import cached_property, wraps
+ from itertools import chain
+ from statistics import median
+@@ -18,6 +20,8 @@
+ 
+ 
+ MILLISECONDS_PER_SECOND = 1000
++# Only set for a close, in-process GEMM calibration.
++gemm_timing_group_size = ContextVar("gemm_timing_group_size", default=1)
+ 
+ P = ParamSpec("P")
+ T = TypeVar("T")
+@@ -254,10 +258,7 @@
+         buffer = torch.empty(self.L2_cache_size // 4, dtype=torch.int, device="cuda")
+         buffer.zero_()
+ 
+-        # estimate the runtime of `_callable`
+-        event_pairs = self.get_event_pairs(estimation_iters)
+-        for start_event, end_event in event_pairs:
+-            # Clear gradients before timing (matches triton.testing.do_bench)
++        def record_pair(start_event, end_event):
+             if grad_to_none is not None:
+                 for x in grad_to_none:
+                     x.grad = None
+@@ -265,8 +266,33 @@
+             start_event.record()
+             _callable()
+             end_event.record()
+-        torch.cuda.synchronize()
+-        estimated_timing = self.get_event_pairs_min_timing(event_pairs)
++
++        def measure(iters):
++            pairs = self.get_event_pairs(iters)
++            started = time.perf_counter()
++            for start, end in pairs:
++                record_pair(start, end)
++            torch.cuda.synchronize()
++            batch_ms = (time.perf_counter() - started) * MILLISECONDS_PER_SECOND
++            timings = []
++            for start, end in pairs:
++                interval = start.elapsed_time(end)
++                wall_ms = batch_ms
++                for attempt in range(3):
++                    if math.isfinite(interval) and 0 < interval <= 1.01 * wall_ms + 1.0:
++                        break
++                    if attempt == 2:
++                        raise RuntimeError(f"Invalid benchmark event interval after retries: {interval!r} ms")
++                    (start, end), = self.get_event_pairs(1)
++                    started = time.perf_counter()
++                    record_pair(start, end)
++                    torch.cuda.synchronize()
++                    wall_ms = (time.perf_counter() - started) * MILLISECONDS_PER_SECOND
++                    interval = start.elapsed_time(end)
++                timings.append(interval)
++            return timings
++
++        estimated_timing = min(measure(estimation_iters))
+ 
+         # adjust `benchmark_iters` to fit in the maximum benchmarking duration
+         benchmark_iters = max(
+@@ -277,36 +303,12 @@
+         for _ in range(memory_warmup_iters):
+             buffer.zero_()
+ 
+-        # benchmark `_callable`
+-        event_pairs = self.get_event_pairs(benchmark_iters)
+-        for start_event, end_event in event_pairs:
+-            # Clear gradients before timing (matches triton.testing.do_bench)
+-            if grad_to_none is not None:
+-                for x in grad_to_none:
+-                    x.grad = None
+-            buffer.zero_()
+-            start_event.record()
+-            _callable()
+-            end_event.record()
+-        torch.cuda.synchronize()
+-
+-        # explicitly delete the buffer, sometimes helps memory
+-        # footprint metrics in OSS Inductor performance benchmarks
++        timings = measure(benchmark_iters)
+         del buffer
+-
+-        # Return based on the requested mode
+         if return_mode == "all":
+-            # Get all timings from event pairs
+-            all_timings = [
+-                start_event.elapsed_time(end_event)
+-                for start_event, end_event in event_pairs
+-            ]
+-            return all_timings
++            return timings
+         elif return_mode == "min":
+-            benchmarked_timing = self.get_event_pairs_min_timing(event_pairs)
+-            # return the minimum of `estimated_timing` and `benchmarked_timing`,
+-            # we just want the minimum timing overall so we might as well check both
+-            return min(estimated_timing, benchmarked_timing)
++            return min(estimated_timing, min(timings))
+         else:
+             raise ValueError(
+                 f"Unsupported return_mode: {return_mode}. Use 'min' or 'all'."

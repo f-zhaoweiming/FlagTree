@@ -24,6 +24,7 @@ import time
 
 _ACTIVE = {}
 _CANDIDATES = ((64, 256, 8), (64, 512, 8), (32, 256, 8), (128, 256, 8), (128, 128, 8), (256, 256, 8))
+_SHORT_ROW_TILES = ((8, 512, 8), (16, 512, 8), (32, 512, 8))
 # f16 and bf16 are both exact standalone and under target_scope. The bf16 route
 # currently feeds this region a product with ~53k non-finite values produced
 # upstream (cluster mul), so bf16 stays on the native path until that is fixed.
@@ -34,17 +35,9 @@ _DSA_STAGES = max(1, int(os.environ.get('FLAGTREE_DSA_STAGES', '1')))
 _DTYPES_REDUCE = ('float32', 'float16')
 _DTYPES_EW = ('float32', 'float16', 'bfloat16')
 _KIND = {'float32': 0, 'float16': 1, 'bfloat16': 2}
-_VERSION = 'dsa-v12'
+_VERSION = 'dsa-v13'
 _DEBUG = bool(os.environ.get('FLAGTREE_DSA_DEBUG'))
 
-
-def _kernel_source_marker():
-    """Wrapper-shaped source so the existing single-launch audit still applies."""
-    return ("@triton.jit\n"
-            "def flagtree_p800_dsa_region(a_ptr, b_ptr, o_ptr, rows, cols, s_row):\n"
-            "    ...\n\n"
-            "def call(args):\n"
-            "    triton_unk_fused_0.run(*args)\n")
 
 
 def _is_last_dim(dim, rank=2):
@@ -101,6 +94,10 @@ def match(gm, inputs):
            for n in nodes if n.op in ('call_function', 'call_method')):
         return None
     a = tensors[0]
+    if len(tensors) > 1:
+        b = tensors[1]
+        if b.device != a.device or b.dtype != a.dtype or not b.is_contiguous():
+            return None
     allowed = (set(_DTYPES_REDUCE) | set(_DTYPES_EW)
                | set(filter(None, os.environ.get('FLAGTREE_DSA_ALLOW', '').split(','))))
     # Reject layouts the dsa kernels do not implement: the copy uses stride n
@@ -132,7 +129,7 @@ def match(gm, inputs):
         keepdim = bool(kd)
     outputs = _output_nodes(gm)
     if sum_node is None:
-        if ew_node is None or ew_node not in outputs:
+        if ew_node is None or outputs != {ew_node}:
             return None
         if not _placeholder_operands(ew_node):
             return None
@@ -149,6 +146,8 @@ def match(gm, inputs):
                     b_row=1 if bshape == (m, n) else 0, tensor_count=2)
     # The sum must be the region output and reduce the last axis; an internal
     # sum (e.g. softmax/mean denominator) is not a row sum of the input.
+    if sum_node.kwargs.get('dtype') is not None or len(sum_node.args) > 3 or len(outputs) != 1:
+        return None
     if sum_node not in outputs or not _is_last_dim(_arg(sum_node, 'dim', 1)):
         return None
     kind = 'rowsum'
@@ -156,6 +155,8 @@ def match(gm, inputs):
         if sum_node.args[0] is not mul_node:
             return None
         if not _placeholder_operands(mul_node):
+            return None
+        if len(tensors) != 2 or tuple(b.shape) not in ((a.shape[1],), (1, a.shape[1])):
             return None
         kind = 'mulsum'
     elif not (sum_node.args and isinstance(sum_node.args[0], torch.fx.Node)
@@ -183,9 +184,10 @@ def _is(node, targets, name):
     return node.op == 'call_method' and (node_name == name or node_name.rsplit('_', 1)[0] == name)
 
 
-def _candidate_list(n):
+def _candidate_list(n, *, short_rows=False):
     """Only divisible column tiles: the staging buffer is statically full width."""
-    return [c for c in _CANDIDATES if n % c[1] == 0]
+    candidates = _CANDIDATES + _SHORT_ROW_TILES if short_rows else _CANDIDATES
+    return [c for c in candidates if n % c[1] == 0]
 
 
 def _cache_path(key):
@@ -359,7 +361,7 @@ def _plain_kernel():
     import triton
     import triton.language as tl
 
-    @triton.jit
+    @triton.jit(do_not_specialize=['a_ptr', 'b_ptr', 'o_ptr'])
     def _dsa_plain_kernel(a_ptr, b_ptr, o_ptr, MUL: tl.constexpr, ROWS: tl.constexpr,
                           COLS: tl.constexpr, N: tl.constexpr, ROUND: tl.constexpr):
         r = tl.program_id(0) * ROWS + tl.arange(0, ROWS)
@@ -424,7 +426,7 @@ def _kernel_for(spec):
     return _packed_kernel() if spec['dtype'] == 'float16' else _kernel()
 
 
-def _measure(kernel, spec, rows, cols, warps, tensors, packed=None):
+def _measure(kernel, spec, rows, cols, warps, tensors, packed=None, *, replay=False):
     import torch
     if packed is None:
         packed = spec['dtype'] == 'float16'
@@ -433,7 +435,7 @@ def _measure(kernel, spec, rows, cols, warps, tensors, packed=None):
     if _is_plain(spec):
         a, b = tensors[0], (tensors[1] if len(tensors) > 1 else None)
         m, n = spec['m'], spec['n']
-        out = torch.zeros((m,), device=a.device, dtype=torch.float32)
+        out = torch.zeros((m,), device=a.device, dtype=a.dtype)
         grid = ((m + rows - 1) // rows,)
         mul = 1 if spec['kind'] == 'mulsum' else 0
         rnd = _plain_round(spec)
@@ -447,7 +449,7 @@ def _measure(kernel, spec, rows, cols, warps, tensors, packed=None):
 
         prun()
         torch.cuda.synchronize()
-        ref = ((a * b) if mul else a).float().sum(-1)
+        ref = ((a * b) if mul else a).sum(-1)
         diff = (out - ref).abs()
         ratio = float((diff / ref.abs().clamp_min(1.0)).max())
         if os.environ.get('FLAGTREE_DSA_DEBUG'):
@@ -468,7 +470,7 @@ def _measure(kernel, spec, rows, cols, warps, tensors, packed=None):
         return samples[len(samples) // 2]
     a, b = tensors[0], (tensors[1] if len(tensors) > 1 else None)
     m, n = spec['m'], spec['n']
-    out = torch.zeros((m,), device=a.device, dtype=torch.float32)
+    out = torch.zeros((m,), device=a.device, dtype=a.dtype)
     grid = ((m + rows - 1) // rows,)
     mul = 1 if spec['kind'] == 'mulsum' else 0
     if os.environ.get('FLAGTREE_DSA_DEBUG'):
@@ -501,6 +503,14 @@ def _measure(kernel, spec, rows, cols, warps, tensors, packed=None):
               'in_nonfinite', int((~torch.isfinite(a)).sum()), flush=True)
     if not bool(torch.isfinite(out).all()) or ratio > 5e-3:
         return None
+    if replay:
+        from ._resource_benchmark import _capture, replay_us
+        import statistics
+        # A Python launch takes longer than these kernels. Time the same
+        # warmed launches in a device graph so tile ranking sees device work.
+        calls = 32
+        graph, _ = _capture(run, (), calls)
+        return statistics.median(replay_us(graph, calls) for _ in range(5))
     start, end = torch.cuda.Event(True), torch.cuda.Event(True)
     samples = []
     for _ in range(5):
@@ -548,13 +558,79 @@ def _measure_ew(kernel, spec, rows, cols, warps, tensors):
     return samples[len(samples) // 2]
 
 
+def _fp32_mulsum_launcher(kernel, grid, m, n, jit_launch, proof):
+    """Reuse the SDNN executable for this plan, with live buffers and stream."""
+    import sys
+    import torch
+    from triton import knobs
+    from triton.runtime import driver
+
+    active = driver.active
+    device = active.get_current_device()
+    jit = sys.modules[type(kernel).__module__]
+    prism = getattr(jit, '_flagprism', None)
+    distributed = getattr(jit, 'DistributedRtContext', None)
+    runtime = knobs.runtime
+    signature = ('*fp32',) * 3 + ('i32',) * 3 + ('constexpr',) * 5
+    bound = None
+
+    def launch(a, b, out):
+        nonlocal bound
+        enter, leave = runtime.launch_enter_hook, runtime.launch_exit_hook
+        if (type(a) is not torch.Tensor or type(b) is not torch.Tensor
+                or a.dtype != torch.float32 or b.dtype != torch.float32
+                or a.device != out.device or b.device != a.device or a.device.index != device
+                or active.get_current_device() != device
+                or kernel.pre_run_hooks or kernel.used_global_vals or kernel.debug or runtime.debug
+                or getattr(runtime, 'disable_launch_fast_path', False) or knobs.compilation.instrumentation_mode
+                or getattr(enter, 'calls', enter)
+                or getattr(leave, 'calls', leave)
+                or (prism is not None and prism._registered_components())
+                or (distributed is not None and distributed._init_count and distributed().is_lite_mode)):
+            return jit_launch(a, b, out)
+        a_ptr, b_ptr, out_ptr = a.data_ptr(), b.data_ptr(), out.data_ptr()
+        if (a_ptr | b_ptr | out_ptr) & 15:
+            return jit_launch(a, b, out)
+        if bound is None:
+            binary = jit_launch(a, b, out)
+            runner = binary.run
+            if (type(runner).__module__ == 'triton.backends.xpu.driver' and binary.metadata.is_sdnn
+                    and getattr(binary.metadata, 'name', None) == '_dsa_region_kernel'
+                    and tuple(getattr(runner, '_signature', {}).values()) == signature
+                    and not getattr(sys.modules[type(runner).__module__], '_PRINT_TRITON_FUNC', False)
+                    and hasattr(runner, 'launch')):
+                # On KL3, only scaled arguments consume a launch-time numel.
+                raw = binary.metadata.xpu_arch == 3 and getattr(binary.metadata, 'tensor_args', None) in ((), [])
+                bound = binary, runner.launch, binary.function, binary.packed_metadata, raw
+                proof['prepared_launch'] = 'sdnn_fp32_mulsum'
+                proof['launch_pointer_args'] = 'address' if raw else 'tensor'
+            return binary
+        binary, entry, function, metadata, raw = bound
+        if raw:
+            a, b, out = a_ptr, b_ptr, out_ptr
+        entry(grid[0], 1, 1, active.get_current_stream(device), function, metadata,
+              None, None, None, a, b, out, m, n, n)
+        return binary
+
+    return launch
+
+
 def compile(spec, tensors):
     """Return (callable(xs)->tuple, proof). Tuning happens on the first real call."""
+    from ._resource_codegen import bind_evidence
+
     key = '%s|%s|%dx%d|%s|kd%d' % (_VERSION, spec['kind'], spec['m'], spec['n'], spec['dtype'],
                                     1 if spec.get('keepdim') else 0)
+    resource = 'cluster' if spec['kind'] != 'ew' and _is_plain(spec) else 'sdnn'
+    short_rows = (resource == 'sdnn' and spec['kind'] == 'mulsum' and spec['dtype'] == 'float32'
+                  and spec['m'] <= 128 and spec['n'] % 512 == 0)
+    if short_rows:
+        # A persisted winner from the narrower search never saw 8-row tiles.
+        key += '|short-rows-v1'
     proof = {
-        'route': 'sdnn_dsa', 'resource': 'sdnn', 'resource_verified': True,
-        'source_code': _kernel_source_marker(), 'emitted': 'tle.dsa', 'region': dict(spec),
+        'route': 'plain_reduce' if resource == 'cluster' else 'sdnn_dsa',
+        'resource': resource, 'resource_verified': False,
+        'direct_launches': 1, 'emitted': 'tle.dsa', 'region': dict(spec),
         'match_key': key, 'tiles': None, 'autotune': 'cached' if _load(key) else 'pending',
     }
     state = dict(kernel=None, tile=None)
@@ -567,13 +643,14 @@ def compile(spec, tensors):
         if tile is None:
             kernel = _ew_kernel() if spec['kind'] == 'ew' else _kernel_for(spec)
             best = None
-            candidates = _plain_candidates(spec['n']) if _is_plain(spec) else _candidate_list(spec['n'])
+            candidates = (_plain_candidates(spec['n']) if _is_plain(spec)
+                          else _candidate_list(spec['n'], short_rows=short_rows))
             for rows, cols, warps in candidates:
                 try:
                     us = _measure(kernel, spec, rows, cols, warps,
                                   (a, b) if b is not None else (a,),
                                   packed=(spec['kind'] != 'ew' and spec['dtype'] == 'float16'
-                                          and os.environ.get('FLAGTREE_DSA_PACKED', '0') == '1'))
+                                          and os.environ.get('FLAGTREE_DSA_PACKED', '0') == '1'), replay=short_rows)
                 except Exception as exc:
                     if os.environ.get('FLAGTREE_DSA_DEBUG'):
                         import traceback
@@ -604,7 +681,7 @@ def compile(spec, tensors):
             brow = 1 if spec.get('b_row') else 0
             kind_id = _KIND[spec['dtype']]
             def launch(a, b, out):
-                kernel[grid](_view(a, spec['dtype']), _view(b, spec['dtype']),
+                return kernel[grid](_view(a, spec['dtype']), _view(b, spec['dtype']),
                              _view(out, spec['dtype']), N=n, ROWS=rows, COLS=cols,
                              BROW=brow, KIND=kind_id, num_warps=warps, num_stages=2,
                              is_sdnn=True)
@@ -613,22 +690,24 @@ def compile(spec, tensors):
         if plain:
             rnd = _plain_round(spec)
             def launch(a, b, out):
-                kernel[grid](a, b, out, MUL=mul, ROWS=rows, COLS=cols, N=n, ROUND=rnd,
+                return kernel[grid](a, b, out, MUL=mul, ROWS=rows, COLS=cols, N=n, ROUND=rnd,
                              num_warps=warps, num_stages=1)
             return launch
         if spec['dtype'] == 'float16':
             stride = _word_stride(spec)
             def launch(a, b, out):
-                kernel[grid](_view(a, spec['dtype']), _view(b, spec['dtype']), out, m, n, stride,
+                return kernel[grid](_view(a, spec['dtype']), _view(b, spec['dtype']), out, m, n, stride,
                              MUL=mul, ROWS=rows, COLS=cols, num_warps=warps, num_stages=2,
                              is_sdnn=True)
             return launch
         knd = _KIND[spec['dtype']]
         def launch(a, b, out):
-            kernel[grid](_view(a, spec['dtype']),
+            return kernel[grid](_view(a, spec['dtype']),
                          _view(b, spec['dtype']) if b is not None else None,
                          out, m, n, n, MUL=mul, ROWS=rows, COLS=cols, KIND=knd, STAGES=_DSA_STAGES,
                          num_warps=warps, num_stages=2, is_sdnn=True)
+        if mul and spec['dtype'] == 'float32':
+            return _fp32_mulsum_launcher(kernel, grid, m, n, launch, proof)
         return launch
 
     def run(xs):
@@ -638,16 +717,20 @@ def compile(spec, tensors):
         if launcher is None:
             if a.dim() != 2 or a.shape[0] != spec['m'] or a.shape[1] != spec['n']:
                 raise RuntimeError('flagtree dsa region: shape changed at call time')
-            b = xs[1] if spec['kind'] == 'mulsum' else None
-            launcher = state['launcher'] = _make_launcher(a, b)
+            b = xs[1] if spec['kind'] in ('mulsum', 'ew') else None
             state['out_shape'] = (spec['m'], 1) if spec.get('keepdim') else (spec['m'],)
+            launcher = state['launcher'] = _make_launcher(a, b)
         if spec['kind'] == 'ew':
             b = xs[1]
             out = torch.empty_like(a)
-            launcher(a, b, out)
+            binary = launcher(a, b, out)
+            if not proof['resource_verified']:
+                bind_evidence(proof, binary)
             return (out,)
-        out = torch.empty(state['out_shape'], device=a.device, dtype=torch.float32)
-        launcher(a, xs[1] if spec['kind'] == 'mulsum' else None, out)
+        out = torch.empty(state['out_shape'], device=a.device, dtype=a.dtype)
+        binary = launcher(a, xs[1] if spec['kind'] == 'mulsum' else None, out)
+        if not proof['resource_verified']:
+            bind_evidence(proof, binary)
         if _DEBUG:
             print('[dsa] run', spec['kind'], spec['dtype'], a.shape, flush=True)
         return (out,)

@@ -1,0 +1,3214 @@
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+
+                                               用
+                                            使
+                                           司
+                                       公
+                                       限
+                                   有   昆仑芯
+                                   ）
+                              圳        P 系列
+                           深
+                     技（        XPU DNN 用户手册
+
+               讯科
+            腾
+         供
+      仅
+    芯
+仑
+昆
+                                   文档版本：V3.4
+
+                                   文档时间：2025-07-29
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+
+    法律声明
+    欢迎使用昆仑芯（北京）科技有限公司（以下简称“昆仑芯”）的产品或服务，在开始使用
+    前，请确保您已经阅读并同意接受下列条款和条件的约束。
+    一、免责声明
+    客户对昆仑芯产品或服务的使用承担风险，昆仑芯对此不作任何类型的担保，不论是明确的或
+                                               用
+    本说明书要求使用昆仑芯产品，或客户自行变更设计等。
+                                           使
+    隐含的。昆仑芯不对任何直接、间接、特殊及附带的损害承担责任，这些损害可能来自：未按
+
+
+    二、信息准确性                                司
+                                       公
+    昆仑芯对通过本产品所获得的资源均按现状提供，对其准确性、内容、完整性、合法性、可靠
+    性、可操作性或可用性不承担任何责任。昆仑芯对通过本产品所获得的产品或服务以及通过本
+
+    本说明书所述产品作出修改和变更的权利。
+                                       限
+    产品任何链接而得到的任何讯息不做任何担保。昆仑芯保留在任何时候不经通知对本说明书或
+
+
+    三、知识产权声明
+                                   有
+                                   ）
+    本说明书中所有官方产品、技术、软件、程序、数据及其他信息（包括文字、图标、图片、照
+
+                              圳
+    片、音频、视频、图表、色彩组合、版面设计等）的所有权利（包括著作权、商标权、专利
+    权）均归昆仑芯及/或其关联公司所有，受法律法规保护。未经昆仑芯事先许可，任何人擅自
+
+    法律责任。               （
+    使用上述内容、信息等，视为对昆仑芯知识产权等合法权益的侵犯，昆仑芯将会追究侵权者的
+
+                         深
+    四、版权声明
+
+                  科
+    © 昆仑芯（北京）科技有限公司保留一切权利。
+
+                   技
+               讯
+             腾
+         供
+      仅
+    芯
+仑
+昆
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+                                                                    目                       录
+    1 简介............................................................................................................................................................2
+    2 XPU DNN 安装指南...............................................................................................................................2
+       2.1 简介.................................................................................................................................................... 2
+                                                                                                                                                           用
+       2.2 准备环境............................................................................................................................................2
+       2.3 下载产出包和测试验证...................................................................................................................2         使
+    3 API 参考....................................................................................................................................................4
+                                                                                                                                        司
+       3.1 cudnn_ops_library........................................................................................................................ 4
+                                                                                                                              公
+          3.1.1 enumeration_types................................................................................................................4
+
+                                                                                                                     限
+          3.1.2 pointer_to_opaque_struct_types.......................................................................................6
+          3.1.3 API_functions........................................................................................................................... 7
+                                                                                                           有
+       3.2 cudnn_cnn_library......................................................................................................................16
+
+                                                                                                 ）
+          3.2.1 enumeration_types..............................................................................................................16
+          3.2.2 pointer_to_opaque_struct_types.....................................................................................16
+                                                                                        圳
+          3.2.3 struct_types............................................................................................................................16
+
+                                                                              深
+          3.2.4 API_functions.........................................................................................................................17
+       3.3 legacy_xdnn_api..........................................................................................................................24
+                                                                    （
+          3.3.1 conv1d_fusion.......................................................................................................................25
+
+                                                           技
+          3.3.2 conv1d_grad..........................................................................................................................26
+          3.3.3 conv2d_fusion.......................................................................................................................27
+                                       讯
+          3.3.4 conv2d_grad..........................................................................................................................28
+                                        科
+          3.3.5 conv3d_fusion.......................................................................................................................29
+          3.3.6 conv3d_grad..........................................................................................................................30
+                              腾
+          3.3.7 conv1d_varlen....................................................................................................................... 32
+                    供
+          3.3.8 conv2d_varlen....................................................................................................................... 33
+
+          仅
+    芯
+仑
+昆
+
+
+                                                                                   I
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+
+    1 简介
+    XPU DNN 是一个为加速深度神经网络运行的昆仑芯 XPU 高性能算子库。XDNN 提供高度调
+    优的卷积前反向等算子。
+    本 API 参考文档按不同模块列出了数据类型和函数，主要包含以下三部分：
+    ●      cudnn_ops 模块：该模块包含了与 cuDNN 上下文的创建和销毁、张量描述符管理、
+                                                                     用
+           张量使用的相关例程。开发者使用这些接口能够更容易地创建深度学习网络并对其性能
+           进行调优。
+                                                                 使
+    ●      cudnn_cnn 模块：该模块包含了推理阶段所需要的与卷积神经网络相关的所有例程。            司
+           开发者可以使用这些接口来实现高性能的卷积前反向运算。cudnn_cnn 依赖于
+           cudnn_ops。
+                                                         公
+    ●
+                                                 有
+           Legacy XDNN 接口：该模块包含了旧 XDNN 风格的卷积接口，参数与旧 XDNN 一
+           致。开发者使用这些接口可以较容易的从旧版 XDNN 迁移到新版 XDNN。
+                                                  限
+    2 XPU DNN 安装指南                              ）
+    2.1 简介
+                                       圳
+                                   深
+    本文档提供了 XPU DNN 在 Linux 系统上的正确安装和验证步骤。XPU DNN 最新兼容的操
+                                   （
+    作系统、昆仑芯 AI 芯片硬件产品型号和昆仑芯 AI 芯片软件驱动版本，请参考以下"支持列
+    表"。
+                             技
+    2.1.1 支持列表
+    2.1.1.1 硬件支持
+                   讯科
+    硬件
+    P800        腾                    驱动
+                                     5.0.21.26
+
+             供
+    2.1.1.2 软件支持
+    CPU 架构
+    X86
+          仅         操作系统
+                    bdcentos-6.3
+                                       kernel
+                                       3.10.0
+                                                         GCC
+                                                         8.2.0
+    芯
+    X86             ubuntu-16.04       4.18.0            5.4.0
+
+
+仑   2.2 准备环境
+昆   安装和使用 XPU DNN 前，需要根据具体的操作系统和昆仑芯 AI 加速卡的产品型号安装 XRE
+    驱动，具体请参考《昆仑芯 P 系列 XRE 用户手册》。
+
+
+    2.3 下载产出包和测试验证
+
+
+
+                     Copyright©2024-2025 昆仑芯（北京）科技有限公司               -2-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    2.3.1 下载产出包
+    XPU DNN 的产出，包含在 XHPC 的产出下载链接里。您可通过下载 XHPC 产出包获取：
+        ● xhpc-bdcentos7_x86_64: https://klx-sdk-release-public.su.bcebos.com/xhpc/
+          release/3.4.0/xhpc-bdcentos7_x86_64.tar.gz
+        ● xhpc-ubuntu1604_x86_64: https://klx-sdk-release-public.su.bcebos.com/xhpc/
+          release/3.4.0/xhpc-ubuntu1604_x86_64.tar.gz
+        ● xhpc-ubuntu2004_x86_64: https://klx-sdk-release-public.su.bcebos.com/xhpc/
+          release/3.4.0/xhpc-ubuntu2004_x86_64.tar.gz
+                                                                                         用
+        ● xhpc-kylinv4_aarch64: https://klx-sdk-release-public.su.bcebos.com/xhpc/
+                                                                                   使
+          release/3.4.0/xhpc-kylinv4_aarch64.tar.gz
+    以下两个系统为例：
+                                                                              司
+    ●     CentOS 系统：
+                                                                        公
+                                                                   限
+          $ wget https://klx-sdk-release-public.su.bcebos.com/xhpc/release/3.4.0/xhpc-bdcentos
+          7_x86_64.tar.gz --no-check-certificate
+          $ tar -zxf xhpc-bdcentos7_x86_64.tar.gz             有
+    ●     Ubuntu 系统：
+                                                        ）
+                                                   圳
+          $ wget https://klx-sdk-release-public.su.bcebos.com/xhpc/release/3.4.0/xhpc-ubuntu16
+          04_x86_64.tar.gz
+                                              深
+          $ tar -zxf xhpc-ubuntu1604_x86_64.tar.gz
+
+
+
+    2.3.2 测试示例
+                                        （
+    ●     验证卷积前反向
+                                   技
+         1. 编译测试程序           科
+                         讯
+              $ cd xhpc-bdcentos7_x86_64/xpudnn/samples
+
+                   腾
+              $ XRE_PATH=/PATHTOXRE XPUDNN_PATH=/PATHTOXPUDNN sh build.sh
+              #请用环境中的 XRE 路径替换/PATHTOXRE，用 XPUDNN 路径替换/PATHTOXPUDNN
+
+
+              供
+         2. 运行测试程序
+
+         仅  $ ./run.sh
+
+    芯       ========================== Running: sample_conv_bwd_data ========================
+            ==
+
+仑           conv_bwd_data done
+
+
+昆           ========================== Running: sample_conv_bwd_weight ======================
+            ====
+
+            conv_bwd_weight done
+
+            ========================== Running: sample_conv_fwd ==========================
+
+            conv_fwd done
+
+
+
+
+                            Copyright©2024-2025 昆仑芯（北京）科技有限公司                           -3-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+    3 API 参考
+    3.1 cudnn_ops_library
+    3.1.1 enumeration_types
+    3.1.1.1 cudnnActivationMode_t
+                                                                                    用
+    值                          描述
+                                                                               使
+    CUDNN_ACTIVATION_SIGMOI
+    D                                                                     司
+                               选择 S 型函数（sigmoid function）。该函数将输入值映射到 0 到 1 之间的输出值，
+                               常用于隐藏层的激活。
+    CUDNN_ACTIVATION_RELU
+                                                                     公
+                               选择修正线性单元（Rectified Linear Unit, ReLU）函数。该函数将所有负输入值映
+                               射到 0，正输入值保持不变。ReLU 函数可以加速训练过程，并且通常在实践中表现良
+                               好。
+    CUDNN_ACTIVATION_TANH                                       限
+                               选择双曲正切函数（hyperbolic tangent function）。该函数将输入值映射到-1 到 1
+                               之间的输出值，和 sigmoid 函数类似，但输出范围不同。
+
+    _RELU
+                                                           有
+    CUDNN_ACTIVATION_CLIPPED 选择裁剪的修正线性单元（Clipped ReLU）函数。这是 ReLU 的一个变体，其中正输
+                             入值被裁剪（限制）到某个最大阈值以下。
+    CUDNN_ACTIVATION_ELU
+                                                      ）
+                               选择指数线性单元（Exponential Linear Unit, ELU）函数。ELU 是 ReLU 的一个变
+                               体，允许小的负激活值，这有助于提高模型的泛化性能。
+
+    Y                                            圳
+    CUDNN_ACTIVATION_IDENTIT 选择恒等函数（identity function）。这个函数不改变其输入值。在 cuDNN 中，它
+                             主要用于在卷积操作中绕过激活步骤，通常与 cudnnConvolutionBiasActivationFor
+                             ward()函数结合使用，并且必须使用 CUDNN_CONVOLUTION_FWD_ALGO_IMPLI
+
+    CUDNN_ACTIVATION_SWISH               （
+                             CIT_PRECOMP_GEMM 算法。
+
+
+                                          深
+                               选择 Swish 函数。Swish 是一个较新的激活函数，结合了 sigmoid 和线性函数的特
+                               点，可以通过参数调整其形状。在一些深度学习模型中，Swish 已经显示出比 ReLU
+                               更好的性能。
+
+
+    3.1.1.2 cudnnAlgorithm_t
+    该函数在 cuDNN 当前版本中已被弃用。
+                              科技
+                      讯
+    3.1.1.3 cudnnBatchNormMode_t
+
+                 腾
+    cudnnBatchNormMode_t 是一个枚举类型，用于指定
+    cudnnBatchNormalizationForwardInference()、
+            供
+    cudnnBatchNormalizationForwardTraining()、cudnnBatchNormalizationBackward() 和
+    cudnnDeriveBNTensorDescriptor() 例程中的操作模式。
+
+    值   仅                           描述
+
+    芯
+    CUDNN_BATCHNORM_PER_ACTIVATI 该模式旨在在非卷积网络层之后使用。在此模式下，bnBias 和 bnScale 的张
+    ON                           量形状以及 cudnnBatchNormalization* 函数中使用的参数为 1xCxHxW。
+
+
+仑   CUDNN_BATCHNORM_SPATIAL         该模式旨在在卷积网络层之后使用。在此模式下，bnBias 和 bnScale 的张量
+                                    形状以及 cudnnBatchNormalization* 函数中使用的参数为 1xCx1x1。
+    CUDNN_BATCHNORM_SPATIAL_PERS 此模式类似于 CUDNN_BATCHNORM_SPATIAL，但对于某些任务来说它可以
+昆   ISTENT                       更快。
+
+
+    3.1.1.4 cudnnBatchNormOps_t
+    cudnnBatchNormOps_t 是一个枚举类型，用于指定
+    cudnnGetBatchNormalizationForwardTrainingExWorkspaceSize()、
+    cudnnBatchNormalizationForwardTrainingEx()、
+    cudnnGetBatchNormalizationBackwardExWorkspaceSize()、
+
+
+
+                             Copyright©2024-2025 昆仑芯（北京）科技有限公司                      -4-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    cudnnBatchNormalizationBackwardEx() 和
+    cudnnGetBatchNormalizationTrainingExReserveSpaceSize() 中的操作模式。
+
+    值                                       描述
+    CUDNN_BATCHNORM_OPS_BN                  只进行 batchnorm。
+    CUDNN_BATCHNORM_OPS_BN_ACTIVATION       先进行 batchnorm，而后进行激活。
+    CUDNN_BATCHNORM_OPS_BN_ADD_ACTIVATION 先进行 batchnorm，而后是 element-wise 加法，最后进行激
+                                          活。
+
+
+    3.1.1.5 cudnnDataType_t
+                                                                              用
+    值                               描述
+                                                                         使
+    CUDNN_DATA_FLOAT32
+    CUDNN_DATA_DOUBLE
+                                    32 位单精度浮点数。
+                                    64 位双精度浮点数。
+                                                                     司
+    CUDNN_DATA_HALF
+    CUDNN_DATA_INT8
+                                    16 位浮点数。
+                                    有符号 8 位整数。
+                                                                  公
+    CUDNN_DATA_INT32
+    CUDNN_DATA_INT8x4
+                                    32 位整数。
+                                    每个 32 位元素由 4 个 8 位整数组成。
+                                                             限
+    CUDNN_DATA_UINT8                无符号 8 位整数。             有
+    CUDNN_DATA_UINT8x4
+    CUDNN_DATA_INT8x32
+                                                      ）
+                                    每个 32 位元素由 4 个 8 位无符号整数组成。
+                                    32 个元素的向量，每个元素是 8 位有符号整数。
+    CUDNN_DATA_BFLOAT16
+    CUDNN_DATA_INT64
+                                                 圳
+                                    16 位数据类型，包含 7 个尾数位、8 个指数位和 1 个符号位。
+                                    64 位有符号整数。
+    CUDNN_DATA_BOOLEAN
+    CUDNN_DATA_FP8_E4M3
+    CUDNN_DATA_FP8_E5M2
+                                     （
+                                    布尔数据类型，元素以位包形式存储，即每个字节包含 8 个元素。
+
+
+                                      深
+                                    未支持。
+                                    未支持。
+    CUDNN_DATA_FAST_FLOAT_FOR_FP8   未支持。
+    CUDNN_DATA_TF32
+                         讯          TensorFloat 32 位浮点数。
+    CUDNN_DATA_INT16
+
+                          科         16 位整数。
+
+
+    3.1.1.6 cudnnMathType_t
+                           技
+    用于判断 XPU 是否使用 Tensor core。当前默认启用，此变量不生效。
+
+    值
+                 腾                                           描述
+
+            供
+    CUDNN_DEFAULT_MATH
+    CUDNN_TENSOR_OP_MATH
+                                                             此变量在 XPU 上不生效
+                                                             此变量在 XPU 上不生效
+
+        仅
+    CUDNN_TENSOR_OP_MATH_ALLOW_CONVERSION
+    CUDNN_FMA_MATH
+                                                             此变量在 XPU 上不生效
+                                                             此变量在 XPU 上不生效
+
+    芯
+    3.1.1.7 cudnnPoolingMode_t
+仑   cudnnPoolingMode_t 是传递给 cudnnSetPooling2dDescriptor() 的枚举类型，用于
+
+昆   选择 cudnnPoolingForward() 和 cudnnPoolingBackward() 使用的池化方法。
+
+    值                                            描述
+    CUDNN_POOLING_MAX                            使用池化窗口内的最大值。
+    CUDNN_POOLING_AVERAGE_COUNT_INCLUDE_PADDING 使用池化窗口内的平均值。用于计算平均值的元素数量
+                                                包括落在填充区域中的空间位置。
+    CUDNN_POOLING_AVERAGE_COUNT_EXCLUDE_PADDING 使用池化窗口内的平均值。用于计算平均值的元素数量
+                                                不包括落在填充区域中的空间位置。
+
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                 -5-
+    让计算更智能 INTELLIGENT COMPUTING
+
+    值                                             描述
+    CUDNN_POOLING_MAX_DETERMINISTIC               使用池化窗口内的最大值，且使用的算法是确定性的。
+
+
+    3.1.1.8 cudnnStatus_t
+    值                                        描述
+    CUDNN_STATUS_SUCCESS                     操作已成功完成。
+    CUDNN_STATUS_STATUS_NOT_INITIALIZED      cuDNN 库未正确初始化。这个错误通常在调用 cudnnCreat
+                                             e() 失败时返回，或者是在调用另一个 cuDNN 例程之前没有
+                                                                               用
+                                             先调用 cudnnCreate()。在前者情况下，这通常是由于 cudnn
+
+
+
+    CUDNN_STATUS_ALLOC_FAILED
+                                             件设置出现错误。                      使
+                                             Create() 调用的 CUDA 运行时 API 出现错误，或者是由于硬
+
+                                             在 cuDNN 库内部资源在设备端分配失败导致。
+    CUDNN_STATUS_BAD_PARAM                   向函数传递了不正确的值或参数。          司
+    CUDNN_STATUS_ARCH_MISMATCH
+    CUDNN_STATUS_MAPPING_ERROR                                    公
+                                             指定的运行设备不支持，当前 cudnn 支持 CPU 和 XPU3。
+                                             内存空间访问失败，XPU 版无实际意义。
+    CUDNN_STATUS_EXECUTION_FAILED
+    CUDNN_STATUS_INTERNAL_ERROR
+                                                             限
+                                             XPU kernel 函数执行失败。
+                                             内部操作失败。
+    CUDNN_STATUS_NOT_SUPPORTED
+    CUDNN_STATUS_LICENSE_ERROR
+                                             当前版本暂不支持的功能。
+                                                         有
+                                             请求的许可证未正确设置，XPU 版无实际意义。
+
+
+    CUDNN_STATUS_RUNTIME_IN_PROGRESS
+                                                       ）
+    CUDNN_STATUS_RUNTIME_PREREQUISITE_MISSING cuDNN 所需的运行时库在与定义的搜索路径中找不到。
+                                             用户流中某些任务尚未完成，XPU 版无实际意义。
+    CUDNN_STATUS_RUNTIME_FP_OVERFLOW              圳
+                                             在 XPU kernel 执行期间发生了数值溢出，在 XPU 版无实际
+                                             意义，需采用其他方法定位数值溢出问题。
+
+
+    3.1.1.9 cudnnTensorFormat_t
+                                           深
+    用于根据预定义的布局创建张量                        （
+    值
+    CUDNN_TENSOR_NCHW
+                                 描述 技
+                                 指定数据按如下顺序排列：batch，channel，height，width。
+    CUDNN_TENSOR_NHWC
+                       讯科
+                                 指定数据按如下顺序排列：batch，height，width，channel。
+    CUDNN_TENSOR_NCHW_VECT_C 在 NCHW 排列的基础上，张量中的每个元素都是多个特征图的向量， 仅支持数据
+                             类型为 CUDNN_DATA_INT8x4，和 CUDNN_DATA_UINT8x4，实际上为 N x (C
+                             / 32) x H x W x 32。
+
+                  腾
+    3.1.2 pointer_to_opaque_struct_types
+            供
+    3.1.2.1 cudnnActivationDescriptor_t
+        仅
+    cudnnActivationDescriptor_t 是一个指向不透明结构的指针，该结构保存激活操作的描述。
+    芯
+    使用 cudnnCreateActivationDescriptor() 创建一个实例，必须使用
+    cudnnSetActivationDescriptor() 初始化该实例。
+仑   3.1.2.2 cudnnFilterDescriptor_t
+昆   cudnnFilterDescriptor_t 是一个指向不透明结构的指针，该结构保存了滤波器数据集的描
+    述。使用 cudnnCreateFilterDescriptor() 创建一个实例，必须使用
+    cudnnSetFilter4dDescriptor()或 cudnnSetFilterNdDescriptor()初始化这个实
+    例。
+
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                  -6-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    3.1.2.3 cudnnHandle_t
+    cudnnHandle_t 是一个指向不透明结构的指针，该结构持有 cuDNN 库的 context。cuDNN
+    库的 context 必须使用 cudnnCreate()创建，并且返回的句柄必须传递给所有后续的库函数调
+    用。在结束时，应该使用 cudnnDestroy() 销毁上下文。
+    cudnnHandle_t 是你在使用 cuDNN 库时的一个关键组件，它管理着与特定 XPU 设备的交互
+    和库的状态。每次你想使用 cuDNN 库的函数时，你都需要传递这个句柄，以确保函数在正确
+    的上下文中执行。当你完成所有操作后，应当销毁这个句柄来释放资源。                                      用
+    3.1.2.4 cudnnPoolingDescriptor_t
+    cudnnPoolingDescriptor_t 是一个指向池化操作描述的不透明结构的指针。
+                                                                      使
+    cudnnCreatePoolingDescriptor() 用于创建一个实例，必须使用                      司
+    3.1.2.5 cudnnSpatialTransformerDescriptor_t
+                                                                  公
+    cudnnSetPoolingNdDescriptor() 或 cudnnSetPooling2dDescriptor()来初始化该实例。
+
+
+
+    cudnnSpatialTransformerDescriptor_t 是指向保存空间变换操作描述的不透明结构的指针。
+                                                                  限
+    cudnnCreateSpatialTransformerDescriptor()用于创建一个实例，
+    cudnnSetSpatialTransformerNdDescriptor()用于初始化该实例，
+                                                             有
+    cudnnDestroySpatialTransformerDescriptor()用于销毁该实例。  ）
+    3.1.2.6 cudnnTensorDescriptor_t               圳
+                                             深
+    cudnnTensorDescriptor_t 是一个指向不透明结构的指针，该结构保存了一个通用的 n-D（n
+    维）数据集的描述。cudnnCreateTensorDescriptor() 用于创建一个实例，而
+                                       （
+    cudnnSetTensorNdDescriptor()、cudnnSetTensor4dDescriptor()或
+    cudnnSetTensor4dDescriptorEx()中的一个例程必须用于初始化这个实例。
+
+    3.1.3 API_functions
+                                  技
+                       讯科
+    3.1.3.1 cudnnBatchNormalizationBackward()
+    该函数执行训练阶段的反向 batch normalization 计算。该层的功能基于 Batch Normalization:
+                  腾
+    Accelerating Deep Network Training by Reducing Internal Covariate Shift 论文。
+
+            供
+    cudnnStatus_t cudnnBatchNormalizationBackward(
+          cudnnHandle_t                    handle,
+       仅  cudnnBatchNormMode_t
+          const void
+                                           mode,
+                                          *alphaDataDiff,
+
+    芯     const void
+          const void
+          const void
+                                          *betaDataDiff,
+                                          *alphaParamDiff,
+                                          *betaParamDiff,
+
+仑         const cudnnTensorDescriptor_t
+          const void
+          const cudnnTensorDescriptor_t
+                                           xDesc,
+                                          *x,
+                                           dyDesc,
+
+昆         const void
+          const cudnnTensorDescriptor_t
+          void
+                                          *dy,
+                                           dxDesc,
+                                          *dx,
+          const cudnnTensorDescriptor_t    bnScaleBiasDiffDesc,
+          const void                      *bnScale,
+          void                            *resultBnScaleDiff,
+          void                            *resultBnBiasDiff,
+          double                           epsilon,
+          const void                      *savedMean,
+          const void                      *savedInvVariance)
+
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司              -7-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    仅支持 4D 和 5D 张量。epsilon 值在训练、反向传播和推理期间必须相同。
+    参数列表：
+
+    参数名                      输入/输出        描述
+    handle                   输入           指向之前创建的 cuDNN 上下文的句柄。更多信息，请参考 cudnnHandle_
+                                          t。
+    mode                     输入           操作模式（spatial 或 per-activation）。更多信息请参考 cudnnBatchNor
+                                          mMode_t。
+    alphaDataDiff，betaData
+    Diff
+                             输入           指向 dx 缩放因子的指针（位于主机内存中），用于将计算结果与输出层中
+                                          的先前值按照以下方式进行计算： dstValue = alpha * result + beta * prio
+                                                                                                       用
+    alphaParamDiff，betaPar   输入
+                                          rDstValue。
+                                          指向 resultBnScaleDiff 和 resultBnBiasDiff 缩放因子的指针（位于主机内
+                                                                                                  使
+    amDiff                                存中），用于将计算结果与输出层中的先前值按照以下方式进行计算： dstV
+                                          alue = alpha * result + beta * priorDstValue。   司
+    xDesc，dxDesc，dyDesc
+
+    x
+                             输入
+
+                             输入
+                                                                                    公
+                                          先前初始化的张量描述符的句柄。更多信息，请参考 cudnnTensorDescript
+                                          or_t。
+                                          数据指针指向与张量描述符 xDesc 关联的 XPU 内存。
+    dy                       输入                                              限
+                                          数据指针指向与张量描述符 dyDesc 关联的 XPU 内存，为反向传播的 dy 输
+                                          入。
+    dx                       输入/输出                                     有
+                                          数据指针指向与张量描述符 dxDesc 关联的 XPU 内存，为反向传播的 dx 输
+                                          出。
+    bnScaleBiasDiffDesc      输入                                 ）
+                                          先前初始化的 bnScale, resultBnScaleDiff, resultBnBiasDiff, savedMean,
+                                          和 savedInvVariance 共享的张量描述符的句柄。
+    bnScale                  输入
+                                                          圳
+                                          指向 batch normalization scale 参数在 XPU 上内存的指针（在 Batch Nor
+                                          malization: Accelerating Deep Network Training by Reducing Internal
+                                          Covariate Shift 论文中, scale 为 gamma 参数）。
+    resultBnScaleDiff，resultB 输出
+    nBiasDiff
+                                                   深
+                                          数据指针指向反向传播计算出的 dscale 和 dbias 在 XPU 上的内存。
+
+    epsilon                  输入              （
+                                          batch normalization 公式中使用的 Epsilon 值。其值应等于或大于 cudnn.
+                                          h 中为 CUDNN_BN_MIN_EPSILON 定义的值。
+    resultSaveMean, resultSav 输出
+    eInvVariance
+                                        技 功能暂不支持。
+
+
+
+    XPU 当前支持数据类型：         讯科
+    Data Type Configurat                     bnScaleBiasMeanVar
+                         xDesc                                       alpha, beta          yDesc
+    ions                                     Desc
+
+    G
+                    腾
+    PSEUDO_HALF_CONFI CUDNN_DATA_HA
+                      LF
+                                             CUDNN_DATA_FLOAT        CUDNN_DATA_FLOA CUDNN_DATA_HA
+                                                                     T               LF
+
+              供
+    FLOAT_CONFIG          CUDNN_DATA_FLO CUDNN_DATA_FLOAT
+                          AT
+                                                                     CUDNN_DATA_FLOA CUDNN_DATA_FLO
+                                                                     T               AT
+
+    返回值： 仅
+    芯
+    返回值
+    CUDNN_STATUS_SUCCESS
+                                   描述
+                                   操作成功执行。
+仑   CUDNN_STATUS_BAD_PARAM         以下参数至少有一个为 NULL：alpha, beta, x, y, bnScale, bnBias, resultRunningM
+                                   ean, resultRunningInvVariance。 xDesc、dxDesc 和 dyDesc 的维度数量不匹配。
+昆                                  xDesc、dxDesc 和 dyDesc 维度数量不为 4 或 5。 epsilon 值小于 CUDNN_BN_MI
+                                   N_EPSILON. bnScaleBiasDiffDesc 维度在 spatial 模式下不为 1xCx1x1 （4D 情
+                                   况）或 1xCx1x1x1（5D 情况）, 在 per-activation 模式下不为 1xCxHxW （4D 情
+                                   况）或 1xCxDxHxW （5D 情况）。
+    CUDNN_STATUS_NOT_SUPPO         未支持的 xDesc、yDesc、bnScaleBiasMeanVarDesc、alpha、beta 的数据类型组
+    RTED                           合。
+    CUDNN_STATUS_EXECUTION_        核函数在 XPU 上执行失败。
+    FAILED
+
+
+
+
+                             Copyright©2024-2025 昆仑芯（北京）科技有限公司                                         -8-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    3.1.3.2 cudnnBatchNormalizationForwardInference()
+    该函数执行推理阶段的前向 batch normalization 计算。该层的功能基于 Batch Normalization:
+    Accelerating Deep Network Training by Reducing Internal Covariate Shift 论文。
+
+    cudnnStatus_t cudnnBatchNormalizationForwardInference(
+          cudnnHandle_t                    handle,
+          cudnnBatchNormMode_t             mode,
+          const void
+          const void
+          const cudnnTensorDescriptor_t
+                                          *alpha,
+                                          *beta,
+                                           xDesc,
+                                                                                                     用
+          const void
+          const cudnnTensorDescriptor_t
+          void
+                                          *x,
+                                           yDesc,
+                                          *y,
+                                                                                               使
+          const cudnnTensorDescriptor_t
+          const void
+                                           bnScaleBiasMeanVarDesc,
+                                          *bnScale,
+                                                                                        司
+          const void
+          const void
+          const void
+                                          *bnBias,
+                                          *estimatedMean,
+                                          *estimatedVariance,
+                                                                                  公
+          double                           epsilon)
+                                                                           限
+    仅支持 4D 和 5D 张量。                                                 有
+    该函数执行的操作如下：
+                                                              ）
+    ce)]                                               圳
+    y = beta*y + alpha *[bnBias + (bnScale * (x-estimatedMean)/sqrt(epsilon + estimatedVarian
+
+
+
+                                                深
+    对于训练阶段，请参考 cudnnBatchNormalizationForwardTraining()。
+    参数列表：                                 （
+    参数名
+    handle
+                        输入/输出
+                        输入
+                                描述 技
+                                指向之前创建的 cuDNN 上下文的句柄。更多信息，请参考 cudnnHandle_t。
+    mode
+
+    alpha，beta
+                         讯
+                        输入
+
+                        输入科
+                                操作模式（spatial 或 per-activation）。更多信息请参考 cudnnBatchNormMode
+                                _t。
+                                指向缩放因子的指针（位于主机内存中），用于将计算结果与输出层中的先前值按
+                                照以下方式进行计算： dstValue = alpha * result + beta * priorDstValue。
+    xDesc
+    x
+                    腾   输入
+                        输入
+                                先前初始化的张量描述符的句柄。更多信息，请参考 cudnnTensorDescriptor_t。
+                                数据指针指向与张量描述符 xDesc 关联的 XPU 内存。
+    yDesc
+    y
+              供         输入
+                        输入/输出
+                                先前初始化的张量描述符的句柄。更多信息，请参考 cudnnTensorDescriptor_t。
+                                数据指针指向与张量描述符 yDesc 关联的 XPU 内存。
+        仅
+    bnScaleBiasMeanV 输入
+    arDesc
+                                先前初始化的 bnScale 和 bnBias 张量描述符的句柄。
+
+
+    芯
+    bnScale             输入      指向 batch normalization scale 参数在 XPU 上内存的指针（在 Batch Normaliza
+                                tion: Accelerating Deep Network Training by Reducing Internal Covariate Shi
+
+仑   bnBias              输入
+                                ft 论文中, scale 为 gamma 参数）。
+                                指向 batch normalization bias 参数在 XPU 上内存的指针（在 Batch Normalizati
+
+昆   estimatedMean       输入
+                                on: Accelerating Deep Network Training by Reducing Internal Covariate Shift
+                                论文中, bias 为 beta 参数）。
+                                均值张量在 XPU 上内存的指针，与 bnSclae 和 bnBias 使用相同张量描述符。训练
+                                阶段 cudnnBatchNormalizationForwardTraining() 方法的 resultRunningMean
+                                输出，在此作为输入使用。
+    estimatedVariance   输入      方差张量在 XPU 上内存的指针，与 bnSclae 和 bnBias 使用相同张量描述符。训练
+                                阶段 cudnnBatchNormalizationForwardTraining() 方法的 resultRunningVarian
+                                ce 输出，在此作为输入使用。
+
+
+
+
+                             Copyright©2024-2025 昆仑芯（北京）科技有限公司                                       -9-
+    让计算更智能 INTELLIGENT COMPUTING
+
+    参数名              输入/输出       描述
+    epsilon          输入          batch normalization 公式中使用的 Epsilon 值。其值应等于或大于 cudnn.h 中为
+                                 CUDNN_BN_MIN_EPSILON 定义的值。
+
+    XPU 当前支持数据类型：
+
+    Data Type Configurat                  bnScaleBiasMeanVar
+                         xDesc                                 alpha, beta       yDesc
+    ions                                  Desc
+    PSEUDO_HALF_CONFI CUDNN_DATA_HA
+    G
+    FLOAT_CONFIG
+                      LF
+                                          CUDNN_DATA_FLOAT
+
+                        CUDNN_DATA_FLO CUDNN_DATA_FLOAT
+                                                               CUDNN_DATA_FLOA CUDNN_DATA_HA
+                                                               T               LF
+                                                               CUDNN_DATA_FLOA CUDNN_DATA_FLO
+                                                                                             用
+                        AT                                     T               AT
+                                                                                         使
+    返回值：
+                                                                                 司
+    返回值
+    CUDNN_STATUS_SUCCESS
+                                 描述
+                                 操作成功执行。                                     公
+    CUDNN_STATUS_BAD_PARAM
+                                                                       限
+                                 以下参数至少有一个为 NULL：alpha, beta, x, y, bnScale, bnBias, estimatedMea
+                                 n, estimatedInvVariance。 xDesc 和 yDesc 的维度数量不匹配。 xDesc 和 yDesc
+                                 维度数量不为 4 或 5。 epsilon 值小于 CUDNN_BN_MIN_EPSILON。 bnScaleBias
+
+
+                                 5D 情况）。
+                                                                有
+                                 MeanVarDesc 维度在 spatial 模式下不为 1xCx1x1 （4D 情况）或 1xCx1x1x1（5
+                                 D 情况）, 在 per-activation 模式下不为 1xCxHxW （4D 情况）或 1xCxDxHxW （
+
+    CUDNN_STATUS_NOT_SUPPOR
+    TED
+                                                          ）
+                                 未支持的 xDesc、yDesc、bnScaleBiasMeanVarDesc、alpha、beta 的数据类型
+                                 组合。
+    CUDNN_STATUS_EXECUTION_F
+    AILED
+                                 核函数在 XPU 上执行失败。     圳
+                                               深
+    3.1.3.3 cudnnBatchNormalizationForwardTraining()
+                                          （
+    该函数执行训练阶段的前向 batch normalization 计算。该层的功能基于 Batch Normalization:
+
+                                      技
+    Accelerating Deep Network Training by Reducing Internal Covariate Shift 论文。
+
+
+          cudnnHandle_t          科
+    cudnnStatus_t cudnnBatchNormalizationForwardTraining(
+                                           handle,
+
+          const void    讯
+          cudnnBatchNormMode_t
+
+          const void
+                                           mode,
+                                          *alpha,
+                                          *beta,
+
+                   腾
+          const cudnnTensorDescriptor_t
+          const void
+          const cudnnTensorDescriptor_t
+                                           xDesc,
+                                          *x,
+                                           yDesc,
+          void
+              供
+          const cudnnTensorDescriptor_t
+                                          *y,
+                                           bnScaleBiasMeanVarDesc,
+
+       仅  const void
+          const void
+          double
+                                          *bnScale,
+                                          *bnBias,
+                                           exponentialAverageFactor,
+
+    芯     void
+          void
+          double
+                                          *resultRunningMean,
+                                          *resultRunningVariance,
+                                           epsilon,
+
+仑         void
+          void
+                                          *resultSaveMean,
+                                          *resultSaveInvVariance)
+
+昆   仅支持 4D 和 5D 张量。epsilon 值在训练、反向传播和推理期间必须相同。
+    对于推理阶段，请参考 cudnnBatchNormalizationForwardTraining()。
+    参数列表：
+
+
+
+
+                            Copyright©2024-2025 昆仑芯（北京）科技有限公司                              - 10 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    参数名                        输入/输出     描述
+    handle                     输入        指向之前创建的 cuDNN 上下文的句柄。更多信息，请参考 cudnnHandle_
+                                         t。
+    mode                       输入        操作模式（spatial 或 per-activation）。更多信息请参考 cudnnBatchNorm
+                                         Mode_t。
+    alpha，beta                 输入        指向缩放因子的指针（位于主机内存中），用于将计算结果与输出层中的先前
+                                         值按照以下方式进行计算： dstValue = alpha[0] * result + beta[0] * priorD
+                                         stValue。
+    xDesc                      输入        先前初始化的张量描述符的句柄。更多信息，请参考 cudnnTensorDescripto
+                                         r_t。                                                             用
+    x
+    yDesc
+                               输入
+                               输入
+                                         数据指针指向与张量描述符 xDesc 关联的 XPU 内存。
+                                         先前初始化的张量描述符的句柄。更多信息，请参考 cudnnTensorDescripto
+                                         r_t。
+                                                                                                    使
+    y                          输入/输出     数据指针指向与张量描述符 yDesc 关联的 XPU 内存。                     司
+    bnScaleBiasMeanVarDe
+    sc
+    bnScale
+                               输入
+
+                               输入
+                                         先前初始化的 bnScale 和 bnBias 张量描述符的句柄。
+                                                                                     公
+                                         指向 batch normalization scale 参数在 XPU 上内存的指针（在 Batch Norm
+
+                                         ariate Shift 论文中, scale 为 gamma 参数）。
+                                                                               限
+                                         alization: Accelerating Deep Network Training by Reducing Internal Cov
+
+    bnBias                     输入
+                                                                        有
+                                         指向 batch normalization bias 参数在 XPU 上内存的指针（在 Batch Norm
+                                         alization: Accelerating Deep Network Training by Reducing Internal Cov
+                                         ariate Shift 论文中, bias 为 beta 参数）。
+    exponentialAverageFact 输入
+    or
+                                                                  ）
+                                         移动平均计算中使用的因子，公式为 runningMean = runningMean*(1-fact
+                                         or) + newMean*factor。
+    resultRunningMean          输入/输出                       圳
+                                         均值张量在 XPU 上内存的指针，与 bnSclae 和 bnBias 使用相同张量描述
+                                         符。
+    resultRunningVariance      输入/输出                深
+                                         方差张量在 XPU 上内存的指针，与 bnSclae 和 bnBias 使用相同张量描述
+                                         符。
+    epsilon
+
+    resultSaveMean, resultS
+                               输入
+
+                               输出
+                                         技
+                                         batch normalization 公式中使用的 Epsilon 值。其值应等于或大于 cudnn.h
+                                         中为 CUDNN_BN_MIN_EPSILON 定义的值。
+
+                                          （
+                                         功能暂不支持。
+    aveInvVariance
+
+    XPU 当前支持数据类型：
+
+    Data Type Configurat
+                              讯科              bnScaleBiasMeanVar
+                         xDesc                                        alpha, beta           yDesc
+    ions                                      Desc
+
+    G               腾
+    PSEUDO_HALF_CONFI CUDNN_DATA_HA
+                      LF
+                                              CUDNN_DATA_FLOAT        CUDNN_DATA_FLOA CUDNN_DATA_HA
+                                                                      T               LF
+
+              供
+    FLOAT_CONFIG              CUDNN_DATA_FLO CUDNN_DATA_FLOAT
+                              AT
+                                                                      CUDNN_DATA_FLOA CUDNN_DATA_FLO
+                                                                      T               AT
+
+    返回值：仅
+    芯
+    返回值
+    CUDNN_STATUS_SUCCESS
+                                    描述
+                                    操作成功执行。
+
+仑   CUDNN_STATUS_BAD_PARAM          以下参数至少有一个为 NULL：alpha, beta, x, y, bnScale, bnBias, resultRunning
+                                    Mean, resultRunningInvVariance。 xDesc 和 yDesc 的维度数量不匹配。 xDesc
+
+昆                                   和 yDesc 维度数量不为 4 或 5。 epsilon 值小于 CUDNN_BN_MIN_EPSILON. bnS
+                                    caleBiasMeanVarDesc 维度在 spatial 模式下不为 1xCx1x1 （4D 情况）或 1xCx1x
+                                    1x1（5D 情况）, 在 per-activation 模式下不为 1xCxHxW （4D 情况）或 1xCxDx
+                                    HxW （5D 情况）。
+    CUDNN_STATUS_NOT_SUPPOR 未支持的 xDesc、yDesc、bnScaleBiasMeanVarDesc、alpha、beta 的数据类型组
+    TED                     合。
+    CUDNN_STATUS_EXECUTION_F 核函数在 XPU 上执行失败。
+    AILED
+
+
+
+
+                                 Copyright©2024-2025 昆仑芯（北京）科技有限公司                                      - 11 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    3.1.3.4 cudnnCreate()
+    接口介绍：
+    用于初始化 cuDNN 库，并创建一个句柄到一个持有 cuDNN 库上下文的不透明结构。它在主
+    机和设备上分配硬件资源，并且必须在调用 cuDNN 库中的任何其他函数之前调用。
+
+    cudnnStatus_t cudnnCreate(cudnnHandle_t *handle)
+
+
+    参数列表：
+                                                                                       用
+    参数名          输入/输出     描述
+                                                                                     使
+    handle       输出        指向指针的指针，用于存储已分配的 cuDNN 句柄的地址。有关更多信息，请参阅 cudnnH
+                           andle_t。
+                                                                             司
+    返回值：                                                                公
+    返回值
+    CUDNN_STATUS_SUCCESS
+                                             描述
+                                             操作成功执行。
+                                                                  限
+    CUDNN_STATUS_BAD_PARAM                                   有
+                                             提供了无效的 handle 指针。
+    CUDNN_STATUS_ARCH_MISMATCH
+    CUDNN_STATUS_ALLOC_FAILED                           ）
+                                             不支持的计算架构，当前支持 CPU 和 XPU3。
+                                             Host 端内存申请失败。
+
+
+    3.1.3.5 cudnnCreateFilterDescriptor()         圳
+    接口介绍：                                    深
+    息，请参阅 cudnnFilterDescriptor_t。
+                                       （
+    这个函数通过分配存储其不透明结构所需的内存来创建一个过滤器描述符对象。有关更多信
+
+
+                                     技
+    cudnnStatus_t cudnnCreateFilterDescriptor(cudnnFilterDescriptor_t *filterDesc)
+
+
+    参数列表：
+                                科
+    参数名           输入/输出
+                         讯      描述
+    filterDesc     腾
+                  输出            指向指针的位置，所分配的卷积核描述符对象的地址应存储在该处。
+
+    返回值：         供
+    返回值
+        仅
+    CUDNN_STATUS_SUCCESS
+                                                        描述
+                                                        操作成功执行。
+
+    芯
+    CUDNN_STATUS_ALLOC_FAILED                           Host 端内存申请失败。
+
+
+
+仑   3.1.3.6 cudnnCreateTensorDescriptor()
+    接口介绍：
+昆   这个函数通过分配存储其不透明结构所需的内存来创建一个通用的张量描述符对象，并将数据
+    初始化为全零。
+
+    cudnnStatus_t cudnnCreateTensorDescriptor(cudnnTensorDescriptor_t *tensorDesc)
+
+
+    参数列表：
+
+
+
+                            Copyright©2024-2025 昆仑芯（北京）科技有限公司                        - 12 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    参数名          输入/输出          描述
+    tensorDesc   输出             指向指针的位置，所分配的张量描述符对象的地址应存储在该处。
+
+    返回值：
+
+    返回值                                                 描述
+    CUDNN_STATUS_SUCCESS                                操作成功执行。
+    CUDNN_STATUS_BAD_PARAM                              无效的输入参数。
+    CUDNN_STATUS_ALLOC_FAILED                           Host 端内存申请失败。                  用
+    3.1.3.7 cudnnDestroy()                                                           使
+    接口介绍：
+    该函数释放由 cuDNN 句柄使用的资源。由于 cudnnCreate()分配了一些内部资源，因此通
+                                                                             司
+    过调用 cudnnDestroy()来释放这些资源将隐式地调用 cudaDeviceSynchronize()；因
+    此，推荐的最佳实践是在性能关键代码路径之外以及在任何 CUDA 上下文销毁操作之前调用
+                                                                        公
+    cudnnCreate/cudnnDestroy。                                     限
+    cudnnStatus_t cudnnDestroy(cudnnHandle_t handle)
+                                                             有
+    参数列表：
+                                                        ）
+    参数名                    输入/输出
+                                                  圳
+                                                 描述
+    handle                 输入                深   将被删除的 cuDNN 句柄。
+
+    返回值：
+                                       （
+    返回值
+    CUDNN_STATUS_SUCCESS           技                         描述
+                                                             操作成功执行。
+
+                             科
+    3.1.3.8 cudnnDestroyFilterDescriptor()
+    接口介绍：              讯
+    该函数删除指定卷积核对象。
+                  腾
+                 供
+    cudnnStatus_t cudnnDestroyFilterDescriptor(cudnnFilterDescriptor_t filterDesc)
+
+
+        仅
+    参数列表：
+
+    芯
+    参数名
+    filterDesc
+                           输入/输出
+                           输入
+                                                 描述
+                                                 将被删除的卷积核描述符。
+
+仑   返回值：
+昆   返回值
+    CUDNN_STATUS_SUCCESS
+                                                             描述
+                                                             操作成功执行。
+
+
+    3.1.3.9 cudnnDestroyTensorDescriptor()
+    接口介绍：
+    该函数删除指定张量对象。
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                         - 13 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    cudnnStatus_t cudnnDestroyTensorDescriptor(cudnnTensorDescriptor_t tensorDesc)
+
+
+    参数列表：
+
+    参数名                     输入/输出                    描述
+    tensorDesc              输入                       将被删除的张量描述符。
+
+    返回值：
+                                                                                       用
+    返回值
+    CUDNN_STATUS_SUCCESS
+                                                             描述
+                                                             操作成功执行。                 使
+    3.1.3.10 cudnnSetTensor4dDescriptor()                                    司
+    接口介绍：                                                               公
+    这个函数将一个之前创建的通用张量描述符对象初始化为一个四维张量。四个维度的步长是从
+    格式参数中推断出来的，并且以这样的方式设置，使得数据在内存中连续，维度之间没有填
+    充。
+                                                             有限
+    cudnnStatus_t cudnnSetTensor4dDescriptor(
+        cudnnTensorDescriptor_t tensorDesc,
+                                                          ）
+        cudnnTensorFormat_t
+        cudnnDataType_t
+        int
+                                format,
+                                dataType,
+                                n,
+                                                  圳
+        int
+        int
+        int
+                                c,
+                                h,
+                                w)
+                                                深
+    参数列表：
+                                       （
+    参数名
+                             科技
+                           输入/输出                描述
+    tensorDesc             输入/输出                创建的张量描述符句柄。
+    format
+    dataType           讯   输入
+                           输入
+                                                张量排布格式。
+                                                数据类型。
+    n
+    c
+                  腾        输入
+                           输入
+                                                图像的数量。
+                                                图像的特征图数量（通道）。
+    h
+    w
+               供           输入
+                           输入
+                                                特征图高度。
+                                                特征图宽度。
+
+    返回值：仅
+    芯
+    返回值                          描述
+
+
+仑   CUDNN_STATUS_SUCCESS
+    CUDNN_STATUS_BAD_PARAM
+                                 操作成功执行。
+                                 至少有一个参数（n、c、h、w）是负数，或者提供的“format”参数具有无效的枚
+                                 举值，又或者“dataType”参数具有无效的枚举值。
+昆   CUDNN_STATUS_NOT_SUPPORT 张量描述符的总大小超过了最大限制。
+
+
+    3.1.3.11 cudnnSetFilter4dDescriptor()
+    接口介绍：
+    该函数将一个之前创建的滤波器描述符对象初始化为一个 4D 滤波器。滤波器的布局在内存中
+    必须是连续的。
+
+
+
+                            Copyright©2024-2025 昆仑芯（北京）科技有限公司                        - 14 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    cudnnStatus_t cudnnSetFilter4dDescriptor(
+        cudnnFilterDescriptor_t    filterDesc,
+        cudnnDataType_t            dataType,
+        cudnnTensorFormat_t        format,
+        int                        k,
+        int                        c,
+        int                        h,
+        int                        w)
+
+
+    参数列表：                                                                  用
+    参数名
+    filterDesc
+                            输入/输出
+                            输入/输出
+                                                     描述
+                                                     创建的滤波器描述具柄。
+                                                                       使
+    dataType
+    format
+                            输入
+                            输入
+                                                     数据类型。
+                                                     滤波器排布格式。
+                                                                       司
+    k                       输入                       滤波器的数量。       公
+    c
+    h
+                            输入
+                            输入
+                                                     滤波器的通道数量。
+                                                     滤波器的高度。      限
+    w
+
+    返回值：
+                            输入                       滤波器的宽度。
+                                                             有
+    返回值                          描述
+                                                          ）
+    CUDNN_STATUS_SUCCESS
+    CUDNN_STATUS_BAD_PARAM
+                                 操作成功执行。             圳
+                                 至少有一个参数（k、c、h、w）是负数，或者提供的“format”参数具有无效的枚
+                                              深
+                                 举值，又或者“dataType”参数具有无效的枚举值。
+    CUDNN_STATUS_NOT_SUPPORT 滤波器描述符的总大小超过了最大限制。
+
+
+    3.1.3.12 cudnnSetTensor()
+                                        （
+    接口介绍：                讯
+                          科
+    该函数将张量中的所有元素设置为同一个给定的值。
+
+
+        cudnnHandle_t
+                           技
+    cudnnStatus_t cudnnSetTensor(
+                                         handle,
+
+        void
+                   腾
+        const cudnnTensorDescriptor_t    yDesc,
+                                        *y,
+
+                 供
+        const void                      *valuePtr)
+
+
+
+        仅
+    参数列表：
+
+
+    芯
+    参数名
+    handle
+                 输入/输出
+                 输入
+                           描述
+                           之前创建的 cuDNN 句柄。
+
+仑   yDesc
+    y
+                 输入
+                 输入/输出
+                           经过初始化的张量描述符句柄。
+                           指向需要被操作的张量的地址。
+
+昆   valuePtr     输入        主机内存中一个指向单一值的指针。y 张量中的所有元素都会被设为 value。value 中的元
+                           素数据类型必须和张量 y 的数据类型一致。
+
+    返回值：
+
+    返回值                                                      描述
+    CUDNN_STATUS_SUCCESS                                     操作成功执行。
+
+
+
+
+                            Copyright©2024-2025 昆仑芯（北京）科技有限公司          - 15 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+    3.2 cudnn_cnn_library
+    3.2.1 enumeration_types
+    3.2.1.1 cudnnConvolutionFwdAlgo_t
+    该枚举类型定义了用前向卷积操作的不同算法。
+
+    枚举值                                                 描述
+                                                                              用
+    CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_GEMM            隐式矩阵乘法算法。      使
+    CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_PRECOMP_GEMM
+    CUDNN_CONVOLUTION_FWD_ALGO_GEMM                                司
+                                                        预先计算的隐式矩阵乘法算法。
+                                                        显式矩阵乘法算法。
+    CUDNN_CONVOLUTION_FWD_ALGO_DIRECT
+    CUDNN_CONVOLUTION_FWD_ALGO_FFT
+                                                              公
+                                                        直接卷积算法。
+                                                        快速傅立叶变换算法。
+    CUDNN_CONVOLUTION_FWD_ALGO_FFT_TILING
+    CUDNN_CONVOLUTION_FWD_ALGO_WINOGRAD
+                                                         限
+                                                        使用平铺的快速傅立叶变换算法。
+                                                        Winograd 算法。
+    CUDNN_CONVOLUTION_FWD_ALGO_WINOGRAD_NONFUSED
+                                                       有非融合的 Winograd 算法。
+
+    注：目前的 XPU 卷积前向实现中仅包含了隐式矩阵乘法算法以及显式矩阵乘法算法，且算法
+    的执行策略包含在 solver 中，不需要由用户特别指定。
+                                                   ）
+    3.2.1.2 cudnnConvolutionMode_t
+                                               圳
+    该枚举类型主要用于指定卷积操作的模式。                     深
+    枚举值
+    CUDNN_CONVOLUTION
+                                       （
+                                       描述
+                                       一个标准的卷积操作。（卷积核会产生翻转）。
+    CUDNN_CROSS_CORRELATION      技     一个交叉相关操作，它通常用于计算神经网络中的卷积。
+
+
+                            科
+    3.2.2 pointer_to_opaque_struct_types
+                      讯
+    3.2.2.1 cudnnConvolutionDescriptor_t
+                 腾
+    cudnnConvolutionDescriptor_t 是一个指向保存卷积运算描述的不透明结构的指针。
+    cudnnCreateConvolutionDescriptor() 用于创建一个实例， 并且必须使用
+            供
+    cudnnSetConvolution2dDescriptor 初始化此实例。
+
+       仅
+    3.2.3 struct_types
+    芯
+    3.2.3.1 cudnnConvolutionBwdDataAlgoPerf_t
+仑   cudnnConvolutionBwdDataAlgoPerf_t 结构体，其中包含了
+    cudnnFindConvolutionBackwardDataAlgorithm()返回的性能结果或
+昆   cudnnGetConvolutionBackwardDataAlgorithm_v7()返回的启发式结果。
+    数据成员：
+
+    成员名       数据类型                     描述
+    algo      cudnnConvolutionBwdDat   用于获取相关性能指标的算法。
+              aAlgo_t
+
+
+
+
+                          Copyright©2024-2025 昆仑芯（北京）科技有限公司                 - 16 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    成员名           数据类型                    描述
+    status        cudnnStatus_t           如果在 cudnnConvolutionBackwardData()的工作空间分配或计时过程
+                                          中出现任何错误，此状态将代表该错误。否则，此状态将是 cudnnConvo
+                                          lutionBackwardData()的返回状态。 CUDNN_STATUS_ALLOC_FAILE
+                                          D：如果在工作空间分配期间出现任何错误或提供的工作空间不足。 CUD
+                                          NN_STATUS_INTERNAL_ERROR：如果在计时计算或工作空间释放过程
+                                          中发生任何错误。否则，这将是 cudnnConvolutionBackwardData()的
+                                          返回状态。
+    time          float                   cudnnConvolutionBackwardData()的执行时间（以毫秒为单位）。
+    memory        size_t
+    determinism cudnnDeterminism_t
+                                          工作空间大小（以字节为单位）。
+                                          算法的确定性。
+                                                                                         用
+    mathType
+    reserved[3]
+                  cudnnMathType_t
+                  int
+                                          为算法提供的数学类型。
+                                          为将来属性预留的空间。
+                                                                                   使
+    3.2.3.2 cudnnConvolutionFwdAlgoPerf_t
+                                                                              司
+    cudnnConvolutionFwdAlgoPerf_t 结构体包含了
+                                                                         公
+    cudnnFindConvolutionForwardAlgorithm()返回的性能结果或
+    cudnnGetConvolutionForwardAlgorithm_v7()返回的启发式结果。
+                                                                    限
+    数据成员：                                                      有
+    成员名           数据类型                     描述             ）
+    algo
+
+    status
+                                                     圳
+                  cudnnConvolutionBwdData 用于获取相关性能指标的算法。
+                  Algo_t
+                  cudnnStatus_t            如果在 cudnnConvolutionForward()的工作空间分配或计时过程中出现
+                                                深
+                                           任何错误，此状态将代表该错误。否则，此状态将是 cudnnConvolution
+                                           Forward()的返回状态。 CUDNN_STATUS_ALLOC_FAILED：如果在工作
+
+
+
+
+    time          float
+                                       技（
+                                           空间分配期间出现任何错误或提供的工作空间不足。 CUDNN_STATUS_I
+                                           NTERNAL_ERROR：如果在计时计算或工作空间释放过程中发生任何错
+                                           误。否则，这将是 cudnnConvolutionForward()的返回状态。
+                                           cudnnConvolutionBackwardData()的执行时间（以毫秒为单位）。
+    memory        size_t                   工作空间大小（以字节为单位）。
+
+
+    mathType
+                           讯
+    determinism cudnnDeterminism_t
+
+
+                            科
+                  cudnnMathType_t
+                                           算法的确定性。
+                                           为算法提供的数学类型。
+    reserved[3]   int                      为将来属性预留的空间。
+
+
+    3.2.4 API_functions 腾
+               供
+    3.2.4.1 cudnnConvolutionBackwardBias()
+       仅
+    接口介绍：
+
+    芯
+    此函数计算卷积函数关于偏置的梯度，该梯度是输入张量中所有图像中属于同一特征图的每个
+    元素的总和。因此，生成的元素数量等于输入张量的特征图数量。
+仑   cudnnStatus_t cudnnConvolutionBackwardBias(
+
+昆       cudnnHandle_t
+        const void
+        const cudnnTensorDescriptor_t
+                                         handle,
+                                        *alpha,
+                                         dyDesc,
+        const void                      *dy,
+        const void                      *beta,
+        const cudnnTensorDescriptor_t    dbDesc,
+        void                            *db)
+
+
+    参数列表：
+
+
+
+                                  Copyright©2024-2025 昆仑芯（北京）科技有限公司                    - 17 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    参数名          输入/输出     描述
+    handle       输入        之前创建的 cuDNN 上下文的句柄。有关更多信息，请参阅 cudnnHandle_t。
+    alpha，beta 输入          指向缩放因子的指针（位于主机内存中），用于将计算结果与输出层中的先前值按照以下方
+                           式进行计算： dstValue = alpha[0] * result + beta[0] * priorDstValue。
+    dyDesc       输入        之前初始化的输入差分张量描述符的句柄。有关更多信息，请参阅 cudnnTensorDescripto
+                           r_t。
+    dy           输入        与输入差分张量描述符 dyDesc 相关联的 XPU 内存的数据指针。
+    dbDesc       输入        先前初始化的输出张量描述符的句柄。
+    db           输出        与输出张量描述符 dbDesc 相关联的 XPU 内存数据指针。                                   用
+    返回值：                                                                               使
+    返回值
+    CUDNN_STATUS_SUCCESS
+                                  描述
+                                  操作成功执行。
+                                                                                 司
+    CUDNN_STATUS_BAD_PARAM        输出张量的参数 n（批量大小）、高度或宽度其中之一不为 1。 输入张量和输出
+                                  张量的特征映射数量不同。 两个张量描述符的 dataType 不同。
+                                                                            公
+    CUDNN_STATUS_NOT_SUPPORTED 该函数不支持所提供的配置。
+                                                                      限
+    3.2.4.2 cudnnConvolutionBackwardData()
+    接口介绍：
+                                                                有
+                                                          ）
+    此函数计算张量 dy 的卷积数据梯度，其中 y 是 cudnnConvolutionForward() 中正向卷积的
+
+    来缩放计算结果或与当前的 dx 相加。
+                                                    圳
+    输出。它使用指定的算法，并在输出张量 dx 中返回结果。可以使用缩放因子 alpha 和 beta
+
+                                              深
+                                        （
+    cudnnConvolutionBackwardData(cudnnHandle_t handle,
+                                 const void *alpha,
+                                 const cudnnFilterDescriptor_t wDesc,
+
+                                   技
+                                 const void *w,
+                                 const cudnnTensorDescriptor_t dyDesc,
+                                 const void *dy,
+
+                               科 const cudnnConvolutionDescriptor_t convDesc,
+                                 cudnnConvolutionBwdDataAlgo_t algo,
+
+                         讯       void *workSpace,
+                                 size_t workSpaceSizeInBytes,
+                                 const void *beta,
+
+                   腾             const cudnnTensorDescriptor_t dxDesc,
+                                 void *dx);
+
+
+    参数列表：      供
+    参数名  仅
+    handle
+                         输入/输出
+                         输入
+                                  描述
+                                  之前创建的 cuDNN 上下文的句柄。有关更多信息，请参阅 cudnnHandle_t。
+    芯
+    alpha，beta           输入       指向缩放因子的指针（位于主机内存中），用于将计算结果与输出层中的先前值
+                                  按照以下方式进行计算： dstValue = alpha[0] * result + beta[0] * priorDstVal
+仑   wDesc                输入
+                                  ue。
+                                  输入。之前初始化的过滤器描述符的句柄。有关更多信息，请参阅 cudnnFilterD
+
+昆   w                    输入
+                                  escriptor_t。
+                                  输入。与过滤器描述符 wDesc 相关联的 XPU 内存的数据指针。
+    dyDesc               输入       之前初始化的输入差分张量描述符的句柄。有关更多信息，请参阅 cudnnTensor
+                                  Descriptor_t。
+    dy                   输入       与输入差分张量描述符 dyDesc 相关联的 XPU 内存的数据指针。
+    convDesc             输入       之前初始化的卷积描述符。有关更多信息，请参阅 cudnnConvolutionDescript
+                                  or_t。
+
+
+
+
+                              Copyright©2024-2025 昆仑芯（北京）科技有限公司                             - 18 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    参数名                 输入/输出       描述
+    algo                输入          枚举数，指定应使用哪种反向数据卷积算法来计算结果。有关更多信息，请参阅
+                                    cudnnConvolutionBwdDataAlgo_t。
+    workSpace           输入          指向 GPU 内存中工作区的数据指针，该工作区是执行指定算法所必需的。如果
+                                    特定算法不需要工作区，则该指针可以为 NIL。
+    workSpaceSizeInByte 输入          指定提供的工作区 workSpace 的大小（以字节为单位）。
+    s
+    dxDesc              输入          之前初始化的输出张量描述符的句柄。
+    dx                  输入/输出       与输出张量描述符 dxDesc 相关联的 XPU 内存的数据指针，携带结果。
+                                                                                           用
+    XPU 当前支持数据类型：
+                                                                                    使
+    Conv Dim
+    Conv1d
+                convDesc DataType
+                XPUDNN_DATA_FLOAT
+                                      xDesc DataType     wDesc DataType
+                                                                               司
+                                                                            dyDesc DataType
+                                      XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                XPUDNN_DATA_TF32
+                                                                            公
+                                      XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA
+                                      T16               T16               T16
+                XPUDNN_DATA_INT16
+                XPUDNN_DATA_HALF                                     限
+                                      XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                                      XPUDNN_DATA_HALF   XPUDNN_DATA_HALF   XPUDNN_DATA_HALF
+    Conv2d
+                                                               有
+                XPUDNN_DATA_INT_W XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                ITH_LL
+                XPUDNN_DATA_TF32
+                XPUDNN_DATA_TF32                          ）
+                                      XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                                      XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA
+                                      T16               T16               T16
+                XPUDNN_DATA_FLOAT                      圳
+                                      XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                XPUDNN_DATA_FLOAT
+                XPUDNN_DATA_INT32               深
+                                      XPUDNN_DATA_HALF   XPUDNN_DATA_HALF   XPUDNN_DATA_HALF
+                                      XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                XPUDNN_DATA_HALF
+                XPUDNN_DATA_INT16
+                                           （
+                                      XPUDNN_DATA_HALF
+                                      XPUDNN_DATA_HALF
+                                                         XPUDNN_DATA_HALF
+                                                         XPUDNN_DATA_HALF
+                                                                            XPUDNN_DATA_HALF
+                                                                            XPUDNN_DATA_HALF
+    Conv3d
+                                     技
+                XPUDNN_DATA_INT_W XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                ITH_LL
+
+
+                        讯
+                XPUDNN_DATA_TF32
+                XPUDNN_DATA_TF32
+
+                         科
+                                      XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                                      XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA
+                                      T16               T16               T16
+                XPUDNN_DATA_FLOAT     XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+
+                   腾
+                XPUDNN_DATA_FLOAT
+                XPUDNN_DATA_INT32
+                                      XPUDNN_DATA_HALF   XPUDNN_DATA_HALF   XPUDNN_DATA_HALF
+                                      XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+
+               供XPUDNN_DATA_HALF
+                XPUDNN_DATA_INT16
+                                      XPUDNN_DATA_HALF
+                                      XPUDNN_DATA_HALF
+                                                         XPUDNN_DATA_HALF
+                                                         XPUDNN_DATA_HALF
+                                                                            XPUDNN_DATA_HALF
+                                                                            XPUDNN_DATA_HALF
+
+    返回值： 仅
+    芯
+    返回值                             描述
+
+
+仑   CUDNN_STATUS_SUCCESS
+    CUDNN_STATUS_BAD_PARAM
+                                    操作成功执行。
+                                    以下参数至少有一个为 NULL：handle、dyDesc，wDesc，convDesc，dxDes
+                                    c，dy，w，dx，alpha 和 beta wDesc 和 dyDesc 的维度数不匹配 wDesc 和 dx
+昆                                   Desc 的维度数不匹配 wDesc 的维度数少于三个 wDesc，dxDesc 和 dyDesc 的数
+                                    据类型不匹配。 wDesc 和 dxDesc 的每张图像的输入特征图数量不匹配（在分组
+                                    卷积的情况下为组）。 dyDesc 的空间大小与 cudnnGetConvolutionNdForward
+                                    OutputDim 确定的预期大小不匹配。
+    CUDNN_STATUS_NOT_SUPPORTE 未支持的 dxDesc、wDesc 、dyDesc 和 convDesc 的数据类型组合。
+    D
+    CUDNN_STATUS_EXECUTION_FAI      核函数在 XPU 上执行失败。
+    LED
+
+
+
+
+                             Copyright©2024-2025 昆仑芯（北京）科技有限公司                           - 19 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    3.2.4.3 cudnnConvolutionBackwardFilter()
+    接口介绍：
+    这个函数计算了张量 dy 的卷积权重（滤波器）梯度，其中 y 是
+    cudnnConvolutionForward()中前向卷积的输出。它使用指定的算法，并在输出张量 dw 中
+    返回结果。缩放因子 alpha 和 beta 可以用来缩放计算结果或者与当前的 dw 累积。
+
+    xpudnnConvolutionBackwardFilter(xpudnnHandle_t handle,
+                                   const void *alpha,
+                                                                                                 用
+                                   const xpudnnTensorDescriptor_t xDesc,
+                                   const void *x,
+                                   const xpudnnTensorDescriptor_t dyDesc,
+                                                                                          使
+                                   const void *dy,
+                                   const xpudnnConvolutionDescriptor_t convDesc,
+                                   xpudnnConvolutionBwdFilterAlgo_t algo,
+                                                                                    司
+                                   void *workSpace,
+                                   size_t workSpaceSizeInBytes,               公
+                                   const void *beta,
+                                   const xpudnnFilterDescriptor_t dwDesc,
+                                   void *dw);
+                                                                         限
+    参数列表：
+                                                                   有
+    参数名                   输入/输出      描述
+                                                             ）
+    handle
+    alpha，beta
+                          输入
+                          输入
+                                                       圳
+                                     之前创建的 cuDNN 上下文的句柄。有关更多信息，请参阅 cudnnHandle_t。
+                                     指向缩放因子的指针（位于主机内存中），用于将计算结果与输出层中的先前值
+
+                                     ue。         深
+                                     按照以下方式进行计算： dstValue = alpha[0] * result + beta[0] * priorDstVal
+
+    xDesc
+
+    x
+                          输入
+
+                          输入
+                                      技
+                                     输入。之前初始化的张量描述符的句柄。有关更多信息，请参阅 cudnnFilterDes
+                                     criptor_t。
+
+                                       （
+                                     输入。与张量描述符 xDesc 相关联的 XPU 内存的数据指针。
+    dyDesc                输入         之前初始化的输入差分张量描述符的句柄。有关更多信息，请参阅 cudnnTensor
+                                     Descriptor_t。
+    dy
+    convDesc
+                          讯
+                          输入
+
+                           科
+                          输入
+                                     与输入差分张量描述符 dyDesc 相关联的 XPU 内存的数据指针。
+                                     之前初始化的卷积描述符。有关更多信息，请参阅 cudnnConvolutionDescript
+                                     or_t。
+    algo                  输入         枚举数，指定应使用哪种反向数据卷积算法来计算结果。有关更多信息，请参阅
+
+    workSpace
+                    腾     输入
+                                     cudnnConvolutionBwdDataAlgo_t。
+                                     指向 GPU 内存中工作区的数据指针，该工作区是执行指定算法所必需的。如果
+               供
+    workSpaceSizeInByte   输入
+                                     特定算法不需要工作区，则该指针可以为 NIL。
+                                     指定提供的工作区 workSpace 的大小（以字节为单位）。
+    s
+         仅
+    dwDesc                输入         之前初始化的输出张量描述符的句柄。
+
+    芯
+    dw                    输入/输出      与输出张量描述符 dwDesc 相关联的 XPU 内存的数据指针，携带结果。
+
+
+仑   XPU 当前支持数据类型：
+
+    Conv Dim     convDesc DataType    xDesc DataType       dyDesc DataType       dwDesc DataType
+昆   Conv1d       XPUDNN_DATA_FLOAT
+                 XPUDNN_DATA_INT16
+                                      XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                                      XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                 XPUDNN_DATA_HALF     XPUDNN_DATA_HALF     XPUDNN_DATA_HALF      XPUDNN_DATA_HALF
+                 XPUDNN_DATA_TF32     XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA
+                                      T16               T16               T16
+    Conv2d       XPUDNN_DATA_INT_W XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                 ITH_LL
+
+
+
+
+                               Copyright©2024-2025 昆仑芯（北京）科技有限公司                               - 20 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    Conv Dim   convDesc DataType     xDesc DataType     dyDesc DataType    dwDesc DataType
+               XPUDNN_DATA_TF32      XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+               XPUDNN_DATA_TF32      XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA
+                                     T16               T16               T16
+               XPUDNN_DATA_FLOAT     XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+               XPUDNN_DATA_FLOAT     XPUDNN_DATA_HALF   XPUDNN_DATA_HALF   XPUDNN_DATA_HALF
+               XPUDNN_DATA_INT32     XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+               XPUDNN_DATA_HALF
+               XPUDNN_DATA_INT16
+                                     XPUDNN_DATA_HALF
+                                     XPUDNN_DATA_HALF
+                                                        XPUDNN_DATA_HALF
+                                                        XPUDNN_DATA_HALF
+                                                                           XPUDNN_DATA_HALF
+                                                                           XPUDNN_DATA_HALF
+                                                                                           用
+    Conv3d
+                                                                                   使
+               XPUDNN_DATA_INT_W XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+               ITH_LL
+               XPUDNN_DATA_TF32
+               XPUDNN_DATA_TF32
+                                                                              司
+                                     XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                                     XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA
+
+               XPUDNN_DATA_FLOAT
+                                     T16               T16
+                                                                           公
+                                                                         T16
+                                     XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+               XPUDNN_DATA_FLOAT
+               XPUDNN_DATA_INT32
+                                     XPUDNN_DATA_HALF
+                                                                    限
+                                                        XPUDNN_DATA_HALF   XPUDNN_DATA_HALF
+                                     XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+               XPUDNN_DATA_HALF
+               XPUDNN_DATA_INT16
+                                     XPUDNN_DATA_HALF
+                                     XPUDNN_DATA_HALF
+                                                               有
+                                                        XPUDNN_DATA_HALF
+                                                        XPUDNN_DATA_HALF
+                                                                           XPUDNN_DATA_HALF
+                                                                           XPUDNN_DATA_HALF
+
+    返回值：                                                 ）
+    返回值                            描述                 圳
+    CUDNN_STATUS_SUCCESS
+    CUDNN_STATUS_BAD_PARAM
+                                   操作成功执行。
+                                               深
+                                   以下参数至少有一个为 NULL：handle、dyDesc，xDesc，convDesc，dwDes
+                                   c，dy，x，dw，alpha 和 beta xDesc 和 dyDesc 的维度数不匹配 xDesc 和 dwD
+
+                                    技
+                                   esc 的维度数不匹配 xDesc 的维度数少于三个 xDesc，dwDesc 和 dyDesc 的数据
+                                   类型不匹配。 xDesc 和 dwDesc 的每张图像的输入特征图数量不匹配（在分组卷
+
+                                     （
+                                   积的情况下为组）。 dyDesc 的空间大小与 cudnnGetConvolutionNdForwardO
+                                   utputDim 确定的预期大小不匹配。
+    CUDNN_STATUS_NOT_SUPPORTE 未支持的 dwDesc、xDesc 、dyDesc 和 convDesc 的数据类型组合。
+    D
+                       讯科
+    CUDNN_STATUS_EXECUTION_FAI
+    LED
+                                   核函数在 XPU 上执行失败。
+
+
+
+
+    接口介绍：
+                  腾
+    3.2.4.4 cudnnConvolutionForward()
+
+               供
+    该函数使用指定的滤波器 w 对 x 执行卷积或互相关运算，返回结果在 y 中。可以使用缩放因
+       仅
+    子 alpha 和 beta 分别对输入张量和输出张量进行缩放。
+
+    芯
+    cudnnStatus_t cudnnConvolutionForward(cudnnHandle_t handle,
+                                          const void* alpha,
+
+仑                                         const cudnnTensorDescriptor_t xDesc,
+                                          const void* x,
+
+昆                                         const cudnnFilterDescriptor_t wDesc,
+                                          const void* w,
+                                          const cudnnConvolutionDescriptor_t convDesc,
+                                          cudnnConvolutionFwdAlgo_t algo,
+                                          void* workSpace,
+                                          size_t workSpaceSizeInBytes,
+                                          const void* beta,
+                                          const cudnnTensorDescriptor_t yDesc,
+                                          void* y)
+
+
+
+
+                            Copyright©2024-2025 昆仑芯（北京）科技有限公司                            - 21 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    可以使用 cudnnGetConvolution2dForwardOutputDim() 或
+    cudnnGetConvolutionNdForwardOutputDim() 函数来确定输出张量描述符 yDesc 的
+    适当维度，这是相对于 xDesc、convDesc 和 wDesc 而言的。 设备指针 z 和 y 可以指向同
+    一个缓冲区，然而，x 不能指向与 z 或 y 相同的缓冲区。
+    参数列表：
+
+    参数名                 输入/输出        描述
+    handle
+    alpha，beta
+                        输入
+                        输入
+                                     指向之前创建的 cuDNN 上下文的句柄。更多信息，请参考 cudnnHandle_t。
+                                     指向缩放因子的指针（位于主机内存中），用于将计算结果与输出层中的先前值
+                                                                                                  用
+                                     ue。                                                   使
+                                     按照以下方式进行计算： dstValue = alpha[0] * result + beta[0] * priorDstVal
+
+    xDesc               输入           指向之前初始化的张量描述符的句柄。更多信息，请参考 cudnnTensorDescript
+                                     or_t。                                           司
+    x
+    wDesc
+                        输入
+                        输入
+                                     数据指针指向与张量描述符 xDesc 关联的 XPU 内存。
+                                                                               公
+                                     指向之前初始化的过滤器描述符的句柄。更多信息，请参考 cudnnFilterDescript
+                                     or_t。
+    w
+    convDesc
+                        输入
+                        输入
+                                                                   有
+                                     数据指针指向与过滤器描述符 wDesc 关联的 XPU 内存。
+
+                                                                    限
+                                     指向之前初始化的卷积描述符的句柄。更多信息，请参考 cudnnConvolutionDe
+                                     scriptor_t。
+    algo
+
+    workSpace
+                        输入
+
+                        输入
+                                                             ）
+                                     指定计算结果时应使用哪种卷积算法的枚举类型。更多信息，请参考 cudnnConv
+                                     olutionFwdAlgo_t。
+                                     数据指针指向 XPU 内存中的工作空间，该工作空间是执行指定算法所必需的。如
+
+    workSpaceSizeInByte 输入
+                                                       圳
+                                     果某个特定算法不需要工作空间，那么该指针可以是 NIL（空指针）。
+                                     指定所提供的 workSpace（工作空间）的大小，单位为字节。
+    s
+    yDesc               输入
+                                                  深
+                                     指向之前初始化的张量描述符的句柄。
+    y
+
+    XPU 当前支持数据类型：
+                        输出
+                                      技
+                                     数据指针指向与张量描述符 yDesc 相关联的 XPU 内存，保存卷积的结果。
+
+
+                                       （
+    Conv Dim
+    Conv1d               讯
+                 convDesc DataType    xDesc DataType        wDesc DataType
+                 XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+
+                          科
+                 XPUDNN_DATA_TF32     XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                                                                                 yDesc DataType
+                                                                                 XPUDNN_DATA_FLOAT
+                                                                                 XPUDNN_DATA_FLOAT
+                 XPUDNN_DATA_INT16    XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT        XPUDNN_DATA_FLOAT
+
+                    腾
+                 XPUDNN_DATA_INT16
+                 XPUDNN_DATA_INT16
+                                      XPUDNN_DATA_FLOAT XPUDNN_DATA_INT16
+                                      XPUDNN_DATA_FLOAT XPUDNN_DATA_INT16
+                                                                                 XPUDNN_DATA_FLOAT
+                                                                                 XPUDNN_DATA_INT16
+
+               供 XPUDNN_DATA_INT16
+                 XPUDNN_DATA_INT16
+                                      XPUDNN_DATA_HALF
+                                      XPUDNN_DATA_HALF
+                                                            XPUDNN_DATA_INT16
+                                                            XPUDNN_DATA_HALF
+                                                                                 XPUDNN_DATA_HALF
+                                                                                 XPUDNN_DATA_HALF
+
+        仅        XPUDNN_DATA_INT8
+                 XPUDNN_DATA_INT8
+                                      XPUDNN_DATA_FLOAT XPUDNN_DATA_INT8
+                                      XPUDNN_DATA_INT8      XPUDNN_DATA_FLOAT
+                                                                                 XPUDNN_DATA_INT8
+                                                                                 XPUDNN_DATA_INT8
+    芯            XPUDNN_DATA_HALF     XPUDNN_DATA_HALF      XPUDNN_DATA_HALF     XPUDNN_DATA_HALF
+
+
+仑   Conv2d
+                 XPUDNN_DATA_TF32     XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA
+                                      T16               T16
+                 XPUDNN_DATA_INT_W XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                                                                          T16
+                                                                                 XPUDNN_DATA_FLOAT
+昆                ITH_LL
+                 XPUDNN_DATA_TF32     XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT        XPUDNN_DATA_FLOAT
+                 XPUDNN_DATA_TF32     XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA
+                                      T16               T16               T16
+                 XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT           XPUDNN_DATA_FLOAT
+                 XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT           XPUDNN_DATA_HALF
+                 XPUDNN_DATA_FLOAT XPUDNN_DATA_HALF         XPUDNN_DATA_HALF     XPUDNN_DATA_FLOAT
+
+
+
+
+                              Copyright©2024-2025 昆仑芯（北京）科技有限公司                                - 22 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    Conv Dim   convDesc DataType   xDesc DataType      wDesc DataType      yDesc DataType
+               XPUDNN_DATA_FLOAT XPUDNN_DATA_HALF      XPUDNN_DATA_FLOAT   XPUDNN_DATA_HALF
+               XPUDNN_DATA_FLOAT XPUDNN_DATA_HALF      XPUDNN_DATA_FLOAT   XPUDNN_DATA_FLOAT
+               XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT       XPUDNN_DATA_HALF
+               XPUDNN_DATA_INT32   XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT     XPUDNN_DATA_FLOAT
+               XPUDNN_DATA_INT16   XPUDNN_DATA_HALF    XPUDNN_DATA_HALF    XPUDNN_DATA_HALF
+               XPUDNN_DATA_HALF    XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA
+
+               XPUDNN_DATA_HALF
+                                   T16
+                                   XPUDNN_DATA_HALF
+                                                     T16
+                                                       XPUDNN_DATA_HALF
+                                                                       T16
+                                                                           XPUDNN_DATA_HALF
+                                                                                            用
+               XPUDNN_DATA_INT8
+               XPUDNN_DATA_INT8
+                                   XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                                   XPUDNN_DATA_FLOAT XPUDNN_DATA_INT8
+                                                                                    使
+                                                                           XPUDNN_DATA_FLOAT
+                                                                           XPUDNN_DATA_FLOAT
+               XPUDNN_DATA_INT8
+               XPUDNN_DATA_INT8
+                                   XPUDNN_DATA_FLOAT XPUDNN_DATA_INT8
+                                   XPUDNN_DATA_HALF    XPUDNN_DATA_FLOAT
+                                                                              司
+                                                                           XPUDNN_DATA_INT8
+                                                                           XPUDNN_DATA_HALF
+               XPUDNN_DATA_INT8
+               XPUDNN_DATA_INT8
+                                   XPUDNN_DATA_HALF
+                                   XPUDNN_DATA_HALF
+                                                       XPUDNN_DATA_FLOAT
+                                                       XPUDNN_DATA_HALF
+                                                                          公XPUDNN_DATA_INT8
+                                                                           XPUDNN_DATA_HALF
+               XPUDNN_DATA_INT8
+               XPUDNN_DATA_INT8
+                                   XPUDNN_DATA_HALF
+                                   XPUDNN_DATA_HALF
+                                                                   限
+                                                       XPUDNN_DATA_INT8
+                                                       XPUDNN_DATA_INT8
+                                                                           XPUDNN_DATA_HALF
+                                                                           XPUDNN_DATA_INT8
+               XPUDNN_DATA_INT8    XPUDNN_DATA_INT8          有
+                                                       XPUDNN_DATA_FLOAT   XPUDNN_DATA_HALF
+               XPUDNN_DATA_INT8
+               XPUDNN_DATA_INT8
+                                   XPUDNN_DATA_INT8
+                                   XPUDNN_DATA_INT8     ）
+                                                       XPUDNN_DATA_FLOAT
+                                                       XPUDNN_DATA_HALF
+                                                                           XPUDNN_DATA_INT8
+                                                                           XPUDNN_DATA_FLOAT
+               XPUDNN_DATA_INT8
+               XPUDNN_DATA_INT8
+                                   XPUDNN_DATA_INT8
+                                   XPUDNN_DATA_INT8
+                                                    圳  XPUDNN_DATA_HALF
+                                                       XPUDNN_DATA_INT8
+                                                                           XPUDNN_DATA_INT8
+                                                                           XPUDNN_DATA_FLOAT
+
+
+
+
+    Conv3d
+               XPUDNN_DATA_INT8
+               XPUDNN_DATA_INT8         （
+                                   XPUDNN_DATA_INT8
+
+
+                                         深
+                                   XPUDNN_DATA_INT8
+                                                       XPUDNN_DATA_INT8
+                                                       XPUDNN_DATA_INT8
+               XPUDNN_DATA_INT_W XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                                                                           XPUDNN_DATA_HALF
+                                                                           XPUDNN_DATA_INT8
+                                                                           XPUDNN_DATA_FLOAT
+               ITH_LL
+
+
+                             科
+               XPUDNN_DATA_TF32
+
+
+                              技
+               XPUDNN_DATA_TF32
+                                   XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA
+                                   T16               T16
+                                   XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                                                                       T16
+                                                                           XPUDNN_DATA_FLOAT
+               XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT       XPUDNN_DATA_FLOAT
+
+                       讯
+               XPUDNN_DATA_HALF    XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA XPUDNN_DATA_BFLOA
+                                   T16               T16               T16
+
+                  腾
+               XPUDNN_DATA_HALF
+               XPUDNN_DATA_INT32
+                                   XPUDNN_DATA_HALF    XPUDNN_DATA_HALF
+                                   XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                                                                           XPUDNN_DATA_HALF
+                                                                           XPUDNN_DATA_FLOAT
+
+               供
+               XPUDNN_DATA_INT16
+               XPUDNN_DATA_INT16
+                                   XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                                   XPUDNN_DATA_HALF    XPUDNN_DATA_HALF
+                                                                           XPUDNN_DATA_FLOAT
+                                                                           XPUDNN_DATA_HALF
+
+       仅       XPUDNN_DATA_INT16
+               XPUDNN_DATA_INT16
+                                   XPUDNN_DATA_FLOAT XPUDNN_DATA_INT16
+                                   XPUDNN_DATA_HALF    XPUDNN_DATA_INT16
+                                                                           XPUDNN_DATA_FLOAT
+                                                                           XPUDNN_DATA_HALF
+    芯          XPUDNN_DATA_INT16   XPUDNN_DATA_HALF    XPUDNN_DATA_INT16   XPUDNN_DATA_FLOAT
+
+
+仑              XPUDNN_DATA_INT16
+               XPUDNN_DATA_INT16
+                                   XPUDNN_DATA_HALF
+                                   XPUDNN_DATA_INT16
+                                                       XPUDNN_DATA_HALF
+                                                       XPUDNN_DATA_INT16
+                                                                           XPUDNN_DATA_HALF
+                                                                           XPUDNN_DATA_FLOAT
+
+
+昆              XPUDNN_DATA_INT8
+               XPUDNN_DATA_INT8
+               XPUDNN_DATA_INT8
+                                   XPUDNN_DATA_FLOAT XPUDNN_DATA_FLOAT
+                                   XPUDNN_DATA_HALF    XPUDNN_DATA_HALF
+                                   XPUDNN_DATA_FLOAT XPUDNN_DATA_INT8
+                                                                           XPUDNN_DATA_FLOAT
+                                                                           XPUDNN_DATA_HALF
+                                                                           XPUDNN_DATA_FLOAT
+               XPUDNN_DATA_INT8    XPUDNN_DATA_HALF    XPUDNN_DATA_INT8    XPUDNN_DATA_HALF
+               XPUDNN_DATA_INT8    XPUDNN_DATA_INT8    XPUDNN_DATA_INT8    XPUDNN_DATA_FLOAT
+
+    返回值：
+
+
+
+
+                            Copyright©2024-2025 昆仑芯（北京）科技有限公司                           - 23 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    返回值                          描述
+    CUDNN_STATUS_SUCCESS         操作成功执行。
+    CUDNN_STATUS_BAD_PARAM       以下参数至少有一个为 NULL：handle、xDesc、wDesc、convDesc、yDesc、x
+                                 Data、w、yData、alpha 和 beta。 xDesc 和 yDesc 的维度数量不匹配。 xDes
+                                 c 和 wDesc 的维度数量不匹配。 xDesc 的维度数量少于三。 xDesc 的维度数量
+                                 不等于 convDesc 数组长度 + 2 xDesc 和 wDesc 的每个图像的输入特征图数量
+                                 不一致，或在分组卷积的情况下与组数不匹配。 yDesc 或 wDesc 指示的输出通
+                                 道数不是组数（如果在 convDesc 中设置了组数）的倍数。
+    CUDNN_STATUS_NOT_SUPPORTE    未支持的 xDesc、wDesc 、 yDesc 和 convDesc 的数据类型组合。
+    D
+    CUDNN_STATUS_EXECUTION_FAI   核函数在 XPU 上执行失败。
+                                                                                      用
+    LED
+                                                                                    使
+    3.2.4.5 cudnnGetConvolution2dForwardOutputDim()
+    接口介绍：
+                                                                              司
+    这个函数返回 2D 卷积结果的 4D 张量的维度，给定卷积描述符、输入张量描述符和滤波器描
+                                                                        公
+    述符。这个函数可以在启动实际的卷积之前，帮助设置输出张量并分配适当的内存量。                         限
+    cudnnStatus_t cudnnGetConvolution2dForwardOutputDim(
+        const cudnnConvolutionDescriptor_t convDesc,
+                                                               有
+        const cudnnTensorDescriptor_t
+        const cudnnFilterDescriptor_t                   ）
+                                            inputTensorDesc,
+                                            filterDesc,
+        int
+        int
+        int
+                                           *n,
+                                           *c,
+                                           *h,
+                                                   圳
+        int
+                                             深
+                                           *w)
+
+
+    输出图像的每个维度 h 和 w 的计算方式如下：
+                                        （
+    outputDim = 1 + ( inputDim + 2 * pad - (((filterDim - 1) * dilation) + 1) ) /
+    convolutionStride;             技
+    参数列表：                    科
+    参数名
+    convDesc
+                        讯  输入/输出
+                           输入
+                                           描述
+                                           预先创建的卷积描述符句柄。
+    inputTensorDesc
+    filterDesc
+                      腾    输入
+                           输入
+                                           预先创建的初始化后的矩阵描述符句柄。
+                                           预先创建的初始化后的滤波器描述符句柄。
+    n
+    c
+                 供         输出
+                           输出
+                                           输出的图像数量。
+                                           每个输出图像的特征图数量。
+    h
+    w
+        仅                  输出
+                           输出
+                                           每个输出特征图的高度。
+                                           每个输出特征图的宽度。
+    芯
+    返回值：
+仑   返回值                       描述
+
+昆   CUDNN_STATUS_SUCCESS      操作成功执行。
+    CUDNN_STATUS_BAD_PARAM 一个或多个描述符未正确创建，或者 inputTensorDesc 和 filterDesc 的特征图之间存
+                           在不匹配。
+
+
+
+    3.3 legacy_xdnn_api
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                        - 24 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    3.3.1 conv1d_fusion
+    函数接口：
+
+    template<typename TX, typename TW, typename TY, typename TGEMM>
+    int conv1d_fusion(Context* ctx, const TX* x, const TW* weight, TY* y,
+                     int64_t n, int64_t c, int64_t xw, int64_t f,
+                     int64_t ksize_w, int64_t stride_w,
+
+
+    hw,
+                     const std::vector<int64_t>& pad, int64_t dilation_w, int64_t group,
+                     const float* x_maxptr, const float* w_maxptr, float* y_maxptr, bool is_nc      用
+    * branch_maxptr)                                                                         使
+                     const float* bias, const TY* branch, const Activation_t& act, const float
+
+
+
+
+    功能说明：                                                                              司
+                                                                                公
+    支持激活操作(act)，缩放值乘法（scale），偏置值加法操作（bias）和分支加法操作
+                                                                   有限
+    （branch）。
+    参数列表：                                                    ）
+    参数名
+    ctx
+                 输入/输出
+                 输入
+                            描述
+                            程序上下文信息。
+                                                      圳
+    x            输入                             深
+                            指向输入，shape = {n, c ,xh, xw} 或 {n, xh, xw, c}，取决于 is_nchw。
+    w
+
+    y
+                 输入
+
+                 输出
+                                           （
+                            指向卷积核，shape = {f, cc, ksize[0], ksize[1]}，或{f, ksize[0], ksize[1], cc}，取决于 is
+                            _nchw。其中： cc = c / group。
+                            指向输出，shape = {n, f, yh, yw} 或 {n, yh, yw, f}，取决于 is_nchw。其中：
+                                   技
+                            yh=(xh+pu+pd−(dh∗(kh−1)+1))/sh+1
+                            yw=(xw+pl+pr−(dw∗(kw−1)+1))/sw+1
+    n
+    c
+    xw
+                 输入
+                 输入
+                 输入
+                       讯科
+                            x 的 batch 数。
+                            x 的通道数。
+                            x 的特征宽度。
+    f            输入         卷积核的个数，也即 y 的通道数。
+    ksize_w
+    stride_w
+                  腾
+                 输入
+                 输入
+                            一维卷积核大小。
+                            卷积运算步长。
+    pad          供
+                 输入         填充大小；允许以下 3 种输入：
+                            {p}:左右填充大小均为 p。
+          仅                 {pl,pr}：左填充大小为 pl，右填充大小为 pr。
+                            {0,0,pl,pr}：左填充大小为 pl，右填充大小为 pr。
+
+    芯
+    dilation_w
+    group
+                 输入
+                 输入
+                            空洞大小。
+                            二维卷积层的组数；输入 x 在 c 维度平均分为 group 组，每组 shape={n,cc,xh,xw}或{n
+
+仑                           ,xh,xw,cc}，取决于 is_nchw。
+                            weight 在 f 维度平均分为 group 组，每组 shape={ff,cc,ksize[0],ksize[1]}或{ff,ksize[0],
+
+昆                           ksize[1],cc}，取决于 is_nchw。
+                            每组 x 分别与一组 weight 进行卷积。输出是所有组结果的串联叠加。c 和 f 必须可以被
+                            group 整除。其中： cc = c / group, ff = f / group。
+    x_maxptr     输入         x 的最大值的指针，TX 不为 float、float16 或 bfloat16 类型时必须提供。
+    w_maxptr     输入         w 的最大值的指针，TW 不为 float、float16 或 bfloat16 类型时必须提供。
+    y_maxptr     输入\输出      y 的最大值的指针，TY 不为 float、float16 或 bfloat16 类型时必须提供。
+    is_nchw      输入         数据格式判断标识符；值为 true，数据格式为 NCHW；值为 false，数据格式为 NHW
+                            C。输出的数据格式将与输入保持一致。
+    bias         输入         偏置值；shape=。
+
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                                      - 25 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    参数名           输入/输出     描述
+    branch        输入        残差连接（skip connection）；branch 和 y 地址可以相同；shape={n,f,yh,yw}或{n,yh
+                            ,yw,f}，取决于 is_nchw。其中：
+                            yh=(xh+pu+pd−(dh∗(kh−1)+1))/sh+1
+                            yw=(xw+pl+pr−(dw∗(kw−1)+1))/sw+1
+    act           输入        激活函数，需指定。
+    branch_maxptr 输入\输出     branch 的最大值的指针，TY 不为 float、float16 或 bfloat16 类型时必须提供。
+
+
+    3.3.2 conv1d_grad                                                                          用
+    3.3.2.1 函数接口：                                                                        使
+    template<typename TX, typename TW, typename TY, typename TGEMM>
+    int conv1d_grad(Context* ctx,
+                                                                                   司
+            const TX* x, const TW* weight, const TY* dy, TX* dx, TW* dweight,
+            int64_t n, int64_t c, int64_t xw, int64_t f,
+            int64_t ksize_w, int64_t stride_w,
+                                                                             公
+            const float* x_maxptr, const float* w_maxptr,
+                                                                       限
+            const std::vector<int64_t>& pad, int64_t dilation_w, int group,
+
+
+                                                                 有
+            const float* dy_maxptr, float* dx_maxptr, float* dw_maxptr, bool is_ncw)
+
+
+
+    3.3.2.2 功能说明：                                          ）
+                                                     圳
+    conv1d 的反向传播过程，可用以上公式表示。                   深
+    3.3.2.3 参数列表：                        （
+    参数名
+    ctx
+                 输入/输出
+                 输入
+                          描述
+                          程序上下文信息。
+                                   技
+    x
+    weight
+    dy
+                 输入
+                 输入
+                 输入
+                         讯shape={n,c,xw}或{n,xw,c}，取决于 is_ncw。
+
+
+                          科
+                          卷积核权重；shape={f,c,kw}或{f,kw,c}，取决于 is_ncw。
+                          特征图梯度；shape={n,f,yw}或{n,yw,f}，其中： yw = (xw + pl + pr - (dw * (kw - 1) + 1)
+                          ) / sw + 1。
+    dx
+    dweight
+                 输出
+                 输出
+                   腾      x 的梯度；shape={n,c,xw}或{n,xw,c}，取决于 is_ncw。
+                          weight 的梯度；shape={f,c,kw}或{f,kw,c}，取决于 is_nhw。
+    n
+    c
+                 供
+                 输入
+                 输入
+                          x 的批尺寸。
+                          x 的通道数。
+    xw
+    f
+          仅      输入
+                 输入
+                          x 的特征宽度。
+                          卷积核的个数。
+    芯
+    ksize_w      输入       卷积核大小。
+
+
+仑   stride_w
+    pad
+                 输入
+                 输入
+                          卷积运算沿着宽的步长。
+                          填充大小；允许以下 2 种输入：
+
+昆   dilation_w   输入
+                          {p}：左右填充大小均为 p。
+                          {pl, pr}：右的填充大小依次为 pl, pr。
+                          空洞宽度大小。
+    group        输入       二维卷积层的组数；当 group=n，输入和卷积核分别根据通道数量平均分为 n 组，第一组
+                          卷积核和第一组输入进行卷积计算，第二组卷积核和第二组输入进行卷积计算，……，第 n
+                          组卷积核和第 n 组输入进行卷积计算。
+    x_maxptr     输入       x 的最大值指针；x 不为 float 或 float16 类型时必须提供。
+    w_maxptr     输入       w 的最大值指针；w 不为 float 或 float16 类型时必须提供。
+    dy_maxptr    输入       dy 的最大值指针；dy 不为 float 或 float16 类型时必须提供。
+
+
+
+
+                            Copyright©2024-2025 昆仑芯（北京）科技有限公司                                - 26 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    参数名         输入/输出    描述
+    dx_maxptr   输出       dx 的最大值指针；dx 不为 float 或 float16 类型时必须提供。
+    dw_maxptr   输出       dw 的最大值指针；dw 不为 float 或 float16 类型时必须提供。
+    is_ncw      输入       数据格式判断标识符；bool 类型，值为 true，数据格式为 NCW，值为 false，数据格式为
+                         NWC；输出的数据格式将与输入保持一致。
+
+
+    3.3.3 conv2d_fusion
+    函数接口：                                                                                           用
+    template<typename TX, typename TW, typename TY, typename TGEMM>
+    int conv2d_fusion(xdnn::Context* ctx, const TX* x, const TW* weight, TY* y,
+                                                                                             使
+    ,
+                      int64_t n, int64_t c, int64_t h, int64_t w, int64_t f,
+                                                                                       司
+                      const std::vector<int64_t>& _ksize, const std::vector<int64_t>& _stride
+
+
+    ,
+                                                                                公
+                      const std::vector<int64_t>& _pad, const std::vector<int64_t>& _dilation
+
+
+    axptr,                                                                限
+                      int64_t group, const float* x_maxptr, const float* w_maxptr, float* y_m
+
+                      bool is_nchw, const float* bias, const TY* branch, const api::Activatio
+    n_t& act,
+                                                                   有
+                      const float* branch_maxptr, const float* scale, int64_t ld_out_f)
+
+
+
+    3.3.3.1 功能说明：
+                                                             ）
+                                                      圳
+                                                深支持激活操
+
+    列表：
+                                           （
+    作(act)，缩放值乘法（scale），偏置值加法操作（bias）和分支加法操作（branch）。 参数
+
+
+    参数名          输入/输出
+                        讯   描述
+    ctx          输入
+                         科  程序上下文信息。
+
+
+
+                          技
+    x            输入         指向输入，shape = {n, c ,xh, xw} 或 {n, xh, xw, c}，取决于 is_nchw。
+    w            输入         指向卷积核，shape = {f, cc, ksize[0], ksize[1]}，或{f, ksize[0], ksize[1], cc}，取决于 is
+                            _nchw。其中：cc = c / group。
+    y
+                  腾
+                 输出         指向输出，shape = {n, f, yh, yw} 或 {n, yh, yw, f}，取决于 is_nchw。其中：
+                            yh=(xh+pu+pd−(dh∗(kh−1)+1))/sh+1
+                            yw=(xw+pl+pr−(dw∗(kw−1)+1))/sw+1
+    n
+    c
+                供输入
+                 输入
+                            x 的 batch 数。
+                            x 的通道数。
+    xh    仅      输入         x 的特征高度。
+
+
+    芯
+    xw
+    f
+                 输入
+                 输入
+                            x 的特征宽度。
+                            卷积核的个数，也即 y 的通道数。
+
+仑   ksize        输入         卷积核大小；允许以下 2 种输入：
+                            {k}：卷积核高度和宽度均为 k。
+                            {kh, kw}：卷积核高度为 kh，卷积核宽度为 kw。
+昆   stride       输入         卷积运算步长；允许以下 2 种输入：
+                            {s}：卷积运算沿着高和宽的步长为 s。
+                            {sh, sw}：卷积运算沿着高的步长为 sh，卷积运算沿着宽的步长为 sw。
+    pad          输入         填充大小；允许以下 3 种输入：
+                            {p}：上下左右填充大小均为 p。
+                            {ph,pw}：上下填充大小为 ph，左右填充大小为 pw。
+                            {pu,pd,pl,pr}：上下左右的填充大小依次为 pu,pd,pl,pr。
+
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                                      - 27 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    参数名          输入/输出       描述
+    dilation     输入          空洞大小；允许以下 2 种输入：
+                             {d}：空洞高度和宽度均为 d。
+                             {dh, dw}：空洞高度为 dh，空洞宽度为 dw。
+    group        输入          二维卷积层的组数；输入 x 在 c 维度平均分为 group 组，每组 shape={n,cc,xh,xw}或{n
+                             ,xh,xw,cc}，取决于 is_nchw。 weight 在 f 维度平均分为 group 组，每组 shape={ff,cc,
+                             ksize[0],ksize[1]}或{ff,ksize[0],ksize[1],cc}，取决于 is_nchw。每组 x 分别与一组 weig
+                             ht 进行卷积。输出是所有组结果的串联叠加。c 和 f 必须可以被 group 整除。其中：cc
+                             = c / group，ff = f / group。
+    x_maxptr
+    w_maxptr
+                 输入
+                 输入
+                             x 的最大值的指针，TX 不为 float、float16 或 bfloat16 类型时必须提供。
+                             w 的最大值的指针，TW 不为 float、float16 或 bfloat16 类型时必须提供。
+                                                                                                用
+    y_maxptr
+    is_nchw
+                 输入\输出
+                 输入
+                             y 的最大值的指针，TY 不为 float、float16 或 bfloat16 类型时必须提供。
+                             数据格式判断标识符；值为 true，数据格式为 NCHW；值为 false，数据格式为 NHW
+                                                                                          使
+    bias         输入
+                             C。输出的数据格式将与输入保持一致。
+                             偏置值；shape={f}。
+                                                                                    司
+    branch       输入                                                            公
+                             残差连接（skip connection）；branch 和 y 地址可以相同；shape={n,f,yh,yw}或{n,yh
+                             ,yw,f}，取决于 is_nchw。 其中： yh=(xh+pu+pd−(dh∗(kh−1)+1))/sh+1 yw=(xw+
+
+    act          输入
+                             pl+pr−(dw∗(kw−1)+1))/sw+1
+                             激活函数，需指定。
+                                                                               限
+    branch_maxptr 输入\输出
+    scale        输入
+                                                                      有
+                             branch 的最大值的指针，TY 不为 float、float16 或 bfloat16 类型时必须提供。
+                             缩放值；shape=；默认值为 nullptr。
+
+
+    3.3.4 conv2d_grad
+                                                               ）
+    函数接口：
+                                                         圳
+                                                  深
+    template<typename TX, typename TW, typename TY, typename TGEMM>
+    int conv2d_grad(Context* ctx,
+                                           （
+            const TX* x, const TW* weight, const TY* dy, TX* dx, TW* dweight,
+            int64_t n, int64_t c, int64_t xh, int64_t xw, int64_t f,
+                                    技
+            const std::vector<int64_t>& ksize,
+            const std::vector<int64_t>& stride,
+
+
+                       讯
+            const std::vector<int64_t>& pad,
+            const std::vector<int64_t>& dilation, int group,
+
+
+                        科
+            const float* x_maxptr, const float* w_maxptr,
+            const float* dy_maxptr, float* dx_maxptr, float* dw_maxptr, bool is_nchw)
+
+
+    功能说明：         腾
+               供
+          仅
+    conv2d 的反向传播过程，可用以上公式表示。
+
+    芯
+    参数列表：
+
+仑   参数名
+    ctx
+               输入/输出
+               输入
+                          描述
+                          程序上下文信息。
+
+昆   x
+    weight
+               输入
+               输入
+                          shape={n,c,xh,xw}或{n,xh,xw,c}，取决于 is_nchw。
+                          卷积核权重；shape={f,c,kh,kw}或{f,kh,kw,c}，取决于 is_nchw。
+    dy         输入         特征图梯度；shape={n,f,yh,yw}或{n,yh,yw,f}，其中：
+                          yh = (xh + pu + pd - (dh * (kh - 1) + 1)) / sh + 1
+                          yw = (xw + pl + pr - (dw * (kw - 1) + 1)) / sw + 1
+    dx         输出         x 的梯度；shape={n,c,xh,xw}或{n,xh,xw,c}，取决于 is_nchw。
+    dweight    输出         weight 的梯度；shape={f,c,kh,kw}或{f,kh,kw,c}，取决于 is_nchw。
+    n          输入         x 的批尺寸。
+
+
+
+
+                            Copyright©2024-2025 昆仑芯（北京）科技有限公司                                 - 28 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    参数名         输入/输出    描述
+    c           输入       x 的通道数。
+    xh          输入       x 的特征高度。
+    xw          输入       x 的特征宽度。
+    f           输入       卷积核的个数。
+    ksize       输入       卷积核大小；允许以下 2 种输入：
+                         {k}：卷积核高度和宽度均为 k。
+                         {kh, kw}：卷积核高度为 kh，卷积核宽度为 kw。
+    stride      输入       卷积运算步长；允许以下 2 种输入：
+                         {s}：卷积运算沿着高和宽的步长为 s。
+                                                                                    用
+    pad         输入
+                         {sh, sw}：卷积运算沿着高的步长为 sh，卷积运算沿着宽的步长为 sw。
+                         填充大小；允许以下 3 种输入：
+                                                                                  使
+                         {p}：上下左右填充大小均为 p。
+                         {ph, pw}：上下填充大小为 ph，左右填充大小为 pw。                     司
+    dilation    输入
+                         {pu, pd, pl, pr}：上下左右的填充大小依次为 pu, pd, pl, pr。
+                         空洞大小；允许以下 2 种输入：
+                         {d}：空洞高度和宽度均为 d。
+                                                                         公
+    group       输入
+                         {dh, dw}：空洞高度为 dh，空洞宽度为 dw。              限
+                         二维卷积层的组数；当 group=n，输入和卷积核分别根据通道数量平均分为 n 组，第一组
+
+                         组卷积核和第 n 组输入进行卷积计算。
+                                                             有
+                         卷积核和第一组输入进行卷积计算，第二组卷积核和第二组输入进行卷积计算，……，第 n
+
+    x_maxptr
+    w_maxptr
+                输入
+                输入
+                                                        ）
+                         x 的最大值指针；x 不为 float 或 float16 类型时必须提供。
+                         w 的最大值指针；w 不为 float 或 float16 类型时必须提供。
+    dy_maxptr
+    dx_maxptr
+                输入
+                输入
+                                                  圳
+                         dy 的最大值指针；dy 不为 float 或 float16 类型时必须提供。
+                         dx 的最大值指针；dx 不为 float 或 float16 类型时必须提供。
+    dw_maxptr
+    is_nchw
+                输入
+                输入
+                                             深
+                         dw 的最大值指针；dw 不为 float 或 float16 类型时必须提供。
+                         数据格式判断标识符；bool 类型，值为 true，数据格式为 NCHW，值为 false，数据格式
+                                       （
+                         为 NHWC，输出的数据格式将与输入保持一致。
+
+
+    3.3.5 conv3d_fusion
+                        讯
+    函数接口
+                         科
+                          技
+    template<typename TX, typename TW, typename TY, typename TGEMM>
+    int conv3d_fusion(Context* ctx,
+
+                  腾
+            const TX* x, const TW* weight, TY* y,
+            int64_t n, int64_t c, int64_t d, int64_t h, int64_t w, int64_t f,
+            const std::vector<int64_t>& ksize,
+
+                供
+            const std::vector<int64_t>& stride,
+            const std::vector<int64_t>& pad,
+            const std::vector<int64_t>& dilation, int64_t group,
+          仅 const float* x_maxptr, const float* weight_maxptr, float* y_maxptr,
+            bool is_ncdhw,
+
+    芯       const float* bias, const TY* branch,
+            const Activation_t& act,
+            const float* branch_maxptr = nullptr);
+
+仑
+昆   功能说明
+    三维卷积正向传播过程，根据输入、卷积核、步长（stride）、填充（pad）、空洞大小
+    （dilation）等参数计算输出特征图的大小，支持激活操作(act)，偏置值加法操作（bias）和
+
+    branch 加法操作（branch）。可用以上公示表示，该公式中的                                特指卷积操作。
+    参数列表
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                      - 29 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    参数名         输入/输出   描述
+    ctx         输入      程序上下文信息。
+    x           输入      shape={n, c, xd, xh, xw}或{n, xd, xh, xw, c}，取决于 is_ncdhw。
+    weight      输入      卷积核权重；shape={f, cc, ksize[0], ksize[1], ksize[2]} 或 {f, ksize[0], ksize[1], ksize[2
+                        ], cc}，取决于 is_ncdhw，其中：cc = c / group。
+    y           输出      shape={n,f,yd, yh,yw}或{n,yd, yh,yw,f}，取决于 is_ncdhw，其中：
+                        yd = (xd + pf + pb - (dd * (kd - 1) + 1)) / sd + 1
+                        yh = (xh + pu + pd - (dh * (kh - 1) + 1)) / sh + 1
+
+
+    n           输入
+                        yw = (xw + pl + pr - (dw * (kw - 1) + 1)) / sw + 1
+                        x 的批尺寸。
+                                                                                                     用
+    c
+    xd
+                输入
+                输入
+                        x 的通道数。
+                        x 的特征深度。
+                                                                                              使
+    xh
+    xw
+                输入
+                输入
+                        x 的特征高度。
+                        x 的特征宽度。
+                                                                                       司
+    f           输入      卷积核的个数，即 y 的通道数。                                        公
+    ksize       输入      卷积核大小；允许以下 2 种输入：
+                        {k}：卷积核高度和宽度均为 k。
+                        {kd, kh, kw}：卷积核深度为 kd，卷积核高度为 kh，卷积核宽度为 kw。
+                                                                         限
+    stride      输入      卷积运算步长；允许以下 2 种输入：
+                        {s}：卷积运算沿着高和宽的步长为 s。
+                                                                  有
+                        w。                                 ）
+                        {sd, sh, sw}：卷积运算沿着深的步长为 sd, 高的步长为 sh，卷积运算沿着宽的步长为 s
+
+    pad         输入      填充大小；允许以下 3 种输入：
+                        {p}：上下左右填充大小均为 p。           圳
+                        {pd, ph, pw}：前后填充大小为 pd，上下填充大小为 ph，左右填充大小为 pw。
+
+
+    dilation    输入
+                                             深
+                        {pf, pb, pu, pd, pl, pr}：前后上下左右的填充大小依次为 pf, pb, pu, pd, pl, pr。
+                        空洞大小；允许以下 2 种输入：
+
+                                      （
+                        {d}：空洞高度和宽度均为 d。
+                        {dd, dh, dw}：空洞深度为 dd，空洞高度为 dh，空洞宽度为 dw。
+    group       输入
+                                技
+                        二维卷积层的组数；输入 x 在 c 维度平均分为 group 组，每组 shape={n,cc,xd, xh,xw}
+                        或{n,xd, xh,xw,cc}，取决于 is_ncdhw。
+                        weight 在 f 维度平均分为 group 组，每组 shape={ff,cc,ksize[0],ksize[1],ksize[2]}或{ff,
+                         科
+                        ksize[0],ksize[1],ksize[2],cc}，取决于 is_ncdhw。
+                        每组 x 分别与一组 weight 进行卷积。输出是所有组结果的串联叠加。c 和 f 必须可以被
+
+
+    x_maxptr    输入
+                       讯group 整除。其中：cc = c / group， ff = f / group。
+                        输入；x 的最大值的指针，TX 不为 float 或 float16 类型时必须提供。
+    w_maxptr
+    y_maxptr
+                 腾
+                输入
+                输入
+                        输入；w 的最大值的指针，TW 不为 float 或 float16 类型时必须提供。
+                        输入或输出；y 的最大值的指针，TY 不为 float 或 float16 类型时必须提供。
+    is_ncdhw   供输入      数据格式判断标识符；值为 true，数据格式为 NCDHW；值为 false，数据格式为 NDH
+                        WC。输出的数据格式将与输入保持一致。
+    bias
+    branch
+          仅     输入
+                输入
+                        偏置值；shape={f}。
+                        branch 和 y 地址可以相同；shape={n,f,yd, yh,yw}或{n,yd, yh,yw,f}，取决于 is_ncdh
+
+    芯                   w，其中：
+                        yd = (xd + pf + pb - (dd * (kd - 1) + 1)) / sd + 1
+                        yh = (xh + pu + pd - (dh * (kh - 1) + 1)) / sh + 1
+仑   act         输入
+                        yw = (xw + pl + pr - (dw * (kw - 1) + 1)) / sw + 1
+                        激活函数，需指定。
+昆   branch_maxptr 输入    branch 的最大值的指针，TY 不为 float 或 float16 类型时必须提供。
+
+
+    3.3.6 conv3d_grad
+    函数接口：
+
+
+
+
+                        Copyright©2024-2025 昆仑芯（北京）科技有限公司                                          - 30 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    template<typename TX, typename TW, typename TY, typename TGEMM>
+    int conv3d_grad(Context* ctx,
+            const TX* x, const TW* weight, const TY* dy, TX* dx, TW* dweight,
+            int64_t n, int64_t c, int64_t xd, int64_t xh,
+            const std::vector<int64_t>& pad,
+            const std::vector<int64_t>& dilation, int64_t group,
+            const float* x_maxptr, const float* w_maxptr,
+            const float* dy_maxptr, float* dx_maxptr, float* dw_maxptr,
+            bool is_ncdhw)
+
+
+    功能说明：
+                                                                                                           用
+                                                                                                    使
+    conv3d 的反向传播过程，可用以上公式表示。
+                                                                                             司
+    参数列表：
+                                                                                      公
+    参数名        输入/输出     描述
+                                                                               限
+    ctx
+    x
+               输入
+               输入
+                         程序上下文信息。
+                                                                       有
+                         shape={n, c, xd, xh, xw}或{n, xd, xh, xw, c}，取决于 is_ncdhw。
+    weight     输入                                               ）
+                         卷积核权重；shape={f, cc, ksize[0], ksize[1], ksize[2]}或{f, ksize[0], ksize[1], ksize[2], cc
+                         }，取决于 is_ncdhw。
+    dy         输入
+                                                         圳
+                         特征图梯度；shape={n, f, yd, yh, yw}或{n, yd, yh, yw, f}，取决于 is_ncdhw，其中：
+                         yd = (xd + pf + pb - (dd * (kd - 1) + 1)) / sd + 1
+
+
+
+    dx         输出
+                                                  深
+                         yh = (xh + pu + pd - (dh * (kh - 1) + 1)) / sh + 1
+                         yw = (xw + pl + pr - (dw * (kw - 1) + 1)) / sw + 1
+                         x 的梯度；shape={n, c, xd, xh, xw}或{n, xd, xh, xw, c}，取决于 is_ncdhw。
+    dweight    输出                          （
+                         weight 的梯度；shape={f, cc, ksize[0], ksize[1], ksize[2]}或{f, ksize[0], ksize[1], ksize[2],
+                         cc}，取决于 is_ncdhw。
+    n
+    c
+               输入
+               输入
+                         x 的批尺寸。
+                         x 的通道数。
+                                    技
+    xd
+    xh
+               输入
+               输入
+                       讯科
+                         x 的特征深度。
+                         x 的特征高度。
+    xw         输入        x 的特征宽度。
+    f
+    ksize
+               输入
+               输入
+                  腾      卷积核的个数。
+                         卷积核大小；允许以下 2 种输入：
+
+               供         {k}：卷积核高度和宽度均为 k。
+                         {kd, kh, kw}：卷积核深度为 kd，卷积核高度为 kh，卷积核宽度为 kw。
+    stride
+          仅    输入        卷积运算步长；允许以下 2 种输入：
+                         {s}：卷积运算沿着高和宽的步长为 s。
+                         {sd, sh, sw}：卷积运算沿着深的步长为 sd, 高的步长为 sh，卷积运算沿着宽的步长为 sw。
+
+    芯
+    pad        输入        填充大小；允许以下 3 种输入：
+                         {p}：上下左右填充大小均为 p。
+
+仑                        {pd, ph, pw}：前后填充大小为 pd，上下填充大小为 ph，左右填充大小为 pw。
+                         {pf, pb, pu, pd, pl, pr}：前后上下左右的填充大小依次为 pf, pb, pu, pd, pl, pr。
+
+昆   dilation   输入        空洞大小；允许以下 2 种输入：
+                         {d}：空洞高度和宽度均为 d。
+                         {dh, dw}：空洞高度为 dh，空洞宽度为 dw。
+    group      输入        二维卷积层的组数；输入 x 在 c 维度平均分为 group 组，每组 shape={n,cc,xd, xh,xw}或{n
+                         ,xd, xh,xw,cc}，取决于 is_ncdhw。
+                         weight 在 f 维度平均分为 group 组，每组 shape={ff,cc,ksize[0],ksize[1],ksize[2]}或{ff,ksi
+                         ze[0],ksize[1],ksize[2],cc}，取决于 is_ncdhw。
+                         每组 x 分别与一组 weight 进行卷积。输出是所有组结果的串联叠加。c 和 f 必须可以被 gro
+                         up 整除。其中：cc = c / group， ff = f / group。
+
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                                             - 31 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    参数名          输入/输出   描述
+    x_maxptr     输入      x 的最大值指针；x 不为 float 或 float16 类型时必须提供。
+    w_maxptr     输入      w 的最大值指针；w 不为 float 或 float16 类型时必须提供。
+    dy_maxptr    输入      dy 的最大值指针；dy 不为 float 或 float16 类型时必须提供。
+    dx_maxptr    输入      dx 的最大值指针；dx 不为 float 或 float16 类型时必须提供。
+    dw_maxptr    输入      dw 的最大值指针；dw 不为 float 或 float16 类型时必须提供。
+    is_ncdhw     输入      数据格式判断标识符；bool 类型，值为 true，数据格式为 NCDHW，值为 false，数据格
+
+
+
+    3.3.7 conv1d_varlen
+                         式为 NDHWC，输出的数据格式将与输入保持一致。
+                                                                                                    用
+    函数接口：
+                                                                                             使
+                                                                                      司
+    int var_conv1d_fusion(Context* ctx, const TX* x, const TW* weight, TY* y,   公
+    template<typename TX, typename TW, typename TY, typename TGEMM, typename TID = int>
+
+            int64_t n, int64_t c,
+            const VectorParam<TID>& xw_lod,
+            int64_t f, int64_t ksize_w, int64_t stride_w,
+            const std::vector<int64_t>& _pad,
+                                                                          限
+            int64_t dilation_w, int64_t group,
+                                                                   有
+            const float* x_maxptr, const float* w_maxptr, float* y_maxptr,
+
+                                                             ）
+            bool is_nchw, const float* bias, const Activation_t& act);
+
+
+    功能说明：
+                                                      圳
+                                                深
+                                            一维卷积的变长版本，xw 是变长所
+
+    景。超出该限制会调用 conv2d_fusion 的保底方案。
+                                   技
+    在的维度。 特化 kernel 仅支持 n < 256，即 xw_lod.len < 256，以及 dilation = 1 的情
+
+                                    （
+    参数列表：
+
+    参数名
+    ctx
+                 输入/输出
+                 输入
+                         讯科
+                         描述
+                         程序上下文信息。
+    x            输入      指向输入，shape = {n, c ,xh, xw} 或 {n, xh, xw, c}，取决于 is_nchw。
+    w            输入腾     指向卷积核，shape = {f, cc, ksize[0], ksize[1]}，或{f, ksize[0], ksize[1], cc}，取决于 is_nc
+                         hw。其中，cc = c / group。
+    y
+                 供
+                 输出      指向输出，shape = {n, f, yh, yw} 或 {n, yh, yw, f}，取决于 is_nchw。
+                         yh=(xh+pu+pd−(dh∗(kh−1)+1))/sh+1
+
+
+    n     仅      输入
+                         yw=(xw+pl+pr−(dw∗(kw−1)+1))/sw+1
+                         x 的 batch 数。
+
+    芯
+    c
+    xw_lod
+                 输入
+                 输入
+                         x 的通道数。
+                         x 的特征宽度，以 lod 格式存储，xw_lod.len = n + 1。
+
+仑   f
+    ksize_w
+                 输入
+                 输入
+                         卷积核的个数，也即 y 的通道数。
+                         一维卷积核大小。
+
+昆   stride_w
+    _pad
+                 输入
+                 输入
+                         卷积运算步长。
+                         填充大小；允许以下 3 种输入：
+                         {p}：左右填充大小均为 p。
+                         {pl,pr}：左填充大小为 pl，右填充大小为 pr。
+                         {0,0,pl,pr}：左填充大小为 pl，右填充大小为 pr。
+    dilation_w   输入      空洞大小。
+
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                                      - 32 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    参数名        输入/输出     描述
+    group      输入        二维卷积层的组数；输入 x 在 c 维度平均分为 group 组，每组 shape={n,cc,xh,xw}或{n,xh,
+                         xw,cc}，取决于 is_nchw。
+                         weight 在 f 维度平均分为 group 组，每组 shape={ff,cc,ksize[0],ksize[1]}或{ff,ksize[0],ksi
+                         ze[1],cc}，取决于 is_nchw。
+                         每组 x 分别与一组 weight 进行卷积。输出是所有组结果的串联叠加。c 和 f 必须可以被 gro
+                         up 整除。其中： cc = c / group ff = f / group。
+    x_maxptr   输入        x 的最大值的指针，TX 不为 float、float16 或 bfloat16 类型时必须提供。
+    w_maxptr
+    y_maxptr
+               输入
+               输入\输出
+                         w 的最大值的指针，TW 不为 float、float16 或 bfloat16 类型时必须提供。
+                         y 的最大值的指针，TY 不为 float、float16 或 bfloat16 类型时必须提供。                          用
+    is_nchw    输入        数据格式判断标识符；值为 true，数据格式为 NCHW；值为 false，数据格式为 NHWC。
+                         输出的数据格式将与输入保持一致。                                                    使
+    bias
+    act
+               输入
+               输入
+                         偏置值，shape={f}。
+                         激活函数，需指定。                                                    司
+    3.3.8 conv2d_varlen                                                         公
+    函数接口：                                                                 限
+                                                                   有
+    template<typename TX, typename TW, typename TY, typename TGEMM, typename TID = int>
+
+            int64_t n, int64_t c,
+                                                             ）
+    int var_conv2d_fusion(Context* ctx, const TX* x, const TW* weight, TY* y,
+
+            const VectorParam<TID>& xh_lod,
+            const VectorParam<TID>& xw_lod,
+            int64_t f,
+            const std::vector<int64_t>& ksize,
+                                                      圳
+            const std::vector<int64_t>& stride,
+            const std::vector<int64_t>& pad,    深
+            const std::vector<int64_t>& dilation, int64_t group,
+
+            bool is_nchw,          技
+            const float* x_maxptr, const float* weight_maxptr, float* y_maxptr,
+
+
+                                    （
+            const float* bias, const Activation_t& act);
+
+
+    功能说明：
+                       讯科                                       二维卷积的变长版本，xh 和 xw 是
+    变长所在的维度。      腾
+    参数列表：      供
+    参数名
+    ctx
+          仅    输入/输出
+               输入
+                         描述
+                         程序上下文信息。
+
+    芯
+    x
+    w
+               输入
+               输入
+                         指向输入，shape = {n, c ,xh, xw} 或 {n, xh, xw, c}，取决于 is_nchw。
+                         指向卷积核，shape = {f, cc, ksize[0], ksize[1]}，或{f, ksize[0], ksize[1], cc}，取决于 is_nc
+
+仑   y          输出
+                         hw。其中， cc = c / group。
+                         指向输出，shape = {n, f, yh, yw} 或 {n, yh, yw, f}，取决于 is_nchw。
+
+昆   n          输入
+                         yh=(xh+pu+pd−(dh∗(kh−1)+1))/sh+1
+                         yw=(xw+pl+pr−(dw∗(kw−1)+1))/sw+1
+                         x 的 batch 数。
+    c          输入        x 的通道数。
+    xh_lod     输入        x 的特征高度，以 lod 格式存储，xh_lod.len = n + 1。
+    xw_lod     输入        x 的特征宽度，以 lod 格式存储，xw_lod.len = n + 1。
+    f          输入        卷积核的个数，也即 y 的通道数。
+
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                                      - 33 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    参数名        输入/输出   描述
+    ksize      输入      卷积核大小；允许以下 2 种输入：
+                       {k}：卷积核高度和宽度均为 k。
+                       {kh, kw}：卷积核高度为 kh，卷积核宽度为 kw。
+    stride     输入      卷积运算步长；允许以下 2 种输入：
+                       {s}：卷积运算沿着高和宽的步长为 s。
+                       {sh, sw}：卷积运算沿着高的步长为 sh，卷积运算沿着宽的步长为 sw。
+    pad        输入      填充大小；允许以下 3 种输入：
+                       {p}：上下左右填充大小均为 p。
+                       {ph,pw}：上下填充大小为 ph，左右填充大小为 pw。
+                       {pu,pd,pl,pr}：上下左右的填充大小依次为 pu,pd,pl,pr。
+                                                                                               用
+    dilation   输入      空洞大小；允许以下 2 种输入：
+                       {d}：空洞高度和宽度均为 d。
+                                                                                        使
+    group      输入
+                       {dh, dw}：空洞高度为 dh，空洞宽度为 dw。
+                                                                                  司
+                       二维卷积层的组数；输入 x 在 c 维度平均分为 group 组，每组 shape={n,cc,xh,xw}或{n,xh,
+                       xw,cc}，取决于 is_ncdhw。
+                                                                            公
+                       weight 在 f 维度平均分为 group 组，每组 shape={ff,cc,ksize[0],ksize[1]}或{ff,ksize[0],ksi
+                       ze[1],cc}，取决于 is_nchw。
+
+                       up 整除。其中：cc = c / group， ff = f / group。
+                                                                      限
+                       每组 x 分别与一组 weight 进行卷积。输出是所有组结果的串联叠加。c 和 f 必须可以被 gro
+
+
+    x_maxptr
+    w_maxptr
+               输入
+               输入
+                                                                有
+                       x 的最大值的指针，TX 不为 float、float16 或 bfloat16 类型时必须提供。
+                       w 的最大值的指针，TW 不为 float、float16 或 bfloat16 类型时必须提供。
+    y_maxptr
+    is_nchw
+               输入\输出
+               输入
+                                                         ）
+                       y 的最大值的指针，TY 不为 float、float16 或 bfloat16 类型时必须提供。
+                       数据格式判断标识符；值为 true，数据格式为 NCHW；值为 false，数据格式为 NHWC。
+
+    bias       输入
+                       输出的数据格式将与输入保持一致。
+                       偏置值；shape={f}。
+                                                   圳
+    act        输入      激活函数，需指定。             深
+                                 技（
+                       讯科
+                 腾
+               供
+          仅
+    芯
+仑
+昆
+
+
+                         Copyright©2024-2025 昆仑芯（北京）科技有限公司                                   - 34 -
+

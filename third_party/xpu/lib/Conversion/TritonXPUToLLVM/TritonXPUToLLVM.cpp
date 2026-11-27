@@ -191,6 +191,34 @@ struct ConvertTritonXPUToLLVM
                                                           patterns);
     if (failed(applyPartialConversion(mod, convTarget, std::move(patterns))))
       return signalPassFailure();
+
+    // A Softmax shift tolerates either zero sign and either NaN choice:
+    // input NaNs still propagate through exp and the row sum. General fcmp
+    // + select has stricter bit semantics, especially for scalar operands.
+    if (xpu_arch == 3 && mod->hasAttr("flagtree.kl3_softmax_shift"))
+      mod.walk([&](LLVM::SelectOp sel) {
+        auto cmp = sel.getCondition().getDefiningOp<LLVM::FCmpOp>();
+        if (!cmp || cmp.getPredicate() != LLVM::FCmpPredicate::ogt ||
+            sel.getTrueValue() != cmp.getLhs() ||
+            sel.getFalseValue() != cmp.getRhs())
+          return;
+        Type ty = sel.getType();
+        bool scalar = ty.isF32();
+        auto vec = dyn_cast<VectorType>(ty);
+        if (!scalar && (!vec || vec.isScalable() || vec.getRank() != 1 ||
+                        vec.getNumElements() != 16 || !vec.getElementType().isF32()))
+          return;
+        OpBuilder builder(sel);
+        auto nativeMax = LLVM::InlineAsmOp::create(
+            builder, sel.getLoc(), ty, ValueRange{cmp.getLhs(), cmp.getRhs()},
+            scalar ? "max.f $0, $1, $2" : "vmax.f.mz $0{mr1}, $1, $2",
+            scalar ? "=r,r,r" : "=v,v,v", false, false,
+            LLVM::tailcallkind::TailCallKind::None,
+            LLVM::AsmDialectAttr::get(&getContext(), LLVM::AsmDialect::AD_ATT),
+            ArrayAttr());
+        sel.replaceAllUsesWith(nativeMax.getRes());
+        sel.erase();
+      });
   }
 
 private:

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>论文阅读</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232c5545'/%3E%3Cpath d='M9 10h14M9 16h14M9 22h9' stroke='%23fdfcf8' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/course.js" defer></script>
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <aside class="library" id="library-pane" aria-label="论文书库" aria-hidden="true" inert>
+      <div class="library-head">
+        <h2>书库<span id="count" class="count">0 篇</span></h2>
+        <div class="library-actions">
+          <span id="connection" class="connection"><i></i><span id="connection-text">正在连接</span></span>
+          <button id="close-library" class="iconbtn" aria-label="关闭书库">
+            <span data-icon="close"></span>
+          </button>
+        </div>
+      </div>
+      <label class="search">
+        <span data-icon="search"></span>
+        <input id="filter" placeholder="搜索论文、章节、作者…" aria-label="搜索书库">
+        <kbd>/</kbd>
+      </label>
+      <div class="filters" aria-label="书库筛选">
+        <button id="filter-all" aria-pressed="true">先修书架</button>
+        <button id="filter-mine" aria-pressed="false">我的导入</button>
+      </div>
+      <div id="books" class="books"></div>
+      <div class="library-foot">
+        <button id="import" class="primary">
+          <span data-icon="plus"></span>添加论文</button>
+        <p class="fine">PDF 保存在本机</p>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <section class="reader" id="reader-pane" aria-label="论文阅读区" tabindex="-1">
+        <div class="canvas" id="canvas">
+          <div id="paper" class="paper">
+            <p class="empty">正在打开论文…</p>
+          </div>
+        </div>
+        <iframe id="book-frame" title="合订本正文" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" hidden></iframe>
+        <button id="library-button" class="assist-toggle icon-only reader-button reader-library" title="书库（/）"
+          aria-label="打开书库" aria-controls="library-pane" aria-expanded="false">
+          <span data-icon="library"></span>
+        </button>
+        <button id="reading-tools" class="assist-toggle icon-only reader-button reader-tools" title="阅读工具（T）"
+          aria-label="阅读工具">
+          <span data-icon="settings"></span>
+        </button>
+      </section>
+
+      <div class="pane-splitter" id="pane-splitter" role="separator" aria-orientation="vertical"
+        aria-label="拖动调整正文与问答宽度" aria-valuemin="20" aria-valuemax="65" aria-valuenow="30"
+        title="拖动调整正文与问答比例，双击恢复默认" tabindex="0"></div>
+
+      <aside class="assistant" id="assistant-pane" aria-label="问答助手">
+        <div class="assist-head">
+          <button id="assist-toggle" class="assist-toggle" aria-pressed="false" title="打开导读（G）">
+            <span data-icon="layers"></span><span id="assist-toggle-label">导读</span>
+          </button>
+        </div>
+        <div id="insights" class="insights" aria-live="polite"></div>
+        <form id="ask-form" class="ask-form" autocomplete="off">
+          <div id="quote-chip" hidden></div>
+          <label class="sr-only" for="question">向问答助手提问</label>
+          <textarea id="question" maxlength="2000" rows="2" placeholder="选中原文，或直接提问…"></textarea>
+          <div class="composer-actions">
+            <div class="composer-meta">
+              <label class="web-toggle">
+                <input id="web-search" type="checkbox" checked>
+                <span data-icon="globe"></span>联网</label>
+              <span id="composer-page" class="composer-page"></span>
+            </div>
+            <button type="submit" id="send" class="send" title="发送问题" aria-label="发送问题">
+              <span data-icon="up"></span>
+            </button>
+          </div>
+        </form>
+      </aside>
+    </main>
+
+    <div class="reading-dock" id="reading-dock" role="toolbar" aria-label="阅读工具" inert>
+      <div class="dock-group mode-switch">
+        <button id="mode-book" aria-label="章节正文" hidden><span data-icon="book"></span><span class="dock-label">章节</span></button>
+        <button id="mode-original" aria-pressed="true" aria-label="原版"><span data-icon="file"></span><span class="dock-label">原版</span></button>
+        <button id="mode-text" aria-pressed="false" aria-label="文本"><span data-icon="text"></span><span class="dock-label">文本</span></button>
+      </div>
+      <label id="chapter-menu" class="dock-select" hidden>
+        <span class="sr-only">章内目录</span>
+        <select id="chapter-jump" aria-label="章内目录"></select>
+      </label>
+      <div class="dock-group zoom" id="pdf-tools">
+        <button id="minus" class="iconbtn" title="缩小" aria-label="缩小"><span data-icon="minus"></span></button>
+        <button id="fit" class="fit" title="恢复适合宽度">100%</button>
+        <button id="plus" class="iconbtn" title="放大" aria-label="放大"><span data-icon="plus"></span></button>
+        <a id="pdf-link" class="iconbtn" target="_blank" rel="noopener" title="打开原版 PDF" aria-label="打开原版 PDF">
+          <span data-icon="external"></span>
+        </a>
+      </div>
+      <div class="dock-group pagenav" id="pdf-nav">
+        <button id="prev" class="iconbtn" title="上一页" aria-label="上一页"><span data-icon="left"></span></button>
+        <input id="pageno" value="1" aria-label="跳至 PDF 页码" inputmode="numeric">
+        <span id="page-count">/ —</span>
+        <button id="next" class="iconbtn" title="下一页" aria-label="下一页"><span data-icon="right"></span></button>
+      </div>
+      <div class="dock-group chapter-nav" id="chapter-nav" hidden>
+        <button id="chapter-prev">上一章</button>
+        <button id="chapter-next">下一章</button>
+      </div>
+      <button id="fullscreen" class="iconbtn dock-full" aria-label="进入全屏" title="进入全屏" hidden>
+        <span data-icon="expand"></span>
+      </button>
+    </div>
+
+    <button id="ask-selection" class="selection-action" hidden>
+      <span data-icon="spark"></span>就此提问</button>
+    <button id="scrim" class="scrim" hidden aria-label="关闭书库"></button>
+
+    <dialog id="upload-dialog">
+      <div class="dialog-head">
+        <h2>添加论文</h2>
+        <button id="close-import" class="iconbtn" aria-label="关闭">
+          <span data-icon="close"></span>
+        </button>
+      </div>
+      <p>导入 PDF 后可连续阅读，并按页向问答助手提问。</p>
+      <label id="drop" class="drop">
+        <span data-icon="upload"></span>
+        <b>选择或拖入 PDF</b>
+        <small>最大 64 MiB · 扫描页可识别后划词</small>
+        <input id="file" type="file" accept="application/pdf,.pdf">
+      </label>
+      <label class="upload-search">
+        <input id="import-search" type="checkbox" checked>拆解时查找论文发表记录和作者源码</label>
+      <p class="fine">PDF 保存在本机。生成拆解或回答时，会向已登录的 ChatGPT 发送相关页内容。</p>
+      <div id="upload-status" role="status"></div>
+    </dialog>
+    <div id="toast" role="status" hidden></div>
+  </body>
+</html>

@@ -2,6 +2,7 @@
 #include "mlir/Target/LLVMIR/LLVMTranslationInterface.h"
 #include "mlir/Target/LLVMIR/ModuleTranslation.h"
 #include "triton/Target/LLVMIR/IntrinsicAttrTable.h"
+#include "triton/Target/LLVMIR/KL3GroupedExp.h"
 #include "triton/Tools/Sys/GetEnv.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/CodeGen/MIRParser/MIRParser.h"
@@ -17,6 +18,7 @@
 #include "llvm/IRReader/IRReader.h"
 #include "llvm/Linker/Linker.h"
 #include "llvm/MC/TargetRegistry.h"
+#include "llvm/Object/ELFObjectFile.h"
 #include "llvm/Object/ObjectFile.h"
 #include "llvm/Object/SymbolSize.h"
 #include "llvm/Object/SymbolicFile.h"
@@ -139,6 +141,18 @@ static bool isElfStackSizeOOB(std::string ElfObject, uint32_t Margin = 0) {
     }
     StringRef Name = *NameOrErr;
     if (!Name.contains("KERNEL_STACK_SIZE")) {
+      continue;
+    }
+
+    // `computeSymbolSizes` also lists STT_SECTION symbols, whose reported name
+    // is the section's own (`.XPU.KERNEL_STACK_SIZE.<kernel>`). A relocatable
+    // `ld.lld -r` object -- e.g. the kernel object after a `tle.raw` `object=`
+    // payload is linked in at the ELF stage -- carries such a section symbol,
+    // and it matches the substring above with size 0, which would trip the
+    // `!= 4` check below. Only the STT_OBJECT `XPU_KERNEL_STACK_SIZE_<kernel>`
+    // symbol holds the u32 stack size, so skip section symbols and keep
+    // scanning.
+    if (object::ELFSymbolRef(Symbol).getELFType() == llvm::ELF::STT_SECTION) {
       continue;
     }
 
@@ -854,8 +868,12 @@ void init_triton_llvm(py::module &&m) {
       [](llvm::Module *mod, const llvm::OptimizationLevel &opt,
          std::string arch, std::string features, std::vector<std::string> flags,
          bool enable_fp_fusion) {
-        if (mlir::triton::tools::getBoolEnv("DISABLE_LLVM_OPT"))
+        if (mlir::triton::tools::getBoolEnv("DISABLE_LLVM_OPT")) {
+          // KL3 exp lowering is part of instruction selection even at -O0.
+          llvm::ModuleAnalysisManager analyses;
+          llvm::KL3GroupedExpPass().run(*mod, analyses);
           return;
+        }
         auto options = llvm::cl::getRegisteredOptions();
         // Hack for the 3.6 release only. Vectorization of copyable elements
         // exposed a bug in ptxas. Manually disable it by modifying the command
@@ -999,6 +1017,7 @@ void init_triton_llvm(py::module &&m) {
         pb.crossRegisterProxies(lam, fam, cgam, mam);
 
         ModulePassManager mpm;
+        mpm.addPass(llvm::KL3GroupedExpPass());
         pb.registerPipelineStartEPCallback(
             [](ModulePassManager &PM, OptimizationLevel) {
 #if TRITON_HAVE_XPU_PRINTF_ASSERT

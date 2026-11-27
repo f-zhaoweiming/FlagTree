@@ -16,7 +16,22 @@ from typing import Tuple, Optional
 import hashlib
 from pathlib import Path
 
+# The ELF converter derives temporary basenames from the entry symbol and
+# llvm-objcopy appends its own suffix. Bound the symbol before either that step
+# or the backend's assembly cache write, retaining the full name in metadata.
+_KERNEL_NAME_MAX_BYTES = 128
+
+
+def _compact_kernel_name(name):
+    encoded = name.encode("utf-8")
+    if len(encoded) <= _KERNEL_NAME_MAX_BYTES:
+        return name
+    digest = hashlib.sha256(encoded).hexdigest()
+    prefix = re.sub(r"[^a-zA-Z0-9_]", "_", name)[:_KERNEL_NAME_MAX_BYTES - len(digest) - 1]
+    return f"{prefix}_{digest}"
+
 from .launch_config import DEFAULT_LAUNCH, resolve_launch_config
+from . import dma_pipeline
 
 # The desensitized LLVM 19 package ships no `opt`; the read-in step is
 # `opt`-only, so disable it when the staged toolchain lacks it.  An explicit
@@ -139,6 +154,24 @@ def _xtdk_lld_version(tool_dir: str) -> str:
 # [raise FrozenInstanceError]
 @dataclass(frozen=True)
 class XPUOptions:
+    xpu_dma_pipeline: int = 2
+    # Conservative storage spans, in signature order, for runtime alias guards.
+    # Empty unless a caller can prove static, nonnegative tensor layouts.
+    xpu_sdnn_tensor_bytes: tuple = ()
+    kl3_softmax_shift: bool = False
+    # Dense, out-of-place add-softmax. The second GM pointer is read-only
+    # throughout the launch and does not alias an output.
+    kl3_row_softmax: bool = False
+    # Independent schedules: reuse preserves the arithmetic; tree changes the
+    # reduction order and therefore requires the caller's numerical admission.
+    xpu_reduction_reuse: bool = False
+    xpu_reduction_half_cache: bool = False
+    xpu_reduction_tree: bool = False
+    # Requires read-only column arguments and no alias with any write operand.
+    xpu_row_shared: bool = False
+    # Only for the ordered two-pass row template: readonly inputs, freshly
+    # allocated disjoint output, and one complete row per physical core.
+    xpu_ordered_row_reuse: bool = False
     resource_kind: str = "auto"
     arch: int = 3
     assert arch in [2, 3, 4, 5], "Invalid XPU ARCH"
@@ -315,6 +348,15 @@ def _record_effective_launch(metadata, opt):
 class XPUBackend(BaseBackend):
 
     def __init__(self, target: GPUTarget) -> None:
+        # The P800 Torch CUDA compatibility layer advertises SM86 to Inductor.
+        # Resolve that facade only when compiling with the active P800 driver.
+        if target == GPUTarget("cuda", 86, 32):
+            from triton.runtime import driver
+            from .driver import XPUDriver
+            if isinstance(driver.active, XPUDriver):
+                actual = driver.active.get_current_target()
+                if actual.arch == 3 and actual.warp_size == 1:
+                    target = actual
         super().__init__(target)
         assert isinstance(target.arch, int)
         self.binary_ext = "xpubin"
@@ -360,6 +402,9 @@ class XPUBackend(BaseBackend):
 
     @staticmethod
     def make_ttxir(mod, metadata, opt):
+        # Contraction can happen before LLVM: carry the option into the XPU
+        # vectorizer as well as the final target-machine configuration.
+        mod.set_attr("triton_xpu.enable_fp_fusion", ir.builder(mod.context).get_bool_attr(opt.enable_fp_fusion))
         metadata["xpu_arch"] = opt.arch
         metadata["is_tle"] = XPUBackend.is_tle_kernel(mod)
         from .resource_context import effective_sdnn
@@ -384,6 +429,12 @@ class XPUBackend(BaseBackend):
                                                                    and _needs_scale_args) else []
         metadata["shared"] = (-1)  # TODO: invalid value, just to keep CompiledKernel _init_handles() success
 
+        if opt.arch == 3 and opt.xpu_reduction_reuse:
+            mod.set_attr("flagtree.reduction_reuse", ir.builder(mod.context).get_unit_attr())
+        if opt.arch == 3 and opt.xpu_reduction_reuse and opt.xpu_reduction_half_cache:
+            mod.set_attr("flagtree.reduction_half_cache", ir.builder(mod.context).get_unit_attr())
+        if opt.arch == 3 and opt.xpu_row_shared:
+            mod.set_attr("flagtree.row_shared", ir.builder(mod.context).get_unit_attr())
         max_buffer_size = metadata["buffer_size_limit"]
         tle_smem_vec = not metadata["isCloseTLESmemVec"]
         tle_vec = not metadata["isCloseTLEVec"]
@@ -492,9 +543,14 @@ class XPUBackend(BaseBackend):
                 # The prebuilt rank-1 split-pointer lowering drops modulo.
                 # Capture its address contract before that information is lost.
                 xpu.passes.ttsdnnir.add_capture_rank1_wrap_pass(pm)
+            # Keep original dot K before masked loads become prefix views.
+            xpu.passes.ttsdnnir.add_capture_sdnn_k_extent_pass(pm)
             xpu.passes.ttsdnnir.add_convert_triton_to_tritonsdnn_pass(pm, opt.arch, opt.load_tile_size)
             passes.ttir.add_loop_aware_cse(pm)
             xpu.passes.ttsdnnir.add_linalg_to_tritonsdnn_pass(pm, opt.arch)
+            # Load masks do not shrink dot's logical K dimension. Keep both
+            # DS packings and MMA consistent, including padded other values.
+            xpu.passes.ttsdnnir.add_preserve_sdnn_k_extent_pass(pm)
             passes.ttir.add_loop_aware_cse(pm)
             xpu.passes.ttsdnnir.add_tritonsdnn_legalize_pass(pm, opt.arch)
             xpu.passes.ttsdnnir.add_tritonsdnn_merge_extern_ew_pass(pm)
@@ -726,6 +782,12 @@ class XPUBackend(BaseBackend):
 
     @staticmethod
     def make_llir(mod, metadata, opt):
+        if opt.xpu_reduction_tree and opt.arch == 3:
+            mod.set_attr("flagtree.reduction_tree", ir.builder(mod.context).get_unit_attr())
+        if opt.kl3_softmax_shift and opt.arch == 3:
+            mod.set_attr("flagtree.kl3_softmax_shift", ir.builder(mod.context).get_unit_attr())
+        if opt.kl3_row_softmax and opt.arch == 3:
+            mod.set_attr("flagtree.kl3_row_softmax", ir.builder(mod.context).get_unit_attr())
         XPUBackend.make_ewtable(mod, metadata, opt)
         # Also covers IR-entry pipelines that skip make_ttxir; idempotent when
         # make_ttxir already recorded the pair.
@@ -862,6 +924,11 @@ class XPUBackend(BaseBackend):
         # We get the name at the last possible step to accomodate `triton.compile`
         # on user-provided LLVM
         metadata["name"] = xpu.llvm.get_kernel_name(mod)
+        compact_name = _compact_kernel_name(metadata["name"])
+        if compact_name != metadata["name"]:
+            metadata["original_name"] = metadata["name"]
+            xpu.llvm.rename_defined_function(mod, metadata["name"], compact_name)
+            metadata["name"] = compact_name
         # print(f'metadata[name] = {metadata["name"]}')
 
         # Must go through the LLVM 22 -> 19 text-downgrade path; do NOT use the
@@ -871,7 +938,8 @@ class XPUBackend(BaseBackend):
         # the LLVM 22 verifier or backend.
         triple = f"xpu{opt.arch}-baidu-none-gnu"
         proc = f"xpu{opt.arch}"
-        ir_text = llvm19_toolchain.downgrade_ir(mod._ir_for_lowering(), "xpu")
+        scheduled_ir = dma_pipeline.optimize_ir(mod._ir_for_lowering(), metadata, opt.xpu_dma_pipeline)
+        ir_text = llvm19_toolchain.downgrade_ir(scheduled_ir, "xpu")
         # Merge the payloads in after the downgrade (they are LLVM 19 text).
         try:
             ir_text = merge_raw_payloads(ir_text, metadata, "xpu", opt.arch)
@@ -901,6 +969,16 @@ class XPUBackend(BaseBackend):
         if not _compilation_knobs.store_binary_only:
             fn_cache_manager.put(ret_asm, f"{metadata['name']}.asm")
         ret_elf = llvm19_toolchain.llir_to_object(ir_text, "xpu", triple, proc, extra_args=llc_extra)
+
+        # `tle.raw` payloads declared with `object=` ship as device objects
+        # rather than IR, so their calls remain external symbols in `ret_elf`.
+        # Link them in with a relocatable link so the backend still receives a
+        # single object; this trades the raw call's inlining for shipping
+        # machine code instead of readable IR.
+        from triton.experimental.tle.raw.merge import TLE_RAW_EXTERN_OBJECTS_KEY
+        objects = metadata.get(TLE_RAW_EXTERN_OBJECTS_KEY) or ()
+        if objects:
+            ret_elf = llvm19_toolchain.link_objects(ret_elf, list(objects), "xpu")
 
         del mod
         return ret_elf
@@ -948,8 +1026,8 @@ class XPUBackend(BaseBackend):
         # `codegen_key()` also carries the stamp's table tag, the table digests
         # and the LLVM 19 bin dir the tools come from.
         tool_dir = XPUBackend.path_to_xpu_compile_tool(self.target)
-        flags = " ".join(_LLC_EXTRA) + " " + llvm19_toolchain.codegen_key("xpu")
-        return f"{_xtdk_lld_version(tool_dir)}-{self.target}-{flags}"
+        flags = " ".join(_LLC_EXTRA) + " " + llvm19_toolchain.codegen_key("xpu") + " " + dma_pipeline.codegen_key()
+        return f"{_xtdk_lld_version(tool_dir)}-{self.target}-{flags}-kernel-name-v1-{_KERNEL_NAME_MAX_BYTES}"
 
     def parse_options(self, options: dict) -> object:
         from .resource_context import current_resource

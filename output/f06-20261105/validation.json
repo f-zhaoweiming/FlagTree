@@ -1,0 +1,12 @@
+{
+  "p800_cases": 216,
+  "rtx_cases": 216,
+  "special_cases": 216,
+  "special_route_rows": 982,
+  "mul_cases": 36,
+  "mul_route_rows": 216,
+  "mul_all_gates": 4,
+  "p800_fallback": 169,
+  "rtx_pass": 213,
+  "source_files": 58
+}

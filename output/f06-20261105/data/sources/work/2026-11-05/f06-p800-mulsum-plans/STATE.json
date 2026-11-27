@@ -1,0 +1,13 @@
+{
+  "task": "Mul+Sum resource choice using historical compute/transfer ratios and native Inductor semantic splits",
+  "remote": "/data2/zhaoweiming/f06-mulsum-plans-20261105",
+  "card": 7,
+  "status": "offline_upload_and_waiting_pilot",
+  "pilot_cases": [
+    200,
+    203,
+    206
+  ],
+  "unit_tests_passed": 36,
+  "default_changed": false
+}

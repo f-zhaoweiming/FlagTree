@@ -42,7 +42,7 @@ def split_division_rows(mod, output_dir):
         ordinary = ordinary.rstrip(', ')
         signals = re.findall(r'(?:signal|signal_cached) = array<i32: [^>]+>', attrs)
         waits = re.findall(r'(?:wait|wait_cached) = array<i32: [^>]+>', attrs)
-        prefix = f'%fusion_div_{len(records)}_'
+        prefix = f'%f06_div_{len(records)}_'
         lines = []
         for row in range(m):
             ty = f'memref<1x{n}xf32, strided<[{n}, 1], offset: {row*n}>>'

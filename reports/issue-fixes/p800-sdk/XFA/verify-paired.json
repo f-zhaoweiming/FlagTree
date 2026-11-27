@@ -1,0 +1,23 @@
+{
+  "torch": "2.9.0+cu129",
+  "xmlir": "/data2/zhaoweiming/interface-repair-20261126/xpytorch29-s3_ynljk/venv/lib/python3.10/site-packages/torch_xmlir/__init__.py",
+  "apis": [
+    "gelu",
+    "relu",
+    "silu",
+    "matmul",
+    "matmul_v2",
+    "bmm",
+    "add_layernorm"
+  ],
+  "provider": "/data2/zhaoweiming/interface-repair-20261126/xpytorch29-s3_ynljk/venv/lib/python3.10/site-packages/torch_xmlir/libxpu_flash_attention.so",
+  "provider_sha256": "817b3574423a7505f70db004115ec0842cadef881a1090027de5ad6168aa7324",
+  "required": 176,
+  "missing": [],
+  "ok": true,
+  "wheel": "kunlun_ops-0.1.227+2b100f96-cp310-cp310-linux_x86_64.whl",
+  "wheel_sha256": "7c17a6a8014366ba1f2cfaa06d8cfe838f4333f5d97c53eefe28bf83750f5f19",
+  "site": "/data2/zhaoweiming/p800-interface-benchmark-20261126/ops-candidate-pmkksf2q/site",
+  "python": "/data2/zhaoweiming/interface-repair-20261126/xpytorch29-s3_ynljk/python",
+  "child_exit": 0
+}

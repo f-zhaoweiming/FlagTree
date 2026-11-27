@@ -26,6 +26,7 @@ import os
 import statistics
 import subprocess
 import sys
+import time
 from contextlib import contextmanager
 from typing import Any, Dict, List
 from . import language as tl
@@ -182,6 +183,31 @@ def _get_runtime_driver_active(device_type: str | None):
     return _get_backend_driver(backend_name)
 
 
+def _possible_event_ms(ms, wall_ms):
+    # A device interval is enclosed by CPU submit + synchronization. Allow
+    # 1 ms and 1% for different clocks; no kernel-specific latency threshold.
+    return math.isfinite(ms) and 0 < ms <= 1.01 * wall_ms + 1.0
+
+
+def _positive_event_ms(di, fn, prepare=None, attempts=3):
+    """Measure a fresh, synchronized event pair on each attempt (milliseconds)."""
+    for _ in range(attempts):
+        start = di.Event(enable_timing=True)
+        end = di.Event(enable_timing=True)
+        if prepare is not None:
+            prepare()
+        started = time.perf_counter_ns()
+        start.record()
+        fn()
+        end.record()
+        di.synchronize()
+        wall_ms = (time.perf_counter_ns() - started) / 1e6
+        ms = start.elapsed_time(end)
+        if _possible_event_ms(ms, wall_ms):
+            return ms
+    raise RuntimeError(f"Invalid benchmark event interval after retries: {ms!r} ms")
+
+
 def do_bench(fn, warmup=25, rep=100, grad_to_none=None, quantiles=None, return_mode="mean", device_type=None):
     """
     Benchmark the runtime of the provided function. By default, return the median runtime of :code:`fn` along with
@@ -215,18 +241,12 @@ def do_bench(fn, warmup=25, rep=100, grad_to_none=None, quantiles=None, return_m
 
     cache = runtime_driver_active.get_empty_cache_for_benchmark()  # flagtree
 
-    # Estimate the runtime of the function
-    start_event = di.Event(enable_timing=True)
-    end_event = di.Event(enable_timing=True)
-    start_event.record()
-    for _ in range(5):
-        runtime_driver_active.clear_cache(cache)  # flagtree
-        fn()
-    end_event.record()
-    di.synchronize()
-    estimate_ms = start_event.elapsed_time(end_event) / 5
+    def estimate():
+        for _ in range(5):
+            runtime_driver_active.clear_cache(cache)
+            fn()
 
-    # compute number of warmup and repeat
+    estimate_ms = _positive_event_ms(di, estimate) / 5
     n_warmup = max(1, int(warmup / estimate_ms))
     n_repeat = max(1, int(rep / estimate_ms))
     start_event = [di.Event(enable_timing=True) for i in range(n_repeat)]
@@ -234,23 +254,28 @@ def do_bench(fn, warmup=25, rep=100, grad_to_none=None, quantiles=None, return_m
     # Warm-up
     for _ in range(n_warmup):
         fn()
-    # Benchmark
-    for i in range(n_repeat):
-        # we don't want `fn` to accumulate gradient values
-        # if it contains a backward pass. So we clear the
-        # provided gradients
+    def prepare_sample():
         if grad_to_none is not None:
             for x in grad_to_none:
                 x.grad = None
-        # we clear the L2 cache before each run
-        runtime_driver_active.clear_cache(cache)  # flagtree
+        runtime_driver_active.clear_cache(cache)
+
+    started = time.perf_counter_ns()
+    for i in range(n_repeat):
+        prepare_sample()
         # record time of `fn`
         start_event[i].record()
         fn()
         end_event[i].record()
     # Record clocks
     di.synchronize()
+    batch_wall_ms = (time.perf_counter_ns() - started) / 1e6
     times = [s.elapsed_time(e) for s, e in zip(start_event, end_event)]
+    for i, ms in enumerate(times):
+        if not _possible_event_ms(ms, batch_wall_ms):
+            # The original pair was already synchronized. Rerun the same work and
+            # cache preparation with new event handles, before any aggregation.
+            times[i] = _positive_event_ms(di, fn, prepare_sample, attempts=2)
     return _summarize_statistics(times, quantiles, return_mode)
 
 

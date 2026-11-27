@@ -1,0 +1,52 @@
+--- a/torch/_inductor/fx_passes/pre_grad.py
++++ b/torch/_inductor/fx_passes/pre_grad.py
+@@ -331,6 +331,26 @@
+     if config.pre_grad_custom_pass is not None:
+         with GraphTransformObserver(gm, "pre_grad_custom_pass"):
+             config.pre_grad_custom_pass(gm.graph)
++    if any(isinstance(x, torch.Tensor) and x.device.type == "cuda" for x in (example_inputs or ())):
++        # The P800 SDK exposes torch.cuda. Only load the optional extension
++        # on a FlagTree XPU build; the pass checks the actual operand device.
++        try:
++            from triton._flagtree_backend import FLAGTREE_BACKEND
++        except ModuleNotFoundError as exc:
++            if exc.name not in ("triton", "triton._flagtree_backend"):
++                raise
++        else:
++            if FLAGTREE_BACKEND == "xpu":
++                from triton.experimental.graph_fusion._p800_inductor_gelu import rewrite
++
++                from triton.experimental.graph_fusion._p800_inductor_layernorm import rewrite as rewrite_layernorm
++
++                from triton.experimental.graph_fusion._p800_inductor_vector_rows import rewrite as rewrite_rows
++                from triton.experimental.graph_fusion._p800_fp32_region import rewrite_native as widen_fp32
++                widen_fp32(gm.graph)
++                rewrite_rows(gm.graph)
++                rewrite(gm.graph, small_only=True, vector_exact=True)
++                rewrite_layernorm(gm.graph)
+     stable_topological_sort(gm.graph)
+ 
+     from .quantization import quant_lift_up
+--- a/torch/__init__.py
++++ b/torch/__init__.py
+@@ -2389,6 +2389,20 @@
+     def __call__(self, model_, inputs_):
+         from torch._inductor.compile_fx import compile_fx
+ 
++        if self.dynamic is not True and builtins.any(
++            isinstance(t, torch.Tensor) and t.device.type == "cuda" for t in inputs_
++        ):
++            try:
++                from triton._flagtree_backend import FLAGTREE_BACKEND
++            except ModuleNotFoundError as exc:
++                if exc.name not in ("triton", "triton._flagtree_backend"):
++                    raise
++            else:
++                if FLAGTREE_BACKEND == "xpu":
++                    from triton.experimental.graph_fusion._p800_shared_fp32 import native_entry
++                    fn = native_entry(model_, inputs_, compile_fx, self.config)
++                    if fn is not None:
++                        return fn
+         return compile_fx(model_, inputs_, config_patches=self.config)
+ 
+     def get_compiler_config(self):

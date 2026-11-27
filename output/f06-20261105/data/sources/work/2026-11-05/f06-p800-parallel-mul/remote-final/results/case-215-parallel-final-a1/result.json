@@ -1,0 +1,4415 @@
+{
+ "started_at": 1793862368.2323186,
+ "ordinal": 215,
+ "device": 7,
+ "routes": {
+  "eager": {
+   "proof": {
+    "route": "eager",
+    "regions": [],
+    "compiler_options": {}
+   },
+   "fixed_small_tile": true,
+   "finite": {
+    "ordinary": true,
+    "changed": true,
+    "repeat": true,
+    "immutable": true,
+    "validation_scope": "finite inputs; special cases reported separately"
+   },
+   "special": [
+    {
+     "pattern": "nan",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "positive_inf",
+     "passed": false,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 0,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 1,
+       "expected_inf": 1,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 1,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "error": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)",
+     "classification_passed": false,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": false,
+     "device_eager_cpu_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)"
+    },
+    {
+     "pattern": "negative_inf",
+     "passed": false,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 0,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 1,
+       "expected_inf": 1,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 1,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "error": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)",
+     "classification_passed": false,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": false,
+     "device_eager_cpu_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)"
+    },
+    {
+     "pattern": "historical_mix",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "inf_times_zero",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "zero_times_inf",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 2048,
+       "actual_nan": 2048,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": null
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "nan_times_zero",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "zero_times_nan",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 2048,
+       "actual_nan": 2048,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": null
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    }
+   ],
+   "stress": {
+    "passed": false,
+    "total": {
+     "classes": 225,
+     "finite_pairs": 4096,
+     "invalid_zero": 12
+    },
+    "errors": {
+     "classes": 56,
+     "finite_pairs": 116,
+     "invalid_zero": 0
+    },
+    "examples": [
+     {
+      "suite": "classes",
+      "row": 12,
+      "other": 2,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 13,
+      "other": 2,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 12,
+      "other": 3,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 13,
+      "other": 3,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 12,
+      "other": 4,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 13,
+      "other": 4,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 12,
+      "other": 5,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 13,
+      "other": 5,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 12,
+      "other": 6,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 13,
+      "other": 6,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 12,
+      "other": 7,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 13,
+      "other": 7,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 8,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 8,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 12,
+      "other": 8,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 13,
+      "other": 8,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 9,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 9,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 12,
+      "other": 9,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 13,
+      "other": 9,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 8,
+      "other": 10,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 9,
+      "other": 10,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 10,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 10,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 12,
+      "other": 10,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 13,
+      "other": 10,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 8,
+      "other": 11,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 9,
+      "other": 11,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 11,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 11,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 12,
+      "other": 11,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 13,
+      "other": 11,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 2,
+      "other": 12,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 3,
+      "other": 12,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 4,
+      "other": 12,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 5,
+      "other": 12,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 6,
+      "other": 12,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 7,
+      "other": 12,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 8,
+      "other": 12,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 9,
+      "other": 12,
+      "want": "-inf",
+      "got": "nan"
+     }
+    ],
+    "signed_zero_differences": 0,
+    "invalid_zero_failures": []
+   },
+   "eligible": false,
+   "status": "finite_validated",
+   "timing": {
+    "checks": {
+     "ordinary": true,
+     "changed": true,
+     "repeat": true,
+     "immutable": true,
+     "validation_scope": "finite inputs; special cases reported separately",
+     "graph_fresh_data": true
+    },
+    "status": "passed",
+    "gpu_samples_us": [
+     25.148399944963128,
+     25.12855200931944,
+     25.107000614034718,
+     25.228268524696087,
+     25.123579748745623,
+     25.42786269352354,
+     25.03474498617238,
+     25.0132626500623,
+     25.016745205583245,
+     24.975641842546136,
+     25.003048469280376,
+     25.56376621640962,
+     25.162951699618635,
+     25.19631714656435,
+     25.120820670292296,
+     25.076075257926153,
+     25.02523455126532,
+     25.659848903787548
+    ],
+    "gpu_us": 25.122200209518958,
+    "calls_per_graph": 145,
+    "capture_samples_us": [
+     [
+      25.148399944963128,
+      25.12855200931944,
+      25.107000614034718,
+      25.228268524696087,
+      25.123579748745623,
+      25.42786269352354
+     ],
+     [
+      25.03474498617238,
+      25.0132626500623,
+      25.016745205583245,
+      24.975641842546136,
+      25.003048469280376,
+      25.56376621640962
+     ],
+     [
+      25.162951699618635,
+      25.19631714656435,
+      25.120820670292296,
+      25.076075257926153,
+      25.02523455126532,
+      25.659848903787548
+     ]
+    ],
+    "capture_medians_us": [
+     25.138475977141283,
+     25.01500392782277,
+     25.141886184955467
+    ],
+    "e2e_protocol": "randomized_ab_ba_v1",
+    "e2e_round_samples_us": [
+     [
+      195.941,
+      142.776,
+      57.744,
+      151.065,
+      56.664,
+      148.026,
+      58.094,
+      154.855,
+      39.917,
+      156.325,
+      86.461,
+      84.452,
+      101.431,
+      148.266,
+      55.714,
+      138.106,
+      78.972,
+      184.602,
+      115.339,
+      41.936,
+      134.297,
+      85.951,
+      125.068,
+      39.156,
+      150.615,
+      39.936,
+      160.615,
+      65.864,
+      85.941,
+      148.446,
+      46.036,
+      172.173,
+      41.316,
+      145.156,
+      92.281,
+      89.011,
+      138.557,
+      39.726,
+      162.274,
+      39.866,
+      133.577,
+      116.909,
+      82.002,
+      133.677,
+      105.81,
+      39.596,
+      112.689,
+      139.556,
+      67.714,
+      144.816,
+      100.41,
+      62.884,
+      97.5,
+      162.334,
+      92.881,
+      46.155,
+      164.804,
+      66.243,
+      131.037,
+      82.962,
+      142.736,
+      96.641,
+      80.242,
+      144.866,
+      60.914,
+      126.007,
+      115.439,
+      39.516,
+      141.526,
+      66.994,
+      110.43,
+      120.588,
+      84.162,
+      132.607,
+      100.32,
+      96.071,
+      123.498,
+      45.586,
+      158.495,
+      40.306,
+      143.336,
+      87.392,
+      111.659,
+      87.211,
+      131.797,
+      58.774,
+      120.649,
+      110.809,
+      119.009,
+      67.953,
+      152.995,
+      40.226,
+      141.456,
+      39.566,
+      93.131,
+      154.076,
+      95.961,
+      39.266,
+      119.369,
+      168.964,
+      97.171,
+      39.076,
+      124.228,
+      153.725,
+      81.242,
+      111.609,
+      117.579,
+      64.073,
+      157.484,
+      49.485,
+      95.11,
+      146.126,
+      92.131,
+      105.28,
+      131.727,
+      65.353,
+      101.83,
+      167.634,
+      41.196,
+      136.747,
+      108.51,
+      39.477,
+      157.335,
+      65.733,
+      148.645,
+      85.792,
+      104.51,
+      129.828
+     ],
+     [
+      175.153,
+      76.972,
+      94.341,
+      146.506,
+      89.921,
+      62.704,
+      96.781,
+      137.147,
+      134.637,
+      40.356,
+      115.899,
+      120.439,
+      120.058,
+      150.596,
+      116.138,
+      39.526,
+      104.44,
+      162.294,
+      47.615,
+      149.775,
+      120.528,
+      58.274,
+      146.416,
+      66.354,
+      115.119,
+      111.849,
+      71.453,
+      168.684,
+      96.771,
+      90.912,
+      110.72,
+      100.12,
+      120.318,
+      39.776,
+      106.79,
+      143.706,
+      39.967,
+      161.255,
+      75.473,
+      113.529,
+      96.901,
+      111.229,
+      70.533,
+      134.837,
+      41.216,
+      145.486,
+      40.466,
+      161.324,
+      40.906,
+      162.094,
+      94.171,
+      61.304,
+      104.11,
+      141.497,
+      66.243,
+      131.707,
+      83.732,
+      117.259,
+      80.152,
+      137.266,
+      72.533,
+      143.626,
+      64.164,
+      123.228,
+      107.17,
+      82.392,
+      141.696,
+      91.091,
+      148.836,
+      40.176,
+      162.164,
+      40.856,
+      93.391,
+      153.355,
+      72.723,
+      137.266,
+      128.658,
+      75.623,
+      143.096,
+      39.776,
+      146.326,
+      39.836,
+      152.665,
+      46.106,
+      141.996,
+      67.994,
+      131.657,
+      95.69,
+      82.962,
+      137.016,
+      72.373,
+      125.087,
+      84.722,
+      123.948,
+      72.493,
+      149.675,
+      56.104,
+      145.406,
+      93.121,
+      113.439,
+      85.382,
+      128.438,
+      55.605,
+      154.915,
+      118.609,
+      65.193,
+      144.656,
+      40.446,
+      138.547,
+      71.283,
+      137.156,
+      41.416,
+      114.799,
+      145.505,
+      106.43,
+      63.663,
+      108.56,
+      149.716,
+      124.978,
+      48.256,
+      111.609,
+      132.747,
+      76.533,
+      161.354,
+      85.682,
+      113.229,
+      77.053,
+      142.836
+     ]
+    ]
+   }
+  },
+  "inductor": {
+   "proof": {
+    "route": "inductor",
+    "mode": "max-autotune-no-cudagraphs",
+    "resource_verified": false,
+    "compiler_options": {
+     "max_autotune": true,
+     "coordinate_descent_tuning": true,
+     "triton.cudagraphs": false,
+     "compile_threads": 1,
+     "emulate_precision_casts": true,
+     "fx_graph_cache": false,
+     "fx_graph_remote_cache": false,
+     "autotune_in_subproc": false,
+     "use_static_cuda_launcher": false,
+     "max_autotune_prune_choices_based_on_shared_mem": false
+    }
+   },
+   "fixed_small_tile": true,
+   "status": "failed",
+   "eligible": false,
+   "error": "Traceback (most recent call last):\n  File \"/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py\", line 46, in <module>\n    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)\n  File \"/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py\", line 13, in finite_validate\n    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)\n  File \"/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py\", line 30, in assert_close\n    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)\n  File \"/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py\", line 1589, in assert_close\n    raise error_metas[0].to_error(msg)\nAssertionError: Tensor-likes are not close!\n\nMismatched elements: 654 / 2048 (31.9%)\nGreatest absolute difference: 1.0 at index (491, 0) (up to 0.03 allowed)\nGreatest relative difference: 19.875 at index (703, 0) (up to 0.003 allowed)\n"
+  },
+  "cluster": {
+   "proof": {
+    "regions": [
+     {
+      "resource": "cluster",
+      "matmul_path": "external",
+      "scalar_reduction_layout": true,
+      "native_template_eligibility": false,
+      "wrapper_audit": {
+       "generated_kernel_sources": [
+        "1d8764a6d641ff20603e0a9ffceb34102b14e69eab08c3ec2bd7c9da1771e986"
+       ],
+       "external_call_targets": []
+      },
+      "external_calls": 0,
+      "kernel_evidence": [
+       {
+        "requested": "cluster",
+        "effective": "cluster",
+        "kernel_name": "triton_unk_fused_0",
+        "binary_hash": "049c49c809570a61f42c811a93448f2d67ecaa1a93f83ef535ab55aacc27b9f7",
+        "launch_clusters": null,
+        "launch_cores": null,
+        "asm_sha256": {
+         "source": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttxir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "llir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "elf": "9c5fed3bee8860b13bf078297ed6562601a4c573cee2b605baf76ef77a7191dd",
+         "xpubin": "8ac7c4168c2e4d5f5df2d61e93bffccb3023457f323a81859cbfd378e436bc16"
+        },
+        "native_metadata": {
+         "arch": 3,
+         "is_sdnn": false,
+         "num_warps": 16,
+         "num_ctas": -1,
+         "shared": -1,
+         "core_num": 64,
+         "cluster_num": 12
+        },
+        "wrapper_binding": "triton_unk_fused_0",
+        "source_sha256": "1d8764a6d641ff20603e0a9ffceb34102b14e69eab08c3ec2bd7c9da1771e986",
+        "proof_scope": "bound_native_wrapper_binary"
+       },
+       {
+        "requested": "cluster",
+        "effective": "cluster",
+        "kernel_name": "triton_unk_fused_0",
+        "binary_hash": "29b8670bb935e3c9e423f1ddaa8d3775ab548803b38bc263ca60371fc61a5d79",
+        "launch_clusters": null,
+        "launch_cores": null,
+        "asm_sha256": {
+         "source": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttxir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "llir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "elf": "7a592e2d05059da5aee8ba61925bf78906da7e6085a58bb0fba52ade8c1a01aa",
+         "xpubin": "0befde415bf65f913c9176fd3761a05756868a0d5e7b7f798c3555ca5e4d6603"
+        },
+        "native_metadata": {
+         "arch": 3,
+         "is_sdnn": false,
+         "num_warps": 4,
+         "num_ctas": -1,
+         "shared": -1,
+         "core_num": 64,
+         "cluster_num": 12
+        },
+        "wrapper_binding": "triton_unk_fused_0",
+        "source_sha256": "1d8764a6d641ff20603e0a9ffceb34102b14e69eab08c3ec2bd7c9da1771e986",
+        "proof_scope": "bound_native_wrapper_binary"
+       },
+       {
+        "requested": "cluster",
+        "effective": "cluster",
+        "kernel_name": "triton_unk_fused_0",
+        "binary_hash": "1c5e839fdbd9d683b6cd546151b9fc73c4dcae25c089702361190b6f743158d1",
+        "launch_clusters": null,
+        "launch_cores": null,
+        "asm_sha256": {
+         "source": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttxir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "llir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "elf": "63e312153c41b23698dc1c194dfaab4e1108400ffe98a923a77418d6c585ceda",
+         "xpubin": "32ae218e4a4aefa73f27a85630338b955ad6ed0bba891002cb1b1ea613c84bad"
+        },
+        "native_metadata": {
+         "arch": 3,
+         "is_sdnn": false,
+         "num_warps": 16,
+         "num_ctas": -1,
+         "shared": -1,
+         "core_num": 64,
+         "cluster_num": 12
+        },
+        "wrapper_binding": "triton_unk_fused_0",
+        "source_sha256": "1d8764a6d641ff20603e0a9ffceb34102b14e69eab08c3ec2bd7c9da1771e986",
+        "proof_scope": "bound_native_wrapper_binary"
+       },
+       {
+        "requested": "cluster",
+        "effective": "cluster",
+        "kernel_name": "triton_unk_fused_0",
+        "binary_hash": "2e1fd13b00d6510b28be6f094635ba7053a3b7704600138f93a545b7f13d547c",
+        "launch_clusters": null,
+        "launch_cores": null,
+        "asm_sha256": {
+         "source": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttxir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "llir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "elf": "2c7c30656152313766e77aa9e957ae50f1bd95d16b1db666605dfaf076838f9d",
+         "xpubin": "4107d0323573d7c86bacfba200e9e44edbb19376e191b16e19d2482fa0af2fc3"
+        },
+        "native_metadata": {
+         "arch": 3,
+         "is_sdnn": false,
+         "num_warps": 16,
+         "num_ctas": -1,
+         "shared": -1,
+         "core_num": 64,
+         "cluster_num": 12
+        },
+        "wrapper_binding": "triton_unk_fused_0",
+        "source_sha256": "1d8764a6d641ff20603e0a9ffceb34102b14e69eab08c3ec2bd7c9da1771e986",
+        "proof_scope": "bound_native_wrapper_binary"
+       },
+       {
+        "requested": "cluster",
+        "effective": "cluster",
+        "kernel_name": "triton_unk_fused_0",
+        "binary_hash": "3bbb11195690fda8b5bc2957b223510a10e1d5b0fedb16a35d290f28d4e3f35a",
+        "launch_clusters": null,
+        "launch_cores": null,
+        "asm_sha256": {
+         "source": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttxir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "llir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "elf": "a68d4d2558e2f92d54964c596f47797ed2f97ce3ee4aba0d2cef999dc7b9f10a",
+         "xpubin": "de8e9f891bbc8239ca6b2410b8817347fe6add032b448b811125c3624fbe78d9"
+        },
+        "native_metadata": {
+         "arch": 3,
+         "is_sdnn": false,
+         "num_warps": 8,
+         "num_ctas": -1,
+         "shared": -1,
+         "core_num": 64,
+         "cluster_num": 12
+        },
+        "wrapper_binding": "triton_unk_fused_0",
+        "source_sha256": "1d8764a6d641ff20603e0a9ffceb34102b14e69eab08c3ec2bd7c9da1771e986",
+        "proof_scope": "bound_native_wrapper_binary"
+       }
+      ],
+      "source_code": "from ctypes import c_void_p, c_long, c_int\nimport torch\nimport math\nimport random\nimport os\nimport tempfile\nfrom math import inf, nan\nfrom cmath import nanj\nfrom torch._inductor.hooks import run_intermediate_hooks\nfrom torch._inductor.utils import maybe_profile\nfrom torch._inductor.codegen.memory_planning import _align as align\nfrom torch import device, empty_strided\nfrom torch._inductor.async_compile import AsyncCompile\nfrom torch._inductor.select_algorithm import extern_kernels\nimport triton\nimport triton.language as tl\nfrom torch._inductor.runtime.triton_heuristics import start_graph, end_graph\nfrom torch._C import _cuda_getCurrentRawStream as get_raw_stream\n\naten = torch.ops.aten\ninductor_ops = torch.ops.inductor\n_quantized = torch.ops._quantized\nassert_size_stride = torch._C._dynamo.guards.assert_size_stride\nassert_alignment = torch._C._dynamo.guards.assert_alignment\nempty_strided_cpu = torch._C._dynamo.guards._empty_strided_cpu\nempty_strided_cpu_pinned = torch._C._dynamo.guards._empty_strided_cpu_pinned\nempty_strided_cuda = torch._C._dynamo.guards._empty_strided_cuda\nempty_strided_xpu = torch._C._dynamo.guards._empty_strided_xpu\nempty_strided_mtia = torch._C._dynamo.guards._empty_strided_mtia\nreinterpret_tensor = torch._C._dynamo.guards._reinterpret_tensor\nalloc_from_pool = torch.ops.inductor._alloc_from_pool\nasync_compile = AsyncCompile()\nempty_strided_p2p = torch._C._distributed_c10d._SymmetricMemory.empty_strided_p2p\n\n\n# kernel path: /data2/zhaoweiming/f06-parallel-mul-20261105/results/case-215-parallel-final-a1/cache/inductor/7r/c7rd2bmlldenro5tk3dlk7o5ettgwgfbsl6vlxsas2omslwic7tk.py\n# Topologically Sorted Source Nodes: [], Original ATen: []\n# Source node to ATen node mapping:\n# Graph fragment:\n#   %arg0_1 : Tensor \"bf16[2048, 2048][2048, 1]cuda:0\" = PlaceHolder[target=arg0_1]\n#   %arg1_1 : Tensor \"bf16[2048][1]cuda:0\" = PlaceHolder[target=arg1_1]\n#   %mul : Tensor \"bf16[2048, 2048][2048, 1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.mul.Tensor](args = (%arg0_1, %arg1_1), kwargs = {})\n#   %sum_1 : Tensor \"bf16[2048, 1][1, 1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.sum.dim_IntList](args = (%mul, [-1], True), kwargs = {})\n#   return %sum_1\ntriton_unk_fused_0 = async_compile.triton('triton_unk_fused_0', '''\nfrom triton.experimental.graph_fusion._resource_codegen import ResourceHeuristics\n_flagtree_resource_heuristics = ResourceHeuristics('cluster')\n# P800 compiler policy: 5d17d45effc95029\n\nimport triton\nimport triton.language as tl\n\nfrom torch._inductor.runtime import triton_helpers, triton_heuristics\nfrom torch._inductor.runtime.triton_helpers import libdevice, math as tl_math\nfrom torch._inductor.runtime.hints import AutotuneHint, ReductionHint, TileHint, DeviceProperties\ntriton_helpers.set_driver_to_gpu()\n\n@_flagtree_resource_heuristics.reduction(\n    size_hints={'x': 2048, 'r0_': 2048},\n    reduction_hint=ReductionHint.INNER,\n    filename=__file__,\n    triton_meta={'signature': {'in_ptr0': '*bf16', 'in_ptr1': '*bf16', 'out_ptr0': '*bf16', 'xnumel': 'i32', 'r0_numel': 'i32', 'XBLOCK': 'constexpr', 'R0_BLOCK': 'constexpr'}, 'device': DeviceProperties(type='cuda', index=0, multi_processor_count=8, cc=86, major=8, regs_per_multiprocessor=65536, max_threads_per_multi_processor=2048, warp_size=32), 'constants': {}, 'configs': [{(0,): [['tt.divisibility', 16]], (1,): [['tt.divisibility', 16]], (2,): [['tt.divisibility', 16]], (3,): [['tt.divisibility', 16]], (4,): [['tt.divisibility', 16]]}]},\n    inductor_meta={'grid_type': 'Grid1D', 'autotune_hints': set(), 'kernel_name': 'triton_unk_fused_0', 'mutated_arg_names': [], 'optimize_mem': True, 'no_x_dim': False, 'num_load': 2, 'num_reduction': 1, 'backend_hash': '92507768B3C1DB2440D3A03F999D44BFFF7575CF3E4092E4977896D29BF602D2', 'are_deterministic_algorithms_enabled': False, 'assert_indirect_indexing': True, 'autotune_local_cache': True, 'autotune_pointwise': True, 'autotune_remote_cache': None, 'force_disable_caches': False, 'dynamic_scale_rblock': True, 'max_autotune': True, 'max_autotune_pointwise': False, 'min_split_scan_rblock': 256, 'spill_threshold': 16, 'store_cubin': False, 'coordinate_descent_tuning': True, 'coordinate_descent_search_radius': 1, 'coordinate_descent_check_all_directions': False, 'tiling_scores': {'x': 8192, 'r0_': 8392704}}\n)\n@triton.jit\ndef triton_unk_fused_0(in_ptr0, in_ptr1, out_ptr0, xnumel, r0_numel, XBLOCK : tl.constexpr, R0_BLOCK : tl.constexpr):\n    xnumel = 2048\n    r0_numel = 2048\n    rnumel = r0_numel\n    RBLOCK: tl.constexpr = R0_BLOCK\n    xoffset = tl.program_id(0) * XBLOCK\n    xindex = xoffset + tl.arange(0, XBLOCK)[:, None]\n    xmask = xindex < xnumel\n    r0_base = tl.arange(0, R0_BLOCK)[None, :]\n    rbase = r0_base\n    x0 = xindex\n    _tmp10 = tl.full([XBLOCK, R0_BLOCK], 0, tl.float32)\n    for r0_offset in range(0, r0_numel, R0_BLOCK):\n        r0_index = r0_offset + r0_base\n        r0_mask = r0_index < r0_numel\n        roffset = r0_offset\n        rindex = r0_index\n        r0_1 = r0_index\n        tmp0 = tl.load(in_ptr0 + (r0_1 + 2048*x0), r0_mask & xmask, eviction_policy='evict_first', other=0.0).to(tl.float32)\n        tmp3 = tl.load(in_ptr1 + (r0_1), r0_mask, eviction_policy='evict_last', other=0.0).to(tl.float32)\n        tmp1 = tmp0.to(tl.bfloat16)\n        tmp2 = tmp1.to(tl.float32)\n        tmp4 = tmp3.to(tl.bfloat16)\n        tmp5 = tmp4.to(tl.float32)\n        tmp6 = tmp2 * tmp5\n        tmp7 = tmp6.to(tl.bfloat16)\n        tmp8 = tmp7.to(tl.float32)\n        tmp9 = tl.broadcast_to(tmp8, [XBLOCK, R0_BLOCK])\n        tmp11 = _tmp10 + tmp9\n        _tmp10 = tl.where(r0_mask & xmask, tmp11, _tmp10)\n    tmp10 = tl.sum(_tmp10, 1)[:, None]\n    tl.store(out_ptr0 + (x0), tmp10, xmask)\n''', device_str='cuda')\n\n\nasync_compile.wait(globals())\ndel async_compile\n\nclass Runner:\n    def __init__(self, partitions):\n        self.partitions = partitions\n\n    def recursively_apply_fns(self, fns):\n        new_callables = []\n        for fn, c in zip(fns, self.partitions):\n            new_callables.append(fn(c))\n        self.partitions = new_callables\n\n    def call(self, args):\n        arg0_1, arg1_1 = args\n        args.clear()\n        assert_size_stride(arg0_1, (2048, 2048), (2048, 1))\n        assert_size_stride(arg1_1, (2048, ), (1, ))\n        with torch.cuda._DeviceGuard(0):\n            torch.cuda.set_device(0)\n            buf0 = empty_strided_cuda((2048, 1), (1, 1), torch.bfloat16)\n            # Topologically Sorted Source Nodes: [], Original ATen: []\n            stream0 = get_raw_stream(0)\n            triton_unk_fused_0.run(arg0_1, arg1_1, buf0, 2048, 2048, stream=stream0)\n            del arg0_1\n            del arg1_1\n        return (buf0, )\n\nrunner = Runner(partitions=[])\ncall = runner.call\nrecursively_apply_fns = runner.recursively_apply_fns\n\n\ndef benchmark_compiled_module(times=10, repeat=10):\n    from torch._dynamo.testing import rand_strided\n    from torch._inductor.utils import print_performance\n    arg0_1 = rand_strided((2048, 2048), (2048, 1), device='cuda:0', dtype=torch.bfloat16)\n    arg1_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.bfloat16)\n    fn = lambda: call([arg0_1, arg1_1])\n    return print_performance(fn, times=times, repeat=repeat)\n\n\nif __name__ == \"__main__\":\n    from torch._inductor.wrapper_benchmark import compiled_module_main\n    compiled_module_main('None', benchmark_compiled_module)\n",
+      "resource_verified": true,
+      "inference_entry": {
+       "enabled": true,
+       "native_launchers": true,
+       "profiling_debug_fallback": true,
+       "native_cleanup": true
+      }
+     }
+    ],
+    "wrapper": "\n\n\ndef forward(self, a, b):\n    flagtree_region_0 = triton_experimental_graph_fusion__resource_runtime_flagtree_region_0(a, b);  a = b = None\n    getitem = flagtree_region_0[0];  flagtree_region_0 = None\n    return getitem\n    ",
+    "route": "cluster",
+    "compiler_options": {
+     "max_autotune": true,
+     "coordinate_descent_tuning": true,
+     "triton.cudagraphs": false,
+     "compile_threads": 1,
+     "emulate_precision_casts": true,
+     "fx_graph_cache": false,
+     "fx_graph_remote_cache": false,
+     "autotune_in_subproc": false,
+     "use_static_cuda_launcher": false,
+     "max_autotune_prune_choices_based_on_shared_mem": false
+    },
+    "candidate": {
+     "name": "cluster",
+     "regions": [
+      {
+       "start": 0,
+       "end": 2,
+       "resource": "cluster",
+       "node_ids": [
+        "mul",
+        "sum_1"
+       ]
+      }
+     ],
+     "single_kernel": true
+    },
+    "single_kernel_required": true,
+    "kernel_count": 1
+   },
+   "fixed_small_tile": true,
+   "binding": [
+    {
+     "resource": "cluster",
+     "binding": "triton_unk_fused_0",
+     "config": {
+      "kwargs": {
+       "XBLOCK": 16,
+       "R0_BLOCK": 512
+      },
+      "warps": 16,
+      "stages": 1
+     },
+     "metadata": {},
+     "binary_hash": "0f97f3a9b263eeb3bc96d5cc8249f5d8965d65c27aae317c17c432c825c5acaf",
+     "elf": "93208835c9e27164c5f33276739113e06b85fa4fc41be06283d3e3938dcbb759",
+     "xpubin": "6bd6708e343561e146caf99b0801289c57ce28a559a3f939ed4b326259273650",
+     "ir": "9774dccc5334233d4f8b650e72ca2b07a1b99bc389d22db407539a2cc48619ca",
+     "ew_mul": 0,
+     "ew_linear": 0
+    }
+   ],
+   "finite": {
+    "ordinary": true,
+    "changed": true,
+    "repeat": true,
+    "immutable": true,
+    "validation_scope": "finite inputs; special cases reported separately"
+   },
+   "special": [
+    {
+     "pattern": "nan",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "positive_inf",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 0,
+       "actual_nan": 0,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 1,
+       "actual_inf": 1,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": false,
+     "device_eager_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)",
+     "device_eager_matches_cpu": false,
+     "device_eager_cpu_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)"
+    },
+    {
+     "pattern": "negative_inf",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 0,
+       "actual_nan": 0,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 1,
+       "actual_inf": 1,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": false,
+     "device_eager_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)",
+     "device_eager_matches_cpu": false,
+     "device_eager_cpu_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)"
+    },
+    {
+     "pattern": "historical_mix",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "inf_times_zero",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "zero_times_inf",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 2048,
+       "actual_nan": 2048,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": null
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "nan_times_zero",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "zero_times_nan",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 2048,
+       "actual_nan": 2048,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": null
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    }
+   ],
+   "stress": {
+    "passed": false,
+    "total": {
+     "classes": 225,
+     "finite_pairs": 4096,
+     "invalid_zero": 12
+    },
+    "errors": {
+     "classes": 16,
+     "finite_pairs": 0,
+     "invalid_zero": 0
+    },
+    "examples": [
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 8,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 8,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 12,
+      "other": 8,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 13,
+      "other": 8,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 9,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 9,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 12,
+      "other": 9,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 13,
+      "other": 9,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 8,
+      "other": 10,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 9,
+      "other": 10,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 8,
+      "other": 11,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 9,
+      "other": 11,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 8,
+      "other": 12,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 9,
+      "other": 12,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 8,
+      "other": 13,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 9,
+      "other": 13,
+      "want": "inf",
+      "got": "nan"
+     }
+    ],
+    "signed_zero_differences": 0,
+    "invalid_zero_failures": []
+   },
+   "eligible": false,
+   "status": "finite_validated",
+   "timing": {
+    "checks": {
+     "ordinary": true,
+     "changed": true,
+     "repeat": true,
+     "immutable": true,
+     "validation_scope": "finite inputs; special cases reported separately",
+     "graph_fresh_data": true
+    },
+    "status": "passed",
+    "gpu_samples_us": [
+     360.9790933543238,
+     360.4823671538254,
+     360.60327990301727,
+     360.3241756044585,
+     360.6671300427667,
+     361.0133203966864,
+     361.8233516298491,
+     362.2467041015625,
+     362.2432577198949,
+     361.8922266466864,
+     361.9880676269531,
+     361.99803845635773,
+     361.0408651417699,
+     361.102347538389,
+     361.19521568561424,
+     361.02250197838094,
+     361.23520423626076,
+     361.67549922548494
+    ],
+    "gpu_us": 361.1487816120016,
+    "calls_per_graph": 145,
+    "capture_samples_us": [
+     [
+      360.9790933543238,
+      360.4823671538254,
+      360.60327990301727,
+      360.3241756044585,
+      360.6671300427667,
+      361.0133203966864
+     ],
+     [
+      361.8233516298491,
+      362.2467041015625,
+      362.2432577198949,
+      361.8922266466864,
+      361.9880676269531,
+      361.99803845635773
+     ],
+     [
+      361.0408651417699,
+      361.102347538389,
+      361.19521568561424,
+      361.02250197838094,
+      361.23520423626076,
+      361.67549922548494
+     ]
+    ],
+    "capture_medians_us": [
+     360.635204972892,
+     361.99305304165546,
+     361.1487816120016
+    ],
+    "e2e_protocol": "randomized_ab_ba_v1",
+    "e2e_round_samples_us": [
+     [
+      410.371,
+      429.349,
+      416.939,
+      380.133,
+      408.02,
+      429.189,
+      399.672,
+      441.857,
+      400.931,
+      388.642,
+      438.397,
+      396.472,
+      441.477,
+      393.532,
+      395.961,
+      403.771,
+      400.411,
+      425.619,
+      411.83,
+      400.331,
+      404.251,
+      404.471,
+      400.271,
+      424.898,
+      407.0,
+      411.51,
+      394.502,
+      382.163,
+      403.631,
+      411.55,
+      395.212,
+      459.725,
+      398.621,
+      399.461,
+      396.442,
+      402.351,
+      393.362,
+      426.728,
+      405.101,
+      405.331,
+      418.539,
+      416.23,
+      439.088,
+      381.593,
+      399.012,
+      388.142,
+      435.488,
+      389.952,
+      399.762,
+      406.981,
+      396.141,
+      432.389,
+      403.851,
+      430.938,
+      404.251,
+      386.042,
+      407.451,
+      404.431,
+      428.079,
+      392.942,
+      408.25,
+      415.27,
+      390.282,
+      409.19,
+      403.731,
+      427.648,
+      416.89,
+      398.232,
+      404.151,
+      393.342,
+      421.499,
+      380.663,
+      409.93,
+      397.631,
+      430.808,
+      395.552,
+      409.55,
+      388.503,
+      449.936,
+      397.631,
+      391.882,
+      433.858,
+      403.961,
+      381.213,
+      404.791,
+      395.831,
+      416.329,
+      406.601,
+      395.242,
+      378.474,
+      414.02,
+      419.04,
+      393.612,
+      421.589,
+      392.352,
+      410.21,
+      387.622,
+      450.216,
+      406.33,
+      384.353,
+      406.681,
+      392.002,
+      399.861,
+      380.843,
+      407.26,
+      411.66,
+      419.459,
+      409.08,
+      444.747,
+      419.63,
+      393.632,
+      407.751,
+      393.332,
+      379.334,
+      397.291,
+      381.103,
+      435.528,
+      393.802,
+      397.721,
+      415.819,
+      432.048,
+      393.552,
+      425.808,
+      399.172,
+      401.802,
+      404.921,
+      389.592,
+      426.399
+     ],
+     [
+      404.001,
+      391.702,
+      416.949,
+      414.77,
+      403.541,
+      393.532,
+      404.011,
+      411.62,
+      401.081,
+      408.7,
+      411.79,
+      409.441,
+      457.096,
+      378.143,
+      402.061,
+      402.101,
+      382.883,
+      429.588,
+      383.552,
+      418.709,
+      383.812,
+      418.139,
+      384.482,
+      418.109,
+      410.76,
+      415.81,
+      428.659,
+      394.322,
+      411.6,
+      411.79,
+      414.65,
+      403.62,
+      411.79,
+      391.293,
+      415.9,
+      385.413,
+      406.121,
+      385.062,
+      407.481,
+      401.371,
+      430.928,
+      380.433,
+      392.642,
+      417.509,
+      411.75,
+      410.79,
+      396.972,
+      382.993,
+      403.481,
+      387.192,
+      393.392,
+      379.883,
+      424.269,
+      404.871,
+      384.312,
+      400.711,
+      425.048,
+      384.393,
+      395.771,
+      424.629,
+      397.962,
+      407.481,
+      391.912,
+      428.329,
+      403.87,
+      378.643,
+      405.67,
+      388.182,
+      417.39,
+      403.781,
+      402.021,
+      419.33,
+      392.682,
+      411.84,
+      400.761,
+      397.792,
+      398.271,
+      380.303,
+      425.729,
+      394.352,
+      422.189,
+      395.171,
+      406.97,
+      385.433,
+      438.747,
+      398.112,
+      410.09,
+      401.931,
+      409.211,
+      401.012,
+      384.283,
+      412.93,
+      385.953,
+      400.031,
+      406.17,
+      379.173,
+      399.501,
+      422.849,
+      416.01,
+      381.203,
+      411.29,
+      415.2,
+      426.218,
+      399.241,
+      405.971,
+      407.321,
+      397.652,
+      399.362,
+      409.531,
+      393.732,
+      400.181,
+      395.772,
+      419.47,
+      383.223,
+      398.731,
+      381.663,
+      440.047,
+      399.721,
+      432.468,
+      378.673,
+      404.301,
+      426.588,
+      413.56,
+      390.742,
+      398.012,
+      424.978,
+      401.581,
+      406.95
+     ]
+    ]
+   }
+  },
+  "sdnn256_cluster_parallel": {
+   "proof": {
+    "regions": [
+     {
+      "resource": "sdnn",
+      "matmul_path": "external",
+      "scalar_reduction_layout": true,
+      "native_template_eligibility": false,
+      "wrapper_audit": {
+       "generated_kernel_sources": [
+        "f6ba2fdc6321ab30bb5a50f99452f5dbc6472861ca7f85b3b6a4d2e1f8ce21e1"
+       ],
+       "external_call_targets": []
+      },
+      "external_calls": 0,
+      "kernel_evidence": [
+       {
+        "requested": "sdnn",
+        "effective": "sdnn",
+        "kernel_name": "triton_unk_fused_0",
+        "binary_hash": "39006751bc79713893f0f455c75df1bc31e7158f35d33a8d90f1823f39b92df4",
+        "launch_clusters": null,
+        "launch_cores": null,
+        "asm_sha256": {
+         "source": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttxir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "llir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "elf": "cb412eb8b18f903e683539e3e5434875d9a6f01a7ba277b105241f554ab83c66",
+         "xpubin": "2c7508ed9f1ccd6f6ea4bf2a2a42d30bd7804bbed04b2a93e79477391ab4f1fd"
+        },
+        "native_metadata": {
+         "arch": 3,
+         "is_sdnn": true,
+         "num_warps": 2,
+         "num_ctas": -1,
+         "shared": -1,
+         "core_num": 64,
+         "cluster_num": 12
+        },
+        "wrapper_binding": "triton_unk_fused_0",
+        "source_sha256": "f6ba2fdc6321ab30bb5a50f99452f5dbc6472861ca7f85b3b6a4d2e1f8ce21e1",
+        "proof_scope": "bound_native_wrapper_binary"
+       }
+      ],
+      "source_code": "from ctypes import c_void_p, c_long, c_int\nimport torch\nimport math\nimport random\nimport os\nimport tempfile\nfrom math import inf, nan\nfrom cmath import nanj\nfrom torch._inductor.hooks import run_intermediate_hooks\nfrom torch._inductor.utils import maybe_profile\nfrom torch._inductor.codegen.memory_planning import _align as align\nfrom torch import device, empty_strided\nfrom torch._inductor.async_compile import AsyncCompile\nfrom torch._inductor.select_algorithm import extern_kernels\nimport triton\nimport triton.language as tl\nfrom torch._inductor.runtime.triton_heuristics import start_graph, end_graph\nfrom torch._C import _cuda_getCurrentRawStream as get_raw_stream\n\naten = torch.ops.aten\ninductor_ops = torch.ops.inductor\n_quantized = torch.ops._quantized\nassert_size_stride = torch._C._dynamo.guards.assert_size_stride\nassert_alignment = torch._C._dynamo.guards.assert_alignment\nempty_strided_cpu = torch._C._dynamo.guards._empty_strided_cpu\nempty_strided_cpu_pinned = torch._C._dynamo.guards._empty_strided_cpu_pinned\nempty_strided_cuda = torch._C._dynamo.guards._empty_strided_cuda\nempty_strided_xpu = torch._C._dynamo.guards._empty_strided_xpu\nempty_strided_mtia = torch._C._dynamo.guards._empty_strided_mtia\nreinterpret_tensor = torch._C._dynamo.guards._reinterpret_tensor\nalloc_from_pool = torch.ops.inductor._alloc_from_pool\nasync_compile = AsyncCompile()\nempty_strided_p2p = torch._C._distributed_c10d._SymmetricMemory.empty_strided_p2p\n\n\n# kernel path: /data2/zhaoweiming/f06-parallel-mul-20261105/results/case-215-parallel-final-a1/cache/inductor/mp/cmpo7tbuzpxpwyfffjvz3ycp3ri4xucnctlbexw5e2vwdmdhiycj.py\n# Topologically Sorted Source Nodes: [], Original ATen: []\n# Source node to ATen node mapping:\n# Graph fragment:\n#   %arg0_1 : Tensor \"bf16[2048, 256][2048, 1]cuda:0\" = PlaceHolder[target=arg0_1]\n#   %arg1_1 : Tensor \"bf16[256][1]cuda:0\" = PlaceHolder[target=arg1_1]\n#   %mul : Tensor \"bf16[2048, 256][256, 1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.mul.Tensor](args = (%arg0_1, %arg1_1), kwargs = {})\n#   %sum_1 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.sum.dim_IntList](args = (%mul, [-1]), kwargs = {dtype: torch.float32})\n#   return %sum_1\ntriton_unk_fused_0 = async_compile.triton('triton_unk_fused_0', '''\nfrom triton.experimental.graph_fusion._resource_codegen import ResourceHeuristics\nfrom triton.experimental.graph_fusion._p800_special_values import SpecialValueHeuristics\n_flagtree_resource_heuristics = SpecialValueHeuristics(ResourceHeuristics('sdnn'), 'parallel', '303b75dcd99d8dd2')\n# P800 compiler policy: 5d17d45effc95029-special-opt-303b75dcd99d8dd2\n\nimport triton\nimport triton.language as tl\n\nfrom torch._inductor.runtime import triton_helpers, triton_heuristics\nfrom torch._inductor.runtime.triton_helpers import libdevice, math as tl_math\nfrom torch._inductor.runtime.hints import AutotuneHint, ReductionHint, TileHint, DeviceProperties\ntriton_helpers.set_driver_to_gpu()\n\n@_flagtree_resource_heuristics.persistent_reduction(\n    size_hints={'x': 2048, 'r0_': 256},\n    reduction_hint=ReductionHint.DEFAULT,\n    filename=__file__,\n    triton_meta={'signature': {'in_ptr0': '*bf16', 'in_ptr1': '*bf16', 'out_ptr0': '*fp32', 'xnumel': 'i32', 'r0_numel': 'i32', 'XBLOCK': 'constexpr'}, 'device': DeviceProperties(type='cuda', index=0, multi_processor_count=8, cc=86, major=8, regs_per_multiprocessor=65536, max_threads_per_multi_processor=2048, warp_size=32), 'constants': {}, 'configs': [{(0,): [['tt.divisibility', 16]], (1,): [['tt.divisibility', 16]], (2,): [['tt.divisibility', 16]], (3,): [['tt.divisibility', 16]], (4,): [['tt.divisibility', 16]]}]},\n    inductor_meta={'grid_type': 'Grid1D', 'autotune_hints': set(), 'kernel_name': 'triton_unk_fused_0', 'mutated_arg_names': [], 'optimize_mem': True, 'no_x_dim': False, 'num_load': 2, 'num_reduction': 1, 'backend_hash': '92507768B3C1DB2440D3A03F999D44BFFF7575CF3E4092E4977896D29BF602D2', 'are_deterministic_algorithms_enabled': False, 'assert_indirect_indexing': True, 'autotune_local_cache': True, 'autotune_pointwise': True, 'autotune_remote_cache': None, 'force_disable_caches': False, 'dynamic_scale_rblock': True, 'max_autotune': True, 'max_autotune_pointwise': False, 'min_split_scan_rblock': 256, 'spill_threshold': 16, 'store_cubin': False, 'coordinate_descent_tuning': True, 'coordinate_descent_search_radius': 1, 'coordinate_descent_check_all_directions': False, 'tiling_scores': {'x': 16384, 'r0_': 1049088}}\n)\n@triton.jit\ndef triton_unk_fused_0(in_ptr0, in_ptr1, out_ptr0, xnumel, r0_numel, XBLOCK : tl.constexpr):\n    # P800 experimental special-value policy: 303b75dcd99d8dd2 parallel\n    xnumel = 2048\n    r0_numel = 256\n    R0_BLOCK: tl.constexpr = 256\n    rnumel = r0_numel\n    RBLOCK: tl.constexpr = R0_BLOCK\n    xoffset = tl.program_id(0) * XBLOCK\n    xindex = xoffset + tl.arange(0, XBLOCK)[:, None]\n    xmask = xindex < xnumel\n    r0_index = tl.arange(0, R0_BLOCK)[None, :]\n    r0_offset = 0\n    r0_mask = tl.full([XBLOCK, R0_BLOCK], True, tl.int1)\n    roffset = r0_offset\n    rindex = r0_index\n    r0_1 = r0_index\n    x0 = xindex\n    tmp0 = tl.load(in_ptr0 + (r0_1 + 2048*x0), xmask, other=0.0).to(tl.float32)\n    tmp3 = tl.load(in_ptr1 + (r0_1), None, eviction_policy='evict_last').to(tl.float32)\n    tmp1 = tmp0.to(tl.bfloat16)\n    tmp2 = tmp1.to(tl.float32)\n    tmp4 = tmp3.to(tl.bfloat16)\n    tmp5 = tmp4.to(tl.float32)\n    tmp6 = tmp2 * tmp5\n    tmp7 = tmp6.to(tl.bfloat16)\n    tmp8 = tmp7.to(tl.float32)\n    tmp9 = tmp8.to(tl.float32)\n    tmp10 = tl.broadcast_to(tmp9, [XBLOCK, R0_BLOCK])\n    tmp12 = tl.where(xmask, tmp10, 0)\n    tmp13 = tl.sum(tmp12, 1)[:, None].to(tl.float32)\n    tl.store(out_ptr0 + (x0), tmp13, xmask)\n''', device_str='cuda')\n\n\nasync_compile.wait(globals())\ndel async_compile\n\nclass Runner:\n    def __init__(self, partitions):\n        self.partitions = partitions\n\n    def recursively_apply_fns(self, fns):\n        new_callables = []\n        for fn, c in zip(fns, self.partitions):\n            new_callables.append(fn(c))\n        self.partitions = new_callables\n\n    def call(self, args):\n        arg0_1, arg1_1 = args\n        args.clear()\n        assert_size_stride(arg0_1, (2048, 256), (2048, 1))\n        assert_size_stride(arg1_1, (256, ), (1, ))\n        with torch.cuda._DeviceGuard(0):\n            torch.cuda.set_device(0)\n            buf0 = empty_strided_cuda((2048, ), (1, ), torch.float32)\n            # Topologically Sorted Source Nodes: [], Original ATen: []\n            stream0 = get_raw_stream(0)\n            triton_unk_fused_0.run(arg0_1, arg1_1, buf0, 2048, 256, stream=stream0)\n            del arg0_1\n            del arg1_1\n        return (buf0, )\n\nrunner = Runner(partitions=[])\ncall = runner.call\nrecursively_apply_fns = runner.recursively_apply_fns\n\n\ndef benchmark_compiled_module(times=10, repeat=10):\n    from torch._dynamo.testing import rand_strided\n    from torch._inductor.utils import print_performance\n    arg0_1 = rand_strided((2048, 256), (2048, 1), device='cuda:0', dtype=torch.bfloat16)\n    arg1_1 = rand_strided((256, ), (1, ), device='cuda:0', dtype=torch.bfloat16)\n    fn = lambda: call([arg0_1, arg1_1])\n    return print_performance(fn, times=times, repeat=repeat)\n\n\nif __name__ == \"__main__\":\n    from torch._inductor.wrapper_benchmark import compiled_module_main\n    compiled_module_main('None', benchmark_compiled_module)\n",
+      "resource_verified": true
+     },
+     {
+      "resource": "cluster",
+      "matmul_path": "external",
+      "scalar_reduction_layout": false,
+      "native_template_eligibility": false,
+      "wrapper_audit": {
+       "generated_kernel_sources": [
+        "54417a952efb4b49ecc99026dafe7593cb0cc5248245d57b38207a38d5b06dd2"
+       ],
+       "external_call_targets": []
+      },
+      "external_calls": 0,
+      "kernel_evidence": [
+       {
+        "requested": "cluster",
+        "effective": "cluster",
+        "kernel_name": "triton_unk_fused_0",
+        "binary_hash": "ca64fe82f3cc4f6390d28a92f721f09a7dfb56a0da1c59c5c586911139d41aba",
+        "launch_clusters": null,
+        "launch_cores": null,
+        "asm_sha256": {
+         "source": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttxir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "llir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "elf": "821e7618766a458cdd986cc422bdea9d7092cd889ac868703deec889d1afac78",
+         "xpubin": "e24cc97fd6366a02923f33cc14a085254bab1ba2b31997ccf7332b41ff43ce86"
+        },
+        "native_metadata": {
+         "arch": 3,
+         "is_sdnn": false,
+         "num_warps": 4,
+         "num_ctas": -1,
+         "shared": -1,
+         "core_num": 64,
+         "cluster_num": 12
+        },
+        "wrapper_binding": "triton_unk_fused_0",
+        "source_sha256": "54417a952efb4b49ecc99026dafe7593cb0cc5248245d57b38207a38d5b06dd2",
+        "proof_scope": "bound_native_wrapper_binary"
+       },
+       {
+        "requested": "cluster",
+        "effective": "cluster",
+        "kernel_name": "triton_unk_fused_0",
+        "binary_hash": "f034c568627e8d4b75001bd0532481b96a122b08540fcf1d643d6b38ab22f59f",
+        "launch_clusters": null,
+        "launch_cores": null,
+        "asm_sha256": {
+         "source": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttxir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "llir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "elf": "fc072eb547bd159f212e6276e49fbb4c39346605b9a8ab874d7d1b170a9373a3",
+         "xpubin": "cbbaf41ae5dc09fe0588a1f2840187eb81fab50c4745ae53784b42a3331cd6e4"
+        },
+        "native_metadata": {
+         "arch": 3,
+         "is_sdnn": false,
+         "num_warps": 4,
+         "num_ctas": -1,
+         "shared": -1,
+         "core_num": 64,
+         "cluster_num": 12
+        },
+        "wrapper_binding": "triton_unk_fused_0",
+        "source_sha256": "54417a952efb4b49ecc99026dafe7593cb0cc5248245d57b38207a38d5b06dd2",
+        "proof_scope": "bound_native_wrapper_binary"
+       }
+      ],
+      "source_code": "from ctypes import c_void_p, c_long, c_int\nimport torch\nimport math\nimport random\nimport os\nimport tempfile\nfrom math import inf, nan\nfrom cmath import nanj\nfrom torch._inductor.hooks import run_intermediate_hooks\nfrom torch._inductor.utils import maybe_profile\nfrom torch._inductor.codegen.memory_planning import _align as align\nfrom torch import device, empty_strided\nfrom torch._inductor.async_compile import AsyncCompile\nfrom torch._inductor.select_algorithm import extern_kernels\nimport triton\nimport triton.language as tl\nfrom torch._inductor.runtime.triton_heuristics import start_graph, end_graph\nfrom torch._C import _cuda_getCurrentRawStream as get_raw_stream\n\naten = torch.ops.aten\ninductor_ops = torch.ops.inductor\n_quantized = torch.ops._quantized\nassert_size_stride = torch._C._dynamo.guards.assert_size_stride\nassert_alignment = torch._C._dynamo.guards.assert_alignment\nempty_strided_cpu = torch._C._dynamo.guards._empty_strided_cpu\nempty_strided_cpu_pinned = torch._C._dynamo.guards._empty_strided_cpu_pinned\nempty_strided_cuda = torch._C._dynamo.guards._empty_strided_cuda\nempty_strided_xpu = torch._C._dynamo.guards._empty_strided_xpu\nempty_strided_mtia = torch._C._dynamo.guards._empty_strided_mtia\nreinterpret_tensor = torch._C._dynamo.guards._reinterpret_tensor\nalloc_from_pool = torch.ops.inductor._alloc_from_pool\nasync_compile = AsyncCompile()\nempty_strided_p2p = torch._C._distributed_c10d._SymmetricMemory.empty_strided_p2p\n\n\n# kernel path: /data2/zhaoweiming/f06-parallel-mul-20261105/results/case-215-parallel-final-a1/cache/inductor/za/czaaejwdz6ozry22s7iea4cfux43am6fkemihfpezqyobct7tqsg.py\n# Topologically Sorted Source Nodes: [], Original ATen: []\n# Source node to ATen node mapping:\n# Graph fragment:\n#   %arg0_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg0_1]\n#   %arg1_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg1_1]\n#   %arg2_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg2_1]\n#   %arg3_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg3_1]\n#   %arg4_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg4_1]\n#   %arg5_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg5_1]\n#   %arg6_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg6_1]\n#   %arg7_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg7_1]\n#   %add : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%arg0_1, %arg1_1), kwargs = {})\n#   %add_1 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add, %arg2_1), kwargs = {})\n#   %add_2 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add_1, %arg3_1), kwargs = {})\n#   %add_3 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add_2, %arg4_1), kwargs = {})\n#   %add_4 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add_3, %arg5_1), kwargs = {})\n#   %add_5 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add_4, %arg6_1), kwargs = {})\n#   %add_6 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add_5, %arg7_1), kwargs = {})\n#   %convert_element_type : Tensor \"bf16[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.prims.convert_element_type.default](args = (%add_6, torch.bfloat16), kwargs = {})\n#   return %convert_element_type\ntriton_unk_fused_0 = async_compile.triton('triton_unk_fused_0', '''\nfrom triton.experimental.graph_fusion._resource_codegen import ResourceHeuristics\n_flagtree_resource_heuristics = ResourceHeuristics('cluster')\n# P800 compiler policy: 5d17d45effc95029\n\nimport triton\nimport triton.language as tl\n\nfrom torch._inductor.runtime import triton_helpers, triton_heuristics\nfrom torch._inductor.runtime.triton_helpers import libdevice, math as tl_math\nfrom torch._inductor.runtime.hints import AutotuneHint, ReductionHint, TileHint, DeviceProperties\ntriton_helpers.set_driver_to_gpu()\n\n@_flagtree_resource_heuristics.pointwise(\n    size_hints={'x': 2048}, \n    filename=__file__,\n    triton_meta={'signature': {'in_ptr0': '*fp32', 'in_ptr1': '*fp32', 'in_ptr2': '*fp32', 'in_ptr3': '*fp32', 'in_ptr4': '*fp32', 'in_ptr5': '*fp32', 'in_ptr6': '*fp32', 'in_ptr7': '*fp32', 'out_ptr0': '*bf16', 'xnumel': 'i32', 'XBLOCK': 'constexpr'}, 'device': DeviceProperties(type='cuda', index=0, multi_processor_count=8, cc=86, major=8, regs_per_multiprocessor=65536, max_threads_per_multi_processor=2048, warp_size=32), 'constants': {}, 'configs': [{(0,): [['tt.divisibility', 16]], (1,): [['tt.divisibility', 16]], (2,): [['tt.divisibility', 16]], (3,): [['tt.divisibility', 16]], (4,): [['tt.divisibility', 16]], (5,): [['tt.divisibility', 16]], (6,): [['tt.divisibility', 16]], (7,): [['tt.divisibility', 16]], (8,): [['tt.divisibility', 16]], (9,): [['tt.divisibility', 16]]}]},\n    inductor_meta={'grid_type': 'Grid1D', 'autotune_hints': set(), 'kernel_name': 'triton_unk_fused_0', 'mutated_arg_names': [], 'optimize_mem': True, 'no_x_dim': False, 'num_load': 8, 'num_reduction': 0, 'backend_hash': '92507768B3C1DB2440D3A03F999D44BFFF7575CF3E4092E4977896D29BF602D2', 'are_deterministic_algorithms_enabled': False, 'assert_indirect_indexing': True, 'autotune_local_cache': True, 'autotune_pointwise': True, 'autotune_remote_cache': None, 'force_disable_caches': False, 'dynamic_scale_rblock': True, 'max_autotune': True, 'max_autotune_pointwise': False, 'min_split_scan_rblock': 256, 'spill_threshold': 16, 'store_cubin': False, 'coordinate_descent_tuning': True, 'coordinate_descent_search_radius': 1, 'coordinate_descent_check_all_directions': False, 'tiling_scores': {'x': 73728}},\n    min_elem_per_thread=0\n)\n@triton.jit\ndef triton_unk_fused_0(in_ptr0, in_ptr1, in_ptr2, in_ptr3, in_ptr4, in_ptr5, in_ptr6, in_ptr7, out_ptr0, xnumel, XBLOCK : tl.constexpr):\n    xnumel = 2048\n    xoffset = tl.program_id(0) * XBLOCK\n    xindex = xoffset + tl.arange(0, XBLOCK)[:]\n    xmask = xindex < xnumel\n    x0 = xindex\n    tmp0 = tl.load(in_ptr0 + (x0), xmask)\n    tmp1 = tl.load(in_ptr1 + (x0), xmask)\n    tmp3 = tl.load(in_ptr2 + (x0), xmask)\n    tmp5 = tl.load(in_ptr3 + (x0), xmask)\n    tmp7 = tl.load(in_ptr4 + (x0), xmask)\n    tmp9 = tl.load(in_ptr5 + (x0), xmask)\n    tmp11 = tl.load(in_ptr6 + (x0), xmask)\n    tmp13 = tl.load(in_ptr7 + (x0), xmask)\n    tmp2 = tmp0 + tmp1\n    tmp4 = tmp2 + tmp3\n    tmp6 = tmp4 + tmp5\n    tmp8 = tmp6 + tmp7\n    tmp10 = tmp8 + tmp9\n    tmp12 = tmp10 + tmp11\n    tmp14 = tmp12 + tmp13\n    tmp15 = tmp14.to(tl.float32)\n    tl.store(out_ptr0 + (x0), tmp15, xmask)\n''', device_str='cuda')\n\n\nasync_compile.wait(globals())\ndel async_compile\n\nclass Runner:\n    def __init__(self, partitions):\n        self.partitions = partitions\n\n    def recursively_apply_fns(self, fns):\n        new_callables = []\n        for fn, c in zip(fns, self.partitions):\n            new_callables.append(fn(c))\n        self.partitions = new_callables\n\n    def call(self, args):\n        arg0_1, arg1_1, arg2_1, arg3_1, arg4_1, arg5_1, arg6_1, arg7_1 = args\n        args.clear()\n        assert_size_stride(arg0_1, (2048, ), (1, ))\n        assert_size_stride(arg1_1, (2048, ), (1, ))\n        assert_size_stride(arg2_1, (2048, ), (1, ))\n        assert_size_stride(arg3_1, (2048, ), (1, ))\n        assert_size_stride(arg4_1, (2048, ), (1, ))\n        assert_size_stride(arg5_1, (2048, ), (1, ))\n        assert_size_stride(arg6_1, (2048, ), (1, ))\n        assert_size_stride(arg7_1, (2048, ), (1, ))\n        with torch.cuda._DeviceGuard(0):\n            torch.cuda.set_device(0)\n            buf0 = empty_strided_cuda((2048, ), (1, ), torch.bfloat16)\n            # Topologically Sorted Source Nodes: [], Original ATen: []\n            stream0 = get_raw_stream(0)\n            triton_unk_fused_0.run(arg0_1, arg1_1, arg2_1, arg3_1, arg4_1, arg5_1, arg6_1, arg7_1, buf0, 2048, stream=stream0)\n            del arg0_1\n            del arg1_1\n            del arg2_1\n            del arg3_1\n            del arg4_1\n            del arg5_1\n            del arg6_1\n            del arg7_1\n        return (reinterpret_tensor(buf0, (2048, 1), (1, 1), 0), )\n\nrunner = Runner(partitions=[])\ncall = runner.call\nrecursively_apply_fns = runner.recursively_apply_fns\n\n\ndef benchmark_compiled_module(times=10, repeat=10):\n    from torch._dynamo.testing import rand_strided\n    from torch._inductor.utils import print_performance\n    arg0_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg1_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg2_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg3_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg4_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg5_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg6_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg7_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    fn = lambda: call([arg0_1, arg1_1, arg2_1, arg3_1, arg4_1, arg5_1, arg6_1, arg7_1])\n    return print_performance(fn, times=times, repeat=repeat)\n\n\nif __name__ == \"__main__\":\n    from torch._inductor.wrapper_benchmark import compiled_module_main\n    compiled_module_main('None', benchmark_compiled_module)\n",
+      "resource_verified": true
+     }
+    ],
+    "kernel_count": 9,
+    "partial_width": 256,
+    "accumulator": "float32",
+    "output": "torch.bfloat16",
+    "split": "8 native SDNN partial kernels followed by one cluster sum",
+    "partial_launches": 8
+   },
+   "fixed_small_tile": true,
+   "binding": [
+    {
+     "resource": "sdnn",
+     "binding": "triton_unk_fused_0",
+     "config": {
+      "kwargs": {
+       "XBLOCK": 1
+      },
+      "warps": 2,
+      "stages": 1
+     },
+     "metadata": {
+      "f06_experimental_mode": "parallel",
+      "f06_experimental_policy": "303b75dcd99d8dd2",
+      "f06_parallel_multiply": "[{\"kind\": \"single_multiply_columns\", \"columns\": 256, \"partitions\": [[0, 0, 32], [1, 32, 64], [2, 64, 96], [3, 96, 128], [4, 128, 160], [5, 160, 192], [6, 192, 224], [7, 224, 256]], \"original_waits\": [4, 8, 10, 13], \"original_signals\": [5, 9, 11, 12], \"arithmetic\": \"unchanged\", \"barriers\": 2, \"input_handoff_fence\": \"xfence+mfence(7)\"}]",
+      "f06_single_multiply": true
+     },
+     "binary_hash": "39006751bc79713893f0f455c75df1bc31e7158f35d33a8d90f1823f39b92df4",
+     "elf": "cb412eb8b18f903e683539e3e5434875d9a6f01a7ba277b105241f554ab83c66",
+     "xpubin": "2c7508ed9f1ccd6f6ea4bf2a2a42d30bd7804bbed04b2a93e79477391ab4f1fd",
+     "ir": "5f643fad0d319800cbb64e853d912a298a7382ae5c21ca29982eb2679d4e49a5",
+     "ew_mul": 1,
+     "ew_linear": 0
+    },
+    {
+     "resource": "cluster",
+     "binding": "triton_unk_fused_0",
+     "config": {
+      "kwargs": {
+       "XBLOCK": 256
+      },
+      "warps": 4,
+      "stages": 1
+     },
+     "metadata": {},
+     "binary_hash": "ca64fe82f3cc4f6390d28a92f721f09a7dfb56a0da1c59c5c586911139d41aba",
+     "elf": "821e7618766a458cdd986cc422bdea9d7092cd889ac868703deec889d1afac78",
+     "xpubin": "e24cc97fd6366a02923f33cc14a085254bab1ba2b31997ccf7332b41ff43ce86",
+     "ir": "48f13f4317f245da888aa26e163b23d08f8d512a26b4d591a284e983277d299a",
+     "ew_mul": 0,
+     "ew_linear": 0
+    }
+   ],
+   "finite": {
+    "ordinary": true,
+    "changed": true,
+    "repeat": true,
+    "immutable": true,
+    "validation_scope": "finite inputs; special cases reported separately"
+   },
+   "special": [
+    {
+     "pattern": "nan",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "positive_inf",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 0,
+       "actual_nan": 0,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 1,
+       "actual_inf": 1,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": false,
+     "device_eager_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)",
+     "device_eager_matches_cpu": false,
+     "device_eager_cpu_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)"
+    },
+    {
+     "pattern": "negative_inf",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 0,
+       "actual_nan": 0,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 1,
+       "actual_inf": 1,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": false,
+     "device_eager_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)",
+     "device_eager_matches_cpu": false,
+     "device_eager_cpu_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)"
+    },
+    {
+     "pattern": "historical_mix",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "inf_times_zero",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "zero_times_inf",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 2048,
+       "actual_nan": 2048,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": null
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "nan_times_zero",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "zero_times_nan",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 2048,
+       "actual_nan": 2048,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": null
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    }
+   ],
+   "stress": {
+    "passed": false,
+    "total": {
+     "classes": 225,
+     "finite_pairs": 4096,
+     "invalid_zero": 12
+    },
+    "errors": {
+     "classes": 16,
+     "finite_pairs": 0,
+     "invalid_zero": 0
+    },
+    "examples": [
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 6,
+      "want": "3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 6,
+      "want": "-3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 7,
+      "want": "-3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 7,
+      "want": "3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 8,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 8,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 9,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 9,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 6,
+      "other": 10,
+      "want": "3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 7,
+      "other": 10,
+      "want": "-3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 8,
+      "other": 10,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 9,
+      "other": 10,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 6,
+      "other": 11,
+      "want": "-3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 7,
+      "other": 11,
+      "want": "3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 8,
+      "other": 11,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 9,
+      "other": 11,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     }
+    ],
+    "signed_zero_differences": 0,
+    "invalid_zero_failures": []
+   },
+   "eligible": false,
+   "status": "finite_validated",
+   "timing": {
+    "checks": {
+     "ordinary": true,
+     "changed": true,
+     "repeat": true,
+     "immutable": true,
+     "validation_scope": "finite inputs; special cases reported separately",
+     "graph_fresh_data": true
+    },
+    "status": "passed",
+    "gpu_samples_us": [
+     3980.858533135776,
+     3980.999124461207,
+     3980.736041891164,
+     3981.041638604526,
+     3981.0092268318967,
+     3983.433795797414,
+     3982.5898269127156,
+     3982.7312601023705,
+     3982.6500202047414,
+     3982.6458108836205,
+     3982.7127390894398,
+     3985.131415005388,
+     3980.5083176185344,
+     3980.5701946390086,
+     3980.5857691271553,
+     3980.535678205819,
+     3980.5828226023705,
+     3983.195548221983
+    ],
+    "gpu_us": 3981.025432718211,
+    "calls_per_graph": 145,
+    "capture_samples_us": [
+     [
+      3980.858533135776,
+      3980.999124461207,
+      3980.736041891164,
+      3981.041638604526,
+      3981.0092268318967,
+      3983.433795797414
+     ],
+     [
+      3982.5898269127156,
+      3982.7312601023705,
+      3982.6500202047414,
+      3982.6458108836205,
+      3982.7127390894398,
+      3985.131415005388
+     ],
+     [
+      3980.5083176185344,
+      3980.5701946390086,
+      3980.5857691271553,
+      3980.535678205819,
+      3980.5828226023705,
+      3983.195548221983
+     ]
+    ],
+    "capture_medians_us": [
+     3981.0041756465516,
+     3982.6813796470906,
+     3980.5765086206893
+    ],
+    "e2e_protocol": "randomized_ab_ba_v1",
+    "e2e_round_samples_us": [
+     [
+      4197.153,
+      4039.879,
+      4024.23,
+      4071.586,
+      4026.86,
+      4052.888,
+      4025.4,
+      4037.249,
+      4021.09,
+      4047.768,
+      4037.709,
+      4016.771,
+      4042.219,
+      4032.64,
+      4046.788,
+      4031.579,
+      4066.436,
+      4022.961,
+      4038.699,
+      4038.889,
+      4023.701,
+      4074.036,
+      4084.364,
+      4024.96,
+      4037.019,
+      4073.516,
+      4062.497,
+      4014.861,
+      4050.997,
+      4018.921,
+      4031.76,
+      4031.38,
+      4018.7,
+      4039.049,
+      4019.181,
+      4072.905,
+      4031.689,
+      4029.119,
+      4023.94,
+      4058.047,
+      4030.79,
+      4039.519,
+      4029.99,
+      4040.099,
+      4075.945,
+      4020.251,
+      4035.849,
+      4062.296,
+      4024.35,
+      4075.806,
+      4046.468,
+      4018.831,
+      4031.569,
+      4023.43,
+      4058.677,
+      4021.7,
+      4059.957,
+      4017.701,
+      4037.119,
+      4031.049,
+      4052.427,
+      4035.239,
+      4034.08,
+      4074.695,
+      4053.398,
+      4026.61,
+      4036.139,
+      4075.685,
+      4025.34,
+      4016.811,
+      4088.074,
+      4049.658,
+      4020.031,
+      4039.409,
+      4052.387,
+      4018.03,
+      4035.559,
+      4028.54,
+      4026.73,
+      4041.619,
+      4011.382,
+      4032.199,
+      4048.128,
+      4035.989,
+      4030.819,
+      4016.341,
+      4050.668,
+      4046.308,
+      4040.509,
+      4015.261,
+      4122.521,
+      4034.75,
+      4027.47,
+      4032.929,
+      4026.85,
+      4079.795,
+      4041.909,
+      4026.74,
+      4070.546,
+      4048.698,
+      4022.561,
+      4023.36,
+      4042.679,
+      4013.872,
+      4042.738,
+      4054.437,
+      4052.558,
+      4027.89,
+      4052.658,
+      4064.166,
+      4030.61,
+      4081.464,
+      4038.759,
+      4016.761,
+      4047.988,
+      4013.961,
+      4032.18,
+      4025.98,
+      4058.137,
+      4032.479,
+      4026.06,
+      4029.29,
+      4033.689,
+      4029.909,
+      4020.581,
+      4072.696,
+      4030.309,
+      4037.339
+     ],
+     [
+      4056.387,
+      4022.99,
+      4030.59,
+      4075.915,
+      4025.04,
+      4016.761,
+      4065.876,
+      4031.089,
+      4034.389,
+      4049.737,
+      4023.06,
+      4032.619,
+      4110.671,
+      4018.021,
+      4021.09,
+      4078.415,
+      4045.428,
+      4045.208,
+      4034.849,
+      4061.047,
+      4051.117,
+      4020.75,
+      4039.119,
+      4017.651,
+      4071.966,
+      4021.651,
+      4034.159,
+      4031.09,
+      4057.527,
+      4024.26,
+      4037.139,
+      4034.709,
+      4063.466,
+      4055.557,
+      4035.219,
+      4063.286,
+      4072.605,
+      4026.19,
+      4024.251,
+      4045.378,
+      4043.569,
+      4051.938,
+      4027.2,
+      4027.58,
+      4026.56,
+      4065.496,
+      4032.099,
+      4012.041,
+      4025.02,
+      4019.851,
+      4034.54,
+      4014.051,
+      4040.699,
+      4037.319,
+      4025.61,
+      4037.919,
+      4034.399,
+      4052.448,
+      4032.809,
+      4033.59,
+      4028.54,
+      4067.296,
+      4031.959,
+      4044.188,
+      4055.917,
+      4034.399,
+      4021.11,
+      4017.171,
+      4047.828,
+      4050.928,
+      4021.86,
+      4032.21,
+      4047.058,
+      4034.759,
+      4021.75,
+      4065.066,
+      4052.728,
+      4021.84,
+      4036.769,
+      4077.845,
+      4032.56,
+      4036.249,
+      4082.795,
+      4029.13,
+      4041.228,
+      4019.741,
+      4062.476,
+      4021.13,
+      4024.21,
+      4034.489,
+      4029.99,
+      4070.715,
+      4019.491,
+      4052.398,
+      4023.241,
+      4068.786,
+      4029.829,
+      4037.259,
+      4019.771,
+      4045.588,
+      4024.18,
+      4034.339,
+      4029.719,
+      4032.929,
+      4057.057,
+      4023.4,
+      4058.337,
+      4022.89,
+      4037.509,
+      4032.47,
+      4025.41,
+      4025.201,
+      4067.526,
+      4045.578,
+      4035.8,
+      4019.311,
+      4033.739,
+      4020.751,
+      4034.739,
+      4066.686,
+      4029.29,
+      4037.689,
+      4023.35,
+      4045.388,
+      4056.257,
+      4052.748,
+      4018.521,
+      4056.997
+     ]
+    ]
+   }
+  },
+  "sdnn256_cluster": {
+   "proof": {
+    "regions": [
+     {
+      "resource": "sdnn",
+      "matmul_path": "external",
+      "scalar_reduction_layout": true,
+      "native_template_eligibility": false,
+      "wrapper_audit": {
+       "generated_kernel_sources": [
+        "753843b3f76201e07f5e4cc50fc75a3dae0bd0c6e9993491374418582c3e440f"
+       ],
+       "external_call_targets": []
+      },
+      "external_calls": 0,
+      "kernel_evidence": [
+       {
+        "requested": "sdnn",
+        "effective": "sdnn",
+        "kernel_name": "triton_unk_fused_0",
+        "binary_hash": "c37a739641c2698ed1e79f68c3ac71df4b586e8f2268b7d1ab8a69d5a81707c6",
+        "launch_clusters": null,
+        "launch_cores": null,
+        "asm_sha256": {
+         "source": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttxir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "llir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "elf": "b2f69db2d26f65e63c970e8d112c8083868ac300c82c50a95c9a190067e05320",
+         "xpubin": "0ed2aa9959327165632a42d4f8b50e9584949e65dbf35a934b1435051789beba"
+        },
+        "native_metadata": {
+         "arch": 3,
+         "is_sdnn": true,
+         "num_warps": 2,
+         "num_ctas": -1,
+         "shared": -1,
+         "core_num": 64,
+         "cluster_num": 12
+        },
+        "wrapper_binding": "triton_unk_fused_0",
+        "source_sha256": "753843b3f76201e07f5e4cc50fc75a3dae0bd0c6e9993491374418582c3e440f",
+        "proof_scope": "bound_native_wrapper_binary"
+       }
+      ],
+      "source_code": "from ctypes import c_void_p, c_long, c_int\nimport torch\nimport math\nimport random\nimport os\nimport tempfile\nfrom math import inf, nan\nfrom cmath import nanj\nfrom torch._inductor.hooks import run_intermediate_hooks\nfrom torch._inductor.utils import maybe_profile\nfrom torch._inductor.codegen.memory_planning import _align as align\nfrom torch import device, empty_strided\nfrom torch._inductor.async_compile import AsyncCompile\nfrom torch._inductor.select_algorithm import extern_kernels\nimport triton\nimport triton.language as tl\nfrom torch._inductor.runtime.triton_heuristics import start_graph, end_graph\nfrom torch._C import _cuda_getCurrentRawStream as get_raw_stream\n\naten = torch.ops.aten\ninductor_ops = torch.ops.inductor\n_quantized = torch.ops._quantized\nassert_size_stride = torch._C._dynamo.guards.assert_size_stride\nassert_alignment = torch._C._dynamo.guards.assert_alignment\nempty_strided_cpu = torch._C._dynamo.guards._empty_strided_cpu\nempty_strided_cpu_pinned = torch._C._dynamo.guards._empty_strided_cpu_pinned\nempty_strided_cuda = torch._C._dynamo.guards._empty_strided_cuda\nempty_strided_xpu = torch._C._dynamo.guards._empty_strided_xpu\nempty_strided_mtia = torch._C._dynamo.guards._empty_strided_mtia\nreinterpret_tensor = torch._C._dynamo.guards._reinterpret_tensor\nalloc_from_pool = torch.ops.inductor._alloc_from_pool\nasync_compile = AsyncCompile()\nempty_strided_p2p = torch._C._distributed_c10d._SymmetricMemory.empty_strided_p2p\n\n\n# kernel path: /data2/zhaoweiming/f06-parallel-mul-20261105/results/case-215-parallel-final-a1/cache/inductor/to/ctoqt4fep25hugzarizhmmvzmjbm4gybxmjgpw764cdpx4h3xlrz.py\n# Topologically Sorted Source Nodes: [], Original ATen: []\n# Source node to ATen node mapping:\n# Graph fragment:\n#   %arg0_1 : Tensor \"bf16[2048, 256][2048, 1]cuda:0\" = PlaceHolder[target=arg0_1]\n#   %arg1_1 : Tensor \"bf16[256][1]cuda:0\" = PlaceHolder[target=arg1_1]\n#   %mul : Tensor \"bf16[2048, 256][256, 1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.mul.Tensor](args = (%arg0_1, %arg1_1), kwargs = {})\n#   %sum_1 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.sum.dim_IntList](args = (%mul, [-1]), kwargs = {dtype: torch.float32})\n#   return %sum_1\ntriton_unk_fused_0 = async_compile.triton('triton_unk_fused_0', '''\nfrom triton.experimental.graph_fusion._resource_codegen import ResourceHeuristics\nfrom triton.experimental.graph_fusion._p800_special_values import SpecialValueHeuristics\n_flagtree_resource_heuristics = SpecialValueHeuristics(ResourceHeuristics('sdnn'), 'optimized', '1c5945929c07c348')\n# P800 compiler policy: 5d17d45effc95029-special-opt-1c5945929c07c348\n\nimport triton\nimport triton.language as tl\n\nfrom torch._inductor.runtime import triton_helpers, triton_heuristics\nfrom torch._inductor.runtime.triton_helpers import libdevice, math as tl_math\nfrom torch._inductor.runtime.hints import AutotuneHint, ReductionHint, TileHint, DeviceProperties\ntriton_helpers.set_driver_to_gpu()\n\n@_flagtree_resource_heuristics.persistent_reduction(\n    size_hints={'x': 2048, 'r0_': 256},\n    reduction_hint=ReductionHint.DEFAULT,\n    filename=__file__,\n    triton_meta={'signature': {'in_ptr0': '*bf16', 'in_ptr1': '*bf16', 'out_ptr0': '*fp32', 'xnumel': 'i32', 'r0_numel': 'i32', 'XBLOCK': 'constexpr'}, 'device': DeviceProperties(type='cuda', index=0, multi_processor_count=8, cc=86, major=8, regs_per_multiprocessor=65536, max_threads_per_multi_processor=2048, warp_size=32), 'constants': {}, 'configs': [{(0,): [['tt.divisibility', 16]], (1,): [['tt.divisibility', 16]], (2,): [['tt.divisibility', 16]], (3,): [['tt.divisibility', 16]], (4,): [['tt.divisibility', 16]]}]},\n    inductor_meta={'grid_type': 'Grid1D', 'autotune_hints': set(), 'kernel_name': 'triton_unk_fused_0', 'mutated_arg_names': [], 'optimize_mem': True, 'no_x_dim': False, 'num_load': 2, 'num_reduction': 1, 'backend_hash': '92507768B3C1DB2440D3A03F999D44BFFF7575CF3E4092E4977896D29BF602D2', 'are_deterministic_algorithms_enabled': False, 'assert_indirect_indexing': True, 'autotune_local_cache': True, 'autotune_pointwise': True, 'autotune_remote_cache': None, 'force_disable_caches': False, 'dynamic_scale_rblock': True, 'max_autotune': True, 'max_autotune_pointwise': False, 'min_split_scan_rblock': 256, 'spill_threshold': 16, 'store_cubin': False, 'coordinate_descent_tuning': True, 'coordinate_descent_search_radius': 1, 'coordinate_descent_check_all_directions': False, 'tiling_scores': {'x': 16384, 'r0_': 1049088}}\n)\n@triton.jit\ndef triton_unk_fused_0(in_ptr0, in_ptr1, out_ptr0, xnumel, r0_numel, XBLOCK : tl.constexpr):\n    # P800 experimental special-value policy: 1c5945929c07c348 optimized\n    xnumel = 2048\n    r0_numel = 256\n    R0_BLOCK: tl.constexpr = 256\n    rnumel = r0_numel\n    RBLOCK: tl.constexpr = R0_BLOCK\n    xoffset = tl.program_id(0) * XBLOCK\n    xindex = xoffset + tl.arange(0, XBLOCK)[:, None]\n    xmask = xindex < xnumel\n    r0_index = tl.arange(0, R0_BLOCK)[None, :]\n    r0_offset = 0\n    r0_mask = tl.full([XBLOCK, R0_BLOCK], True, tl.int1)\n    roffset = r0_offset\n    rindex = r0_index\n    r0_1 = r0_index\n    x0 = xindex\n    tmp0 = tl.load(in_ptr0 + (r0_1 + 2048*x0), xmask, other=0.0).to(tl.float32)\n    tmp3 = tl.load(in_ptr1 + (r0_1), None, eviction_policy='evict_last').to(tl.float32)\n    tmp1 = tmp0.to(tl.bfloat16)\n    tmp2 = tmp1.to(tl.float32)\n    tmp4 = tmp3.to(tl.bfloat16)\n    tmp5 = tmp4.to(tl.float32)\n    tmp6 = tmp2 * tmp5\n    tmp7 = tmp6.to(tl.bfloat16)\n    tmp8 = tmp7.to(tl.float32)\n    tmp9 = tmp8.to(tl.float32)\n    tmp10 = tl.broadcast_to(tmp9, [XBLOCK, R0_BLOCK])\n    tmp12 = tl.where(xmask, tmp10, 0)\n    tmp13 = tl.sum(tmp12, 1)[:, None].to(tl.float32)\n    tl.store(out_ptr0 + (x0), tmp13, xmask)\n''', device_str='cuda')\n\n\nasync_compile.wait(globals())\ndel async_compile\n\nclass Runner:\n    def __init__(self, partitions):\n        self.partitions = partitions\n\n    def recursively_apply_fns(self, fns):\n        new_callables = []\n        for fn, c in zip(fns, self.partitions):\n            new_callables.append(fn(c))\n        self.partitions = new_callables\n\n    def call(self, args):\n        arg0_1, arg1_1 = args\n        args.clear()\n        assert_size_stride(arg0_1, (2048, 256), (2048, 1))\n        assert_size_stride(arg1_1, (256, ), (1, ))\n        with torch.cuda._DeviceGuard(0):\n            torch.cuda.set_device(0)\n            buf0 = empty_strided_cuda((2048, ), (1, ), torch.float32)\n            # Topologically Sorted Source Nodes: [], Original ATen: []\n            stream0 = get_raw_stream(0)\n            triton_unk_fused_0.run(arg0_1, arg1_1, buf0, 2048, 256, stream=stream0)\n            del arg0_1\n            del arg1_1\n        return (buf0, )\n\nrunner = Runner(partitions=[])\ncall = runner.call\nrecursively_apply_fns = runner.recursively_apply_fns\n\n\ndef benchmark_compiled_module(times=10, repeat=10):\n    from torch._dynamo.testing import rand_strided\n    from torch._inductor.utils import print_performance\n    arg0_1 = rand_strided((2048, 256), (2048, 1), device='cuda:0', dtype=torch.bfloat16)\n    arg1_1 = rand_strided((256, ), (1, ), device='cuda:0', dtype=torch.bfloat16)\n    fn = lambda: call([arg0_1, arg1_1])\n    return print_performance(fn, times=times, repeat=repeat)\n\n\nif __name__ == \"__main__\":\n    from torch._inductor.wrapper_benchmark import compiled_module_main\n    compiled_module_main('None', benchmark_compiled_module)\n",
+      "resource_verified": true
+     },
+     {
+      "resource": "cluster",
+      "matmul_path": "external",
+      "scalar_reduction_layout": false,
+      "native_template_eligibility": false,
+      "wrapper_audit": {
+       "generated_kernel_sources": [
+        "54417a952efb4b49ecc99026dafe7593cb0cc5248245d57b38207a38d5b06dd2"
+       ],
+       "external_call_targets": []
+      },
+      "external_calls": 0,
+      "kernel_evidence": [
+       {
+        "requested": "cluster",
+        "effective": "cluster",
+        "kernel_name": "triton_unk_fused_0",
+        "binary_hash": "ca64fe82f3cc4f6390d28a92f721f09a7dfb56a0da1c59c5c586911139d41aba",
+        "launch_clusters": null,
+        "launch_cores": null,
+        "asm_sha256": {
+         "source": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttxir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "llir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "elf": "821e7618766a458cdd986cc422bdea9d7092cd889ac868703deec889d1afac78",
+         "xpubin": "e24cc97fd6366a02923f33cc14a085254bab1ba2b31997ccf7332b41ff43ce86"
+        },
+        "native_metadata": {
+         "arch": 3,
+         "is_sdnn": false,
+         "num_warps": 4,
+         "num_ctas": -1,
+         "shared": -1,
+         "core_num": 64,
+         "cluster_num": 12
+        },
+        "wrapper_binding": "triton_unk_fused_0",
+        "source_sha256": "54417a952efb4b49ecc99026dafe7593cb0cc5248245d57b38207a38d5b06dd2",
+        "proof_scope": "bound_native_wrapper_binary"
+       },
+       {
+        "requested": "cluster",
+        "effective": "cluster",
+        "kernel_name": "triton_unk_fused_0",
+        "binary_hash": "f034c568627e8d4b75001bd0532481b96a122b08540fcf1d643d6b38ab22f59f",
+        "launch_clusters": null,
+        "launch_cores": null,
+        "asm_sha256": {
+         "source": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttxir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "llir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "elf": "fc072eb547bd159f212e6276e49fbb4c39346605b9a8ab874d7d1b170a9373a3",
+         "xpubin": "cbbaf41ae5dc09fe0588a1f2840187eb81fab50c4745ae53784b42a3331cd6e4"
+        },
+        "native_metadata": {
+         "arch": 3,
+         "is_sdnn": false,
+         "num_warps": 4,
+         "num_ctas": -1,
+         "shared": -1,
+         "core_num": 64,
+         "cluster_num": 12
+        },
+        "wrapper_binding": "triton_unk_fused_0",
+        "source_sha256": "54417a952efb4b49ecc99026dafe7593cb0cc5248245d57b38207a38d5b06dd2",
+        "proof_scope": "bound_native_wrapper_binary"
+       }
+      ],
+      "source_code": "from ctypes import c_void_p, c_long, c_int\nimport torch\nimport math\nimport random\nimport os\nimport tempfile\nfrom math import inf, nan\nfrom cmath import nanj\nfrom torch._inductor.hooks import run_intermediate_hooks\nfrom torch._inductor.utils import maybe_profile\nfrom torch._inductor.codegen.memory_planning import _align as align\nfrom torch import device, empty_strided\nfrom torch._inductor.async_compile import AsyncCompile\nfrom torch._inductor.select_algorithm import extern_kernels\nimport triton\nimport triton.language as tl\nfrom torch._inductor.runtime.triton_heuristics import start_graph, end_graph\nfrom torch._C import _cuda_getCurrentRawStream as get_raw_stream\n\naten = torch.ops.aten\ninductor_ops = torch.ops.inductor\n_quantized = torch.ops._quantized\nassert_size_stride = torch._C._dynamo.guards.assert_size_stride\nassert_alignment = torch._C._dynamo.guards.assert_alignment\nempty_strided_cpu = torch._C._dynamo.guards._empty_strided_cpu\nempty_strided_cpu_pinned = torch._C._dynamo.guards._empty_strided_cpu_pinned\nempty_strided_cuda = torch._C._dynamo.guards._empty_strided_cuda\nempty_strided_xpu = torch._C._dynamo.guards._empty_strided_xpu\nempty_strided_mtia = torch._C._dynamo.guards._empty_strided_mtia\nreinterpret_tensor = torch._C._dynamo.guards._reinterpret_tensor\nalloc_from_pool = torch.ops.inductor._alloc_from_pool\nasync_compile = AsyncCompile()\nempty_strided_p2p = torch._C._distributed_c10d._SymmetricMemory.empty_strided_p2p\n\n\n# kernel path: /data2/zhaoweiming/f06-parallel-mul-20261105/results/case-215-parallel-final-a1/cache/inductor/za/czaaejwdz6ozry22s7iea4cfux43am6fkemihfpezqyobct7tqsg.py\n# Topologically Sorted Source Nodes: [], Original ATen: []\n# Source node to ATen node mapping:\n# Graph fragment:\n#   %arg0_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg0_1]\n#   %arg1_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg1_1]\n#   %arg2_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg2_1]\n#   %arg3_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg3_1]\n#   %arg4_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg4_1]\n#   %arg5_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg5_1]\n#   %arg6_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg6_1]\n#   %arg7_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg7_1]\n#   %add : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%arg0_1, %arg1_1), kwargs = {})\n#   %add_1 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add, %arg2_1), kwargs = {})\n#   %add_2 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add_1, %arg3_1), kwargs = {})\n#   %add_3 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add_2, %arg4_1), kwargs = {})\n#   %add_4 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add_3, %arg5_1), kwargs = {})\n#   %add_5 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add_4, %arg6_1), kwargs = {})\n#   %add_6 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add_5, %arg7_1), kwargs = {})\n#   %convert_element_type : Tensor \"bf16[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.prims.convert_element_type.default](args = (%add_6, torch.bfloat16), kwargs = {})\n#   return %convert_element_type\ntriton_unk_fused_0 = async_compile.triton('triton_unk_fused_0', '''\nfrom triton.experimental.graph_fusion._resource_codegen import ResourceHeuristics\n_flagtree_resource_heuristics = ResourceHeuristics('cluster')\n# P800 compiler policy: 5d17d45effc95029\n\nimport triton\nimport triton.language as tl\n\nfrom torch._inductor.runtime import triton_helpers, triton_heuristics\nfrom torch._inductor.runtime.triton_helpers import libdevice, math as tl_math\nfrom torch._inductor.runtime.hints import AutotuneHint, ReductionHint, TileHint, DeviceProperties\ntriton_helpers.set_driver_to_gpu()\n\n@_flagtree_resource_heuristics.pointwise(\n    size_hints={'x': 2048}, \n    filename=__file__,\n    triton_meta={'signature': {'in_ptr0': '*fp32', 'in_ptr1': '*fp32', 'in_ptr2': '*fp32', 'in_ptr3': '*fp32', 'in_ptr4': '*fp32', 'in_ptr5': '*fp32', 'in_ptr6': '*fp32', 'in_ptr7': '*fp32', 'out_ptr0': '*bf16', 'xnumel': 'i32', 'XBLOCK': 'constexpr'}, 'device': DeviceProperties(type='cuda', index=0, multi_processor_count=8, cc=86, major=8, regs_per_multiprocessor=65536, max_threads_per_multi_processor=2048, warp_size=32), 'constants': {}, 'configs': [{(0,): [['tt.divisibility', 16]], (1,): [['tt.divisibility', 16]], (2,): [['tt.divisibility', 16]], (3,): [['tt.divisibility', 16]], (4,): [['tt.divisibility', 16]], (5,): [['tt.divisibility', 16]], (6,): [['tt.divisibility', 16]], (7,): [['tt.divisibility', 16]], (8,): [['tt.divisibility', 16]], (9,): [['tt.divisibility', 16]]}]},\n    inductor_meta={'grid_type': 'Grid1D', 'autotune_hints': set(), 'kernel_name': 'triton_unk_fused_0', 'mutated_arg_names': [], 'optimize_mem': True, 'no_x_dim': False, 'num_load': 8, 'num_reduction': 0, 'backend_hash': '92507768B3C1DB2440D3A03F999D44BFFF7575CF3E4092E4977896D29BF602D2', 'are_deterministic_algorithms_enabled': False, 'assert_indirect_indexing': True, 'autotune_local_cache': True, 'autotune_pointwise': True, 'autotune_remote_cache': None, 'force_disable_caches': False, 'dynamic_scale_rblock': True, 'max_autotune': True, 'max_autotune_pointwise': False, 'min_split_scan_rblock': 256, 'spill_threshold': 16, 'store_cubin': False, 'coordinate_descent_tuning': True, 'coordinate_descent_search_radius': 1, 'coordinate_descent_check_all_directions': False, 'tiling_scores': {'x': 73728}},\n    min_elem_per_thread=0\n)\n@triton.jit\ndef triton_unk_fused_0(in_ptr0, in_ptr1, in_ptr2, in_ptr3, in_ptr4, in_ptr5, in_ptr6, in_ptr7, out_ptr0, xnumel, XBLOCK : tl.constexpr):\n    xnumel = 2048\n    xoffset = tl.program_id(0) * XBLOCK\n    xindex = xoffset + tl.arange(0, XBLOCK)[:]\n    xmask = xindex < xnumel\n    x0 = xindex\n    tmp0 = tl.load(in_ptr0 + (x0), xmask)\n    tmp1 = tl.load(in_ptr1 + (x0), xmask)\n    tmp3 = tl.load(in_ptr2 + (x0), xmask)\n    tmp5 = tl.load(in_ptr3 + (x0), xmask)\n    tmp7 = tl.load(in_ptr4 + (x0), xmask)\n    tmp9 = tl.load(in_ptr5 + (x0), xmask)\n    tmp11 = tl.load(in_ptr6 + (x0), xmask)\n    tmp13 = tl.load(in_ptr7 + (x0), xmask)\n    tmp2 = tmp0 + tmp1\n    tmp4 = tmp2 + tmp3\n    tmp6 = tmp4 + tmp5\n    tmp8 = tmp6 + tmp7\n    tmp10 = tmp8 + tmp9\n    tmp12 = tmp10 + tmp11\n    tmp14 = tmp12 + tmp13\n    tmp15 = tmp14.to(tl.float32)\n    tl.store(out_ptr0 + (x0), tmp15, xmask)\n''', device_str='cuda')\n\n\nasync_compile.wait(globals())\ndel async_compile\n\nclass Runner:\n    def __init__(self, partitions):\n        self.partitions = partitions\n\n    def recursively_apply_fns(self, fns):\n        new_callables = []\n        for fn, c in zip(fns, self.partitions):\n            new_callables.append(fn(c))\n        self.partitions = new_callables\n\n    def call(self, args):\n        arg0_1, arg1_1, arg2_1, arg3_1, arg4_1, arg5_1, arg6_1, arg7_1 = args\n        args.clear()\n        assert_size_stride(arg0_1, (2048, ), (1, ))\n        assert_size_stride(arg1_1, (2048, ), (1, ))\n        assert_size_stride(arg2_1, (2048, ), (1, ))\n        assert_size_stride(arg3_1, (2048, ), (1, ))\n        assert_size_stride(arg4_1, (2048, ), (1, ))\n        assert_size_stride(arg5_1, (2048, ), (1, ))\n        assert_size_stride(arg6_1, (2048, ), (1, ))\n        assert_size_stride(arg7_1, (2048, ), (1, ))\n        with torch.cuda._DeviceGuard(0):\n            torch.cuda.set_device(0)\n            buf0 = empty_strided_cuda((2048, ), (1, ), torch.bfloat16)\n            # Topologically Sorted Source Nodes: [], Original ATen: []\n            stream0 = get_raw_stream(0)\n            triton_unk_fused_0.run(arg0_1, arg1_1, arg2_1, arg3_1, arg4_1, arg5_1, arg6_1, arg7_1, buf0, 2048, stream=stream0)\n            del arg0_1\n            del arg1_1\n            del arg2_1\n            del arg3_1\n            del arg4_1\n            del arg5_1\n            del arg6_1\n            del arg7_1\n        return (reinterpret_tensor(buf0, (2048, 1), (1, 1), 0), )\n\nrunner = Runner(partitions=[])\ncall = runner.call\nrecursively_apply_fns = runner.recursively_apply_fns\n\n\ndef benchmark_compiled_module(times=10, repeat=10):\n    from torch._dynamo.testing import rand_strided\n    from torch._inductor.utils import print_performance\n    arg0_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg1_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg2_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg3_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg4_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg5_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg6_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg7_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    fn = lambda: call([arg0_1, arg1_1, arg2_1, arg3_1, arg4_1, arg5_1, arg6_1, arg7_1])\n    return print_performance(fn, times=times, repeat=repeat)\n\n\nif __name__ == \"__main__\":\n    from torch._inductor.wrapper_benchmark import compiled_module_main\n    compiled_module_main('None', benchmark_compiled_module)\n",
+      "resource_verified": true
+     }
+    ],
+    "kernel_count": 9,
+    "partial_width": 256,
+    "accumulator": "float32",
+    "output": "torch.bfloat16",
+    "split": "8 native SDNN partial kernels followed by one cluster sum",
+    "partial_launches": 8
+   },
+   "fixed_small_tile": true,
+   "binding": [
+    {
+     "resource": "sdnn",
+     "binding": "triton_unk_fused_0",
+     "config": {
+      "kwargs": {
+       "XBLOCK": 1
+      },
+      "warps": 2,
+      "stages": 1
+     },
+     "metadata": {
+      "f06_experimental_mode": "optimized",
+      "f06_experimental_policy": "1c5945929c07c348",
+      "f06_single_multiply": true
+     },
+     "binary_hash": "c37a739641c2698ed1e79f68c3ac71df4b586e8f2268b7d1ab8a69d5a81707c6",
+     "elf": "b2f69db2d26f65e63c970e8d112c8083868ac300c82c50a95c9a190067e05320",
+     "xpubin": "0ed2aa9959327165632a42d4f8b50e9584949e65dbf35a934b1435051789beba",
+     "ir": "d614c0195062f69d3a8b0333fc04ecfea6590b4a5c496e99f53f65e1731ff5de",
+     "ew_mul": 1,
+     "ew_linear": 0
+    },
+    {
+     "resource": "cluster",
+     "binding": "triton_unk_fused_0",
+     "config": {
+      "kwargs": {
+       "XBLOCK": 256
+      },
+      "warps": 4,
+      "stages": 1
+     },
+     "metadata": {},
+     "binary_hash": "ca64fe82f3cc4f6390d28a92f721f09a7dfb56a0da1c59c5c586911139d41aba",
+     "elf": "821e7618766a458cdd986cc422bdea9d7092cd889ac868703deec889d1afac78",
+     "xpubin": "e24cc97fd6366a02923f33cc14a085254bab1ba2b31997ccf7332b41ff43ce86",
+     "ir": "48f13f4317f245da888aa26e163b23d08f8d512a26b4d591a284e983277d299a",
+     "ew_mul": 0,
+     "ew_linear": 0
+    }
+   ],
+   "finite": {
+    "ordinary": true,
+    "changed": true,
+    "repeat": true,
+    "immutable": true,
+    "validation_scope": "finite inputs; special cases reported separately"
+   },
+   "special": [
+    {
+     "pattern": "nan",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "positive_inf",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 0,
+       "actual_nan": 0,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 1,
+       "actual_inf": 1,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": false,
+     "device_eager_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)",
+     "device_eager_matches_cpu": false,
+     "device_eager_cpu_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)"
+    },
+    {
+     "pattern": "negative_inf",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 0,
+       "actual_nan": 0,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 1,
+       "actual_inf": 1,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": false,
+     "device_eager_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)",
+     "device_eager_matches_cpu": false,
+     "device_eager_cpu_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)"
+    },
+    {
+     "pattern": "historical_mix",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "inf_times_zero",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "zero_times_inf",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 2048,
+       "actual_nan": 2048,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": null
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "nan_times_zero",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "zero_times_nan",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 2048,
+       "actual_nan": 2048,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": null
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    }
+   ],
+   "stress": {
+    "passed": false,
+    "total": {
+     "classes": 225,
+     "finite_pairs": 4096,
+     "invalid_zero": 12
+    },
+    "errors": {
+     "classes": 16,
+     "finite_pairs": 0,
+     "invalid_zero": 0
+    },
+    "examples": [
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 6,
+      "want": "3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 6,
+      "want": "-3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 7,
+      "want": "-3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 7,
+      "want": "3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 8,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 8,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 9,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 9,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 6,
+      "other": 10,
+      "want": "3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 7,
+      "other": 10,
+      "want": "-3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 8,
+      "other": 10,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 9,
+      "other": 10,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 6,
+      "other": 11,
+      "want": "-3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 7,
+      "other": 11,
+      "want": "3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 8,
+      "other": 11,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 9,
+      "other": 11,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     }
+    ],
+    "signed_zero_differences": 0,
+    "invalid_zero_failures": []
+   },
+   "eligible": false,
+   "status": "finite_validated",
+   "timing": {
+    "checks": {
+     "ordinary": true,
+     "changed": true,
+     "repeat": true,
+     "immutable": true,
+     "validation_scope": "finite inputs; special cases reported separately",
+     "graph_fresh_data": true
+    },
+    "status": "passed",
+    "gpu_samples_us": [
+     22308.162715517243,
+     22308.012863685344,
+     22307.996026400862,
+     22308.177869073275,
+     22308.139143318964,
+     22310.833108836207,
+     22308.376549030174,
+     22308.322669719826,
+     22308.230064655174,
+     22308.625740840518,
+     22308.432112068964,
+     22310.774178340518,
+     22307.233297413793,
+     22307.359577047413,
+     22307.33432112069,
+     22307.290544181036,
+     22307.386516702587,
+     22308.38833512931
+    ],
+    "gpu_us": 22308.17029229526,
+    "calls_per_graph": 145,
+    "capture_samples_us": [
+     [
+      22308.162715517243,
+      22308.012863685344,
+      22307.996026400862,
+      22308.177869073275,
+      22308.139143318964,
+      22310.833108836207
+     ],
+     [
+      22308.376549030174,
+      22308.322669719826,
+      22308.230064655174,
+      22308.625740840518,
+      22308.432112068964,
+      22310.774178340518
+     ],
+     [
+      22307.233297413793,
+      22307.359577047413,
+      22307.33432112069,
+      22307.290544181036,
+      22307.386516702587,
+      22308.38833512931
+     ]
+    ],
+    "capture_medians_us": [
+     22308.1509294181,
+     22308.40433054957,
+     22307.34694908405
+    ],
+    "e2e_protocol": "randomized_ab_ba_v1",
+    "e2e_round_samples_us": [
+     [
+      22365.874,
+      22399.36,
+      22353.065,
+      22374.133,
+      22352.235,
+      22392.761,
+      22348.565,
+      22366.863,
+      22388.392,
+      22370.813,
+      22389.351,
+      22354.215,
+      22380.352,
+      22342.976,
+      22375.173,
+      22399.541,
+      22375.803,
+      22363.944,
+      22358.225,
+      22355.835,
+      22355.775,
+      22369.643,
+      22349.645,
+      22356.865,
+      22361.654,
+      22358.804,
+      22364.463,
+      22357.125,
+      22361.384,
+      22364.654,
+      22358.965,
+      22408.25,
+      22366.443,
+      22395.241,
+      22352.125,
+      22378.292,
+      22345.615,
+      22379.382,
+      22350.695,
+      22373.283,
+      22375.233,
+      22356.124,
+      22367.673,
+      22355.854,
+      22374.133,
+      22352.685,
+      22364.884,
+      22373.753,
+      22350.635,
+      22362.775,
+      22347.365,
+      22357.834,
+      22357.374,
+      22373.573,
+      22369.873,
+      22350.335,
+      22376.043,
+      22352.755,
+      22358.005,
+      22348.835,
+      22359.234,
+      22364.864,
+      22359.444,
+      22400.31,
+      22354.975,
+      22367.873,
+      22355.295,
+      22357.625,
+      22353.225,
+      22370.743,
+      22356.365,
+      22355.865,
+      22378.452,
+      22394.281,
+      22353.315,
+      22349.706,
+      22379.053,
+      22361.274,
+      22364.363,
+      22390.051,
+      22345.326,
+      22379.272,
+      22356.554,
+      22359.804,
+      22397.101,
+      22369.994,
+      22362.844,
+      22381.032,
+      22363.144,
+      22365.324,
+      22360.235,
+      22351.135,
+      22351.635,
+      22386.012,
+      22357.624,
+      22425.288,
+      22360.814,
+      22392.502,
+      22373.303,
+      22365.684,
+      22393.321,
+      22366.344,
+      22388.401,
+      22359.795,
+      22351.416,
+      22398.961,
+      22355.775,
+      22352.655,
+      22348.815,
+      22380.032,
+      22349.305,
+      22387.251,
+      22352.356,
+      22376.362,
+      22361.374,
+      22358.524,
+      22362.104,
+      22360.945,
+      22349.965,
+      22363.934,
+      22417.199,
+      22357.735,
+      22372.263,
+      22353.645,
+      22348.645,
+      22373.513,
+      22357.704,
+      22391.261
+     ],
+     [
+      22368.593,
+      22374.883,
+      22352.265,
+      22369.163,
+      22375.253,
+      22369.903,
+      22379.333,
+      22381.532,
+      22364.034,
+      22383.592,
+      22362.984,
+      22394.651,
+      22529.598,
+      22366.894,
+      22352.385,
+      22365.744,
+      22366.324,
+      22355.584,
+      22352.055,
+      22376.412,
+      22370.254,
+      22352.995,
+      22356.195,
+      22358.404,
+      22360.364,
+      22349.735,
+      22365.854,
+      22347.956,
+      22376.413,
+      22352.585,
+      22383.372,
+      22358.174,
+      22361.524,
+      22362.784,
+      22355.535,
+      22355.065,
+      22377.833,
+      22357.845,
+      22368.054,
+      22390.911,
+      22352.435,
+      22356.145,
+      22361.785,
+      22367.764,
+      22350.675,
+      22358.324,
+      22354.764,
+      22369.814,
+      22386.572,
+      22370.163,
+      22389.261,
+      22369.723,
+      22378.093,
+      22379.623,
+      22364.874,
+      22404.75,
+      22370.603,
+      22355.445,
+      22359.585,
+      22397.851,
+      22355.934,
+      22393.591,
+      22353.375,
+      22382.082,
+      22366.944,
+      22357.144,
+      22398.421,
+      22366.624,
+      22363.304,
+      22377.572,
+      22356.665,
+      22389.362,
+      22359.354,
+      22360.124,
+      22362.904,
+      22398.07,
+      22364.584,
+      22370.914,
+      22350.545,
+      22359.745,
+      22357.464,
+      22350.535,
+      22393.311,
+      22355.905,
+      22364.384,
+      22348.065,
+      22375.773,
+      22355.335,
+      22369.603,
+      22394.851,
+      22360.154,
+      22398.61,
+      22362.164,
+      22393.131,
+      22351.175,
+      22370.064,
+      22354.085,
+      22363.304,
+      22379.842,
+      22358.714,
+      22356.745,
+      22361.304,
+      22368.584,
+      22348.486,
+      22370.393,
+      22366.693,
+      22358.064,
+      22354.055,
+      22366.433,
+      22388.182,
+      22390.831,
+      22371.003,
+      22368.574,
+      22353.875,
+      22363.174,
+      22360.764,
+      22378.792,
+      22348.755,
+      22358.284,
+      22362.784,
+      22363.524,
+      22393.151,
+      22355.165,
+      22354.575,
+      22352.655,
+      22381.132,
+      22351.605,
+      22374.833
+     ]
+    ]
+   }
+  },
+  "sdnn256_cluster_old_dual": {
+   "proof": {
+    "regions": [
+     {
+      "resource": "sdnn",
+      "matmul_path": "external",
+      "scalar_reduction_layout": true,
+      "native_template_eligibility": false,
+      "wrapper_audit": {
+       "generated_kernel_sources": [
+        "f3cdc40031b79b89555a383f6756786b67af27143402b14eab800a2668c74f0d"
+       ],
+       "external_call_targets": []
+      },
+      "external_calls": 0,
+      "kernel_evidence": [
+       {
+        "requested": "sdnn",
+        "effective": "sdnn",
+        "kernel_name": "triton_unk_fused_0",
+        "binary_hash": "6bb9a72b7dc282ab1d7fa82d631ae50df9ee49e90fc4674060c15f2068d6d5b9",
+        "launch_clusters": null,
+        "launch_cores": null,
+        "asm_sha256": {
+         "source": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttxir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "llir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "elf": "09298fc28bd04324d4f5e3ca8ef144e4fe21a26235cedb823b1957c2b567f2c3",
+         "xpubin": "8c16300d09712890c45ca7c4aa8a2499cd3683ad5d071cdcadfaf4f23560e9d5"
+        },
+        "native_metadata": {
+         "arch": 3,
+         "is_sdnn": true,
+         "num_warps": 2,
+         "num_ctas": -1,
+         "shared": -1,
+         "core_num": 64,
+         "cluster_num": 12
+        },
+        "wrapper_binding": "triton_unk_fused_0",
+        "source_sha256": "f3cdc40031b79b89555a383f6756786b67af27143402b14eab800a2668c74f0d",
+        "proof_scope": "bound_native_wrapper_binary"
+       }
+      ],
+      "source_code": "from ctypes import c_void_p, c_long, c_int\nimport torch\nimport math\nimport random\nimport os\nimport tempfile\nfrom math import inf, nan\nfrom cmath import nanj\nfrom torch._inductor.hooks import run_intermediate_hooks\nfrom torch._inductor.utils import maybe_profile\nfrom torch._inductor.codegen.memory_planning import _align as align\nfrom torch import device, empty_strided\nfrom torch._inductor.async_compile import AsyncCompile\nfrom torch._inductor.select_algorithm import extern_kernels\nimport triton\nimport triton.language as tl\nfrom torch._inductor.runtime.triton_heuristics import start_graph, end_graph\nfrom torch._C import _cuda_getCurrentRawStream as get_raw_stream\n\naten = torch.ops.aten\ninductor_ops = torch.ops.inductor\n_quantized = torch.ops._quantized\nassert_size_stride = torch._C._dynamo.guards.assert_size_stride\nassert_alignment = torch._C._dynamo.guards.assert_alignment\nempty_strided_cpu = torch._C._dynamo.guards._empty_strided_cpu\nempty_strided_cpu_pinned = torch._C._dynamo.guards._empty_strided_cpu_pinned\nempty_strided_cuda = torch._C._dynamo.guards._empty_strided_cuda\nempty_strided_xpu = torch._C._dynamo.guards._empty_strided_xpu\nempty_strided_mtia = torch._C._dynamo.guards._empty_strided_mtia\nreinterpret_tensor = torch._C._dynamo.guards._reinterpret_tensor\nalloc_from_pool = torch.ops.inductor._alloc_from_pool\nasync_compile = AsyncCompile()\nempty_strided_p2p = torch._C._distributed_c10d._SymmetricMemory.empty_strided_p2p\n\n\n# kernel path: /data2/zhaoweiming/f06-parallel-mul-20261105/results/case-215-parallel-final-a1/cache/inductor/oi/coiocjtoxm2ocig2fehjz7um2364pt5nboazcnmkint5a2ckimzo.py\n# Topologically Sorted Source Nodes: [], Original ATen: []\n# Source node to ATen node mapping:\n# Graph fragment:\n#   %arg0_1 : Tensor \"bf16[2048, 256][2048, 1]cuda:0\" = PlaceHolder[target=arg0_1]\n#   %arg1_1 : Tensor \"bf16[256][1]cuda:0\" = PlaceHolder[target=arg1_1]\n#   %mul : Tensor \"bf16[2048, 256][256, 1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.mul.Tensor](args = (%arg0_1, %arg1_1), kwargs = {})\n#   %sum_1 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.sum.dim_IntList](args = (%mul, [-1]), kwargs = {dtype: torch.float32})\n#   return %sum_1\ntriton_unk_fused_0 = async_compile.triton('triton_unk_fused_0', '''\nfrom triton.experimental.graph_fusion._resource_codegen import ResourceHeuristics\nfrom triton.experimental.graph_fusion._p800_special_values import SpecialValueHeuristics\n_flagtree_resource_heuristics = SpecialValueHeuristics(ResourceHeuristics('sdnn'), 'optimized', '836af27e62e60d5a')\n# P800 compiler policy: 5d17d45effc95029-special-opt-836af27e62e60d5a\n\nimport triton\nimport triton.language as tl\n\nfrom torch._inductor.runtime import triton_helpers, triton_heuristics\nfrom torch._inductor.runtime.triton_helpers import libdevice, math as tl_math\nfrom torch._inductor.runtime.hints import AutotuneHint, ReductionHint, TileHint, DeviceProperties\ntriton_helpers.set_driver_to_gpu()\n\n@_flagtree_resource_heuristics.persistent_reduction(\n    size_hints={'x': 2048, 'r0_': 256},\n    reduction_hint=ReductionHint.DEFAULT,\n    filename=__file__,\n    triton_meta={'signature': {'in_ptr0': '*bf16', 'in_ptr1': '*bf16', 'out_ptr0': '*fp32', 'xnumel': 'i32', 'r0_numel': 'i32', 'XBLOCK': 'constexpr'}, 'device': DeviceProperties(type='cuda', index=0, multi_processor_count=8, cc=86, major=8, regs_per_multiprocessor=65536, max_threads_per_multi_processor=2048, warp_size=32), 'constants': {}, 'configs': [{(0,): [['tt.divisibility', 16]], (1,): [['tt.divisibility', 16]], (2,): [['tt.divisibility', 16]], (3,): [['tt.divisibility', 16]], (4,): [['tt.divisibility', 16]]}]},\n    inductor_meta={'grid_type': 'Grid1D', 'autotune_hints': set(), 'kernel_name': 'triton_unk_fused_0', 'mutated_arg_names': [], 'optimize_mem': True, 'no_x_dim': False, 'num_load': 2, 'num_reduction': 1, 'backend_hash': '92507768B3C1DB2440D3A03F999D44BFFF7575CF3E4092E4977896D29BF602D2', 'are_deterministic_algorithms_enabled': False, 'assert_indirect_indexing': True, 'autotune_local_cache': True, 'autotune_pointwise': True, 'autotune_remote_cache': None, 'force_disable_caches': False, 'dynamic_scale_rblock': True, 'max_autotune': True, 'max_autotune_pointwise': False, 'min_split_scan_rblock': 256, 'spill_threshold': 16, 'store_cubin': False, 'coordinate_descent_tuning': True, 'coordinate_descent_search_radius': 1, 'coordinate_descent_check_all_directions': False, 'tiling_scores': {'x': 16384, 'r0_': 1049088}}\n)\n@triton.jit\ndef triton_unk_fused_0(in_ptr0, in_ptr1, out_ptr0, xnumel, r0_numel, XBLOCK : tl.constexpr):\n    # P800 experimental special-value policy: 836af27e62e60d5a optimized\n    xnumel = 2048\n    r0_numel = 256\n    R0_BLOCK: tl.constexpr = 256\n    rnumel = r0_numel\n    RBLOCK: tl.constexpr = R0_BLOCK\n    xoffset = tl.program_id(0) * XBLOCK\n    xindex = xoffset + tl.arange(0, XBLOCK)[:, None]\n    xmask = xindex < xnumel\n    r0_index = tl.arange(0, R0_BLOCK)[None, :]\n    r0_offset = 0\n    r0_mask = tl.full([XBLOCK, R0_BLOCK], True, tl.int1)\n    roffset = r0_offset\n    rindex = r0_index\n    r0_1 = r0_index\n    x0 = xindex\n    tmp0 = tl.load(in_ptr0 + (r0_1 + 2048*x0), xmask, other=0.0).to(tl.float32)\n    tmp3 = tl.load(in_ptr1 + (r0_1), None, eviction_policy='evict_last').to(tl.float32)\n    tmp1 = tmp0.to(tl.bfloat16)\n    tmp2 = tmp1.to(tl.float32)\n    tmp4 = tmp3.to(tl.bfloat16)\n    tmp5 = tmp4.to(tl.float32)\n    tmp6 = tmp2 * tmp5\n    tmp7 = tmp6.to(tl.bfloat16)\n    tmp8 = tmp7.to(tl.float32)\n    tmp9 = tmp8.to(tl.float32)\n    tmp10 = tl.broadcast_to(tmp9, [XBLOCK, R0_BLOCK])\n    tmp12 = tl.where(xmask, tmp10, 0)\n    tmp13 = tl.sum(tmp12, 1)[:, None].to(tl.float32)\n    tl.store(out_ptr0 + (x0), tmp13, xmask)\n''', device_str='cuda')\n\n\nasync_compile.wait(globals())\ndel async_compile\n\nclass Runner:\n    def __init__(self, partitions):\n        self.partitions = partitions\n\n    def recursively_apply_fns(self, fns):\n        new_callables = []\n        for fn, c in zip(fns, self.partitions):\n            new_callables.append(fn(c))\n        self.partitions = new_callables\n\n    def call(self, args):\n        arg0_1, arg1_1 = args\n        args.clear()\n        assert_size_stride(arg0_1, (2048, 256), (2048, 1))\n        assert_size_stride(arg1_1, (256, ), (1, ))\n        with torch.cuda._DeviceGuard(0):\n            torch.cuda.set_device(0)\n            buf0 = empty_strided_cuda((2048, ), (1, ), torch.float32)\n            # Topologically Sorted Source Nodes: [], Original ATen: []\n            stream0 = get_raw_stream(0)\n            triton_unk_fused_0.run(arg0_1, arg1_1, buf0, 2048, 256, stream=stream0)\n            del arg0_1\n            del arg1_1\n        return (buf0, )\n\nrunner = Runner(partitions=[])\ncall = runner.call\nrecursively_apply_fns = runner.recursively_apply_fns\n\n\ndef benchmark_compiled_module(times=10, repeat=10):\n    from torch._dynamo.testing import rand_strided\n    from torch._inductor.utils import print_performance\n    arg0_1 = rand_strided((2048, 256), (2048, 1), device='cuda:0', dtype=torch.bfloat16)\n    arg1_1 = rand_strided((256, ), (1, ), device='cuda:0', dtype=torch.bfloat16)\n    fn = lambda: call([arg0_1, arg1_1])\n    return print_performance(fn, times=times, repeat=repeat)\n\n\nif __name__ == \"__main__\":\n    from torch._inductor.wrapper_benchmark import compiled_module_main\n    compiled_module_main('None', benchmark_compiled_module)\n",
+      "resource_verified": true
+     },
+     {
+      "resource": "cluster",
+      "matmul_path": "external",
+      "scalar_reduction_layout": false,
+      "native_template_eligibility": false,
+      "wrapper_audit": {
+       "generated_kernel_sources": [
+        "54417a952efb4b49ecc99026dafe7593cb0cc5248245d57b38207a38d5b06dd2"
+       ],
+       "external_call_targets": []
+      },
+      "external_calls": 0,
+      "kernel_evidence": [
+       {
+        "requested": "cluster",
+        "effective": "cluster",
+        "kernel_name": "triton_unk_fused_0",
+        "binary_hash": "ca64fe82f3cc4f6390d28a92f721f09a7dfb56a0da1c59c5c586911139d41aba",
+        "launch_clusters": null,
+        "launch_cores": null,
+        "asm_sha256": {
+         "source": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttxir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "llir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "elf": "821e7618766a458cdd986cc422bdea9d7092cd889ac868703deec889d1afac78",
+         "xpubin": "e24cc97fd6366a02923f33cc14a085254bab1ba2b31997ccf7332b41ff43ce86"
+        },
+        "native_metadata": {
+         "arch": 3,
+         "is_sdnn": false,
+         "num_warps": 4,
+         "num_ctas": -1,
+         "shared": -1,
+         "core_num": 64,
+         "cluster_num": 12
+        },
+        "wrapper_binding": "triton_unk_fused_0",
+        "source_sha256": "54417a952efb4b49ecc99026dafe7593cb0cc5248245d57b38207a38d5b06dd2",
+        "proof_scope": "bound_native_wrapper_binary"
+       },
+       {
+        "requested": "cluster",
+        "effective": "cluster",
+        "kernel_name": "triton_unk_fused_0",
+        "binary_hash": "f034c568627e8d4b75001bd0532481b96a122b08540fcf1d643d6b38ab22f59f",
+        "launch_clusters": null,
+        "launch_cores": null,
+        "asm_sha256": {
+         "source": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "ttxir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "llir": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+         "elf": "fc072eb547bd159f212e6276e49fbb4c39346605b9a8ab874d7d1b170a9373a3",
+         "xpubin": "cbbaf41ae5dc09fe0588a1f2840187eb81fab50c4745ae53784b42a3331cd6e4"
+        },
+        "native_metadata": {
+         "arch": 3,
+         "is_sdnn": false,
+         "num_warps": 4,
+         "num_ctas": -1,
+         "shared": -1,
+         "core_num": 64,
+         "cluster_num": 12
+        },
+        "wrapper_binding": "triton_unk_fused_0",
+        "source_sha256": "54417a952efb4b49ecc99026dafe7593cb0cc5248245d57b38207a38d5b06dd2",
+        "proof_scope": "bound_native_wrapper_binary"
+       }
+      ],
+      "source_code": "from ctypes import c_void_p, c_long, c_int\nimport torch\nimport math\nimport random\nimport os\nimport tempfile\nfrom math import inf, nan\nfrom cmath import nanj\nfrom torch._inductor.hooks import run_intermediate_hooks\nfrom torch._inductor.utils import maybe_profile\nfrom torch._inductor.codegen.memory_planning import _align as align\nfrom torch import device, empty_strided\nfrom torch._inductor.async_compile import AsyncCompile\nfrom torch._inductor.select_algorithm import extern_kernels\nimport triton\nimport triton.language as tl\nfrom torch._inductor.runtime.triton_heuristics import start_graph, end_graph\nfrom torch._C import _cuda_getCurrentRawStream as get_raw_stream\n\naten = torch.ops.aten\ninductor_ops = torch.ops.inductor\n_quantized = torch.ops._quantized\nassert_size_stride = torch._C._dynamo.guards.assert_size_stride\nassert_alignment = torch._C._dynamo.guards.assert_alignment\nempty_strided_cpu = torch._C._dynamo.guards._empty_strided_cpu\nempty_strided_cpu_pinned = torch._C._dynamo.guards._empty_strided_cpu_pinned\nempty_strided_cuda = torch._C._dynamo.guards._empty_strided_cuda\nempty_strided_xpu = torch._C._dynamo.guards._empty_strided_xpu\nempty_strided_mtia = torch._C._dynamo.guards._empty_strided_mtia\nreinterpret_tensor = torch._C._dynamo.guards._reinterpret_tensor\nalloc_from_pool = torch.ops.inductor._alloc_from_pool\nasync_compile = AsyncCompile()\nempty_strided_p2p = torch._C._distributed_c10d._SymmetricMemory.empty_strided_p2p\n\n\n# kernel path: /data2/zhaoweiming/f06-parallel-mul-20261105/results/case-215-parallel-final-a1/cache/inductor/za/czaaejwdz6ozry22s7iea4cfux43am6fkemihfpezqyobct7tqsg.py\n# Topologically Sorted Source Nodes: [], Original ATen: []\n# Source node to ATen node mapping:\n# Graph fragment:\n#   %arg0_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg0_1]\n#   %arg1_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg1_1]\n#   %arg2_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg2_1]\n#   %arg3_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg3_1]\n#   %arg4_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg4_1]\n#   %arg5_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg5_1]\n#   %arg6_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg6_1]\n#   %arg7_1 : Tensor \"f32[2048][1]cuda:0\" = PlaceHolder[target=arg7_1]\n#   %add : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%arg0_1, %arg1_1), kwargs = {})\n#   %add_1 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add, %arg2_1), kwargs = {})\n#   %add_2 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add_1, %arg3_1), kwargs = {})\n#   %add_3 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add_2, %arg4_1), kwargs = {})\n#   %add_4 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add_3, %arg5_1), kwargs = {})\n#   %add_5 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add_4, %arg6_1), kwargs = {})\n#   %add_6 : Tensor \"f32[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.aten.add.Tensor](args = (%add_5, %arg7_1), kwargs = {})\n#   %convert_element_type : Tensor \"bf16[2048][1]cuda:0\"[num_users=1] = call_function[target=torch.ops.prims.convert_element_type.default](args = (%add_6, torch.bfloat16), kwargs = {})\n#   return %convert_element_type\ntriton_unk_fused_0 = async_compile.triton('triton_unk_fused_0', '''\nfrom triton.experimental.graph_fusion._resource_codegen import ResourceHeuristics\n_flagtree_resource_heuristics = ResourceHeuristics('cluster')\n# P800 compiler policy: 5d17d45effc95029\n\nimport triton\nimport triton.language as tl\n\nfrom torch._inductor.runtime import triton_helpers, triton_heuristics\nfrom torch._inductor.runtime.triton_helpers import libdevice, math as tl_math\nfrom torch._inductor.runtime.hints import AutotuneHint, ReductionHint, TileHint, DeviceProperties\ntriton_helpers.set_driver_to_gpu()\n\n@_flagtree_resource_heuristics.pointwise(\n    size_hints={'x': 2048}, \n    filename=__file__,\n    triton_meta={'signature': {'in_ptr0': '*fp32', 'in_ptr1': '*fp32', 'in_ptr2': '*fp32', 'in_ptr3': '*fp32', 'in_ptr4': '*fp32', 'in_ptr5': '*fp32', 'in_ptr6': '*fp32', 'in_ptr7': '*fp32', 'out_ptr0': '*bf16', 'xnumel': 'i32', 'XBLOCK': 'constexpr'}, 'device': DeviceProperties(type='cuda', index=0, multi_processor_count=8, cc=86, major=8, regs_per_multiprocessor=65536, max_threads_per_multi_processor=2048, warp_size=32), 'constants': {}, 'configs': [{(0,): [['tt.divisibility', 16]], (1,): [['tt.divisibility', 16]], (2,): [['tt.divisibility', 16]], (3,): [['tt.divisibility', 16]], (4,): [['tt.divisibility', 16]], (5,): [['tt.divisibility', 16]], (6,): [['tt.divisibility', 16]], (7,): [['tt.divisibility', 16]], (8,): [['tt.divisibility', 16]], (9,): [['tt.divisibility', 16]]}]},\n    inductor_meta={'grid_type': 'Grid1D', 'autotune_hints': set(), 'kernel_name': 'triton_unk_fused_0', 'mutated_arg_names': [], 'optimize_mem': True, 'no_x_dim': False, 'num_load': 8, 'num_reduction': 0, 'backend_hash': '92507768B3C1DB2440D3A03F999D44BFFF7575CF3E4092E4977896D29BF602D2', 'are_deterministic_algorithms_enabled': False, 'assert_indirect_indexing': True, 'autotune_local_cache': True, 'autotune_pointwise': True, 'autotune_remote_cache': None, 'force_disable_caches': False, 'dynamic_scale_rblock': True, 'max_autotune': True, 'max_autotune_pointwise': False, 'min_split_scan_rblock': 256, 'spill_threshold': 16, 'store_cubin': False, 'coordinate_descent_tuning': True, 'coordinate_descent_search_radius': 1, 'coordinate_descent_check_all_directions': False, 'tiling_scores': {'x': 73728}},\n    min_elem_per_thread=0\n)\n@triton.jit\ndef triton_unk_fused_0(in_ptr0, in_ptr1, in_ptr2, in_ptr3, in_ptr4, in_ptr5, in_ptr6, in_ptr7, out_ptr0, xnumel, XBLOCK : tl.constexpr):\n    xnumel = 2048\n    xoffset = tl.program_id(0) * XBLOCK\n    xindex = xoffset + tl.arange(0, XBLOCK)[:]\n    xmask = xindex < xnumel\n    x0 = xindex\n    tmp0 = tl.load(in_ptr0 + (x0), xmask)\n    tmp1 = tl.load(in_ptr1 + (x0), xmask)\n    tmp3 = tl.load(in_ptr2 + (x0), xmask)\n    tmp5 = tl.load(in_ptr3 + (x0), xmask)\n    tmp7 = tl.load(in_ptr4 + (x0), xmask)\n    tmp9 = tl.load(in_ptr5 + (x0), xmask)\n    tmp11 = tl.load(in_ptr6 + (x0), xmask)\n    tmp13 = tl.load(in_ptr7 + (x0), xmask)\n    tmp2 = tmp0 + tmp1\n    tmp4 = tmp2 + tmp3\n    tmp6 = tmp4 + tmp5\n    tmp8 = tmp6 + tmp7\n    tmp10 = tmp8 + tmp9\n    tmp12 = tmp10 + tmp11\n    tmp14 = tmp12 + tmp13\n    tmp15 = tmp14.to(tl.float32)\n    tl.store(out_ptr0 + (x0), tmp15, xmask)\n''', device_str='cuda')\n\n\nasync_compile.wait(globals())\ndel async_compile\n\nclass Runner:\n    def __init__(self, partitions):\n        self.partitions = partitions\n\n    def recursively_apply_fns(self, fns):\n        new_callables = []\n        for fn, c in zip(fns, self.partitions):\n            new_callables.append(fn(c))\n        self.partitions = new_callables\n\n    def call(self, args):\n        arg0_1, arg1_1, arg2_1, arg3_1, arg4_1, arg5_1, arg6_1, arg7_1 = args\n        args.clear()\n        assert_size_stride(arg0_1, (2048, ), (1, ))\n        assert_size_stride(arg1_1, (2048, ), (1, ))\n        assert_size_stride(arg2_1, (2048, ), (1, ))\n        assert_size_stride(arg3_1, (2048, ), (1, ))\n        assert_size_stride(arg4_1, (2048, ), (1, ))\n        assert_size_stride(arg5_1, (2048, ), (1, ))\n        assert_size_stride(arg6_1, (2048, ), (1, ))\n        assert_size_stride(arg7_1, (2048, ), (1, ))\n        with torch.cuda._DeviceGuard(0):\n            torch.cuda.set_device(0)\n            buf0 = empty_strided_cuda((2048, ), (1, ), torch.bfloat16)\n            # Topologically Sorted Source Nodes: [], Original ATen: []\n            stream0 = get_raw_stream(0)\n            triton_unk_fused_0.run(arg0_1, arg1_1, arg2_1, arg3_1, arg4_1, arg5_1, arg6_1, arg7_1, buf0, 2048, stream=stream0)\n            del arg0_1\n            del arg1_1\n            del arg2_1\n            del arg3_1\n            del arg4_1\n            del arg5_1\n            del arg6_1\n            del arg7_1\n        return (reinterpret_tensor(buf0, (2048, 1), (1, 1), 0), )\n\nrunner = Runner(partitions=[])\ncall = runner.call\nrecursively_apply_fns = runner.recursively_apply_fns\n\n\ndef benchmark_compiled_module(times=10, repeat=10):\n    from torch._dynamo.testing import rand_strided\n    from torch._inductor.utils import print_performance\n    arg0_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg1_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg2_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg3_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg4_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg5_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg6_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    arg7_1 = rand_strided((2048, ), (1, ), device='cuda:0', dtype=torch.float32)\n    fn = lambda: call([arg0_1, arg1_1, arg2_1, arg3_1, arg4_1, arg5_1, arg6_1, arg7_1])\n    return print_performance(fn, times=times, repeat=repeat)\n\n\nif __name__ == \"__main__\":\n    from torch._inductor.wrapper_benchmark import compiled_module_main\n    compiled_module_main('None', benchmark_compiled_module)\n",
+      "resource_verified": true
+     }
+    ],
+    "kernel_count": 9,
+    "partial_width": 256,
+    "accumulator": "float32",
+    "output": "torch.bfloat16",
+    "split": "8 native SDNN partial kernels followed by one cluster sum",
+    "partial_launches": 8
+   },
+   "fixed_small_tile": true,
+   "binding": [
+    {
+     "resource": "sdnn",
+     "binding": "triton_unk_fused_0",
+     "config": {
+      "kwargs": {
+       "XBLOCK": 1
+      },
+      "warps": 2,
+      "stages": 1
+     },
+     "metadata": {
+      "f06_experimental_mode": "optimized",
+      "f06_experimental_policy": "836af27e62e60d5a",
+      "f06_native_special_rewrite": "{\"kind\": \"symmetric_multiply\", \"before\": \"    %12 = sdnn.ew mul %10 src0 %10 src1 %11 {sdnn.layout = \\\"CR_RowMajor\\\"} : (tensor<1x256xf32>, tensor<1x256xf32>, tensor<1x256xf32>) -> tensor<1x256xf32>\", \"native_ops\": 3, \"synchronization\": \"native scheduling after rewrite\"}",
+      "f06_symmetric_multiply": true
+     },
+     "binary_hash": "6bb9a72b7dc282ab1d7fa82d631ae50df9ee49e90fc4674060c15f2068d6d5b9",
+     "elf": "09298fc28bd04324d4f5e3ca8ef144e4fe21a26235cedb823b1957c2b567f2c3",
+     "xpubin": "8c16300d09712890c45ca7c4aa8a2499cd3683ad5d071cdcadfaf4f23560e9d5",
+     "ir": "170d9480d1d87d3933cad858236cea8575faf3136b07439247502a4d988fd7d7",
+     "ew_mul": 2,
+     "ew_linear": 1
+    },
+    {
+     "resource": "cluster",
+     "binding": "triton_unk_fused_0",
+     "config": {
+      "kwargs": {
+       "XBLOCK": 256
+      },
+      "warps": 4,
+      "stages": 1
+     },
+     "metadata": {},
+     "binary_hash": "ca64fe82f3cc4f6390d28a92f721f09a7dfb56a0da1c59c5c586911139d41aba",
+     "elf": "821e7618766a458cdd986cc422bdea9d7092cd889ac868703deec889d1afac78",
+     "xpubin": "e24cc97fd6366a02923f33cc14a085254bab1ba2b31997ccf7332b41ff43ce86",
+     "ir": "48f13f4317f245da888aa26e163b23d08f8d512a26b4d591a284e983277d299a",
+     "ew_mul": 0,
+     "ew_linear": 0
+    }
+   ],
+   "finite": {
+    "ordinary": true,
+    "changed": true,
+    "repeat": true,
+    "immutable": true,
+    "validation_scope": "finite inputs; special cases reported separately"
+   },
+   "special": [
+    {
+     "pattern": "nan",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "positive_inf",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 0,
+       "actual_nan": 0,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 1,
+       "actual_inf": 1,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": false,
+     "device_eager_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)",
+     "device_eager_matches_cpu": false,
+     "device_eager_cpu_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)"
+    },
+    {
+     "pattern": "negative_inf",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 0,
+       "actual_nan": 0,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 1,
+       "actual_inf": 1,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": false,
+     "device_eager_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)",
+     "device_eager_matches_cpu": false,
+     "device_eager_cpu_difference": "Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: nan at index (0, 0) (up to 0.03 allowed)\nGreatest relative difference: nan at index (0, 0) (up to 0.003 allowed)"
+    },
+    {
+     "pattern": "historical_mix",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "historical first-input injection",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "inf_times_zero",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "zero_times_inf",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 2048,
+       "actual_nan": 2048,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": null
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "nan_times_zero",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 1,
+       "actual_nan": 1,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": 0.0
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    },
+    {
+     "pattern": "zero_times_nan",
+     "passed": true,
+     "outputs": [
+      {
+       "elements": 2048,
+       "expected_nan": 2048,
+       "actual_nan": 2048,
+       "nan_mask_mismatch": 0,
+       "expected_inf": 0,
+       "actual_inf": 0,
+       "inf_mask_mismatch": 0,
+       "inf_sign_mismatch": 0,
+       "finite_tolerance_failures": 0,
+       "finite_max_abs_error": null
+      }
+     ],
+     "description": "explicit invalid multiply, CPU oracle",
+     "oracle": "cpu",
+     "classification_passed": true,
+     "finite_positions_passed": true,
+     "matches_device_eager": true,
+     "device_eager_matches_cpu": true
+    }
+   ],
+   "stress": {
+    "passed": false,
+    "total": {
+     "classes": 225,
+     "finite_pairs": 4096,
+     "invalid_zero": 12
+    },
+    "errors": {
+     "classes": 32,
+     "finite_pairs": 0,
+     "invalid_zero": 0
+    },
+    "examples": [
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 6,
+      "want": "3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 6,
+      "want": "-3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 12,
+      "other": 6,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 13,
+      "other": 6,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 7,
+      "want": "-3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 7,
+      "want": "3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 12,
+      "other": 7,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 13,
+      "other": 7,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 8,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 8,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 12,
+      "other": 8,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 13,
+      "other": 8,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 10,
+      "other": 9,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 11,
+      "other": 9,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 12,
+      "other": 9,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 13,
+      "other": 9,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 6,
+      "other": 10,
+      "want": "3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 7,
+      "other": 10,
+      "want": "-3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 8,
+      "other": 10,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 9,
+      "other": 10,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 6,
+      "other": 11,
+      "want": "-3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 7,
+      "other": 11,
+      "want": "3.984375",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 8,
+      "other": 11,
+      "want": "-0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 9,
+      "other": 11,
+      "want": "0.0311279296875",
+      "got": "0.0"
+     },
+     {
+      "suite": "classes",
+      "row": 6,
+      "other": 12,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 7,
+      "other": 12,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 8,
+      "other": 12,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 9,
+      "other": 12,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 6,
+      "other": 13,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 7,
+      "other": 13,
+      "want": "inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 8,
+      "other": 13,
+      "want": "-inf",
+      "got": "nan"
+     },
+     {
+      "suite": "classes",
+      "row": 9,
+      "other": 13,
+      "want": "inf",
+      "got": "nan"
+     }
+    ],
+    "signed_zero_differences": 0,
+    "invalid_zero_failures": []
+   },
+   "eligible": false,
+   "status": "finite_validated",
+   "timing": {
+    "checks": {
+     "ordinary": true,
+     "changed": true,
+     "repeat": true,
+     "immutable": true,
+     "validation_scope": "finite inputs; special cases reported separately",
+     "graph_fresh_data": true
+    },
+    "status": "passed",
+    "gpu_samples_us": [
+     9401.249326508621,
+     9401.268689385775,
+     9401.2451171875,
+     9401.49936018319,
+     9401.354559536638,
+     9403.877626616379,
+     9401.148302801725,
+     9401.327619881466,
+     9401.325094288793,
+     9401.149986530172,
+     9401.139884159482,
+     9403.718514278018,
+     9402.180428340518,
+     9401.9287109375,
+     9402.033102101293,
+     9401.946390086207,
+     9401.953125,
+     9401.883250269397
+    ],
+    "gpu_us": 9401.426959859913,
+    "calls_per_graph": 145,
+    "capture_samples_us": [
+     [
+      9401.249326508621,
+      9401.268689385775,
+      9401.2451171875,
+      9401.49936018319,
+      9401.354559536638,
+      9403.877626616379
+     ],
+     [
+      9401.148302801725,
+      9401.327619881466,
+      9401.325094288793,
+      9401.149986530172,
+      9401.139884159482,
+      9403.718514278018
+     ],
+     [
+      9402.180428340518,
+      9401.9287109375,
+      9402.033102101293,
+      9401.946390086207,
+      9401.953125,
+      9401.883250269397
+     ]
+    ],
+    "capture_medians_us": [
+     9401.311624461207,
+     9401.237540409482,
+     9401.949757543103
+    ],
+    "e2e_protocol": "randomized_ab_ba_v1",
+    "e2e_round_samples_us": [
+     [
+      9458.015,
+      9457.604,
+      9478.971,
+      9443.896,
+      9447.425,
+      9454.155,
+      9479.302,
+      9447.515,
+      9483.731,
+      9435.366,
+      9459.474,
+      9440.556,
+      9447.665,
+      9450.475,
+      9440.325,
+      9477.942,
+      9438.866,
+      9454.304,
+      9449.515,
+      9489.531,
+      9462.653,
+      9457.554,
+      9436.317,
+      9459.634,
+      9488.511,
+      9455.034,
+      9440.186,
+      9468.673,
+      9489.851,
+      9442.146,
+      9444.425,
+      9454.824,
+      9438.186,
+      9495.571,
+      9466.893,
+      9451.885,
+      9440.226,
+      9450.725,
+      9469.782,
+      9444.006,
+      9455.264,
+      9465.163,
+      9474.472,
+      9477.482,
+      9442.536,
+      9479.032,
+      9445.345,
+      9447.715,
+      9476.473,
+      9465.763,
+      9443.795,
+      9456.354,
+      9486.331,
+      9443.445,
+      9453.704,
+      9479.182,
+      9442.636,
+      9471.373,
+      9459.324,
+      9450.274,
+      9484.582,
+      9447.525,
+      9444.026,
+      9444.685,
+      9480.692,
+      9459.974,
+      9447.444,
+      9456.334,
+      9475.682,
+      9440.016,
+      9486.001,
+      9451.034,
+      9448.324,
+      9472.992,
+      9465.143,
+      9445.095,
+      9490.431,
+      9458.864,
+      9440.576,
+      9497.01,
+      9469.323,
+      9452.084,
+      9450.814,
+      9460.804,
+      9476.992,
+      9439.026,
+      9450.894,
+      9453.304,
+      9501.48,
+      9445.796,
+      9455.294,
+      9467.363,
+      9489.681,
+      9459.214,
+      9446.345,
+      9450.555,
+      9475.712,
+      9451.844,
+      9450.845,
+      9447.845,
+      9492.97,
+      9437.456,
+      9492.67,
+      9440.335,
+      9454.994,
+      9452.485,
+      9453.504,
+      9455.554,
+      9462.754,
+      9467.573,
+      9444.025,
+      9445.635,
+      9461.763,
+      9442.066,
+      9489.801,
+      9498.89,
+      9441.746,
+      9447.605,
+      9493.241,
+      9486.921,
+      9444.125,
+      9475.253,
+      9438.876,
+      9476.992,
+      9475.062,
+      9464.973,
+      9440.686,
+      9458.824
+     ],
+     [
+      9585.392,
+      9493.711,
+      9465.853,
+      9453.294,
+      9473.442,
+      9443.206,
+      9451.205,
+      9475.002,
+      9446.775,
+      9444.685,
+      9445.735,
+      9452.215,
+      9481.962,
+      9501.2,
+      9473.852,
+      9467.643,
+      9445.285,
+      9456.444,
+      9457.594,
+      9443.625,
+      9446.885,
+      9481.081,
+      9490.691,
+      9444.416,
+      9456.224,
+      9454.834,
+      9450.815,
+      9472.462,
+      9454.874,
+      9458.624,
+      9447.085,
+      9464.143,
+      9447.125,
+      9489.751,
+      9448.145,
+      9450.545,
+      9447.385,
+      9435.816,
+      9479.842,
+      9442.836,
+      9455.985,
+      9452.104,
+      9484.142,
+      9469.983,
+      9458.104,
+      9467.603,
+      9468.153,
+      9453.814,
+      9473.482,
+      9436.396,
+      9475.692,
+      9443.125,
+      9456.955,
+      9475.592,
+      9456.344,
+      9468.522,
+      9438.076,
+      9452.415,
+      9445.065,
+      9448.075,
+      9442.696,
+      9443.505,
+      9447.515,
+      9455.654,
+      9450.605,
+      9436.166,
+      9478.952,
+      9437.026,
+      9455.745,
+      9448.674,
+      9450.425,
+      9445.895,
+      9492.231,
+      9444.245,
+      9446.505,
+      9441.036,
+      9453.635,
+      9489.441,
+      9446.715,
+      9459.694,
+      9446.795,
+      9451.405,
+      9445.195,
+      9444.975,
+      9485.552,
+      9468.783,
+      9447.615,
+      9458.474,
+      9446.555,
+      9487.551,
+      9435.486,
+      9454.134,
+      9439.516,
+      9486.611,
+      9476.932,
+      9437.746,
+      9477.243,
+      9451.424,
+      9449.175,
+      9466.323,
+      9496.91,
+      9452.645,
+      9453.615,
+      9474.022,
+      9448.635,
+      9490.44,
+      9436.496,
+      9500.43,
+      9475.143,
+      9443.735,
+      9476.192,
+      9438.506,
+      9453.485,
+      9473.892,
+      9490.741,
+      9445.085,
+      9469.343,
+      9470.603,
+      9451.635,
+      9445.335,
+      9437.856,
+      9455.234,
+      9445.525,
+      9463.403,
+      9440.386,
+      9460.673,
+      9452.435,
+      9453.704
+     ]
+    ]
+   }
+  }
+ },
+ "status": "complete",
+ "stage": "complete",
+ "case": {
+  "case_id": "large:mul_sum_keepdim:bfloat16:2048x2048",
+  "kind": "mul_sum_keepdim",
+  "dtype": "bfloat16",
+  "M": 2048,
+  "N": 2048,
+  "K": null,
+  "tolerance": {
+   "atol": 0.03,
+   "rtol": 0.003
+  },
+  "input_builder": "large_nonmatmul",
+  "ordinal": 215
+ },
+ "inputs": {
+  "seed": 61,
+  "inputs": [
+   {
+    "shape": [
+     2048,
+     2048
+    ],
+    "sha256": "b7efef93138e51c173ec2b9ff32a303242c9873c8ecacb2f711e71814d0b464d"
+   },
+   {
+    "shape": [
+     2048
+    ],
+    "sha256": "4479df15bff3db2aa9b53622fa61cb116b0810a0f0dc9f9e3d8c1bf2723cbc19"
+   }
+  ],
+  "parameters": {},
+  "graph": "graph():\n    %a : [num_users=1] = placeholder[target=a]\n    %b : [num_users=1] = placeholder[target=b]\n    %mul : [num_users=1] = call_function[target=operator.mul](args = (%a, %b), kwargs = {})\n    %sum_1 : [num_users=1] = call_function[target=torch.sum](args = (%mul,), kwargs = {dim: -1, keepdim: True})\n    return sum_1",
+  "note": "same historical operator definitions and dtype tolerances; larger inputs"
+ },
+ "finished_at": 1793862561.8010225,
+ "timed_bindings_unchanged": true
+}

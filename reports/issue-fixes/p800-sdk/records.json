@@ -1,0 +1,372 @@
+[
+  {
+    "id": "SDK01",
+    "group": "XPU 工具包与预编译链路",
+    "date": "2026-11-26",
+    "title": "kunlun_ops 因 wheel 与实际加载的 XFA ABI 不匹配而无法导入",
+    "component": "P800 Python wheel 与 XPyTorch SDK 配套",
+    "status": "配套环境修复，P800 已验证",
+    "solution": "使用厂商 Torch 2.9 同批 SDK 和 wheel，在个人目录构建独立环境。真实导入两个扩展并解析全部强引用，成功后发布配置，正式测试入口复核库指纹。",
+    "evidence": "旧 wheel 全部 ELF 合计 106 个 XFA 符号缺 33 个；单看 libxops_blocks.so 为 94 个缺 29 个。新 wheel 配镜像原 SDK 为 176 个缺 116 个，配套运行后 176/176 解析，7 个 Python 入口均可导入。单卡 32 项中 24 项有配对结果，20 项满足既有相对精度门槛。GELU 4 项超门槛；add_layernorm 8 项报独立 dtype 错误。",
+    "baseline": "Torch 2.9.0+cu129，原 XMLIR bc1b1dc6f；配套 XMLIR 953ed40fc、kunlun_ops 0.1.227+2b100f96。",
+    "fix_paths": [
+      "reports/issue-fixes/p800-sdk/XFA/prepare_ops.py",
+      "reports/issue-fixes/p800-sdk/XFA/build_profile.py"
+    ],
+    "historical_status": "",
+    "related": [
+      "SDK03",
+      "SDK04"
+    ],
+    "notes": [
+      "后续 FP16 包装层修复见 SDK03、SDK04。原始 wheel 的 32 项与修复后的两轮设备复测分别保留。"
+    ],
+    "refs": [
+      {
+        "label": "Issue 正文",
+        "path": "reports/issue-fixes/p800-sdk/XFA/ISSUE.md"
+      },
+      {
+        "label": "PR 正文",
+        "path": "reports/issue-fixes/p800-sdk/XFA/PR.md"
+      },
+      {
+        "label": "可应用的代码补丁",
+        "path": "reports/issue-fixes/p800-sdk/XFA/fix.patch"
+      },
+      {
+        "label": "P800 逐项结果",
+        "path": "reports/issue-fixes/p800-sdk/XFA/p800-results.json"
+      },
+      {
+        "label": "旧 wheel 的真实导入",
+        "path": "reports/issue-fixes/p800-sdk/XFA/verify-original.json"
+      },
+      {
+        "label": "仅换 wheel 的负对照",
+        "path": "reports/issue-fixes/p800-sdk/XFA/verify-mixed.json"
+      },
+      {
+        "label": "配套运行库的真实导入",
+        "path": "reports/issue-fixes/p800-sdk/XFA/verify-paired.json"
+      },
+      {
+        "label": "复现脚本",
+        "path": "reports/issue-fixes/p800-sdk/XFA/reproduce.py"
+      },
+      {
+        "label": "中间产物与机器码归因",
+        "path": "reports/P800_XFA与XFFT单卡故障归因.json"
+      }
+    ]
+  },
+  {
+    "id": "SDK02",
+    "group": "XPU 工具包与预编译链路",
+    "date": "2026-11-26",
+    "title": "KL3 XFFT 一维复数 FP16 计划返回 14",
+    "component": "P800 XFFT 预编译库与调用方",
+    "status": "调用方兼容修复，P800 正逆变换通过",
+    "solution": "单卡连续、单批 C2C 先建原生 FP16 计划。仅对状态 14 重建 FP32 计划，输入实虚部提升精度，厂商执行 FFT，输出一次转换为 FP16。原始状态与兼容结果分别保留。",
+    "evidence": "128、512、1024 三个长度原生均返回 14。正逆变换 × 随机和复数脉冲共 12/12 通过。13,312 个实数分量中，8 个与 CPU FP64 结果最终舍入到 FP16 的值有差异，全部通过本次 FFT 专项检查。",
+    "baseline": "KL3 20251230，libcufft.so.10；实测连续一维、batch=1、默认流。原生复数 FP16 支持仍待厂商实现。",
+    "fix_paths": [
+      "reports/issue-fixes/p800-sdk/XFFT/xfft_fp16.py"
+    ],
+    "historical_status": "",
+    "related": [],
+    "notes": [],
+    "refs": [
+      {
+        "label": "Issue 正文",
+        "path": "reports/issue-fixes/p800-sdk/XFFT/ISSUE.md"
+      },
+      {
+        "label": "PR 正文",
+        "path": "reports/issue-fixes/p800-sdk/XFFT/PR.md"
+      },
+      {
+        "label": "可应用的代码补丁",
+        "path": "reports/issue-fixes/p800-sdk/XFFT/fix.patch"
+      },
+      {
+        "label": "P800 逐项结果",
+        "path": "reports/issue-fixes/p800-sdk/XFFT/p800-results.json"
+      },
+      {
+        "label": "独立设备回归脚本",
+        "path": "reports/issue-fixes/p800-sdk/XFFT/verify_xfft.py"
+      },
+      {
+        "label": "中间产物与机器码归因",
+        "path": "reports/P800_XFA与XFFT单卡故障归因.json"
+      }
+    ]
+  },
+  {
+    "id": "SDK03",
+    "group": "XPU 工具包与预编译链路",
+    "date": "2026-11-26",
+    "title": "FP16 GELU 旧 XDNN 入口与 exact eager 有逐值差异",
+    "component": "kunlun_ops Python 激活包装层及厂商 XDNN GELU",
+    "status": "个人环境包装层修复，P800 两轮验证通过",
+    "solution": "在公开 FP16 输出缓冲区入口调用 XPyTorch aten.gelu.out，明确指定 exact 模式。",
+    "evidence": "四个正式形状均通过既有 FP32 参考门槛。全部 65,536 个 FP16 位型的非 NaN 结果与 FP16 exact eager 逐位一致，NaN 掩码一致。两轮同步端到端加速比为 0.933–0.996×。",
+    "baseline": "P800、Torch 2.9.0+cu129、XMLIR 953ed40fc、官方 kunlun_ops 0.1.227+2b100f96。对照原始且未修改的 wheel。",
+    "fix_paths": [
+      "reports/issue-fixes/p800-sdk/GELU/fix.patch"
+    ],
+    "historical_status": "",
+    "related": [
+      "SDK01"
+    ],
+    "notes": [],
+    "refs": [
+      {
+        "label": "Issue 正文",
+        "path": "reports/issue-fixes/p800-sdk/GELU/ISSUE.md"
+      },
+      {
+        "label": "PR 正文",
+        "path": "reports/issue-fixes/p800-sdk/GELU/PR.md"
+      },
+      {
+        "label": "独立源码补丁",
+        "path": "reports/issue-fixes/p800-sdk/GELU/fix.patch"
+      },
+      {
+        "label": "公开入口回归脚本",
+        "path": "reports/issue-fixes/p800-sdk/FP16/verify_wrappers.py"
+      },
+      {
+        "label": "机器码与候选对照",
+        "path": "reports/issue-fixes/p800-sdk/FP16/diagnosis.json"
+      },
+      {
+        "label": "配套原版结果",
+        "path": "reports/issue-fixes/p800-sdk/XFA/p800-results.json"
+      },
+      {
+        "label": "两轮设备结果",
+        "path": "reports/issue-fixes/p800-sdk/FP16/p800-results.json"
+      },
+      {
+        "label": "边界条件回归",
+        "path": "reports/issue-fixes/p800-sdk/FP16/contract.json"
+      }
+    ]
+  },
+  {
+    "id": "SDK04",
+    "group": "XPU 工具包与预编译链路",
+    "date": "2026-11-26",
+    "title": "全 FP16 Add+LayerNorm 权重被分派拒绝，单独提升权重后归一化仍超差",
+    "component": "kunlun_ops Python 归一化包装层及 xpu_flash_ops 主机分派",
+    "status": "已修复并在 P800 验证；不舍入残差单核 8/8 组双输出通过，2048 列高偏置与 eager 基本持平",
+    "solution": "普通二维全 FP16 输入可使用厂商 FP32 融合包装层保证精度。新增独立 KL3 双输出 Cluster 单核，直接读取 FP16、片上 FP32 加法与中心化方差、直接写回两个 FP16 输出，支持归一化前舍入及保留 FP32 残差两种方式。 2048 列不舍入路径改为每行两核、单次交换均值与方差，异步写残差；公共单核入口使用 C++ 一次读取并校验本次调用的张量元数据。",
+    "evidence": "四个形状、两类输入的八项双输出在两轮均通过。四组可选参数、非连续布局和别名回归通过。两轮同步端到端加速比为 0.347–0.472×，计时包括类型转换、临时张量和写回。",
+    "baseline": "P800、Torch 2.9.0+cu129、XMLIR 953ed40fc、官方 kunlun_ops 0.1.227+2b100f96。对照原始且未修改的 wheel。",
+    "fix_paths": [
+      "reports/issue-fixes/p800-sdk/AddLayerNorm/fix.patch",
+      "reports/issue-fixes/p800-sdk/AddLayerNorm/dual_layernorm.xpu",
+      "reports/issue-fixes/p800-sdk/AddLayerNorm/dual_layernorm.py",
+      "reports/issue-fixes/p800-sdk/AddLayerNorm/launch.c",
+      "reports/issue-fixes/p800-sdk/AddLayerNorm/checked_launch.cpp"
+    ],
+    "historical_status": "",
+    "related": [
+      "SDK01"
+    ],
+    "notes": [
+      "首版实测。单核候选在个人 Docker 物理 1 号卡独立计时两轮，每种路径每轮 40 次。保留 FP32 残差 8/8 通过，16×64、64×1024、577×1024 的随机及高偏置均快于 eager（1.042–1.430×）、快于两步输出缓冲实现（1.211–1.604×）。2048×2048 两组相对 eager 为 0.743–0.758×。先舍入版本 4/8 通过，四项归一化误差超限；两种版本的残差均与 FP16 eager 逐元素相等。独立跟踪实发为单核 1 次、eager 2 次、两步 3 次。正式包装层未切换。",
+      "新版两轮独立进程、每组每轮 40 次同步调用。同一原始 FP32 参考与逐输出不劣于 FP16 eager 门槛。四个形状的随机与高偏置均通过，分别相对 eager 为 2.809–2.875×、2.896–2.985×、1.685–1.718×、1.001–1.023×。2048 列随机为 1.022–1.023×，高偏置一轮仅领先约 0.03 µs。先舍入 4/8 通过。实发为单核 1 次、eager 2 次、两步实现 3 次；本轮优化在独立入口生效。",
+      "固定旧二进制，仅换入口的提交中位数 42.43→11.77 µs。2048 列设备消融中，同载荷搬运 20.54 µs（含空发射 2.63 µs），额外两次空屏障 3.91 µs，局部归约 0.58 µs，完整统计量交换相对局部贡献 10.38 µs。新版完整设备核 43.60→36.60 µs。用相同的预排队单次事件口径，新核仍比厂商两核慢 3.11–3.19 µs。",
+      "固定 2048 列扫描行数。当前每轮覆盖 384 行。1920→1921 行新增一轮，设备时间增加 2.43–2.96 µs；2048→2304 行仍是六轮，只增加 0.01–0.20 µs。2048 行正式核设备比 eager 两核多 2.78–3.07 µs。半行诊断中加回栅栏和跨核同步约多 6.3–6.6 µs；此控制的归一化输出语义不同。保持完整输出、两段内循环展开 4 倍可节省 1.36–1.51 µs，已验证随机与高偏置双输出逐位相同，尚属诊断候选。"
+    ],
+    "refs": [
+      {
+        "label": "Issue 正文",
+        "path": "reports/issue-fixes/p800-sdk/AddLayerNorm/ISSUE.md"
+      },
+      {
+        "label": "PR 正文",
+        "path": "reports/issue-fixes/p800-sdk/AddLayerNorm/PR.md"
+      },
+      {
+        "label": "独立源码补丁",
+        "path": "reports/issue-fixes/p800-sdk/AddLayerNorm/fix.patch"
+      },
+      {
+        "label": "公开入口回归脚本",
+        "path": "reports/issue-fixes/p800-sdk/FP16/verify_wrappers.py"
+      },
+      {
+        "label": "机器码与候选对照",
+        "path": "reports/issue-fixes/p800-sdk/FP16/diagnosis.json"
+      },
+      {
+        "label": "配套原版结果",
+        "path": "reports/issue-fixes/p800-sdk/XFA/p800-results.json"
+      },
+      {
+        "label": "两轮设备结果",
+        "path": "reports/issue-fixes/p800-sdk/FP16/p800-results.json"
+      },
+      {
+        "label": "边界条件回归",
+        "path": "reports/issue-fixes/p800-sdk/FP16/contract.json"
+      },
+      {
+        "label": "单核 FP32 计算与两种残差策略",
+        "path": "reports/issue-fixes/p800-sdk/AddLayerNorm/dual_layernorm.xpu"
+      },
+      {
+        "label": "单核完整精度、发射和两轮端到端对照",
+        "path": "reports/issue-fixes/p800-sdk/AddLayerNorm/dual-output-results.json"
+      },
+      {
+        "label": "随机和高偏置复测脚本",
+        "path": "reports/issue-fixes/p800-sdk/AddLayerNorm/bench_dual_layernorm.py"
+      },
+      {
+        "label": "新版八组双输出、交叉计时与实发指纹",
+        "path": "reports/issue-fixes/p800-sdk/AddLayerNorm/schedule-results.json"
+      },
+      {
+        "label": "调用与设备调度消融",
+        "path": "reports/issue-fixes/p800-sdk/AddLayerNorm/profile_dual_layernorm.py"
+      },
+      {
+        "label": "2048 列新核最终反汇编",
+        "path": "review-local/p800-interface-benchmark-20261126/sdk04-schedule/wide.asm"
+      },
+      {
+        "label": "2048 列分块尾轮与同步对照",
+        "path": "reports/issue-fixes/p800-sdk/AddLayerNorm/size-diagnosis.json"
+      }
+    ]
+  },
+  {
+    "id": "SDK05",
+    "group": "XPU 工具包与预编译链路",
+    "date": "2026-11-26",
+    "title": "P800 原生 eager 对 complex64 除实数标量时误入未支持的 cast",
+    "component": "昆仑芯 XPyTorch / XDNN 的复数标量运算与类型转换",
+    "status": "原生后端缺陷已定位，调用方处置见逐模型复测",
+    "solution": "支持复数张量按实数缩放并保留实部、虚部及 complex64 结果。分别校验除以 108、模型的后续频域乘法和逆变换，再核对三种模型的端到端输出。",
+    "evidence": "模型实际执行 rfft(n=108)，得到 XPU complex64 [768,55]。该张量除以 Python 整数 108，XDNN cast.cpp:163 选择 complex64 → float32，并在 XMLIR copy_kernel.cpp:407 返回 4。",
+    "baseline": "P800 原生 eager，FlagGems OFF、关闭图优化、同 revision。",
+    "fix_paths": [],
+    "historical_status": "",
+    "related": [
+      "M06",
+      "SDK02"
+    ],
+    "notes": [
+      "M06 记录了 32k 的原始组合表达式和 CPU 参考。SDK02 的绕行针对 FP16 复数 FFT 计划返回 14，本例已成功取得 FP32 输入的 RFFT 结果。两项均未修复本例标量除法。"
+    ],
+    "refs": [
+      {
+        "label": "独立 Issue 正文",
+        "path": "reports/issue-fixes/p800-sdk/ComplexScalarDiv/ISSUE.md"
+      },
+      {
+        "label": "逐模型复测",
+        "path": "reports/issue-fixes/P800-eager-修复对照-20261126.md"
+      }
+    ]
+  },
+  {
+    "id": "SDK06",
+    "group": "XPU 工具包与预编译链路",
+    "date": "2026-11-26",
+    "title": "P800 原生 eager 无法将 float8_e4m3fn 权重转换到 bfloat16",
+    "component": "昆仑芯 XPyTorch / XDNN 的 FP8 cast 分派",
+    "status": "原生后端缺陷已定位，调用方处置见逐模型复测",
+    "solution": "映射正确的 FP8 标量类型并实现格式转换。覆盖有限值、零和特殊编码，并在保留发布者 weight_scale 的情况下校验完整权重加载与前向。",
+    "evidence": "权重加载器对 [2048,2048] 的 float8_e4m3fn 张量执行 to(bfloat16)。XDNN 将源类型打印为 UnknownScalarType，在 cast.cpp:163 和 XMLIR copy_kernel.cpp:407 返回 4。反量化乘 weight_scale 在此之后。",
+    "baseline": "P800 原生 eager，FlagGems OFF、关闭图优化、同 revision。",
+    "fix_paths": [],
+    "historical_status": "",
+    "related": [
+      "D02",
+      "M96"
+    ],
+    "notes": [
+      "D02 处理 FlagGems 的非连续 copy_。M96 针对 NVFP4 打包权重与模型加载器。两项所处理的输入格式和调用路径均不同。"
+    ],
+    "refs": [
+      {
+        "label": "独立 Issue 正文",
+        "path": "reports/issue-fixes/p800-sdk/FP8WeightCast/ISSUE.md"
+      },
+      {
+        "label": "逐模型复测",
+        "path": "reports/issue-fixes/P800-eager-修复对照-20261126.md"
+      }
+    ]
+  },
+  {
+    "id": "SDK07",
+    "group": "XPU 工具包与预编译链路",
+    "date": "2026-11-26",
+    "title": "P800 原生高效 SDPA 拒绝带布尔掩码的 512 维注意力",
+    "component": "昆仑芯 XPyTorch / XMLIR 原生高效注意力",
+    "status": "原生后端缺陷已定位，调用方处置见逐模型复测",
+    "solution": "高效实现应支持该组合，或由原生分派为不支持的形状保留原掩码、scale 并回退 math。用同一输入校验全量输出，再复测整模型。",
+    "evidence": "第六次 SDPA 调用的 Q/K/V 为 FP16 [10,4,40,512]，布尔掩码为 [10,1,40,40]，scale=1，causal=False。原生高效路径在 _efficient_attention_forward.cpp:340 返回 INVALID PARAMETER。",
+    "baseline": "P800 原生 eager，FlagGems OFF、关闭图优化、同 revision。",
+    "fix_paths": [],
+    "historical_status": "",
+    "related": [
+      "D06",
+      "D08",
+      "D09",
+      "M51"
+    ],
+    "notes": [
+      "D06、D08、D09 修补 FlagGems ON 的 bias、掩码构造及非方形边界。M51 记录 Meta 与真实输出步幅差异。本例关闭 FlagGems 和图优化。同一输入强制 math 已在算子层通过，无须移除掩码。"
+    ],
+    "refs": [
+      {
+        "label": "独立 Issue 正文",
+        "path": "reports/issue-fixes/p800-sdk/MaskedSDPA512/ISSUE.md"
+      },
+      {
+        "label": "逐模型复测",
+        "path": "reports/issue-fixes/P800-eager-修复对照-20261126.md"
+      }
+    ]
+  },
+  {
+    "id": "SDK08",
+    "group": "XPU 工具包与预编译链路",
+    "date": "2026-11-26",
+    "title": "P800 BF16 变长 FlashAttention 在局部窗口 (64,64) 触发设备访存越界",
+    "component": "昆仑芯 XPyTorch 预编译 libxpu_flash_attention.so / XPU3 FlashAttention",
+    "status": "原生后端缺陷已定位，调用方处置见逐模型复测",
+    "solution": "修复变长局部窗口的内存边界。校验短于和长于窗口的序列，输出与保留局部掩码的独立计算对齐。复测须在调用后同步。",
+    "evidence": "真实 QKV 为 BF16 [282,3,12,64]，最长序列为 67。第二次 attention 对同一份 QKV 和 cu_seqlens 使用全局窗口能同步，恢复局部窗口 (64,64) 后返回异步错误 700。原运行的 12 个 SDNN cluster 报告 reason[4]。",
+    "baseline": "P800 原生 eager，FlagGems OFF、关闭图优化、同 revision。",
+    "fix_paths": [],
+    "historical_status": "",
+    "related": [
+      "M11",
+      "M97",
+      "M102"
+    ],
+    "notes": [
+      "M11 的特定模型策略可避开部分 FlashAttention。M97 的去填充和 M102 的 FakeTensor 步幅属于图捕获。把局部窗口改为全局窗口会更改模型语义。驱动装载地址和已提取机器码尚不能标出具体越界指令。"
+    ],
+    "refs": [
+      {
+        "label": "独立 Issue 正文",
+        "path": "reports/issue-fixes/p800-sdk/LocalVarlenFlash/ISSUE.md"
+      },
+      {
+        "label": "逐模型复测",
+        "path": "reports/issue-fixes/P800-eager-修复对照-20261126.md"
+      }
+    ]
+  }
+]

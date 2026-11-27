@@ -13,6 +13,7 @@
 #include "triton/Dialect/TritonXPU/Transforms/Passes.h"
 #include "triton/Dialect/TritonXPU/Transforms/ReconcileLayoutUtils.h"
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/ADT/SmallPtrSet.h"
 #include "mlir/Transforms/GreedyPatternRewriteDriver.h"
 #include <map>
 // clang-format on
@@ -477,6 +478,14 @@ struct TritonXPUVectorizePass
             binOp.replaceAllUsesWith(newBinOp.getResult());
             binOp.erase();
           })
+          .Case<math::FmaOp>([&](auto fmaOp) {
+            OpBuilder builder(fmaOp);
+            auto vector = builder.create<triton::xpu::VMacFOp>(
+                fmaOp.getLoc(), getVectorType(fmaOp.getType()),
+                fmaOp.getA(), fmaOp.getB(), fmaOp.getC());
+            fmaOp.replaceAllUsesWith(vector.getResult());
+            fmaOp.erase();
+          })
           .Case<MATH_UNARY_OP>([&](auto unaryOp) {
             auto newVectorizedTensorTy =
                 getVectorType(unaryOp.getResult().getType());
@@ -512,6 +521,35 @@ struct TritonXPUVectorizePass
             castOp.erase();
           })
           .Case<arith::ConstantOp>([&](auto constOp) {
+            // A constant that also feeds a masked load's `other` keeps a
+            // scalar clone for that use: the fill path stores `other` into
+            // the LM buffer through the scalar-shaped store (OtherSim.cpp),
+            // and a vector form there corrupts the fill. The walk already
+            // refuses to enter the closure through the other edge
+            // (VectorizabilityAnalysis.cpp's LoadOp-other skip); this clone
+            // keeps a constant shared with a vector consumer (a carry
+            // zero-init, CSE'd with other=0) from vectorizing underneath it.
+            SmallVector<OpOperand *, 4> otherUses;
+            for (OpOperand &use : constOp->getUses()) {
+              Operation *owner = use.getOwner();
+              bool isOtherUse = false;
+              if (auto loadOp = dyn_cast<triton::xpu::LoadOp>(owner))
+                isOtherUse = (use.get() == loadOp.getOther());
+              else if (auto gm2lmOp = dyn_cast<triton::xpu::GM2LMOp>(owner))
+                isOtherUse = (use.get() == gm2lmOp.getOther());
+              else if (auto gm2lmMaskOp =
+                           dyn_cast<triton::xpu::GM2LMMaskOp>(owner))
+                isOtherUse = (use.get() == gm2lmMaskOp.getOther());
+              if (isOtherUse)
+                otherUses.push_back(&use);
+            }
+            if (!otherUses.empty()) {
+              OpBuilder sbuilder(constOp);
+              auto scalarClone = sbuilder.create<arith::ConstantOp>(
+                  constOp.getLoc(), constOp.getType(), constOp.getValue());
+              for (OpOperand *use : otherUses)
+                use->set(scalarClone.getResult());
+            }
             auto newVectorizedTensorTy =
                 getVectorType(constOp.getResult().getType());
             OpBuilder builder(constOp);
@@ -631,6 +669,76 @@ struct TritonXPUVectorizePass
             auto newVectorizedTensorTy =
                 getVectorType(expandOp.getResult().getType());
             expandOp.getResult().setType(newVectorizedTensorTy);
+          })
+          .Case<triton::xpu::ScanOp>([&](auto scanOp) {
+            // Width-preserving pass-through: the results follow getVectorType
+            // like every other op in the tree, so the users above (truncf,
+            // store) see the vector form. The combine region must follow the
+            // new element type (Ops.cpp verifyRegionsImpl) the same way the
+            // reduce's retyping block does it: block args and region ops go
+            // vector, and scalar constants are rematerialized as in-region
+            // vector splats. Region op kinds are the exact set
+            // scanCombineIsVectorizable admits -- Default is unreachable.
+            for (Value res : scanOp->getResults())
+              res.setType(getVectorType(res.getType()));
+            for (Block &block : scanOp.getCombineOp().getBlocks()) {
+              auto inputSize = scanOp.getInputTypes().size();
+              int vecSize = 16;
+              for (unsigned i = 0; i < inputSize; ++i) {
+                // Derive from the freshly retyped result, not the operand:
+                // producers may or may not have been retyped yet, the result
+                // was scalar until two lines ago either way.
+                auto vecTy =
+                    cast<RankedTensorType>(scanOp->getResult(i).getType())
+                        .getElementType();
+                vecSize = cast<VectorType>(vecTy).getNumElements();
+                auto arg1 = block.getArguments()[i];
+                auto arg2 = block.getArguments()[inputSize + i];
+                arg1.setType(vecTy);
+                arg2.setType(vecTy);
+              }
+              {
+                OpBuilder builder(&block, block.begin());
+                for (Operation &op : block) {
+                  for (OpOperand &use : op.getOpOperands()) {
+                    Value v = use.get();
+                    if (isa<VectorType>(v.getType()))
+                      continue;
+                    auto cstOp = v.getDefiningOp<arith::ConstantOp>();
+                    if (!cstOp)
+                      continue; // excluded by scanCombineIsVectorizable
+                    auto newVecTy = VectorType::get(vecSize, v.getType());
+                    auto splat = DenseElementsAttr::get(
+                        cast<ShapedType>(Type(newVecTy)),
+                        ArrayRef<Attribute>{cstOp.getValue()});
+                    use.set(builder.create<arith::ConstantOp>(cstOp.getLoc(),
+                                                              newVecTy, splat));
+                  }
+                }
+              }
+              for (auto &op : block) {
+                TypeSwitch<Operation *>(&op)
+                    .template Case<REDUCE_COMBINE_OP, arith::SubFOp,
+                                   arith::DivFOp, arith::SelectOp>(
+                        [&](auto comOp) {
+                          for (auto res : comOp->getResults()) {
+                            auto elemTy = res.getType();
+                            VectorType vecType =
+                                VectorType::get(vecSize, elemTy);
+                            res.setType(vecType);
+                          }
+                        })
+                    .template Case<arith::ConstantOp>([&](auto cstOp) {
+                      // Left scalar on purpose: the lowering's emitter splats
+                      // it to whichever shape consumes it.
+                    })
+                    .Default([&](auto defaultOp) {
+                      defaultOp->dump();
+                      llvm_unreachable(
+                          "[Vectorization]: Unsupported scan combine op");
+                    });
+              }
+            }
           })
           .Case<triton::ExternElementwiseOp>([&](auto extElemwiseOp) {
             auto symbol = extElemwiseOp.getSymbol();
@@ -790,9 +898,9 @@ struct TritonXPUVectorizePass
                                         ArrayRef<Operation *> rootOps,
                                         Type rootOpTy, std::string logMessage,
                                         triton::xpu::ReduceOp redOp = {}) {
-    VectorizabilityAnalysis analysis(ReduceVec, dumpFlag,
-                                     vectorFitsReduceOperand, vectorFitsValue,
-                                     this->tleSmemVec, this->tleVec);
+    VectorizabilityAnalysis analysis(
+        ReduceVec, dumpFlag, vectorFitsReduceOperand, vectorFitsValue,
+        this->tleSmemVec, this->tleVec, vectorFitsScanOperand);
     if (!vectorFitsRoot(rootOpTy)) {
       if (vecReportEnabled() && !rootOps.empty())
         reportVecRoot("in-vectorize", "reduce-operand-shared", rootOps.front(),
@@ -807,6 +915,7 @@ struct TritonXPUVectorizePass
         if (vecReportEnabled())
           reportVecRoot("in-vectorize", "reduce-operand-shared", rootOp,
                         rootOpTy, /*eligible=*/true, /*closureSize=*/0);
+        reportVecFail(rootOp, "reduce-operand-shared", analysis.getFailedOps());
         return; // all-or-nothing: the reduce needs every operand in vector form
       }
 
@@ -835,9 +944,9 @@ struct TritonXPUVectorizePass
         isa_and_nonnull<triton::xpu::StoreOp, triton::StoreOp>(rootOp)
             ? "store"
             : "reduce-operand";
-    VectorizabilityAnalysis analysis(ReduceVec, dumpFlag,
-                                     vectorFitsReduceOperand, vectorFitsValue,
-                                     this->tleSmemVec, this->tleVec);
+    VectorizabilityAnalysis analysis(
+        ReduceVec, dumpFlag, vectorFitsReduceOperand, vectorFitsValue,
+        this->tleSmemVec, this->tleVec, vectorFitsScanOperand);
     if (!vectorFitsRoot(rootOpTy)) {
       if (vecReportEnabled() && rootOp) {
         reportVecRoot("in-vectorize", site, rootOp, rootOpTy,
@@ -857,8 +966,22 @@ struct TritonXPUVectorizePass
                     closed ? int64_t(vectorizedOps.size()) : 0);
     if (!closed) {
       reportOpenGate(rootOp, site, "walk-vetoed", vectorizedOps.size());
+      reportVecFail(rootOp, site, analysis.getFailedOps());
       cutVectorSegment(rootOp, site, mod);
       return;
+    }
+    // Front-door pricing, report-only (the step 3.2i+ pattern): a closed set
+    // carrying a scan is priced with the core-cost term so the census sees
+    // what an enforcing gate would have answered. The cut path cannot see
+    // scan terms -- the walk vetoes before such a segment exists -- so the
+    // growth door is the only observation post for scan pricing.
+    if (vecReportEnabled()) {
+      bool hasScan = false;
+      for (Operation *op : vectorizedOps)
+        if (isa<triton::xpu::ScanOp>(op))
+          hasScan = true;
+      if (hasScan)
+        reportOpenGate(rootOp, site, "growth-scan-priced", 0);
     }
 
     LLVM_DEBUG({
@@ -1168,6 +1291,32 @@ struct TritonXPUVectorizePass
     llvm::errs() << " loc=" << storeOp->getLoc() << "\n";
   }
 
+  // Names the op(s) that made a vectorization root fall back to scalar, so a
+  // developer can see *which* op blocked it rather than only that the root
+  // stayed scalar. `getFailedOps()` holds the intrinsic leaves the all-or-
+  // nothing walk vetoed on (no vector form / footprint / guard), not the
+  // ancestors that only propagated the veto. Off unless TRITONXPU_VEC_REPORT=1.
+  void reportVecFail(Operation *rootOp, const char *site, Operation *op,
+                     const char *reason) {
+    if (!vecReportEnabled() || !rootOp || !op)
+      return;
+    StringRef kernel = "<unknown>";
+    if (auto funcOp = rootOp->getParentOfType<triton::FuncOp>())
+      kernel = funcOp.getName();
+    llvm::errs() << "[VecFail] " << kernel << " site=" << site
+                 << " root=" << rootOp->getName() << " op=" << op->getName()
+                 << " reason=" << reason << " loc=" << op->getLoc() << "\n";
+  }
+  void reportVecFail(Operation *rootOp, const char *site,
+                     ArrayRef<Operation *> failedOps) {
+    if (!vecReportEnabled())
+      return;
+    llvm::SmallPtrSet<Operation *, 8> seen;
+    for (Operation *op : failedOps)
+      if (op && seen.insert(op).second)
+        reportVecFail(rootOp, site, op, "no-vector-form");
+  }
+
   // Step 3.2 stage 2: the first change here that alters emitted code, so it
   // sits behind `per-op-decision` and the default path is untouched.
   //
@@ -1328,7 +1477,13 @@ struct TritonXPUVectorizePass
     int64_t unpricedEdge = 0; // edge P4's formula does not apply to
     int64_t unpricedTerm = 0; // term op whose own width is unpriceable
     int64_t free = 0;         // splat constants: one materialisation either way
-    int64_t net() const { return save - price; }
+    // Core rewrite cost of cross-lane ops the scalar form does not pay:
+    // a vectorized scan's lane prefix runs a shift-add network per chunk
+    // (~10 ops/chunk network path, ~48 serial), priced in P4's static
+    // instruction unit; calibrated against P800 device measurements
+    // (2026-09-21: 41ns/chunk network vs 164ns/chunk serial).
+    int64_t coreCost = 0;
+    int64_t net() const { return save - price - coreCost; }
   };
 
   // The out-edges of a segment, enumerated the way `cutVectorSegment` actually
@@ -1385,6 +1540,29 @@ struct TritonXPUVectorizePass
           continue;
         ++sp.matIn;
         priceEdge(operand);
+      }
+      // Core-cost term: a vectorized scan pays a lane-prefix network per
+      // chunk; scalar scans pay nothing here, and the save side only counts
+      // the memory edges, so this is where the network enters the ledger.
+      if (auto scanOp = dyn_cast<triton::xpu::ScanOp>(op)) {
+        int64_t cn = 0, cw = 0;
+        Value crepr = decisionKeyValue(op);
+        if (crepr && p4EdgePrice(crepr, cn, cw) && cn > cw) {
+          // Per-chunk network cost by combine shape, not a flat rate: a plain
+          // add is a maskless shift-add (cheapest); every other combine adds
+          // the keep-lane<k select (icmp + vvor) each step, and a multi-op
+          // region folds more ops per step. Under-pricing max/min would admit
+          // a network barely cheaper than the serial replay.
+          Block &body = scanOp.getCombineOp().front();
+          int64_t combineOps = std::distance(body.without_terminator().begin(),
+                                             body.without_terminator().end());
+          bool plainAdd = combineOps == 1 &&
+                          isa<arith::AddFOp, arith::AddIOp>(body.front());
+          int64_t perChunk = 10; // maskless shift-add network
+          if (!plainAdd)
+            perChunk += 4 + 4 * (combineOps - 1); // +mask, +extra fold ops
+          sp.coreCost += (cn / cw) * perChunk;
+        }
       }
       // A splat constant is one materialisation either way, so counting it as
       // `N -> N/W` would inflate the saving of exactly the segments worth
@@ -1459,8 +1637,9 @@ struct TritonXPUVectorizePass
                  << ",none=" << cover[unsigned(VecTyCoverage::None)] << "}"
                  << " mat{in=" << sp.matIn << ",out=" << sp.matOut << "}"
                  << " p4{price=" << sp.price << ",save=" << sp.save
-                 << ",net=" << sp.net() << ",unpriced=" << sp.unpricedEdge
-                 << "/" << sp.unpricedTerm << ",free=" << sp.free << "}"
+                 << ",core=" << sp.coreCost << ",net=" << sp.net()
+                 << ",unpriced=" << sp.unpricedEdge << "/" << sp.unpricedTerm
+                 << ",free=" << sp.free << "}"
                  << " unpricedEdgeTys={";
     const char *usep = "";
     for (auto &entry : unpricedTys) {
@@ -2201,7 +2380,7 @@ struct TritonXPUVectorizePass
       return false;
     // A loop's result comes from its BODY (the yield chain), not just from
     // the iter-arg init values the plain operand walk would follow. A
-    // k29-style `acc = scf.for(...)` hides the whole compute tree --
+    // TLE-style `acc = scf.for(...)` hides the whole compute tree --
     // including the lane-index-derived mask feeding a select -- inside the
     // region, and skipping it wrongly let the bf16 unordered (lane-
     // permuting) placement through: the mask's bits no longer lined up
@@ -2289,6 +2468,152 @@ struct TritonXPUVectorizePass
     });
     LLVM_DEBUG(llvm::dbgs() << "[Vectorization]: Apply TLE BF16<->FP32 "
                                "unordered placement.\n");
+  }
+
+  // A contiguous column buffer is already in LM. Keep it in vector registers
+  // when broadcasting over rows, instead of loading every lane into a scalar
+  // register and packing it back. The scalar path remains necessary for masks,
+  // discrete pointers and lane-permuted BF16 boundaries.
+  void vectorizeLMBroadcastSource(ModuleOp &mod) {
+    // The caller guarantees read-only, non-aliasing column arguments. Reserve
+    // the same upper SM window as TLE staging, never the reduction scratch.
+    // Refuse kernels already using either staging allocator.
+    bool shared = mod->hasAttr("flagtree.row_shared");
+    mod.walk([&](Operation *op) {
+      if (isa<triton::xpu::StageSMOp>(op) || op->hasAttr("xpu.mem_scope"))
+        shared = false;
+    });
+    int64_t smTop = 256 * 1024;
+    SmallVector<triton::xpu::BroadcastOp> broadcasts;
+    mod.walk([&](triton::xpu::BroadcastOp op) { broadcasts.push_back(op); });
+    for (auto bc : broadcasts) {
+      auto resultTy = dyn_cast<RankedTensorType>(bc.getType());
+      auto srcTy = dyn_cast<RankedTensorType>(bc.getSrc().getType());
+      if (!resultTy || !srcTy || srcTy.getRank() != 2 ||
+          srcTy.getShape()[0] != 1 || srcTy.getShape()[1] <= 1 ||
+          !isa<VectorType>(resultTy.getElementType()) ||
+          isa<VectorType>(srcTy.getElementType()))
+        continue;
+      SmallVector<Operation *> chain;
+      Value source = bc.getSrc();
+      while (auto cvt = source.getDefiningOp<triton::xpu::ConvertLayoutOp>()) {
+        auto inTy = dyn_cast<RankedTensorType>(cvt.getOperand().getType());
+        auto outTy = cast<RankedTensorType>(source.getType());
+        if (!inTy || inTy != outTy)
+          break;
+        chain.push_back(cvt);
+        source = cvt.getOperand();
+      }
+      auto ext = source.getDefiningOp<arith::ExtFOp>();
+      if (ext) {
+        chain.push_back(ext);
+        source = ext.getIn();
+      }
+      auto load = source.getDefiningOp<triton::xpu::LoadOp>();
+      auto loadTy = dyn_cast<RankedTensorType>(source.getType());
+      if (!load || !loadTy || loadTy.getRank() != 2 ||
+          loadTy.getShape() != srcTy.getShape() ||
+          loadTy.getEncoding() != srcTy.getEncoding() ||
+          load.getIsDiscrete() || load.getMask() ||
+          load.getOther() || load.getIndex() || load.getBf16Tofp32Unordered())
+        continue;
+      // GM continuity and LM continuity are different properties. Unknown
+      // GM offsets can still be staged into a dense, fresh local allocation.
+      // Recognize only that direct unmasked staging chain; views, indexed
+      // loads, padded rows and strided staging keep their existing path.
+      auto staged = load.getPtr().getDefiningOp<triton::xpu::GM2LMOp>();
+      auto allocation = staged && staged.getBufPtr()
+                            ? staged.getBufPtr().getDefiningOp<triton::xpu::AllocaOp>()
+                            : triton::xpu::AllocaOp();
+      // In the normal pipeline Alloca runs after Vectorize. An unallocated
+      // ordinary GM2LM receives the same dense alloca there; never apply this
+      // to a user-provided view or a special/discrete staging mode.
+      bool denseAllocation = staged && (!staged.getBufPtr() ||
+                             (allocation && allocation.getType() == load.getPtr().getType() &&
+                              allocation.getSize() == getTotalElemsPerThread(loadTy)));
+      bool denseStaging = load.getStride() == INT32_MIN && staged && denseAllocation &&
+                          !staged.getLen() && !staged.getOther() &&
+                          !staged.getSVOpt() && !staged.getAtomicSim() &&
+                          staged.getOffsetState() == static_cast<int32_t>(OffsetState::Unknown) &&
+                          staged.getFixedStride() == INT32_MIN &&
+                          staged.getTensorColSize() == -1;
+      if (load.getStride() != 1 && !denseStaging)
+        continue;
+      Type elem = loadTy.getElementType();
+      if (!(elem.isF16() || elem.isF32()) ||
+          (ext && !(elem.isF16() && srcTy.getElementType().isF32())) ||
+          (!ext && elem != srcTy.getElementType()))
+        continue;
+      auto ptrTy = dyn_cast<RankedTensorType>(load.getPtr().getType());
+      if (!ptrTy || ptrTy.getShape() != loadTy.getShape())
+        continue;
+      auto ptrElem = dyn_cast<PointerType>(ptrTy.getElementType());
+      if (!ptrElem || ptrElem.getAddressSpace() != 0 ||
+          ptrElem.getPointeeType() != elem)
+        continue;
+      unsigned width = 512 / elem.getIntOrFloatBitWidth();
+      if (getTotalElemsPerThread(loadTy) == 0 ||
+          getTotalElemsPerThread(loadTy) % width != 0 ||
+          loadTy.getShape().back() % width != 0)
+        continue;
+      OpBuilder builder(bc);
+      auto *vectorLoad = builder.clone(*load.getOperation());
+      if (denseStaging)
+        cast<triton::xpu::LoadOp>(vectorLoad).setStride(1);
+      vectorLoad->getResult(0).setType(getVectorType(loadTy));
+      auto gm = load.getPtr().getDefiningOp<triton::xpu::GM2LMOp>();
+      auto addptr = gm ? gm.getPtr().getDefiningOp<triton::AddPtrOp>() : triton::AddPtrOp();
+      auto splat = addptr ? addptr.getPtr().getDefiningOp<triton::SplatOp>() : triton::SplatOp();
+      Value offset = addptr ? addptr.getOffset() : Value();
+      while (offset) {
+        if (auto cvt = offset.getDefiningOp<triton::xpu::ConvertLayoutOp>())
+          offset = cvt.getOperand();
+        else if (auto expand = offset.getDefiningOp<triton::ExpandDimsOp>())
+          offset = expand.getSrc();
+        else
+          break;
+      }
+      auto range = offset ? offset.getDefiningOp<triton::xpu::MakeRangeOp>() : triton::xpu::MakeRangeOp();
+      int64_t columns = loadTy.getShape()[1];
+      int64_t bytes = columns * elem.getIntOrFloatBitWidth() / 8;
+      if (shared && gm && !gm.getLen() && !gm.getOther() &&
+          gm.getOffsetState() == 1 && splat && isa<BlockArgument>(splat.getSrc()) &&
+          range && range.getStart() == 0 && range.getEnd() == columns &&
+          !range.getLoopIndex() && !range.getUnrollIndex() && columns <= 2048 && bytes % 64 == 0 &&
+          smTop - bytes >= 128 * 1024 &&
+          isa<triton::FuncOp>(bc->getParentOp())) {
+        smTop -= bytes;
+        auto i32 = builder.getI32Type();
+        auto len = builder.create<arith::ConstantIntOp>(bc.getLoc(), i32, columns);
+        auto smOffset = builder.create<arith::ConstantIntOp>(bc.getLoc(), i32, smTop);
+        auto smElem = PointerType::get(elem, 2);
+        auto stage = builder.create<triton::xpu::StageSMOp>(
+            bc.getLoc(), smElem, splat.getSrc(), len, smOffset, len, MemorySyncMode::SYNC);
+        stage->setAttr("xpu.readonly_column", builder.getUnitAttr());
+        auto smTy = RankedTensorType::get(ptrTy.getShape(), smElem, ptrTy.getEncoding());
+        Value base = builder.create<triton::SplatOp>(bc.getLoc(), smTy, stage);
+        Value ptr = builder.create<triton::AddPtrOp>(bc.getLoc(), smTy, base, addptr.getOffset());
+        vectorLoad->setOperand(0, ptr);
+        vectorLoad->moveAfter(ptr.getDefiningOp());
+        vectorLoad->setAttr("xpu.shared_column", builder.getUnitAttr());
+        mod->setAttr("xpu.row_shared_bytes", builder.getI64IntegerAttr(256 * 1024 - smTop));
+      }
+      Value value = vectorLoad->getResult(0);
+      builder.setInsertionPointAfter(vectorLoad);
+      if (ext)
+        value = builder.create<triton::xpu::VExtFOp>(
+            ext.getLoc(), getVectorType(srcTy), value);
+      bc.getSrcMutable().assign(value);
+      bc->setAttr("xpu.fast_interface", builder.getStringAttr("lm_vector_broadcast"));
+      // Do not mutate another user's scalar chain or read its dead pointers.
+      for (Operation *op : chain)
+        if (op->use_empty())
+          op->erase();
+      if (load->use_empty())
+        load->erase();
+      if (gm && gm->use_empty())
+        gm->erase();
+    }
   }
 
   void collapseTLEBroadcastSource(ModuleOp &mod) {
@@ -2545,6 +2870,8 @@ struct TritonXPUVectorizePass
           LLVM_DEBUG(llvm::dbgs()
                      << "[Vectorization]: Reduce combine region is not "
                         "vector-representable, leaving the reduce scalar\n");
+          reportVecFail(redOp, "reduce-combine", redOp,
+                        "combine-region-not-vectorizable");
           continue;
         }
 
@@ -2632,19 +2959,18 @@ struct TritonXPUVectorizePass
             for (auto &op : block) {
               TypeSwitch<Operation *>(&op)
                   .Case<REDUCE_COMBINE_OP, arith::SubFOp, arith::DivFOp,
-                        arith::SelectOp, COMBINE_OP_TLE_EXT>(
-                      [&](auto redComOp) {
-                        // The non-COMBINE_OP kinds are only admitted by
-                        // reduceCombineIsVectorizable while the region lowering
-                        // is on (TRITONXPU_REDUCE_REGION unset or 1), so
-                        // reaching them here implies the region-interpreting
-                        // lowering is in use.
-                        for (auto res : redComOp->getResults()) {
-                          auto elemTy = res.getType();
-                          VectorType vecType = VectorType::get(vecSize, elemTy);
-                          res.setType(vecType);
-                        }
-                      })
+                        arith::SelectOp>([&](auto redComOp) {
+                    // The non-COMBINE_OP kinds are only admitted by
+                    // reduceCombineIsVectorizable while the region lowering
+                    // is on (TRITONXPU_REDUCE_REGION unset or 1), so
+                    // reaching them here implies the region-interpreting
+                    // lowering is in use.
+                    for (auto res : redComOp->getResults()) {
+                      auto elemTy = res.getType();
+                      VectorType vecType = VectorType::get(vecSize, elemTy);
+                      res.setType(vecType);
+                    }
+                  })
                   .Case<arith::ConstantOp>([&](auto cstOp) {
                     // Left scalar on purpose: emitCombineOp splats it to the
                     // vector shape of whichever op consumes it.
@@ -2697,6 +3023,7 @@ struct TritonXPUVectorizePass
     // The chains feeding the TLE segment's [1xN] broadcasts are still scalar at
     // this point; pull them into vector form so the broadcast does not have to
     // pack its source lane by lane.
+    vectorizeLMBroadcastSource(mod);
     collapseTLEBroadcastSource(mod);
     // After every TLE memory op has its final form: the decision needs to see
     // whether any plain tle_vload/tle_vstore is left.
@@ -2840,7 +3167,8 @@ struct TritonXPUVectorizePass
     }
 
     // MAC Optimization offline
-    if (VMAC_Fusion) {
+    auto fpFusion = mod->getAttrOfType<BoolAttr>("triton_xpu.enable_fp_fusion");
+    if (VMAC_Fusion && fpFusion && fpFusion.getValue()) {
       mod.walk([&](triton::xpu::VvmulFOp vvmulFOp) { // must walk after svOpt
         vvmulFOps.insert(vvmulFOp);
       });
@@ -2866,6 +3194,30 @@ struct TritonXPUVectorizePass
         signalPassFailure();
     }
 
+    // Late cleanup: an arith.cmpf whose operands were retyped *after* its own
+    // visit stays an arith op over vector operands and fails verification
+    // ("result type has i1 element type and same shape as operands").
+    // Rewrite the leftovers into VCmpFOp now that the types are final.
+    {
+      SmallVector<arith::CmpFOp> lateCmps;
+      mod.walk([&](arith::CmpFOp op) {
+        if (isa<VectorType>(getElementTypeOrSelf(op.getLhs().getType())))
+          lateCmps.push_back(op);
+      });
+      for (arith::CmpFOp cmpFOp : lateCmps) {
+        Type rhsTy = cmpFOp.getRhs().getType();
+        Type elemTy = getElementTypeOrSelf(getElementTypeOrSelf(rhsTy));
+        Type newVectorizedTensorTy = getVectorType(
+            cmpFOp.getResult().getType(), elemTy.getIntOrFloatBitWidth());
+        OpBuilder builder(cmpFOp);
+        auto newCmpFOp = builder.create<triton::xpu::VCmpFOp>(
+            cmpFOp.getLoc(), newVectorizedTensorTy, cmpFOp.getPredicate(),
+            cmpFOp.getLhs(), cmpFOp.getRhs());
+        cmpFOp.replaceAllUsesWith(newCmpFOp.getResult());
+        cmpFOp.erase();
+      }
+    }
+
     // Vectorization retypes tensor ops to vector<16 x T>; a value that crosses a
     // loop-carried boundary can keep a tensor encoding while its sibling was
     // retyped, so reconcile once more before the verifier runs.
@@ -2884,7 +3236,13 @@ private:
   bool VMAC_Fusion = true;
   bool cvtOp_clean = true;
   bool Div2Mul = true;
-  bool ReduceVec = true;
+  // Measurement hatch for the reduce-vectorization A/B (per-op core-cost work):
+  // TRITONXPU_REDUCE_VEC=0 keeps the whole [Load->Reduce] growth path scalar so
+  // the two sides of the A/B differ (ReduceVec hardcoded true made both sides
+  // byte-identical). Mirrors TRITONXPU_SCAN_VEC's default-on semantics.
+  bool ReduceVec = mlir::triton::tools::isEnvValueBool(
+                       mlir::triton::tools::getStrEnv("TRITONXPU_REDUCE_VEC"))
+                       .value_or(true);
   bool BF16ToFP32VecOpt = true;
 };
 

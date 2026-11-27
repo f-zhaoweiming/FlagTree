@@ -1,0 +1,19 @@
+{
+  "summary": {
+    "cases": 36,
+    "complete": 36,
+    "physical_gpu": 7,
+    "overlapping_cases": 0,
+    "verified_hashes": 648,
+    "eager_timed": 36,
+    "parallel_timed": 28,
+    "all_gates_passed": 4,
+    "targeted_special_values_failures": 0,
+    "precision_differences_from_serial": []
+  },
+  "receipt": {
+    "files": 1266,
+    "bytes": 3620567,
+    "sha256": "f3644a3447e854e2d0bb78be42023a73b9730c79cdd6d1b24f4a4ad5a5ec1105"
+  }
+}

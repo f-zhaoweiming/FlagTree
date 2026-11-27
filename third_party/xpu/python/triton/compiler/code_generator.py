@@ -4,6 +4,7 @@ import contextlib
 import copy
 import inspect
 import re
+import sys
 import warnings
 import textwrap
 from dataclasses import dataclass
@@ -427,6 +428,9 @@ class CodeGenerator(ast.NodeVisitor):
         return False
 
     def _define_name_lookup(self):
+        # Compiled TLE runtimes may report "runtime" as a payload's module.
+        # A real payload implies TLE has already been imported by the kernel.
+        raw_handle_type = getattr(sys.modules.get("triton.experimental.tle.raw"), "RawJITFunction", ())
 
         def local_lookup(name: str, absent):
             # this needs to be re-fetched from `self` every time, because it gets switched occasionally
@@ -446,10 +450,8 @@ class CodeGenerator(ast.NodeVisitor):
                     getattr(val, "__triton_aggregate__", False),  #
                     getattr(val, "__module__", "").startswith("triton.language"),  #
                     getattr(val, "__module__", "").startswith("triton.experimental.gluon.language"),  #
-                    # `tle.raw` payload handles (from @tle.raw.dialect) are plain
-                    # globals referenced from the kernel body; their device source
-                    # is folded into the cache key by DependenciesFinder instead.
                     getattr(val, "__module__", "").startswith("triton.experimental.tle"),  #
+                    isinstance(val, raw_handle_type),
                     isinstance(val, language.dtype),  #
                     is_namedtuple(val),
                     self._is_constexpr_global(name),  #
@@ -1252,14 +1254,7 @@ class CodeGenerator(ast.NodeVisitor):
         flatten = False
         warp_specialize = False
         disable_licm = False
-        # flagtree tle
-        try:
-            from ..experimental.tle import language as tle
-            tle_pipeline = tle.gpu.pipeline
-        except ImportError:
-            tle_pipeline = None
-
-        if IteratorClass in [language.range, tle_pipeline]:
+        if IteratorClass in [language.range]:
             iterator = IteratorClass(*iter_args, **iter_kwargs)
             # visit iterator arguments
             # note: only `range` iterator is supported now

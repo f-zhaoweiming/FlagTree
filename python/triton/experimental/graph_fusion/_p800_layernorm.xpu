@@ -1,0 +1,714 @@
+#include "xpu/kernel/xtdk.h"
+#include "xpu/kernel/xtdk_simd.h"
+
+struct Pair {
+    float32x16_t lo, hi;
+};
+
+static __device__ inline Pair read_pair(const float *p) {
+    return {vload_lm_float32x16(p), vload_lm_float32x16(p + 16)};
+}
+static __device__ inline Pair read_pair(const uint16_t *p) {
+    auto v = vload_lm_float16x32(p);
+    return {vfp162float_l(v), vfp162float_h(v)};
+}
+static __device__ inline void write_pair(float *p, Pair x) {
+    vstore_lm_float32x16(p, x.lo);
+    vstore_lm_float32x16(p + 16, x.hi);
+}
+static __device__ inline void write_pair(uint16_t *p, Pair x) {
+    float16x32_t v = {};
+    v = vfloat2fp16_l(x.lo, v);
+    v = vfloat2fp16_h(x.hi, v);
+    vstore_lm_float16x32(p, v);
+}
+
+// Combine lanes at distances 8, 4, 2 and 1 (shift counts are in bits).
+static __device__ inline float fold(float32x16_t x) {
+    x = vvadd_float32x16(x, vsrlp_float32x16(256, x));
+    x = vvadd_float32x16(x, vsrlp_float32x16(128, x));
+    x = vvadd_float32x16(x, vsrlp_float32x16(64, x));
+    x = vvadd_float32x16(x, vsrlp_float32x16(32, x));
+    return vextracti_f<0>(x);
+}
+
+static __device__ inline Pair read_shared(const _shared_ptr_ float *p) {
+    return {vload_sm_float32x16(p), vload_sm_float32x16(p + 16)};
+}
+static __device__ inline Pair read_shared(const _shared_ptr_ uint16_t *p) {
+    auto v = vload_sm_float16x32(p);
+    return {vfp162float_l(v), vfp162float_h(v)};
+}
+static __device__ inline Pair add_shared(const float *p, const _shared_ptr_ float *b) {
+    Pair x = read_pair(p), y = read_shared(b);
+    return {vvadd_float32x16(x.lo, y.lo), vvadd_float32x16(x.hi, y.hi)};
+}
+static __device__ inline Pair add_shared(const uint16_t *p, const _shared_ptr_ uint16_t *b) {
+    auto v = vvadd_float16x32(vload_lm_float16x32(p), vload_sm_float16x32(b));
+    return {vfp162float_l(v), vfp162float_h(v)};
+}
+
+// BF16 values share 32-bit storage in pairs. Normalization is pointwise,
+// so even and odd lanes can remain in this order through the final store.
+using Bits = uint32x16_t;
+static __device__ inline Pair unpack_bf16(float16x32_t packed) {
+    Bits bits = (Bits)packed;
+    return {(float32x16_t)(bits << 16), (float32x16_t)(bits & 0xffff0000u)};
+}
+static __device__ inline Bits rounded_bf16(float32x16_t value) {
+    Bits bits = (Bits)value;
+    Bits rounded = (bits + 0x7fffu + ((bits >> 16) & 1u)) & 0xffff0000u;
+    int nan = svlt_uint32x16(0x7f800000u, bits & 0x7fffffffu);
+    return svor_uint32x16_mh(0x7fc00000u, (Bits)0u, rounded, nan);
+}
+static __device__ inline float16x32_t pack_bf16(Pair x) {
+    return (float16x32_t)((rounded_bf16(x.lo) >> 16) | rounded_bf16(x.hi));
+}
+static __device__ inline Pair read_pair(const int16_t *p) {
+    return unpack_bf16(vload_lm_float16x32(p));
+}
+static __device__ inline Pair read_shared(const _shared_ptr_ int16_t *p) {
+    return unpack_bf16(vload_sm_float16x32(p));
+}
+static __device__ inline void write_pair(int16_t *p, Pair x) {
+    vstore_lm_float16x32(p, pack_bf16(x));
+}
+
+template<class T>
+static __device__ inline Pair rounded_add(T *tile, const _shared_ptr_ T *bias) {
+    Pair x = add_shared(tile, bias);
+    write_pair(tile, x);
+    return x;
+}
+static __device__ inline Pair rounded_add(int16_t *tile, const _shared_ptr_ int16_t *bias) {
+    Pair a = read_pair(tile), b = read_shared(bias);
+    auto packed = pack_bf16({a.lo + b.lo, a.hi + b.hi});
+    vstore_lm_float16x32(tile, packed);
+    // KL3 eager consumes each packed word's high BF16 before its low BF16
+    // (vand.s, vsll.s, vmac.f). Preserve that order in both accumulators.
+    Pair lanes = unpack_bf16(packed);
+    return {lanes.hi, lanes.lo};
+}
+
+struct Moments { float sum, squares; };
+struct ResidualInput {
+    static __device__ inline float32x16_t add(float32x16_t x, float32x16_t y) { return vvadd_float32x16(x, y); }
+    static __device__ inline Pair load(float *tile, const _shared_ptr_ float *) { return read_pair(tile); }
+};
+struct RoundedInput {
+    static __device__ inline float32x16_t add(float32x16_t x, float32x16_t y) { return vvadd_float32x16(x, y); }
+    template<class T> static __device__ inline Pair load(T *tile, const _shared_ptr_ T *bias) {
+        return rounded_add(tile, bias);
+    }
+};
+template<class Input=RoundedInput, class T> static __device__ inline Moments moments(T *tile, const _shared_ptr_ T *bias, int count) {
+    float32x16_t s0 = {}, s1 = {}, q0 = {}, q1 = {};
+    #pragma clang loop unroll_count(2)
+    for (int j = 0; j < count; j += 64) {
+        Pair x = Input::load(tile + j, bias + j), y = Input::load(tile + j + 32, bias + j + 32);
+        s0 = Input::add(Input::add(s0, x.lo), x.hi);
+        s1 = Input::add(Input::add(s1, y.lo), y.hi);
+        q0 = __builtin_elementwise_fma(x.lo, x.lo, q0);
+        q0 = __builtin_elementwise_fma(x.hi, x.hi, q0);
+        q1 = __builtin_elementwise_fma(y.lo, y.lo, q1);
+        q1 = __builtin_elementwise_fma(y.hi, y.hi, q1);
+    }
+    return {fold(Input::add(s0, s1)), fold(Input::add(q0, q1))};
+}
+
+template<class T, bool Affine>
+static __device__ inline Pair normalized_pair(const T *tile, const _shared_ptr_ T *weight,
+        const _shared_ptr_ T *shift, float mean, float inv) {
+    Pair x = read_pair(tile);
+    x.lo = svmul_float32x16(inv, svadd_float32x16(-mean, x.lo));
+    x.hi = svmul_float32x16(inv, svadd_float32x16(-mean, x.hi));
+    if (Affine) {
+        Pair gamma = read_shared(weight), beta = read_shared(shift);
+        x.lo = __builtin_elementwise_fma(x.lo, gamma.lo, beta.lo);
+        x.hi = __builtin_elementwise_fma(x.hi, gamma.hi, beta.hi);
+    }
+    return x;
+}
+
+// A cluster shares the broadcast vectors across all its rows. Only their
+// contents are reused; the caller supplies the current pointers on every launch.
+template<class T, bool Affine>
+static __device__ inline void load_vectors(const _global_ptr_ T *bias,
+        const _global_ptr_ T *weight, const _global_ptr_ T *shift,
+        _shared_ptr_ T *b, _shared_ptr_ T *w, _shared_ptr_ T *s, int n) {
+    const int core = core_id();
+    if (core == 0) GM2SM_ASYNC(bias, b, n * sizeof(T));
+    if (Affine && core == 1) GM2SM_ASYNC(weight, w, n * sizeof(T));
+    if (Affine && core == 2) GM2SM_ASYNC(shift, s, n * sizeof(T));
+    mfence_sm_gm();
+    sync_cluster();
+}
+
+// The FP32 moments and normalization consume lanes in logical column order.
+template<class T> static __device__ inline Pair ordered_pair(const T *p) { return read_pair(p); }
+static __device__ inline Pair ordered_pair(const int16_t *p) {
+    float16x32_t z = {}, v = vload_lm_float16x32(p);
+    return {(float32x16_t)vvmerge_l_float16x32(z,v), (float32x16_t)vvmerge_h_float16x32(z,v)};
+}
+template<class T> static __device__ inline void promote_vector(const _global_ptr_ T *src, _shared_ptr_ float *dst, int n) {
+    __simd__ T small[32];
+    for (int i = core_id()*32; i < n; i += core_num()*32) {
+        const int count = n - i < 32 ? n - i : 32;
+        GM2LM(src+i,small,count*sizeof(T));
+        for (int j = count; j < 32; ++j) small[j] = 0;
+        mfence_lm();
+        Pair v = ordered_pair(small);
+        vstore_sm_float32x16(dst+i,v.lo);
+        vstore_sm_float32x16(dst+i+16,v.hi);
+    }
+}
+template<bool Affine,class IO,class T> static __device__ inline void stage_vectors(
+        const _global_ptr_ IO *bias,const _global_ptr_ IO *weight,const _global_ptr_ IO *shift,
+        _shared_ptr_ T *b,_shared_ptr_ T *w,_shared_ptr_ T *s,int n) {
+    if (sizeof(T)==sizeof(IO)) {
+        load_vectors<IO,Affine>(bias,weight,shift,(_shared_ptr_ IO*)b,(_shared_ptr_ IO*)w,(_shared_ptr_ IO*)s,n);
+    } else {
+        promote_vector(bias,(_shared_ptr_ float*)b,n);
+        if (Affine) {
+            promote_vector(weight,(_shared_ptr_ float*)w,n);
+            promote_vector(shift,(_shared_ptr_ float*)s,n);
+        }
+        mfence();
+        sync_cluster();
+    }
+}
+template<class IO,class T> static __device__ inline void stage_row(const _global_ptr_ IO *src,T *tile,int n) {
+    GM2LM(src,tile,n*sizeof(IO));
+    if (sizeof(T)>sizeof(IO)) {
+        const int end = (n + 31) & ~31;
+        for (int i = n; i < end; ++i) ((IO*)tile)[i] = 0;
+        mfence_lm();
+        for (int i=end-32;i>=0;i-=32) {
+            Pair v=ordered_pair((IO*)tile+i);
+            write_pair((float*)tile+i,v);
+        }
+        mfence_lm();
+    }
+}
+static __device__ inline void store_ordered(uint16_t *dst, Pair v) { write_pair(dst,v); }
+static __device__ inline void store_ordered(float *dst, Pair v) { write_pair(dst,v); }
+static __device__ inline void store_ordered(int16_t *dst, Pair v) {
+    Bits lo_bits=(Bits)v.lo, hi_bits=(Bits)v.hi;
+    Bits a=(lo_bits+0x7fffu+((lo_bits>>16)&1u))>>16;
+    Bits b=(hi_bits+0x7fffu+((hi_bits>>16)&1u))>>16;
+    // Pack the two groups of logical lanes as in the SDK cast. Both narrow
+    // conversions encode exact mantissa bits; numerical rounding is complete.
+    Bits lo=(Bits)vfloat2fp16_lh_rz((float32x16_t)(0x3f800000u|((a&1023u)<<13)),
+                                     (float32x16_t)(0x3f800000u|((b&1023u)<<13)));
+    Bits hi=(Bits)vfloat2fp16_lh_rz((float32x16_t)(0x3f800000u|((a>>10)<<13)),
+                                     (float32x16_t)(0x3f800000u|((b>>10)<<13)));
+    vstore_lm_float16x32(dst,(float16x32_t)((lo&0x03ff03ffu)|((hi&0x003f003fu)<<10)));
+}
+// Normalize an FP32 accumulator and narrow it at the output store. The
+// narrow write advances half as far as the completed FP32 input read.
+template<class T, bool Affine, class IO>
+static __device__ inline void normalize_output(T *tile, _global_ptr_ IO *out,
+        const _shared_ptr_ T *w, const _shared_ptr_ T *shift, int count, float mean, float inv) {
+    if (sizeof(T) == sizeof(IO)) {
+        #pragma clang loop unroll_count(2)
+        for (int i = 0; i < count; i += 32)
+            write_pair(tile + i, normalized_pair<T, Affine>(tile + i, w + i, shift + i, mean, inv));
+    } else {
+        for (int i = 0; i < count; i += 32)
+            store_ordered((IO*)tile + i, normalized_pair<T, Affine>(tile + i, w + i, shift + i, mean, inv));
+    }
+    mfence_lm();
+    LM2GM(tile, out, count * sizeof(IO));
+}
+
+// N floats or halfs fit in 4 KiB. The rounded Add stays in LM until its
+// normalized output is written. A fixed segment order preserves eager's ULPs.
+template<class T, bool Affine, class IO=T>
+static __device__ inline void one_core(const _global_ptr_ IO *a, const _global_ptr_ IO *bias,
+        const _global_ptr_ IO *weight, const _global_ptr_ IO *shift, _global_ptr_ IO *out,
+        int first, int rows, int n, int segment, float eps) {
+    #pragma clang fp contract(off)
+    __shared__ __simd__ T b[4096 / sizeof(T)], w[4096 / sizeof(T)], s[4096 / sizeof(T)];
+    __simd__ T tile[4096 / sizeof(T)];
+    stage_vectors<Affine>(bias, weight, shift, b, w, s, n);
+    const int padded = (n + 63) & ~63;
+    if (padded != n) {
+        if (core_id() == 0) {
+            for (int i = n; i < padded; ++i) {
+                b[i] = 0;
+                if (Affine) { w[i] = 0; s[i] = 0; }
+            }
+        }
+        mfence();
+        sync_cluster();
+    }
+    const int pieces = (n + segment - 1) / segment;
+    for (int row = core_id(); row < rows; row += core_num()) {
+        int base = (first + row) * n;
+        stage_row(a + base, tile, n);
+        for (int i = n; i < padded; ++i) tile[i] = 0;
+        mfence_lm();
+        float sum = 0.f, squares = 0.f;
+        for (int k = 0; k < pieces; ++k) {
+            int start = (segment == 256 ? k : pieces - 1 - k) * segment;
+            int count = n - start < segment ? n - start : segment;
+            Moments p = moments(tile + start, b + start, count);
+            sum += p.sum;
+            squares += p.squares;
+        }
+        const float scale = 1.f / n;
+        float mean = sum * scale;
+        float inv = 1.f / __builtin_sqrtf((squares * scale - mean * mean) + eps);
+        mfence_lm();
+        normalize_output<T, Affine>(tile, out + base, w, s, n, mean, inv);
+    }
+}
+
+template<bool Affine, class IO=float>
+static __device__ inline void wide_float(const _global_ptr_ IO *a, const _global_ptr_ IO *bias,
+        const _global_ptr_ IO *weight, const _global_ptr_ IO *shift, _global_ptr_ IO *out,
+        int first, int rows, float eps) {
+    #pragma clang fp contract(off)
+    __shared__ __simd__ float b[2048], w[2048], s[2048];
+    __shared__ float sums[128], squares[128];
+    __simd__ float tile[1280];
+    stage_vectors<Affine>(bias, weight, shift, b, w, s, 2048);
+    const int cid = core_id(), side = cid & 1;
+    const int start = side * 768, count = side ? 1280 : 768;
+    for (int group = 0; group < rows; group += core_num() / 2) {
+        // Alternate partial buffers. The next ready barrier also retires the
+        // previous buffer; only the last wave needs a separate exit barrier.
+        int slot = ((group / (core_num() / 2)) & 1) * 64 + cid;
+        int row = group + cid / 2, base = (first + row) * 2048 + start;
+        if (row < rows) {
+            stage_row(a + base, tile, count);
+            // Keep all 2048 rounded values across two local memories. Eager
+            // adds the last 512 to the middle 768 before adding the first 768.
+            Moments partial;
+            if (side) {
+                Moments tail = moments(tile + 768, b + 1536, 512);
+                Moments middle = moments(tile, b + 768, 768);
+                partial = {tail.sum + middle.sum, tail.squares + middle.squares};
+            } else {
+                partial = moments(tile, b, 768);
+            }
+            sums[slot] = partial.sum;
+            squares[slot] = partial.squares;
+        }
+        // All cores reach both barriers, including an incomplete final wave.
+        mfence();
+        sync_cluster();
+        if (row < rows) {
+            int even = slot & ~1;
+            float mean = (sums[even + 1] + sums[even]) / 2048;
+            float variance = (squares[even + 1] + squares[even]) / 2048 - mean * mean;
+            float inv = 1.f / __builtin_sqrtf(variance + eps);
+            normalize_output<float, Affine>(tile, out + base, w + start, s + start, count, mean, inv);
+        }
+        if (group + core_num() / 2 >= rows) sync_cluster();
+    }
+}
+
+// Four 512-column FP32 partials are accumulated in ascending column order.
+template<bool Affine, class IO>
+static __device__ inline void quarter_row(const _global_ptr_ IO *a, const _global_ptr_ IO *bias,
+        const _global_ptr_ IO *weight, const _global_ptr_ IO *shift, _global_ptr_ IO *out,
+        int first, int rows, float eps) {
+#pragma clang fp contract(off)
+    __shared__ __simd__ float b[2048], w[2048], s[2048];
+    __shared__ float sums[64], squares[64];
+    __simd__ float tile[512];
+    stage_vectors<Affine>(bias, weight, shift, b, w, s, 2048);
+    const int cid = core_id(), col = (cid % 4) * 512;
+    for (int group = 0; group < rows; group += core_num() / 4) {
+        int row = group + cid / 4, base = (first + row) * 2048 + col;
+        if (row < rows) {
+            stage_row(a + base, tile, 512);
+            Moments p = moments(tile, b + col, 512);
+            sums[cid] = p.sum;
+            squares[cid] = p.squares;
+        }
+        mfence();
+        sync_cluster();
+        if (row < rows) {
+            int slot = cid & ~3;
+            float mean = (((sums[slot] + sums[slot+1]) + sums[slot+2]) + sums[slot+3]) / 2048;
+            float ms = (((squares[slot] + squares[slot+1]) + squares[slot+2]) + squares[slot+3]) / 2048;
+            float inv = 1.f / __builtin_sqrtf((ms - mean * mean) + eps);
+            normalize_output<float, Affine>(tile, out + base, w + col, s + col, 512, mean, inv);
+        }
+        sync_cluster();
+    }
+}
+
+extern "C" __device__ void kl3_quarter_float(const _global_ptr_ float *a, const _global_ptr_ float *b,
+        const _global_ptr_ float *w, const _global_ptr_ float *s, _global_ptr_ float *out,
+        int first, int rows, float eps, int affine) {
+    if (affine) quarter_row<true>(a,b,w,s,out,first,rows,eps);
+    else quarter_row<false>(a,b,w,s,out,first,rows,eps);
+}
+
+extern "C" __device__ void kl3_quarter_half(const _global_ptr_ uint16_t *a, const _global_ptr_ uint16_t *b,
+        const _global_ptr_ uint16_t *w, const _global_ptr_ uint16_t *s, _global_ptr_ uint16_t *out,
+        int first, int rows, float eps, int affine) {
+    if (affine) quarter_row<true>(a,b,w,s,out,first,rows,eps);
+    else quarter_row<false>(a,b,w,s,out,first,rows,eps);
+}
+
+extern "C" __device__ void kl3_quarter_bf(const _global_ptr_ int16_t *a, const _global_ptr_ int16_t *b,
+        const _global_ptr_ int16_t *w, const _global_ptr_ int16_t *s, _global_ptr_ int16_t *out,
+        int first, int rows, float eps, int affine) {
+    if (affine) quarter_row<true>(a,b,w,s,out,first,rows,eps);
+    else quarter_row<false>(a,b,w,s,out,first,rows,eps);
+}
+
+template<class T, bool Affine>
+static __device__ inline void dispatch(const _global_ptr_ T *a, const _global_ptr_ T *b,
+        const _global_ptr_ T *w, const _global_ptr_ T *s, _global_ptr_ T *out,
+        int first, int rows, int n, int segment, float eps) {
+    if (sizeof(T) == 4 && n == 2048) {
+        wide_float<Affine>((const _global_ptr_ float*)a, (const _global_ptr_ float*)b,
+                (const _global_ptr_ float*)w, (const _global_ptr_ float*)s,
+                (_global_ptr_ float*)out, first, rows, eps);
+    } else {
+        one_core<T, Affine>(a,b,w,s,out,first,rows,n,segment,eps);
+    }
+}
+template<class T, bool Wide=false>
+static __device__ inline void select_affine(const _global_ptr_ void *a, const _global_ptr_ void *b,
+        const _global_ptr_ void *w, const _global_ptr_ void *s, _global_ptr_ void *out,
+        int first, int rows, int n, int segment, float eps, bool affine) {
+    auto matrix = static_cast<const _global_ptr_ T*>(a);
+    auto bias = static_cast<const _global_ptr_ T*>(b);
+    auto weight = static_cast<const _global_ptr_ T*>(w);
+    auto shift = static_cast<const _global_ptr_ T*>(s);
+    auto result = static_cast<_global_ptr_ T*>(out);
+    if (Wide) {
+        if (n==2048) {
+            if (affine) wide_float<true>(matrix,bias,weight,shift,result,first,rows,eps);
+            else wide_float<false>(matrix,bias,weight,shift,result,first,rows,eps);
+        } else {
+            if (affine) one_core<float,true>(matrix,bias,weight,shift,result,first,rows,n,segment,eps);
+            else one_core<float,false>(matrix,bias,weight,shift,result,first,rows,n,segment,eps);
+        }
+        return;
+    }
+    if (affine)
+        dispatch<T, true>(matrix, bias, weight, shift, result, first, rows, n, segment, eps);
+    else
+        dispatch<T, false>(matrix, bias, weight, shift, result, first, rows, n, segment, eps);
+}
+
+extern "C" __device__ void kl3_add_layernorm(const _global_ptr_ void *a, const _global_ptr_ void *bias,
+        const _global_ptr_ void *weight, const _global_ptr_ void *shift, _global_ptr_ void *out,
+        int first, int rows, int n, int segment, float eps, int affine, int dtype_code) {
+    if (dtype_code == 4)
+        select_affine<int16_t,true>(a,bias,weight,shift,out,first,rows,n,segment,eps,affine);
+    else if (dtype_code == 3)
+        select_affine<uint16_t,true>(a,bias,weight,shift,out,first,rows,n,segment,eps,affine);
+    else if (dtype_code == 2)
+        select_affine<int16_t>(a, bias, weight, shift, out, first, rows, n, segment, eps, affine);
+    else if (dtype_code == 1)
+        select_affine<uint16_t>(a, bias, weight, shift, out, first, rows, n, segment, eps, affine);
+    else
+        select_affine<float>(a, bias, weight, shift, out, first, rows, n, segment, eps, affine);
+}
+
+// Dense same-shape residual operands, with any number of leading dimensions.
+// Each core owns a row: both inputs remain in LM, accumulate in FP32, and
+// narrow once on output. The existing eager-compatible lane/segment order is
+// reused; broadcast-bias entry points above remain unchanged.
+template<class IO, bool Affine>
+static __device__ inline void residual_norm(const _global_ptr_ IO *a,
+        const _global_ptr_ IO *residual, const _global_ptr_ IO *weight,
+        const _global_ptr_ IO *shift, _global_ptr_ IO *out,
+        int first, int rows, int n, int segment, float eps) {
+    #pragma clang fp contract(off)
+    __shared__ __simd__ float w[1024], s[1024];
+    // Keep both FP32 rows below KL3's 8000-byte per-core stack limit.
+    // The model-region matcher admits N <= 768 for this entry point.
+    __simd__ float tile[768], rhs[768];
+    if (Affine) {
+        promote_vector(weight, w, n);
+        promote_vector(shift, s, n);
+    }
+    const int padded = (n + 63) & ~63;
+    if (core_id() == 0) {
+        for (int i=n; i<padded; ++i) { w[i]=0.f; s[i]=0.f; }
+    }
+    mfence();
+    sync_cluster();
+    const int pieces = (n + segment - 1) / segment;
+    for (int row=core_id(); row<rows; row+=core_num()) {
+        const int base=(first+row)*n;
+        stage_row(a+base,tile,n);
+        stage_row(residual+base,rhs,n);
+        for (int i=n; i<padded; ++i) { tile[i]=0.f; rhs[i]=0.f; }
+        mfence_lm();
+        for (int i=0; i<padded; i+=32) {
+            Pair x=read_pair(tile+i), y=read_pair(rhs+i);
+            write_pair(tile+i,{vvadd_float32x16(x.lo,y.lo),vvadd_float32x16(x.hi,y.hi)});
+        }
+        float sum=0.f,squares=0.f;
+        for (int k=0;k<pieces;++k) {
+            int start=(segment==256 ? k : pieces-1-k)*segment;
+            int count=n-start<segment ? n-start : segment;
+            Moments p=moments<ResidualInput>(tile+start,w+start,count);
+            sum+=p.sum;squares+=p.squares;
+        }
+        // The wrapper admits the vendor's dense row path: N <= 768 aligned
+        // to 64. Match its two div.f.rn instructions; a rounded reciprocal
+        // changes variance when a large mean cancels the second moment.
+        float mean=sum/n,second=squares/n;
+        float inv=1.f/__builtin_sqrtf((second-mean*mean)+eps);
+        mfence_lm();
+        normalize_output<float,Affine>(tile,out+base,w,s,n,mean,inv);
+    }
+}
+
+template<class IO> static __device__ inline void residual_dispatch(
+        const _global_ptr_ void *a,const _global_ptr_ void *b,
+        const _global_ptr_ void *w,const _global_ptr_ void *s,_global_ptr_ void *out,
+        int first,int rows,int n,int segment,float eps,int affine) {
+    if (affine) residual_norm<IO,true>((const _global_ptr_ IO*)a,(const _global_ptr_ IO*)b,
+        (const _global_ptr_ IO*)w,(const _global_ptr_ IO*)s,(_global_ptr_ IO*)out,first,rows,n,segment,eps);
+    else residual_norm<IO,false>((const _global_ptr_ IO*)a,(const _global_ptr_ IO*)b,
+        (const _global_ptr_ IO*)w,(const _global_ptr_ IO*)s,(_global_ptr_ IO*)out,first,rows,n,segment,eps);
+}
+extern "C" __device__ void kl3_residual_layernorm(const _global_ptr_ void *a,
+        const _global_ptr_ void *b,const _global_ptr_ void *w,const _global_ptr_ void *s,
+        _global_ptr_ void *out,int first,int rows,int n,int segment,float eps,int affine,int dtype) {
+    if (dtype==2) residual_dispatch<int16_t>(a,b,w,s,out,first,rows,n,segment,eps,affine);
+    else if (dtype==1) residual_dispatch<uint16_t>(a,b,w,s,out,first,rows,n,segment,eps,affine);
+    else residual_dispatch<float>(a,b,w,s,out,first,rows,n,segment,eps,affine);
+}
+
+static __device__ inline Pair ordered_bias(const _shared_ptr_ uint16_t *p) { return read_shared(p); }
+static __device__ inline Pair ordered_bias(const _shared_ptr_ int16_t *p) {
+    float16x32_t z = {}, v = vload_sm_float16x32(p);
+    return {(float32x16_t)vvmerge_l_float16x32(z, v), (float32x16_t)vvmerge_h_float16x32(z, v)};
+}
+struct PackedInput {
+    static __device__ inline float32x16_t add(float32x16_t x, float32x16_t y) { return x + y; }
+    template<class IO> static __device__ inline Pair load(const IO *tile, const _shared_ptr_ IO *bias) {
+        Pair x = ordered_pair(tile), b = ordered_bias(bias);
+        return {x.lo + b.lo, x.hi + b.hi};
+    }
+};
+static __device__ inline void pack_pairs(uint16_t *p, Pair x) { write_pair(p, x); }
+static __device__ inline void pack_pairs(int16_t *p, Pair x) {
+    Bits lo = (Bits)x.lo, hi = (Bits)x.hi;
+    lo += 0x7fffu + ((lo >> 16) & 1u);
+    hi += 0x7fffu + ((hi >> 16) & 1u);
+    vstore_lm_float16x32(p, (float16x32_t)((lo >> 16) | (hi & 0xffff0000u)));
+}
+template<class IO, bool Affine> static __device__ inline void apply_packed(IO *tile, const _shared_ptr_ IO *b,
+        const _shared_ptr_ IO *w, const _shared_ptr_ IO *s, int count, float mean, float inv) {
+    #pragma clang fp contract(off)
+    for (int i = 0; i < count; i += 32) {
+        Pair x = read_pair(tile + i), bias = read_shared(b + i);
+        x.lo = ((x.lo + bias.lo) - mean) * inv;
+        x.hi = ((x.hi + bias.hi) - mean) * inv;
+        if (Affine) {
+            Pair weight = read_shared(w + i), shift = read_shared(s + i);
+            x.lo = __builtin_elementwise_fma(x.lo, weight.lo, shift.lo);
+            x.hi = __builtin_elementwise_fma(x.hi, weight.hi, shift.hi);
+        }
+        pack_pairs(tile + i, x);
+    }
+}
+
+// Keep one native-width input row in each core's LM. Use logical column
+// order for FP32 moments and packed lane order for pointwise writeback.
+// Keep the 2048 BF16 operands packed in LM/SM. The four FP32
+// moment partials must be folded in the original ascending column order.
+extern "C" __device__ void kl3_bf_quarter_packed(const _global_ptr_ int16_t *a,
+        const _global_ptr_ int16_t *bias, _global_ptr_ int16_t *out,
+        int first, int rows, float eps) {
+#pragma clang fp contract(off)
+    __shared__ __simd__ int16_t b[2048];
+    __simd__ int16_t tile[2048];
+    if (core_id() == 0) GM2SM_ASYNC(bias, b, 2048 * sizeof(int16_t));
+    mfence_sm_gm();
+    sync_cluster();
+    for (int row = core_id(); row < rows; row += core_num()) {
+        int base = (first + row) * 2048;
+        GM2LM(a + base, tile, 2048 * sizeof(int16_t));
+        float sum = 0.f, squares = 0.f;
+        for (int part = 0; part < 4; ++part) {
+            Moments m = moments<PackedInput>(tile + part * 512, b + part * 512, 512);
+            sum += m.sum;
+            squares += m.squares;
+        }
+        float mean = sum / 2048;
+        float inv = 1.f / __builtin_sqrtf((squares / 2048 - mean * mean) + eps);
+        apply_packed<int16_t, false>(tile, b, b, b, 2048, mean, inv);
+        mfence_lm();
+        LM2GM(tile, out + base, 2048 * sizeof(int16_t));
+    }
+}
+
+template<class IO, bool Affine>
+static __device__ inline void packed_row_norm(const _global_ptr_ IO *a, const _global_ptr_ IO *bias,
+        const _global_ptr_ IO *weight, const _global_ptr_ IO *shift, _global_ptr_ IO *out,
+        int first, int rows, int n, float eps) {
+    #pragma clang fp contract(off)
+    __shared__ __simd__ IO b[2048], w[2048], s[2048];
+    __simd__ IO tile[2048];
+    load_vectors<IO, Affine>(bias, weight, shift, b, w, s, n);
+    const int cid = core_id(), per = core_num(), parts = (n + 767) / 768;
+    for (int group = 0; group < rows; group += per) {
+        int row = group + cid, offset = (first + row) * n;
+        bool live = cid < per && row < rows && n > 0;
+        float sum = 0.f, square = 0.f;
+        if (live) {
+            GM2LM(a + offset, tile, n * sizeof(IO));
+            for (int part = parts - 1; part >= 0; --part) {
+                int pos = part * 768;
+                if (pos < 0 || pos >= n) continue;
+                int width = n - pos < 768 ? n - pos : 768;
+                Moments v = moments<PackedInput>(tile + pos, b + pos, width);
+                sum += v.sum;
+                square += v.squares;
+            }
+        }
+        // Keep the consumer predicated separately. This layout reproduces
+        // the measured KL3 schedule for the final partial wave of rows.
+        if (live) {
+            float mean = sum / n;
+            float inv = 1.f / __builtin_sqrtf((square / n - mean * mean) + eps);
+            apply_packed<IO, Affine>(tile, b, w, s, n, mean, inv);
+            mfence_lm();
+            LM2GM(tile, out + offset, n * sizeof(IO));
+        }
+    }
+}
+
+extern "C" __device__ void kl3_packed_bf16_norm(const _global_ptr_ int16_t *a,
+        const _global_ptr_ int16_t *b, const _global_ptr_ int16_t *w, const _global_ptr_ int16_t *s,
+        _global_ptr_ int16_t *out, int first, int rows, int n, float eps, int affine) {
+    if (affine) packed_row_norm<int16_t, true>(a, b, w, s, out, first, rows, n, eps);
+    else packed_row_norm<int16_t, false>(a, b, w, s, out, first, rows, n, eps);
+}
+
+extern "C" __device__ void kl3_packed_fp16_norm(const _global_ptr_ uint16_t *a,
+        const _global_ptr_ uint16_t *b, const _global_ptr_ uint16_t *w, const _global_ptr_ uint16_t *s,
+        _global_ptr_ uint16_t *out, int first, int rows, int n, float eps, int affine) {
+    if (affine) packed_row_norm<uint16_t, true>(a, b, w, s, out, first, rows, n, eps);
+    else packed_row_norm<uint16_t, false>(a, b, w, s, out, first, rows, n, eps);
+}
+
+// Fixed segment sizes expose independent pairs of writebacks without
+// reassociating the three FP32 partial sums or their square accumulators.
+extern "C" __device__ void kl3_packed_bf16_norm_2048(const _global_ptr_ int16_t *a,
+        const _global_ptr_ int16_t *bias, _global_ptr_ int16_t *out,
+        int first, int rows, float eps) {
+    #pragma clang fp contract(off)
+    constexpr int cols = 2048;
+    __shared__ __simd__ int16_t b[cols];
+    __simd__ int16_t tile[cols];
+    if (core_id() == 0) GM2SM_ASYNC(bias, b, cols * sizeof(int16_t));
+    mfence_sm_gm();
+    sync_cluster();
+    for (int row = core_id(); row < rows; row += core_num()) {
+        int offset = (first + row) * cols;
+        GM2LM(a + offset, tile, cols * sizeof(int16_t));
+        float sum = 0.f, square = 0.f;
+        #pragma clang loop unroll(full)
+        for (int part = 2; part >= 0; --part) {
+            int start = part * 768;
+            Moments v = moments<PackedInput>(tile + start, b + start, part == 2 ? 512 : 768);
+            sum += v.sum;
+            square += v.squares;
+        }
+        float mean = sum / cols;
+        float inv = 1.f / __builtin_sqrtf((square / cols - mean * mean) + eps);
+        #pragma clang loop unroll_count(2)
+        for (int i = 0; i < cols; i += 32) {
+            Pair x = read_pair(tile + i), u = read_shared(b + i);
+            pack_pairs(tile + i, {((x.lo + u.lo) - mean) * inv, ((x.hi + u.hi) - mean) * inv});
+        }
+        mfence_lm();
+        LM2GM(tile, out + offset, cols * sizeof(int16_t));
+    }
+}
+
+// Whole-graph multi-output template. Existing template entry points are unchanged.
+template<class IO, bool Affine, bool Dual>
+static __device__ inline void model_residual_norm(const _global_ptr_ IO *a,
+        const _global_ptr_ IO *residual, const _global_ptr_ IO *weight,
+        const _global_ptr_ IO *shift, _global_ptr_ IO *out,
+        _global_ptr_ IO *resout, int first, int rows, int n, int brows, float eps) {
+    #pragma clang fp contract(off)
+    __shared__ __simd__ float w[1024], s[1024];
+    // Keep both FP32 rows below KL3's 8000-byte per-core stack limit.
+    // The model-region matcher admits N <= 768 for this entry point.
+    __simd__ float tile[768], rhs[768];
+    if (Affine) {
+        promote_vector(weight, w, n);
+        promote_vector(shift, s, n);
+    }
+    const int padded = (n + 63) & ~63;
+    if (core_id() == 0) {
+        for (int i=n; i<padded; ++i) { w[i]=0.f; s[i]=0.f; }
+    }
+    mfence();
+    sync_cluster();
+    const int segment = 768;
+    const int pieces = (n + segment - 1) / segment;
+    for (int row=core_id(); row<rows; row+=core_num()) {
+        const int base=(first+row)*n;
+        stage_row(a+base,tile,n);
+        stage_row(residual+((first+row)%brows)*n,rhs,n);
+        for (int i=n; i<padded; ++i) { tile[i]=0.f; rhs[i]=0.f; }
+        mfence_lm();
+        for (int i=0; i<padded; i+=32) {
+            Pair x=read_pair(tile+i), y=read_pair(rhs+i);
+            write_pair(tile+i,{vvadd_float32x16(x.lo,y.lo),vvadd_float32x16(x.hi,y.hi)});
+        }
+        if (Dual) {
+            for (int i=0;i<n;i+=32) store_ordered((IO*)rhs+i,read_pair(tile+i));
+            mfence_lm();
+            LM2GM(rhs,resout+base,n*sizeof(IO));
+        }
+        float sum=0.f,squares=0.f;
+        for (int k=0;k<pieces;++k) {
+            int start=(segment==256 ? k : pieces-1-k)*segment;
+            int count=n-start<segment ? n-start : segment;
+            Moments p=moments<ResidualInput>(tile+start,w+start,count);
+            sum+=p.sum;squares+=p.squares;
+        }
+        // The wrapper admits the vendor's dense row path: N <= 768 aligned
+        // to 64. Match its two div.f.rn instructions; a rounded reciprocal
+        // changes variance when a large mean cancels the second moment.
+        float mean=sum/n,second=squares/n;
+        float inv=1.f/__builtin_sqrtf((second-mean*mean)+eps);
+        mfence_lm();
+        normalize_output<float,Affine>(tile,out+base,w,s,n,mean,inv);
+    }
+}
+
+template<class IO, bool Dual> static __device__ inline void model_norm_affine(
+        const _global_ptr_ void *a,const _global_ptr_ void *b,const _global_ptr_ void *w,
+        const _global_ptr_ void *s,_global_ptr_ void *out,_global_ptr_ void *res,
+        int first,int rows,int n,int brows,float eps,int affine) {
+    if(affine) model_residual_norm<IO,true,Dual>((const _global_ptr_ IO*)a,(const _global_ptr_ IO*)b,
+        (const _global_ptr_ IO*)w,(const _global_ptr_ IO*)s,(_global_ptr_ IO*)out,(_global_ptr_ IO*)res,first,rows,n,brows,eps);
+    else model_residual_norm<IO,false,Dual>((const _global_ptr_ IO*)a,(const _global_ptr_ IO*)b,
+        (const _global_ptr_ IO*)w,(const _global_ptr_ IO*)s,(_global_ptr_ IO*)out,(_global_ptr_ IO*)res,first,rows,n,brows,eps);
+}
+template<class IO> static __device__ inline void model_norm_dispatch(
+        const _global_ptr_ void *a,const _global_ptr_ void *b,const _global_ptr_ void *w,
+        const _global_ptr_ void *s,_global_ptr_ void *out,_global_ptr_ void *res,
+        int first,int rows,int n,int brows,float eps,int affine,int dual) {
+    if(dual) model_norm_affine<IO,true>(a,b,w,s,out,res,first,rows,n,brows,eps,affine);
+    else model_norm_affine<IO,false>(a,b,w,s,out,res,first,rows,n,brows,eps,affine);
+}
+extern "C" __device__ void kl3_model_layernorm(const _global_ptr_ void *a,
+        const _global_ptr_ void *b,const _global_ptr_ void *w,const _global_ptr_ void *s,
+        _global_ptr_ void *out,_global_ptr_ void *res,int first,int rows,int n,int brows,
+        float eps,int affine,int dual,int dtype) {
+    if(dtype==2) model_norm_dispatch<int16_t>(a,b,w,s,out,res,first,rows,n,brows,eps,affine,dual);
+    else if(dtype==1) model_norm_dispatch<uint16_t>(a,b,w,s,out,res,first,rows,n,brows,eps,affine,dual);
+    else model_norm_dispatch<float>(a,b,w,s,out,res,first,rows,n,brows,eps,affine,dual);
+}

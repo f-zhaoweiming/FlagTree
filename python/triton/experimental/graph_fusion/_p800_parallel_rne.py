@@ -52,13 +52,14 @@ def rewrite(source):
         if 'sdnn.layout = "CR_RowMajor"' not in header:
             return region  # Preserve native lowering for other memory layouts.
         buffers = re.findall(r'memref<(\d+)x(\d+)x(f32|i32), (#[\w]+)>', header)
-        assert len(buffers) == header.count('memref<'), 'unsupported buffer type or rank'
+        if len(buffers) != header.count('memref<'):
+            return region  # Precision boundary loops may also carry narrow buffers.
         if is_guard:
             assert len(buffers) >= 2
             assert cols % 16 == 0, 'guard row must span complete 64-byte cache lines'
         else:
-            assert len(buffers) == (2 if is_rne else 4)
-            assert all(dtype == 'f32' for _, _, dtype, _ in buffers)
+            if len(buffers) != (2 if is_rne else 4) or any(dtype != 'f32' for _, _, dtype, _ in buffers):
+                return region  # Separate integer stages are not this FP32-to-FP32 loop.
         for m, n, dtype, layout in buffers:
             assert (int(m), int(n)) == (rows, cols)
             definition = f'{layout} = affine_map<(d0, d1) -> (d0 * {cols} + d1)>'
@@ -77,10 +78,11 @@ def rewrite(source):
             assert operations.count('memref.load') == len(buffers) - 1
             if is_bitcast_copy:
                 assert len(buffers) == 2 and {b[2] for b in buffers} == {'f32', 'i32'}
-                assert set(operations) <= {
+                if not set(operations) <= {
                     'arith.constant', 'scf.for', 'memref.load', 'memref.store', 'arith.bitcast',
                     'sdnn.core_specialize_return'
-                }
+                }:
+                    return region  # A pure fused epilogue, not a standalone bitcast copy.
                 assert operations.count('arith.bitcast') == 1
             else:
                 assert operations.count('arith.select') >= 1
@@ -100,7 +102,7 @@ def rewrite(source):
         waits = [int(v.strip()) for v in re.search(r'wait = array<i32: ([^>]+)>', header)[1].split(',')]
         signals = [int(v.strip()) for v in re.search(r'signal = array<i32: ([^>]+)>', header)[1].split(',')]
         index = len(records)
-        mask = f'%fusion_rne_sync_mask_{index}'
+        mask = f'%f06_rne_sync_mask_{index}'
         barrier = f'      llvm.call @llvm.xpu.sync_core({mask}) : (i32) -> ()'
         lines = [f'      {mask} = arith.constant 255 : i32']
         lines += [f'      sdnn.core_wait(3, {event})' for event in waits]
@@ -108,9 +110,9 @@ def rewrite(source):
         # producer operations before other cores observe the ready barrier;
         # a barrier alone permits stale first-cache-line reads across tiles.
         lines += [
-            f'      %fusion_rne_mem_mask_{index} = arith.constant 7 : i32',
+            f'      %f06_rne_mem_mask_{index} = arith.constant 7 : i32',
             '      llvm.call @llvm.xpu.xfence() : () -> ()',
-            f'      llvm.call @llvm.xpu.mfence.v2(%fusion_rne_mem_mask_{index}) : (i32) -> ()'
+            f'      llvm.call @llvm.xpu.mfence.v2(%f06_rne_mem_mask_{index}) : (i32) -> ()'
         ]
         lines.append(barrier)
         clean = re.sub(r'(?:signal|wait) = array<i32: [^>]+>,? ?', '', header).replace(', }', '}')
@@ -121,10 +123,10 @@ def rewrite(source):
             attrs = f'little_core, core_id = {core} : i32,'
             worker_header = clean.replace('little_core,', attrs)
             worker_body = body[:outer.start(
-            )] + f'%fusion_row_begin = arith.constant {start} : index\n        %fusion_row_end = arith.constant {end} : index\n        ' + body[
+            )] + f'%f06_row_begin = arith.constant {start} : index\n        %f06_row_end = arith.constant {end} : index\n        ' + body[
                 outer.start():]
             worker_body = worker_body.replace(outer[0],
-                                              f'scf.for {row} = %fusion_row_begin to %fusion_row_end step {step} {{', 1)
+                                              f'scf.for {row} = %f06_row_begin to %f06_row_end step {step} {{', 1)
             lines.append(worker_header + '\n' + worker_body)
         lines.append(barrier)
         lines += [f'      sdnn.core_arrive(3, {event})' for event in signals]
@@ -212,13 +214,13 @@ def rewrite_single_multiply(source):
             return match[0]
         waits, signals = ([int(v.strip()) for v in m[1].split(',')] for m in (waits, signals))
         index = len(records)
-        mask = f'%fusion_mul_sync_{index}'
+        mask = f'%f06_mul_sync_{index}'
         barrier = f'      llvm.call @llvm.xpu.sync_core({mask}) : (i32) -> ()'
         lines = [f'      {mask} = arith.constant 255 : i32']
         lines += [f'      sdnn.core_wait(3, {event})' for event in waits]
-        lines += [f'      %fusion_mul_fence_{index} = arith.constant 7 : i32',
+        lines += [f'      %f06_mul_fence_{index} = arith.constant 7 : i32',
                   '      llvm.call @llvm.xpu.xfence() : () -> ()',
-                  f'      llvm.call @llvm.xpu.mfence.v2(%fusion_mul_fence_{index}) : (i32) -> ()', barrier]
+                  f'      llvm.call @llvm.xpu.mfence.v2(%f06_mul_fence_{index}) : (i32) -> ()', barrier]
         clean = re.sub(r'(?:signal|wait) = array<i32: [^>]+>,? ?', '', header).replace(', }', '}')
         partitions = []
         for core in range(8):
@@ -226,9 +228,9 @@ def rewrite_single_multiply(source):
             assert start % 16 == end % 16 == 0
             partitions.append([core, start, end])
             worker = body[:loop.start()] + (
-                f'%fusion_col_begin = arith.constant {start} : index\n'
-                f'        %fusion_col_end = arith.constant {end} : index\n        ') + body[loop.start():]
-            worker = worker.replace(loop[0], f'scf.for {col} = %fusion_col_begin to %fusion_col_end step {step} {{', 1)
+                f'%f06_col_begin = arith.constant {start} : index\n'
+                f'        %f06_col_end = arith.constant {end} : index\n        ') + body[loop.start():]
+            worker = worker.replace(loop[0], f'scf.for {col} = %f06_col_begin to %f06_col_end step {step} {{', 1)
             lines.append(clean.replace('little_core,', f'little_core, core_id = {core} : i32,') + '\n' + worker)
         lines.append(barrier)
         lines += [f'      sdnn.core_arrive(3, {event})' for event in signals]

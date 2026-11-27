@@ -1,0 +1,4093 @@
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+
+                                               用
+                                            使
+                                           司
+                                       公
+                                       限
+                                   有   昆仑芯
+                                   ）
+                              圳        P 系列
+                           深
+                     技（            XRE 用户手册
+
+               讯科
+            腾
+         供
+      仅
+    芯
+仑
+昆
+                                   文档版本：V3.7
+
+                                   文档时间：2026-04-30
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+
+    法律声明
+    欢迎使用昆仑芯（北京）科技股份有限公司（以下简称“昆仑芯”）的产品或服务，在开始使
+    用前，请确保您已经阅读并同意接受下列条款和条件的约束。
+    一、免责声明
+    客户对昆仑芯产品或服务的使用承担风险，昆仑芯对此不作任何类型的担保，不论是明确的或
+                                               用
+    本说明书要求使用昆仑芯产品，或客户自行变更设计等。
+                                           使
+    隐含的。昆仑芯不对任何直接、间接、特殊及附带的损害承担责任，这些损害可能来自：未按
+
+
+    二、信息准确性                                司
+                                       公
+    昆仑芯对通过本产品所获得的资源均按现状提供，对其准确性、内容、完整性、合法性、可靠
+    性、可操作性或可用性不承担任何责任。昆仑芯对通过本产品所获得的产品或服务以及通过本
+
+    本说明书所述产品作出修改和变更的权利。
+                                       限
+    产品任何链接而得到的任何讯息不做任何担保。昆仑芯保留在任何时候不经通知对本说明书或
+
+
+    三、知识产权声明
+                                   有
+                                   ）
+    本说明书中所有官方产品、技术、软件、程序、数据及其他信息（包括文字、图标、图片、照
+
+                              圳
+    片、音频、视频、图表、色彩组合、版面设计等）的所有权利（包括著作权、商标权、专利
+    权）均归昆仑芯及/或其关联公司所有，受法律法规保护。未经昆仑芯事先许可，任何人擅自
+
+    法律责任。
+                           深
+    使用上述内容、信息等，视为对昆仑芯知识产权等合法权益的侵犯，昆仑芯将会追究侵权者的
+
+
+    四、版权声明              （
+                     技
+    © 昆仑芯（北京）科技股份有限公司保留一切权利。
+
+
+               讯科
+             腾
+         供
+      仅
+    芯
+仑
+昆
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+                                                                    目                       录
+    1 简介............................................................................................................................................................1
+    2 XRE 安装指南...........................................................................................................................................2
+       2.1 安装前置依赖....................................................................................................................................2
+       2.2 安装包获取方式............................................................................................................................... 7
+                                                                                                                                                           用
+       2.4 PCIe 卡互联方式配置...................................................................................................................11
+                                                                                                                                                  使
+       2.3 安装方式............................................................................................................................................8
+
+                                                                                                                                        司
+       2.5 XRE 升级及卸载指南....................................................................................................................11
+                                                                                                                              公
+       2.6 安装及升级验证.............................................................................................................................12
+
+                                                                                                                     限
+       2.7 卡的状态查询及异常卡处理........................................................................................................ 13
+       2.8 安装常见问题................................................................................................................................. 17
+                                                                                                           有
+       2.9 xpu-smi 工具使用说明................................................................................................................18
+
+                                                                                                 ）
+       2.10 运维工具使用说明...................................................................................................................... 23
+       2.11 通过 proc 文件系统查看更多信息...........................................................................................26
+                                                                                        圳
+    3 XRE 常见问题及处理............................................................................................................................27
+
+                                                                              深
+       3.1 常见错误解释与处理.....................................................................................................................27
+       3.2 错误码..............................................................................................................................................31
+                                                                    （
+       3.3 XPU Bug Report Tool 使用指南...............................................................................................35
+
+                                                           技
+    4 XRE API..................................................................................................................................................35
+       4.1 XRE Runtime 接口函数使用说明..............................................................................................35
+                                       讯
+       4.2 XPUML 编程接口使用说明......................................................................................................... 41
+                                        科
+                              腾
+                    供
+          仅
+    芯
+仑
+昆
+
+
+                                                                                   I
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+    表目录
+    表 2-1 XRE 支持的硬件产品信息............................................................................................................ 2
+    表 2-2 高级安装方式选项的常用参数说明..........................................................................................10
+    表 2-3 proc 系统文件说明..................................................................................................................... 27
+                                                                                                                                     用
+                                                                                                                            使
+                                                                                                                    司
+                                                                                                            公
+                                                                                                    限
+                                                                                            有
+                                                                                   ）
+                                                                            圳
+                                                           （深
+                                          科技
+                                  讯
+                          腾
+                  供
+         仅
+    芯
+仑
+昆
+
+
+                                                                       II
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+
+    1 简介
+    1.1 文档概述
+    本文详细介绍了昆仑芯基础运行环境库（XPU Runtime Environment，简称：XRE）的定
+    义、安装、升级和卸载步骤、XRE API（应用程序编程接口），同时提供了设备相关信息的查
+    看方法和常见问题的解决方案。通过阅读本手册，用户将能够轻松完成 XRE 的安装、升级和
+                                                                    用
+    卸载，并有效解决安装过程中可能遇到的各种问题。                                     使
+    1.2 读者对象
+                                                                司
+    本文档主要面向需要使用昆仑芯 AI 加速卡进行开发、部署和运维的技术人员。包括并不限于
+                                                            公
+    以下角色：                                            限
+        ● 系统运维工程师
+        ● AI 应用开发者
+                                                 有
+        ● 系统架构师                              ）
+        ● 技术支持工程师
+        ● 评估与测试人员
+                                         圳
+                                     深
+    1.3 XRE 概述                   （
+                             技
+    XRE 是昆仑芯 SDK 的重要组成部分，在多种体系结构和操作系统组合之上为昆仑芯计算设备
+    提供一致的编程接口和使用支持，是在昆仑芯计算设备执行推理和训练任务的重要支撑。
+    XRE 主要包含以下内容：        科
+                     讯
+        ● 设备驱动（kunlun_module/kernel-open/kunlun*.ko）和 udev 规则
+          （kunlun_module/udev_rules/99-kunlun.rules）
+                腾
+        ● 运行时头文件（include/xpu/runtime.h 等）
+
+            供
+        ● 运行时库（so/libxpurt.so 等动态库）
+        ● 运行时实用程序（bin/xpu-smi 等）
+        仅
+        ● 运行时运维工具（tools/）
+
+    芯
+    各部分的主要功能如下所示：
+
+仑   ●     设备驱动：设备驱动安装在用户操作系统中，支持动态安装和卸载，与昆仑芯计算设备
+          建立底层通信，配置和管理主机上的所有昆仑芯计算设备。Linux 系统中，驱动装载后
+
+昆         会初始化计算设备和管理设备资源，通过虚拟文件系统向用户暴露设备文件（如/dev/
+          xpu0），用户程序可以通过设备文件与计算设备交互。
+    ●     运行时头文件和运行时库（Runtime）：设备文件抽象的接口偏于底层，用户难以直接
+          使用，昆仑芯运行时头文件和运行时库可以将设备文件接口进行封装，为用户提供易于
+          使用的 API。用户编程和操作昆仑芯计算设备，只需装载驱动并调用 XRE 提供的 API 即
+          可。
+
+
+
+
+                      Copyright©2024-2026 昆仑芯（北京）科技股份有限公司           -1-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    ●     运行时实用程序和运维工具：包含一系列预编译可执行程序，便于用户管理、调试和运
+          维计算设备，例如查询设备状态的 xpu-smi。运维工具包括一些测试设备功能的工具，
+          如 test_dma 和 test_launch 等。
+
+
+
+    2 XRE 安装指南
+
+    2.1 安装前置依赖
+                                                                    用
+    2.1.1 基本环境要求
+                                                                    使
+    2.1.1.1 系统要求
+                                                                司
+        ● CPU 架构：x86_64、AArch64
+                                                                公
+          麟服务器版（如 v4、v10），bdCentOS 等。
+                                                         限
+        ● 操作系统：CentOS 7 及以上、RedHat 7 及以上、Ubuntu 16.04 及以上、国产银河麒
+
+        ● Linux 内核：3.10.x 及以上版本
+                                                       有
+    2.1.1.2 支持的硬件产品                               ）
+    表 2-1 XRE 支持的硬件产品信息                      圳
+    产品型号
+    P800 OAM
+                                         深 Vendor ID
+                                           1d22
+    P800 PCIe
+    P600 OAM
+                                     （     2057
+                                           2057
+    P600 PCIe                        技     2057
+
+
+    2.1.2 硬件设备检查        讯科
+    使用以下命令检查系统中是否已安装昆仑芯 AI 加速卡：
+
+                   腾
+         $ sudo lspci -d 1d22: -nv
+
+
+    ⚠注意         供
+        仅
+    1d22 为昆仑芯产品的 Vendor ID，不同产品的 Vendor ID 请参考上表。
+
+    芯
+    正常输出示例：
+
+
+仑
+昆
+
+
+                          Copyright©2024-2026 昆仑芯（北京）科技股份有限公司       -2-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    lspci -d 1d22: -nv
+    29:00.0 0780: 1d22:3688
+            Subsystem: 0001:0001
+            Physical Slot: 4
+            Flags: bus master, fast devsel, latency 0, IRQ 1453, NUMA node 0
+            Memory at 23e040000000 (64-bit, prefetchable) [size=256M]
+            Memory at 23c000000000 (64-bit, prefetchable) [size=128G]
+            Memory at ae000000 (64-bit, non-prefetchable) [size=2M]
+            Capabilities: [40] Power Management version 3
+            Capabilities: [50] MSI: Enable+ Count=1/32 Maskable+ 64bit+
+            Capabilities: [70] Express Endpoint, MSI 00
+            Capabilities: [b0] MSI-X: Enable- Count=129 Masked-
+                                                                                         用
+            Capabilities: [100] Advanced Error Reporting
+            Capabilities: [148] Alternative Routing-ID Interpretation (ARI)
+            Capabilities: [158] Secondary PCI Express
+                                                                                  使
+            Capabilities: [188] Physical Layer 16.0 GT/s <?>
+            Capabilities: [1b8] Lane Margining at the Receiver <?>
+                                                                             司
+            Capabilities: [200] Extended Capability ID 0x2a
+            Capabilities: [230] Single Root I/O Virtualization (SR-IOV)
+            Capabilities: [270] Latency Tolerance Reporting
+                                                                        公
+            Capabilities: [278] L1 PM Substates
+                                                                  限
+            Capabilities: [288] Vendor Specific Information: ID=0002 Rev=4 Len=100 <?>
+            Capabilities: [388] Data Link Feature <?>
+
+            Capabilities: [3ac] Physical Resizable BAR       有
+            Capabilities: [394] Vendor Specific Information: ID=0006 Rev=0 Len=018 <?>
+
+            Kernel driver in use: kunlun
+            Kernel modules: kunlun, kunlun_509, kunlun_a）
+    如果输出内容中包含 1d22:****，则表示系统中已安装昆仑芯 AI 加速卡。      圳
+    2.1.3 系统环境检查                       （深
+    2.1.3.1 OFED 驱动检查（可选功能依赖检查，Peermem 功能依赖）
+
+                             科
+    若计划使用 Peermem 功能，必须在安装 XRE 驱动前安装并配置好 OFED（OpenFabrics
+
+                              技
+    Enterprise Distribution）网卡驱动。
+
+    2.1.3.1.1 检查是否已安装 OFED 驱动
+                       讯
+    执行以下命令查看 OFED 驱动是否已安装：
+
+    ibdev2netdev
+                    腾
+            供
+    若回显中显示网卡状态为 “Up”，表明网卡初步识别成功。
+       仅
+    示例回显：
+    芯
+    mlx5_0 port 1 ==> ens1 (Up)
+
+仑   再执行以下命令验证网卡实际启动状态：
+昆   sudo ibstatus
+
+
+    回显示例如下：
+
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                             -3-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    Infiniband device 'mlx5_0' port 1 status:
+            default gid:     fe80:0000:0000:0000:a288:c2ff:fe97:4ff0
+            base lid:        0x0
+            sm lid:          0x0
+            state:           4: ACTIVE
+            phys state:      5: LinkUp
+            rate:            400 Gb/sec (4X NDR)
+            link_layer:      Ethernet
+
+    Infiniband device 'mlx5_1' port 1 status:
+            default gid:
+            base lid:
+                             fe80:0000:0000:0000:a288:c2ff:fe97:5028
+                             0x0
+                                                                           用
+            sm lid:
+            state:
+            phys state:
+                             0x0
+                             1: DOWN
+                             3: Disabled
+                                                                           使
+            rate:
+            link_layer:
+                             40 Gb/sec (4X QDR)
+                             Ethernet
+                                                                       司
+    Infiniband device 'mlx5_2' port 1 status:
+            default gid:     fe80:0000:0000:0000:a288:c2ff:fe97:4ee8
+                                                                       公
+            base lid:
+            sm lid:
+            state:
+                             0x0
+                             0x0
+                             4: ACTIVE
+                                                                  限
+            phys state:
+            rate:
+                             5: LinkUp
+                             400 Gb/sec (4X NDR)             有
+            link_layer:      Ethernet
+
+    Infiniband device 'mlx5_3' port 1 status:
+                                                        ）
+            default gid:
+            base lid:
+            sm lid:
+                                                  圳
+                             fe80:0000:0000:0000:a288:c2ff:fe76:cfe4
+                             0x0
+                             0x0
+            state:
+            phys state:
+                             1: DOWN
+                             3: Disabled     深
+            rate:
+            link_layer:
+                                       （
+                             40 Gb/sec (4X QDR)
+                             Ethernet
+
+
+            default gid:          技
+    Infiniband device 'mlx5_4' port 1 status:
+
+            base lid:
+                             fe80:0000:0000:0000:a288:c2ff:fe77:16fc
+                             0x0
+            sm lid:
+            state:
+            phys state:
+                             科
+                             0x0
+                             4: ACTIVE
+                             5: LinkUp
+            rate:
+            link_layer:
+                       讯     400 Gb/sec (4X NDR)
+                             Ethernet
+
+                  腾
+    Infiniband device 'mlx5_5' port 1 status:
+            default gid:     fe80:0000:0000:0000:5aa2:e1ff:fec1:ec90
+
+            供
+            base lid:
+            sm lid:
+            state:
+                             0x0
+                             0x0
+                             4: ACTIVE
+       仅    phys state:
+            rate:
+                             5: LinkUp
+                             100 Gb/sec (4X EDR)
+
+    芯       link_layer:      Ethernet
+
+    Infiniband device 'mlx5_6' port 1 status:
+
+仑           default gid:
+            base lid:
+            sm lid:
+                             fe80:0000:0000:0000:5aa2:e1ff:fec1:ec91
+                             0x0
+                             0x0
+
+昆           state:
+            phys state:
+            rate:
+                             1: DOWN
+                             3: Disabled
+                             100 Gb/sec (4X EDR)
+            link_layer:      Ethernet
+
+    Infiniband device 'mlx5_7' port 1 status:
+            default gid:     fe80:0000:0000:0000:a288:c2ff:fe97:5860
+            base lid:        0x0
+            sm lid:          0x0
+            state:           1: DOWN
+            phys state:      3: Disabled
+
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司               -4-
+    让计算更智能 INTELLIGENT COMPUTING
+
+            rate:            40 Gb/sec (4X QDR)
+            link_layer:      Ethernet
+
+    Infiniband device 'mlx5_8' port 1 status:
+            default gid:     fe80:0000:0000:0000:a288:c2ff:fe97:9988
+            base lid:        0x0
+            sm lid:          0x0
+            state:           4: ACTIVE
+            phys state:      5: LinkUp
+            rate:            400 Gb/sec (4X NDR)
+            link_layer:      Ethernet
+
+    Infiniband device 'mlx5_9' port 1 status:
+                                                                           用
+            default gid:
+            base lid:
+            sm lid:
+                             fe80:0000:0000:0000:a288:c2ff:fe76:cffc
+                             0x0
+                             0x0
+                                                                           使
+            state:
+            phys state:
+                             1: DOWN
+                             3: Disabled
+                                                                       司
+            rate:
+            link_layer:
+                             40 Gb/sec (4X QDR)
+                             Ethernet                                  公
+    ⚠注意                                                           限
+    XRE 安装时默认开启 Peermem 功能，若无需使用该功能，5.18.0.0 及以上版本，可在安装      有
+    时添加参数 --no-peermem（示例命令：bash xre-Linux-x86_64-xxx.run --no-
+    peermem），安装包将自动跳过 Peermem 功能配置。                     ）
+    2.1.3.2 操作系统兼容性检查                             圳
+    执行以下命令获取系统信息：
+                                             深
+                                  技
+    $ uname -m && cat /etc/*release
+
+
+                                   （
+    输出示例：
+
+    x86_64
+    Ubuntu 22.04.1 LTS
+                          讯科
+    ⚠注意
+                    腾
+    如果使用的发行版未在支持列表中，但系统架构符合要求，可以尝试安装，但无法保证完全兼
+            供
+    容。因此，在安装前请务必仔细阅读相关文档，了解潜在的风险和限制。
+
+       仅
+    2.1.3.3 开发工具检查
+    芯
+    2.1.3.3.1 GCC 编译器检查
+
+仑   检查 GCC（GNU Compiler Collection，开发工具包）是否已安装：
+
+
+昆   gcc --version
+
+
+    正常输出示例：
+
+
+
+
+                          Copyright©2024-2026 昆仑芯（北京）科技股份有限公司              -5-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-44)
+    Copyright (C) 2015 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions. There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
+
+
+    如果显示 command not found: gcc，则需要安装 GCC 开发工具包。
+
+    2.1.3.3.2 内核头文件检查
+    获取当前内核版本：
+                                                                                       用
+    uname -r
+                                                                                 使
+    检查是否安装对应的内核头文件（以 Ubuntu 为例）：
+                                                                             司
+                                                                          公
+    dpkg -l | grep linux-headers
+                                                                      限
+    正常输出示例：                                                     有
+     ii linux-headers-5.15.0-72
+    ted to Linux kernel version 5.15.0
+                                                        ）
+                                               5.15.0-72.79     all        Header files rela
+
+       ii linux-headers-5.15.0-72-generic
+    aders for version 5.15.0 on 64 bit x86 SMP    圳
+                                                 5.15.0-72.79     amd64      Linux kernel he
+
+
+
+
+    如果未安装，执行以下命令安装：
+                                             深
+                                       （
+    sudo apt install linux-headers-$(uname -r)
+
+
+    执行安装命令后正确的回显如下：
+                                   技
+                             科
+                       讯
+                  腾
+               供
+       仅
+    芯
+仑
+昆
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                          -6-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+     Reading package lists... Done
+
+     Building dependency tree
+
+     Reading state information... Done
+
+     The following NEW packages will be installed:
+
+      linux-headers-4.4.0-210-generic
+
+     0 upgraded, 1 newly installed, 0 to remove and 9 not upgraded.                     用
+     Need to get 786 kB of archives.
+
+     After this operation, 7,750 kB of additional disk space will be used.
+                                                                                  使
+                                                                               司
+      Get:1 http://mirrors.tuna.tsinghua.edu.cn/ubuntu xenial-updates/main amd64 linux-header
+    s-4.4.0-210-generic amd64 4.4.0-210.242 [786 kB]
+
+     Fetched 786 kB in 0s (1,540 kB/s)
+                                                                        公
+                                                                     限
+     Selecting previously unselected package linux-headers-4.4.0-210-generic.
+
+
+                                                             有
+     (Reading database ... 50953 files and directories currently installed.)
+
+
+
+                                                        ）
+     Preparing to unpack .../linux-headers-4.4.0-210-generic_4.4.0-210.242_amd64.deb ...
+
+     Unpacking linux-headers-4.4.0-210-generic (4.4.0-210.242) ...
+
+                                                  圳
+     Setting up linux-headers-4.4.0-210-generic (4.4.0-210.242) ...
+
+
+
+    2.1.3.4 版本一致性验证
+                                             深
+    验证内核构建时使用的 GCC 版本：                   （
+                                  技
+    cat /lib/modules/$(uname -r)/build/include/generated/compile.h
+
+
+    ⚠注意
+                             科
+                       讯
+      ● 确保内核版本、GCC 版本和内核头文件版本三者匹配。
+
+                  腾
+      ● 如果使用自定义内核，必须确保内核头文件与运行内核完全匹配。
+      ● compile.h 文件路径可能因系统配置而异，如找不到请检查系统特定路径。
+            供
+    2.1.4 安装准备确认
+       仅
+    完成以上检查后，确保：
+    芯1. 硬件设备检测正常。
+
+仑    2. 操作系统和架构符合要求；如使用 Peermem 功能，OFED 驱动已安装并验证可用。
+     3. GCC 编译器已安装且版本匹配。
+昆    4. 内核头文件已安装且版本一致。
+    满足以上条件后，即可进行 XRE 驱动程序的安装。
+
+
+    2.2 安装包获取方式
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                           -7-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    XRE 目前支持两种安装方式：runfile 安装和*.tar.gz 安装，推荐使用 runfile 安装。本章节主
+    要介绍两种安装方式的具体说明及下载方式。
+    XRE 安装包命名形式为：xre-<os>-<arch>-<version>.run 或者 xre-<os>-<arch>-
+    <version>.tar.gz，其中<os>表示操作系统，如 centos7，<arch>表示体系结构，如
+    x86_64。<version> 表示 XRE 版本，如 5.0.11.0。
+
+    2.2.1 （推荐）Runfile 安装包
+    XRE 支持以 Runfile 包的形式发布，其中包含预编译的驱动和库等二进制文件，支持多种常见
+                                                                                              用
+    平台。Runfile 安装包的优点包括一键执行，操作方便，且驱动采用现场编译方式，能够适应
+    版本 3.10 以上大多数 Linux 内核。但需依赖系统环境中的内核头文件，开发工具 GCC 等。
+                                                                                              使
+    ⚠注意
+                                                                                       司
+    XRE Runfile 包中包含预编译的驱动和库等二进制文件，支持多种常见平台。如果用户主机采
+    用的体系结构、操作系统或内核版本不在基本环境要求中，请联系昆仑芯客户支持获取最新版
+                                                                                 公
+    本的安装包。                                                           有限
+    2.2.1.1 下载链接
+    假设 XRE 当前最新版本号为 5.0.21.14，则不同体系结构和操作系统的下载链接对应如下：           ）
+    ●     x86_64 平台对应安装包 xre-Linux-x86_64.run 的下载链接为：
+                                                         圳
+          https://klx-sdk-release-public.su.bcebos.com/xre/kl3-release/5.0.21.14/xre-Linux-
+          x86_64-5.0.21.14.run                     深
+    ●
+                                            （
+          AArch64 平台对应安装包 xre-Linux-aarch64.run 的下载链接为：
+          https://klx-sdk-release-public.su.bcebos.com/xre/kl3-release/5.0.21.14/xre-Linux-
+          aarch64-5.0.21.14.run 科技
+    2.2.2 *.tar.gz 安装包
+
+    赖更容易满足。
+                          讯
+    如果客户使用的是 bdCentOS，建议使用该方式安装，因为内核头文件和开发工具 GCC 等依
+
+                    腾
+    以 XRE 版本 5.0.21.14 为例，bdCentOS 对应安装包的下载链接形式如下：
+              供
+    https://klx-sdk-release-public.su.bcebos.com/xre/kl3-release/5.0.21.14/xre-bdcentos-
+
+        仅
+    x86_64-5.0.21.14.tar.gz
+
+
+    芯
+    2.3 安装方式
+仑   2.3.1 （推荐）Runfile 安装包安装
+昆   2.3.1.1 默认安装方式
+    用户在使用 Runfile 安装之前，需要获取 root 权限。
+    用户执行如下命令一键安装，把所有 XRE 组件（包含驱动、头文件、库等）安装至系统默认
+    路径。
+
+
+
+
+                            Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                               -8-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    sudo bash xre-{os}-{arch}.run
+
+
+    安装过程中如有以下回显，代表系统已安装过 XRE，可选择输入“1”或者敲击回车键
+    [default]继续安装或者输入“2”停止安装。
+
+    There appears to already be a driver installed on your system (version:
+    5.0.15). As part of installing this driver (version: 5.0.15), the existing
+    driver will be uninstalled. Are you sure you want to continue?
+    Valid responses are:
+                                                                                      用
+     (1)
+     (2)
+            "Continue installation" [ default ]
+            "Abort installation"
+    Please select your response by number or name:
+                                                                                     使
+    如果选择继续安装，并且出现以下回显，可选择“2”或者敲击回车键[default]继续安装，系
+                                                                             司
+    统将更新 XRE 版本，输入“1”将不会更新 XRE 版本。                                      公
+                                                                  限
+    The initramfs will likely need to be rebuilt due to the following condition(s):
+    * Initramfs should be rebuild anyway
+
+    Would you like to rebuild the initramfs?
+                                                             有
+    Valid responses are:
+     (1)
+     (2)
+            "Do not rebuild initramfs"
+            "Rebuild initramfs" [ default ]
+                                                        ）
+    Please select your response by number or name:
+                                                     圳
+    的情况。                               （
+    部分环境可能会出现如下提示，代表文件存在（File exists）而无法创建软链接（symlink）
+
+                                        深
+                             科
+    The installer has encountered the following error during installation: 'Cannot
+    create symlink /usr/local/xpu (File exists)'. Would you like to continue
+    installation anyway?
+    Valid responses are:
+     (1)
+     (2)
+                              技
+            "Continue installation" [ default ]
+            "Abort installation"
+
+                       讯
+    Please select your response by number or name:
+
+
+
+                  腾
+    可选择输入“1”或者敲击回车键[default]继续安装；输入“2”则停止安装。
+    ⚠注意
+            供
+    头文件和库被复制到默认路径/usr/local/xpu-$/{include, so, lib}，便于用户使用。实用程序
+       仅
+    和运维工具被复制到默认路径/usr/local/xpu-$/{bin, tools}，如需从命令行直接调用，请将
+    相应路径添加至 PATH 环境变量。
+    芯
+    另外，运行时库（libxpurt.so）安装后，遵循以下链接规则：
+仑     ● 除非显式指定，使用 XTDK-clang 编译昆仑芯程序将默认链接/usr/local/xpu/so 中的
+        libxpurt.so。
+昆     ● 执行动态链接的昆仑芯可执行程序时，除非更高优搜索路径中存在 libxpurt.so，否则执
+        行时将默认链接/usr/local/xpu/so 中的 libxpurt.so。
+      ● libxpurt.so 依赖 libxpucuda.so。CentOS 系统下，libxpucuda.so 位于系统默认路
+        径/usr/lib64。Ubuntu 系统下，libxpucuda.so 位于系统默认路径/lib/x86_64-linux-
+        gnu。
+
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                          -9-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    2.3.1.2 高级安装方式
+    获取高级安装方式的安装命令如下：
+
+    bash xre-{os}-{arch}.run -h
+
+
+    此命令可查看帮助信息，支持解压，选择性安装等多种操作。
+    也可以使用下面的命令，此命令可获取高级安装方式选项。                                                        用
+    bash xre-{os}-{arch}-5.0.*.*.run --advanced-options
+    re-{os}-{arch}-5.0.21.4.run --advanced-options
+                                                                                使
+                                                            //如果 XRE 版本为 5.0.21.4，则使用 x
+
+
+
+
+    高级安装方式的常用参数如下：
+                                                                           司
+    表 2-2 高级安装方式选项的常用参数说明
+                                                                     公
+    操作              参数                      说明                  限
+    静默安装
+    默认安装
+                    -s, --silent
+                    -q, --no-questions
+                                            静默安装，不显示任何信息。
+                                                           有
+                                            默认安装，显示安装输出，安装选项使用默认配置。
+    解压安装包
+    指定内核头文件
+                    -x, --extract-only      解压安装包，不执行安装。
+                                                          ）
+                    --kernel-source-path=PATH 指定内核头文件路径，默认值为/usr/src/linux-headers-$(uname
+
+    关闭 Peermem 功能 --no-peermem
+                                              -r)。
+                                                  圳
+                                            仅适用于 XRE 5.18.0.0 及以上版本，安装时关闭默认开启的 Peer
+
+
+
+    ⚠注意
+                                             深
+                                            mem 功能（默认开启，无需额外参数）。
+
+
+
+
+    为了成功安装该 Runfile 安装包，必须以 root 权限来执行操作。
+                                         （
+    2.3.2 使用*.tar.gz 安装包安装
+                                         技
+    1.
+                        讯
+    使用*.tar.gz 安装包的安装步骤如下：
+
+                         科
+         执行如下命令，解压*.tar.gz 安装包。
+
+                  腾
+         tar -zxvf xre-{os}-{arch}.tar.gz
+
+
+    2.      供
+         进入安装包根目录。
+
+         仅
+         $ cd xre-{os}-{arch}
+
+    芯
+    3.   执行安装脚本 install_rt.sh，把所有 XRE 组件（包含驱动、头文件以及库等）安装至系
+仑        统默认路径。
+
+昆        sudo ./install_rt.sh
+
+
+    4.   执行安装脚本后，驱动被复制到系统第三方模块的默认搜索路径 /lib/modules/$
+         (uname -r)/extra，此时可使用 modprobe kunlun 命令装载驱动，使用 modprobe -r
+         kunlun 命令卸载驱动。
+
+
+
+
+                           Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                      - 10 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    5.    头文件和库被复制到默认路径/usr/local/xpu-$/{include, so, lib}，便于用户使用。实
+          用程序和运维工具被复制到默认路径/usr/local/xpu-$/{bin, tools}，如需从命令行直接
+          调用，请将相应路径添加至 PATH 环境变量。
+
+
+    2.4 PCIe 卡互联方式配置
+    在 PCIe 卡安装 XRE 的过程中，默认加载方式为 4 卡全互联，如果需要配置为 8 卡互联或 16
+    卡互联模式，可使用如下方式进行配置。                                                  用
+    ⚠注意
+         ● 此步骤仅适用于 PCIe 产品，OAM 产品可跳过。
+                                                                      使
+         ● 如果要进行 8 卡或 16 卡的互联配置，需要安装相对应版本的 XRE 软件及固件，具体的          司
+    1.
+           版本请咨询昆仑芯客户支持。
+          修改/etc/modprobe.d 目录下的 kunlun.conf 文件。
+                                                                  公
+                                                              限
+          vim /etc/modprobe.d/kunlun.conf
+                                                              有
+    2.
+                                                        ）
+          在 KLreg_RegistryDwords=后添加配置参数"PcieLink=1"， 示例如下：
+
+
+                                                   圳
+          options kunlun KLreg_RegistryDwords="PcieLink=1;"
+
+
+                                              深
+          此配置和其他参数配置在同一双引号下，并用分号分隔。其中参数"PcieLink=1"代表加
+          载 8 卡互联模式，"PcieLink=2"代表 16 卡互联模式。如需支持 16 卡 TP8 互联方式，
+                                        （
+          可重复以上操作，在步骤 2 时，使用”PcieLink=3“进行设置。
+
+
+    3.
+                                   技
+          如果想切换回 4 卡全互联，请配置“PcieLink=0”。
+          重启服务器，即可完成配置的修改。
+                             科
+    2.5 XRE 升级及卸载指南     讯
+    2.5.1 升级方式     腾
+             供
+    XRE 支持以下两种升级方式：
+
+         仅
+    覆盖安装升级
+    按照安装流程重新安装，新版本将自动覆盖旧版本。
+    芯
+    卸载重装升级
+仑   先按照卸载流程卸载旧版本，然后重新安装新版本。
+
+昆   ⚠ 注意
+         ● 升级操作可将当前版本更新至最新版本，无跨级升级限制。
+         ● 当前暂不提供降级操作，建议使用最新稳定版本。
+
+    2.5.2 卸载方式
+
+
+
+                          Copyright©2024-2026 昆仑芯（北京）科技股份有限公司         - 11 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    2.5.2.1 Runfile 安装包卸载
+    执行以下命令卸载 Runfile 安装包：
+
+    sudo bash xre-{os}-{arch}.run --uninstall
+
+
+
+    2.5.2.2 tar.gz 安装包卸载
+    对于 tar.gz 格式的安装包，按以下步骤卸载：                                         用
+    1.    解压安装包：
+                                                                    使
+          tar -zxvf xre-{os}-{arch}.tar.gz                      司
+    2.    进入解压目录并执行卸载脚本：                                        公
+          cd xre-{os}-{arch}
+          sudo ./uninstall_rt.sh
+                                                     有限
+    3.    如果卸载脚本无法完全移除内核模块，请手动卸载：
+                                                    ）
+          sudo rmmod kunlun
+                                                圳
+    2.5.2.3 故障处理                                深
+    如果手动卸载失败：
+         1. 重启系统后重试卸载操作
+                                   技（
+         2. 如果仍无法卸载，请参考常见错误解释及处理章节
+
+
+    2.6 安装及升级验证
+                        讯科
+    您可以使用 xpu-smi 显示昆仑芯计算设备信息，检查确认 XRE 安装或升级是否成功。
+                   腾
+    当运行结果如下图显示时，则表示安装或升级成功：
+             供
+         仅
+    芯
+仑
+昆
+
+
+                          Copyright©2024-2026 昆仑芯（北京）科技股份有限公司       - 12 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+        +-----------------------------------------------------------------------------+
+        | XPU-SMI               Driver Version: 5.0.21       XPU-RT Version: 5.0.21
+    |
+        |-------------------------------+----------------------+----------------------+
+        | XPU Name         Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+        | Fan Temp Perf Pwr:Usage/Cap|            Memory-Usage | XPU-Util Compute M. |
+        |                               |             L3-Usage |               MIG M. |
+        |===============================+======================+======================|
+        |   0 P800 OAM
+        | N/A   34C N/A
+                                  N/A
+                             85W / N/A |
+                                        | 00000000:2A:00.0 N/A |
+                                               0MiB / 98304MiB |      0%
+                                                                                   0* |
+                                                                              Default |
+                                                                                            用
+        |                               |      0MiB /    96MiB |
+                                                                                  使
+                                                                                  N/A |
+        +-------------------------------+----------------------+----------------------+
+        |   1 P800 OAM            N/A   | 00000000:3A:00.0 N/A |                   0* |
+        | N/A
+        |
+                32C N/A      86W / N/A |
+                                        |
+                                               0MiB / 98304MiB |
+                                               0MiB /    96MiB |
+                                                                      0%
+                                                                             司Default |
+                                                                                  N/A |
+
+        |                                                               公
+        +-------------------------------+----------------------+----------------------+
+            2 P800 OAM
+        | N/A   36C N/A
+                                  N/A
+                             86W / N/A |
+                                        | 00000000:4C:00.0 N/A |
+                                               0MiB / 98304MiB |      0%
+                                                                                   0* |
+                                                                              Default |
+        |                               |      0MiB /    96MiB |
+                                                                  限               N/A |
+        +-------------------------------+----------------------+----------------------+
+        |   3 P800 OAM            N/A   | 00000000:5C:00.0 N/A |                   0* |
+        | N/A
+        |
+                40C N/A      86W / N/A |
+                                        |                    有
+                                               0MiB / 98304MiB |
+                                               0MiB /    96MiB |
+                                                                      0%      Default |
+                                                                                  N/A |
+
+        |                                               ）
+        +-------------------------------+----------------------+----------------------+
+            4 P800 OAM
+        | N/A   34C N/A
+                                  N/A
+                             85W / N/A |
+                                        | 00000000:9A:00.0 N/A |
+                                               0MiB / 98304MiB |      0%
+                                                                                   0* |
+                                                                              Default |
+        |                               |
+                                                  圳
+                                               0MiB /    96MiB |                  N/A |
+        +-------------------------------+----------------------+----------------------+
+        |   5 P800 OAM            N/A   | 00000000:BA:00.0 N/A |                   0* |
+        | N/A
+        |
+                33C N/A      85W / N/A |
+                                        |    深 0MiB / 98304MiB |
+                                               0MiB /    96MiB |
+                                                                      0%      Default |
+                                                                                  N/A |
+
+        |
+                                       （
+        +-------------------------------+----------------------+----------------------+
+            6 P800 OAM
+        | N/A   37C N/A
+                                  N/A
+                             86W / N/A |
+                                        | 00000000:CA:00.0 N/A |
+                                               0MiB / 98304MiB |      0%
+                                                                                   0* |
+                                                                              Default |
+        |
+                                  技     |      0MiB /    96MiB |                  N/A |
+        +-------------------------------+----------------------+----------------------+
+        |   7 P800 OAM            N/A   | 00000000:DA:00.0 N/A |                   0* |
+        | N/A
+        |
+                34C N/A
+                             科
+                             85W / N/A |
+                                        |
+                                               0MiB / 98304MiB |
+                                               0MiB /    96MiB |
+                                                                      0%      Default |
+                                                                                  N/A |
+        +-------------------------------+----------------------+----------------------+
+                       讯
+        +-----------------------------------------------------------------------------+
+
+        | XPU     腾
+        | Processes:
+
+        |
+                 GI
+                 ID
+                      CI
+                      ID
+                                PID   Type   Process name
+                                                                                      |
+                                                                           XPU Memory |
+                                                                           Usage      |
+
+            供
+        |=============================================================================|
+        | No running processes found                                                  |
+        +-----------------------------------------------------------------------------+
+        仅
+    芯
+    以上回显中的参数说明，请参考 xpu-smi 工具使用说明章节。
+
+仑   ⚠注意
+    如果安装或升级失败，则先进行卸载驱动操作，执行 modinfo kunlun 确认无返回信息，即
+昆   保证所有已安装的驱动版本皆已卸载干净。然后再重新安装驱动即可。
+
+
+    2.7 卡的状态查询及异常卡处理
+    确保已正确安装 XRE 的情况下，用户可以通过以下方式判断卡的状态以及进行异常状态的处
+    理。
+
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                              - 13 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    2.7.1 使用 xpu-smi 工具检查卡的状态（推荐）
+    xpu-smi 工具是推荐用来检查昆仑芯卡状态的方式。运行 xpu-smi，预期输出如下：
+
+    Tue Nov 4 14:06:14 2024
+    +-----------------------------------------------------------------------------+
+    | XPU-SMI               Driver Version: 5.0.21        XPU-RT Version: 5.0.21     |
+    |-------------------------------+----------------------+----------------------+
+    | XPU Name         Persistence-M| Bus-Id
+    | Fan Temp Perf Pwr:Usage/Cap|
+    |                               |
+                                                     Disp.A | Volatile Uncorr. ECC |
+                                              Memory-Usage | XPU-Util Compute M. |
+                                                   L3-Usage |            SR-IOV M. |
+                                                                                           用
+    |===============================+======================+======================|
+    |   0 P800 OAM
+    | N/A   44C N/A
+                              N/A   | 00000000:52:00.0 N/A |
+                         88W / 400W |      0MiB / 98304MiB |       0%
+                                                                                 0 |
+                                                                           Default |
+                                                                                    使
+    |                               |      0MiB /     96MiB |
+                                                                               司
+                                                                          Disabled |
+    +-------------------------------+----------------------+----------------------+
+    |
+
+    |
+        1 P800 OAM
+    | N/A   35C N/A
+                              N/A   | 00000000:55:00.0 N/A |
+                         86W / 400W |
+                                    |
+                                           0MiB / 98304MiB |
+                                           0MiB /     96MiB |
+                                                                   0%
+                                                                         公       0 |
+                                                                           Default |
+                                                                          Disabled |
+
+                              N/A
+                         84W / 400W |                         有
+    +-------------------------------+----------------------+----------------------+
+    |
+
+    |
+        2 P800 OAM
+    | N/A   37C N/A
+                                    | 00000000:63:00.0 N/A |
+
+                                    |
+                                           0MiB / 98304MiB |
+                                           0MiB /     96MiB |
+                                                               限   0%
+                                                                                 0 |
+                                                                           Default |
+                                                                          Disabled |
+    +-------------------------------+----------------------+----------------------+
+    |   3 P800 OAM            N/A   | 00000000:66:00.0 N/A |                     0 |
+    | N/A
+    |
+            42C N/A      85W / 400W |
+                                    |
+                                                         ）
+                                           0MiB / 98304MiB |
+                                           0MiB /     96MiB |
+                                                                   0%      Default |
+                                                                          Disabled |
+
+    |                                              圳
+    +-------------------------------+----------------------+----------------------+
+        4 P800 OAM
+    | N/A   41C N/A
+                              N/A   | 00000000:9A:00.0 N/A |
+                         86W / 400W |      0MiB / 98304MiB |       0%
+                                                                                 0 |
+                                                                           Default |
+    |                               |
+                                              深
+                                           0MiB /     96MiB |             Disabled |
+    +-------------------------------+----------------------+----------------------+
+    |   5 P800 OAM            N/A   | 00000000:9B:00.0 N/A |                     0 |
+    | N/A
+    |
+            34C N/A      84W / 400W |
+                                    |   （  0MiB / 98304MiB |
+                                           0MiB /     96MiB |
+                                                                   0%      Default |
+                                                                          Disabled |
+
+    |                              技
+    +-------------------------------+----------------------+----------------------+
+        6 P800 OAM
+    | N/A   33C N/A
+                              N/A   | 00000000:AA:00.0 N/A |
+                         86W / 400W |      0MiB / 98304MiB |       0%
+                                                                                 0 |
+                                                                           Default |
+    |
+                             科      |      0MiB /     96MiB |             Disabled |
+    +-------------------------------+----------------------+----------------------+
+    |   7 P800 OAM            N/A   | 00000000:AB:00.0 N/A |                     0 |
+    | N/A
+    |
+            42C N/A
+                        讯86W / 400W |
+                                    |
+                                           0MiB / 98304MiB |
+                                           0MiB /     96MiB |
+                                                                   0%      Default |
+                                                                          Disabled |
+
+                  腾
+    +-------------------------------+----------------------+----------------------+
+
+    +-----------------------------------------------------------------------------+
+
+    | XPU    供
+    | Processes:
+
+    |
+             GI
+             ID
+                  CI
+                  ID
+                            PID   Type   Process name
+                                                                                  |
+                                                                       XPU Memory |
+                                                                       Usage      |
+
+       仅
+    |=============================================================================|
+    | No running processes found                                                  |
+    +-----------------------------------------------------------------------------+
+    芯
+仑   回显中具体参数的说明可以参考 xpu-smi 工具使用说明章节。
+    例如用户可以通过查看 Temp 一栏的值是否显示正常来判断卡的状态是否正常。如上图所示
+昆   显示温度如 35C，44C 等则为正常，显示存在 ERR!则卡的状态存在异常。
+
+    2.7.1.1 xpu-smi 运行异常
+    如果卡的状态异常，也有可能执行 xpu-smi 会不可用或返回空信息。
+    xpu-smi 不可用
+
+
+
+
+                          Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                            - 14 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    执行 xpu-smi 如得到以下输出结果，说明 Runtime 发布包未正常安装，或者未正确设置
+    PATH 环境变量。
+
+    command not found: xpu-smi
+
+
+    这种情况下用户需要确认正确安装 XRE 并且正确设置 PATH 环境变量，具体可参考 XRE 安装
+    方式章节。
+    xpu-smi 返回空信息                                                    用
+    如果 xpu-smi 可以正常执行，输出为空，通过 lspci -d 1d22: 可以查看到昆仑芯产品存在，
+    说明是驱动 ko 文件未正常安装。
+                                                                   使
+    一般该问题原因是未使用 install_rt.sh 进行驱动安装，而是直接 insmod 手动安装的驱动，该
+                                                               司
+    方法不能重启后继续生效，处理方法请参考常见错误解释与处理。
+    ⚠注意
+                                                               公
+    上文提到的 1d22 的 Vendor ID 仅为示例。                    有限
+    2.7.2 查看/proc 信息检查卡的状态
+    用户可以通过查看 /proc 下的信息进行检查，以 0 卡为例，运行以下命令：
+                                                ）
+    $ cat /proc/kunlun/dev0/state
+                                            圳
+    RUNNING
+                                        深
+    如果状态如上所示为 RUNNING，则证明卡的状态正常。    （
+                                    技
+    更多关于/proc 下信息的说明，可以参考通过 PROC 文件系统查看更多信息章节。
+
+    2.7.3 通过运维工具判断卡的状态       科
+    通常来说使用 xpu-smi 的方法就可以满足用户需要，极少情况下，也可以使用运维工具判断
+    卡的状态。              讯
+                  腾
+    如下图所示，在运行程序的某张卡（卡 0），通过查看 xpu-smi 显示的利用率始终不变，但
+    xpu-smi 上显示该卡上的进程号在操作系统中并不存在。
+            供
+       仅
+    芯
+仑
+昆
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司       - 15 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    Wed Jun 5 17:40:02 2024
+    +-----------------------------------------------------------------------------+
+    | XPU-SMI               Driver Version: 5.0.21        XPU-RT Version: 5.0.21     |
+    |-------------------------------+----------------------+----------------------+
+    | XPU Name         Persistence-M| Bus-Id         Disp.A | Volatile Uncorr. ECC |
+    | Fan Temp Perf Pwr:Usage/Cap|            Memory-Usage | XPU-Util Compute M. |
+    |                               |              L3-Usage |            SR-IOV M. |
+    |===============================+======================+======================|
+    |   0 P800 OAM            N/A   | 00000000:52:00.0 N/A |                     0 |
+    | N/A
+    |
+            37C N/A      97W / 400W |
+                                    |
+                                         208MiB / 98304MiB |
+                                           0MiB /     96MiB |
+                                                                 100%      Default |
+                                                                          Disabled |
+    +-------------------------------+----------------------+----------------------+
+                                                                                           用
+    |
+
+    |
+        1 P800 OAM
+    | N/A   35C N/A
+                              N/A   | 00000000:55:00.0 N/A |
+                         73W / 400W |
+                                    |
+                                         208MiB / 98304MiB |
+                                           0MiB /     96MiB |
+                                                                   0%
+                                                                                 0 |
+                                                                           Default |
+                                                                          Disabled |
+                                                                                    使
+    |
+                                                                               司
+    +-------------------------------+----------------------+----------------------+
+        2 P800 OAM            N/A   | 00000000:63:00.0 N/A |                     0 |
+    | N/A
+    |
+            37C N/A      73W / 400W |
+                                    |
+                                         208MiB / 98304MiB |
+                                           0MiB /     96MiB |
+                                                                   0%
+                                                                         公 Default |
+                                                                          Disabled |
+    +-------------------------------+----------------------+----------------------+
+
+
+    | Processes:                                              有
+    +-----------------------------------------------------------------------------+
+
+    | XPU    GI   CI        PID   Type   Process name
+                                                               限                  |
+                                                                       XPU Memory |
+    |        ID   ID                                                   Usage      |
+
+    |                                                    ）
+    |=============================================================================|
+         0   N/A N/A      10172      C   python                            232MiB |
+    +-----------------------------------------------------------------------------+
+
+    $ ps -aux|grep 10172
+    root 25445 0.0 0.0 112724      984 pts/8     S+
+                                                      圳
+                                                      15:21   0:00 grep --color=auto 10172
+
+                                               深
+    此时用户可以使用 XRE 提供的运维工具，判断卡的状态，具体工具为 test_dma 和
+    test_launch。                        （
+    具体示例如下：                        技
+    # 测试 0 号卡，做 2KB 数据的 DMA
+    $ ./test_dma 0 2048
+                             科
+    ......              讯
+    # 存在如下输出的情况下，卡的 DMA 功能是正常的
+
+    ==== Integrity Result for user speed test ====-
+    error_count= 0
+                  腾
+    ......
+             供
+    ==== Integrity Result for pcie speed test ====-
+    error_count= 0
+
+
+       仅
+    # 测试 0 号卡，下发一个 kernel，loop 为 1 次
+    $ ./test_launch --loop 1 --kernel-num 1 0
+    芯
+    # 着重关注输出 PASS，说明卡的算子下发功能是正常的
+    ......
+
+仑   PASS
+
+
+
+昆   如果如上所示返回结果显示正确，标志着卡的状态为正常，其余情况则需要用户做异常卡的恢
+    复工作。
+    运维工具的具体使用办法及参数说明可以参考运维工具使用说明。
+
+    2.7.4 异常卡的处理
+    处于异常状态下的卡需要用户进行软复位操作。软复位的操作流程如下：
+
+
+
+
+                          Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                            - 16 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    第一步，找到所有使用该物理卡的进程。
+    以卡 0 为例，可以调用 lsof 命令查找使用该卡的进程：
+
+    $ sudo lsof /dev/xpu0
+    COMMAND     PID USER  FD    TYPE DEVICE SIZE/OFF      NODE NAME
+    face-gene 26038 jenf 131u    CHR 242,0       0t0 156131938 /dev/xpu0
+    media_str 26590 jenf  28u    CHR 242,0       0t0 156131938 /dev/xpu0
+
+
+    第二步，执行复位命令。                                                                  用
+    xpu-smi -r -i [XPU_ID]
+                                                                               使
+    //比如 xpu-smi -r -i 0
+                                                                           司
+    如回显如下所示，则表示复位成功：                                                       公
+    XPU 00000000:AB:00.0 was successfully reset.                  限
+    极小概率下软复位报错，或者软复位后卡的状态依旧异常，用户可以尝试多进行几次软复位操
+    作。
+                                                             有
+    多次软复位失败的情况下，建议重启主机进行解决。
+                                                        ）
+                                                   圳
+    2.8 安装常见问题                               深
+    驱动安装过程中的常见问题及解决办法如下：
+                                       （
+    2.8.1 缺少设备文件                  技
+    驱动安装后，如果/dev/xpu 设备文件显示不完整（xpu-smi 仅能看到部分设备文件），或
+                             科
+    者/proc/xpu/probe_error 文件非空，说明驱动装载、初始化设备过程中出错。
+    1.                 讯
+         这种情况下应首先排查硬件连接和操作系统环境，检查操作系统是否识别到全部昆仑芯
+         设备，且每个设备均正确分配了 BAR 地址。
+                  腾
+          ● 如果有设备未正确分配 BAR 地址，也可尝试断电重启，并确认 BIOS 中 “Above
+            供
+            4G decoding” 选项已开启。
+          ● 如果 BIOS 选项开启后依然无效，可能是主机上安装计算设备过多导致硬件 IO 地址
+
+
+    2.
+         仅  空间不足。
+         如果硬件连接没有问题，则查看 /proc/xpu/probe_error 文件和 dmesg 中给出的错误
+    芯    原因，多数情况下设备初始化失败的原因有：
+
+仑         ● CPU memory not enough：分配 CPU 内存失败，可重启后再次尝试。
+          ● System error：通常是设备未正确分配 BAR 地址。
+昆   2.8.2 缺少当前内核版本驱动
+    如果执行脚本一键安装时提示如下消息： Cannot find kunlun driver file ***
+    则说明安装包中缺少与当前内核版本匹配的驱动，可尝试更换支持列表中的内核版本
+    （kunlun_module 目录有对应 ko 文件），或联系昆仑芯客户支持获取与所需内核版本匹配
+    的驱动。
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                   - 17 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    2.8.3 驱动与当前内核版本不匹配
+    如果在手动安装装载驱动时提示如下信息：
+    insmod: error inserting 'output/kunlun_module/kunlun.ko': -1 Invalid module format
+    则说明装载的驱动与当前内核版本不匹配。可使用 modinfo kunlun 命令查看 vermagic 字段
+    确认 ko 对应内核版本，vermagic 须与 uname -r 输出匹配。
+
+
+    2.9 xpu-smi 工具使用说明                                                                        用
+    使用 xpu-smi 工具，您可以获取昆仑芯计算设备的详细信息。                                                使
+    2.9.1 基本使用说明                                                               司
+    运行 xpu-smi 后回显如下：                                                    公
+        | XPU-SMI
+                                                              有限
+        +-----------------------------------------------------------------------------+
+                                Driver Version: 5.0.21        XPU-RT Version: 5.0.21    |
+        |-------------------------------+----------------------+----------------------+
+        | XPU Name         Persistence-M| Bus-Id
+        | Fan Temp Perf Pwr:Usage/Cap|
+        |                               |
+                                                         ）
+                                                         Disp.A | Volatile Uncorr. ECC |
+                                                  Memory-Usage | XPU-Util Compute M. |
+                                                       L3-Usage |               MIG M. |
+
+        |                                          圳
+        |===============================+======================+======================|
+            0 P800 OAM
+        | N/A   34C N/A
+                                  N/A
+                             85W / N/A |
+                                        | 00000000:2A:00.0 N/A |
+                                               0MiB / 98304MiB |       0%
+                                                                                     0* |
+                                                                               Default |
+        |                               |
+                                              深0MiB /     96MiB |                  N/A |
+        +-------------------------------+----------------------+----------------------+
+        |
+
+        |
+            1 P800 OAM
+        | N/A   32C N/A
+                                  N/A
+                             86W / N/A |（
+                                        | 00000000:3A:00.0 N/A |
+
+                                        |
+                                               0MiB / 98304MiB |
+                                               0MiB /     96MiB |
+                                                                       0%
+                                                                                     0* |
+                                                                               Default |
+                                                                                   N/A |
+
+        |                          技
+        +-------------------------------+----------------------+----------------------+
+            2 P800 OAM
+        | N/A   36C N/A
+                                  N/A
+                             86W / N/A |
+                                        | 00000000:4C:00.0 N/A |
+                                               0MiB / 98304MiB |       0%
+                                                                                     0* |
+                                                                               Default |
+        |
+                             科          |      0MiB /     96MiB |                  N/A |
+        +-------------------------------+----------------------+----------------------+
+        |
+
+        |
+            3 P800 OAM
+        | N/A   40C N/A 讯         N/A
+                             86W / N/A |
+                                        | 00000000:5C:00.0 N/A |
+
+                                        |
+                                               0MiB / 98304MiB |
+                                               0MiB /     96MiB |
+                                                                       0%
+                                                                                     0* |
+                                                                               Default |
+                                                                                   N/A |
+
+        |         腾
+        +-------------------------------+----------------------+----------------------+
+            4 P800 OAM
+        | N/A   34C N/A
+                                  N/A
+                             85W / N/A |
+                                        | 00000000:9A:00.0 N/A |
+                                               0MiB / 98304MiB |       0%
+                                                                                     0* |
+                                                                               Default |
+        |
+             供                          |      0MiB /     96MiB |                  N/A |
+        +-------------------------------+----------------------+----------------------+
+
+       仅|
+
+        |
+            5 P800 OAM
+        | N/A   33C N/A
+                                  N/A
+                             85W / N/A |
+                                        | 00000000:BA:00.0 N/A |
+
+                                        |
+                                               0MiB / 98304MiB |
+                                               0MiB /     96MiB |
+                                                                       0%
+                                                                                     0* |
+                                                                               Default |
+                                                                                   N/A |
+
+    芯   +-------------------------------+----------------------+----------------------+
+        |   6 P800 OAM
+        | N/A   37C N/A
+                                  N/A
+                             86W / N/A |
+                                        | 00000000:CA:00.0 N/A |
+                                               0MiB / 98304MiB |       0%
+                                                                                     0* |
+                                                                               Default |
+
+仑       |                               |      0MiB /     96MiB |                  N/A |
+        +-------------------------------+----------------------+----------------------+
+        |   7 P800 OAM            N/A   | 00000000:DA:00.0 N/A |                     0* |
+昆       | N/A
+        |
+                34C N/A      85W / N/A |
+                                        |
+                                               0MiB / 98304MiB |
+                                               0MiB /     96MiB |
+                                                                       0%      Default |
+                                                                                   N/A |
+        +-------------------------------+----------------------+----------------------+
+
+        +-----------------------------------------------------------------------------+
+        | Processes:                                                                  |
+        | XPU    GI   CI        PID   Type   Process name                  XPU Memory |
+        |        ID   ID                                                   Usage      |
+        |=============================================================================|
+        | No running processes found                                                  |
+
+
+
+
+                          Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                               - 18 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+         +-----------------------------------------------------------------------------+
+
+
+
+
+    其中部分参数的说明如下：
+        ● XPU：计算设备序号
+        ● Name：计算设备名称
+        ● Bus-Id：物理设备 PCI 地址
+        ● Temp：设备温度
+                                                                                             用
+        ● Pwr:Usage/Cap：设备功率
+        ● L3-Usage：高速内存用量
+                                                                                   使
+        ● Memory-Usage：设备内存用量
+                                                                              司
+        ● XPU-Util：设备利用率                                                 公
+    PROCESSES 表格显示当前正使用计算设备的进程信息，其中部分参数的说明如下：
+        ● XPU：计算设备序号
+                                                                   限
+        ● PID：计算进程号                                           有
+        ● Process name：计算进程名
+        ● XPU Memory Usage：计算进程设备内存用量
+                                                         ）
+    2.9.2 其他常用命令
+                                                   圳
+    以下是一些其他常用的命令及其功能：
+                                              深
+    ●                                   （
+          xpu-smi -h 或 --help：打印 xpu-smi 的使用信息。
+    ●                              技
+          xpu-smi -f [name] 或 --filename=[name]：将日志保存到指定名称的文件中。
+    ●
+    ●
+                        讯
+          xpu-smi -L 或 --list-xpus：列出所有 XPU 设备。
+
+                         科
+          xpu-smi --id=：指定并显示某个 ID 的 XPU 的详细信息。
+    ●     xpu-smi -l 或 --loop：持续监控 XPU 信息，直到用户按下 Ctrl+C。
+    ●              腾
+          xpu-smi xpulink -s 或 --status：显示 XPU 的连接状态，active 或 inactive。
+    ●        供
+          xpu-smi topo -m 或 --matrix 命令：显示 XPU 系统的通信矩阵。具体运行示例如下;
+
+        仅
+    芯
+仑
+昆
+
+
+                          Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                              - 19 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+        ./xpu-smi topo -m
+             XPU0      XPU1    XPU2     XPU3      XPU4      XPU5      XPU6      XPU7      NIC0      NIC1
+        NIC2      NIC3     NIC4    NIC5      CPU Affinity        NUMA Affinity
+        XPU0       X       XL      XL        XL        XL        SYS       SYS       SYS       PIX       NODE
+             NODE      NODE    SYS      SYS       0-47,96-143         0
+        XPU1      XL        X      XL        XL        SYS       XL        SYS       SYS       PIX       NODE
+             NODE      NODE    SYS      SYS       0-47,96-143         0
+        XPU2      XL       XL       X        XL        SYS       SYS       XL        SYS       NODE      NODE
+             NODE      PIX     SYS      SYS       0-47,96-143         0
+        XPU3
+
+        XPU4
+             NODE
+                  XL
+
+                  XL
+                       PIX
+                           XL
+
+                           SYS
+                               SYS
+                                   XL
+
+                                   SYS
+                                        SYS
+                                              X
+
+                                             SYS
+                                                       SYS
+                                                  0-47,96-143
+                                                        X
+                                                                 SYS
+
+                                                                 XL
+                                                                      0
+                                                                           SYS
+
+                                                                           XL
+                                                                                     XL
+
+                                                                                     XL
+                                                                                               NODE
+
+                                                                                               SYS
+                                                                                                       用 NODE
+
+                                                                                                         SYS
+
+        XPU5
+             SYS
+
+             SYS
+                  SYS
+                       SYS
+
+                       SYS
+                           XL
+                               PIX
+
+                               PIX
+                                   SYS
+                                        NODE
+
+                                        NODE
+                                             SYS
+                                                  48-95,144-191
+                                                       XL
+                                                  48-95,144-191
+                                                                  X
+                                                                      1
+
+                                                                      1
+                                                                           XL        XL         使
+                                                                                               SYS       SYS
+
+        XPU6
+             SYS
+                  SYS
+                       SYS
+                           SYS
+                               NODE
+                                   XL
+                                        PIX
+                                             SYS       XL
+                                                  48-95,144-191
+                                                                 XL
+                                                                      1
+                                                                            X        XL
+                                                                                          司    SYS       SYS
+
+        XPU7
+
+        NIC0
+             SYS
+                  SYS
+
+                  PIX
+                       SYS
+                           SYS
+
+                           PIX
+                               NODE
+                                   SYS
+
+                                   NODE
+                                        PIX
+                                             XL
+
+                                             NODE
+                                                       XL
+                                                  48-95,144-191
+                                                       SYS
+                                                                 XL
+
+                                                                 SYS
+                                                                      1
+                                                                           XL
+
+                                                                           SYS
+                                                                                   公  X
+
+                                                                                     SYS
+                                                                                               SYS
+
+                                                                                                X
+                                                                                                         SYS
+
+                                                                                                         NODE
+
+        NIC1
+
+        NIC2
+             NODE
+
+             PIX
+                  NODE
+
+                  NODE
+                       NODE
+
+                       NODE
+                           NODE
+
+                           NODE
+                               SYS
+
+                               SYS
+                                   NODE
+
+                                   NODE
+                                        SYS
+
+                                        SYS
+                                             NODE
+
+                                             NODE
+                                                       SYS
+
+                                                       SYS
+                                                                 SYS
+
+                                                                 SYS
+                                                                      有限
+                                                                           SYS
+
+                                                                           SYS
+                                                                                     SYS
+
+                                                                                     SYS
+                                                                                               NODE
+
+                                                                                               NODE
+                                                                                                          X
+
+                                                                                                         PIX
+              X        NODE    SYS      SYS
+        NIC3
+
+        NIC4
+             NODE
+                  NODE
+
+                  SYS
+                        X
+                           NODE
+
+                           SYS
+                               SYS
+                                   PIX
+
+                                   SYS
+                                        SYS
+                                             PIX
+
+                                             SYS
+                                                       SYS
+
+                                                       PIX
+                                                                ）SYS
+
+                                                                 PIX
+                                                                           SYS
+
+                                                                           NODE
+                                                                                     SYS
+
+                                                                                     NODE
+                                                                                               NODE
+
+                                                                                               SYS
+                                                                                                         NODE
+
+                                                                                                         SYS
+
+        NIC5
+             SYS
+
+             SYS
+                  SYS
+                       SYS
+
+                       SYS
+                           SYS
+                                X
+
+                               NODE
+                                   SYS
+                                        NODE
+
+                                         X
+                                             SYS         圳
+                                                       NODE      NODE      PIX       PIX       SYS       SYS
+
+
+                                                   深
+        Legend:
+
+          X    = Self
+                                            （
+                         讯
+          SYS = Connection traversing PCIe as well as the SMP interconnect between NUMA nod
+        es (e.g., QPI/UPI)
+
+
+                          科
+          NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Br
+        idges within a NUMA node
+
+
+                           技
+          PHB = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU
+        )
+          PXB = Connection traversing multiple PCIe bridges (without traversing the PCIe Ho
+        st Bridge)
+
+          XL      腾
+          PIX = Connection traversing at most a single PCIe bridge
+               = Connection traversing XPULink
+
+
+            供
+        NIC Legend:
+
+          NIC0: mlx5_0
+        仅 NIC1: mlx5_1
+          NIC2: mlx5_2
+
+    芯     NIC3: mlx5_3
+          NIC4: mlx5_4
+          NIC5: mlx5_5
+
+仑   参数说明如下：
+昆   ●   X：表示自身连接。
+    ●   SYS：通过 PCIe 和 NUMA 节点间（如 QPI/UPI）的 SMP 互联连接。
+    ●   NODE：在 NUMA 节点内的 PCIe 主机桥之间的连接。
+    ●   PHB：通过 PCIe 以及 PCIe 主机桥（通常是 CPU）的连接。
+    ●   PXB：通过多个 PCIe 桥（不经过 PCIe 主机桥）的连接。
+
+
+
+                           Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                                       - 20 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    ●   PIX：最多通过一个 PCIe 桥的连接。
+    ●   XL：通过 XPU Link 的连接。
+    ●   xpu-smi topo -mo：输出 OAM ID 顺序，示例如下：
+
+        OAM0     OAM1      OAM2      OAM3     OAM4     OAM5     OAM6    OAM7   NIC0   NIC1      NIC2
+            NIC3      NIC4      NIC5      CPU Affinity      NUMA Affinity
+        OAM0       X       XL        XL       XL       XL       SYS     SYS    SYS    PIX       NODE
+
+        OAM1
+             NODE
+                 XL
+                      NODE
+                             X
+                                SYS
+                                     XL
+                                          SYS
+                                              XL
+                                                   0-47,96-143
+                                                       SYS      XL
+                                                                     0
+                                                                        SYS    SYS    PIX      用NODE
+
+        OAM2
+             NODE
+
+             NODE
+                 XL
+                      NODE
+
+                      PIX
+                           XL
+                                SYS
+
+                                SYS
+                                      X
+                                          SYS
+
+                                          SYS
+                                              XL
+                                                   0-47,96-143
+                                                       SYS
+                                                   0-47,96-143
+                                                                SYS
+                                                                     0
+
+                                                                     0
+                                                                        XL     SYS     使
+                                                                                      NODE      NODE
+
+        OAM3
+
+        OAM4
+             NODE
+                 XL
+
+                 XL
+                      PIX
+                           XL
+
+                           SYS
+                                SYS
+                                     XL
+
+                                     SYS
+                                          SYS
+                                                X
+
+                                              SYS
+                                                       SYS
+                                                   0-47,96-143
+                                                        X
+                                                                SYS
+
+                                                                XL
+                                                                     0
+                                                                        SYS
+
+                                                                        XL
+                                                                               XL
+
+                                                                               XL
+                                                                                      司
+                                                                                      NODE
+
+                                                                                      SYS
+                                                                                                NODE
+
+                                                                                                SYS
+
+        OAM5
+             SYS
+                 SYS
+                      SYS
+                           XL
+                                PIX
+                                     SYS
+                                          NODE
+                                              SYS
+                                                   48-95,144-191
+                                                       XL        X
+                                                                     1
+                                                                        XL     公
+                                                                               XL     SYS       SYS
+
+        OAM6
+             SYS
+
+             SYS
+                 SYS
+                      SYS
+
+                      SYS
+                           SYS
+                                PIX
+
+                                NODE
+                                     XL
+                                          NODE
+
+                                          PIX
+                                              SYS
+                                                   48-95,144-191
+                                                       XL
+                                                   48-95,144-191
+                                                                XL
+                                                                     1
+
+                                                                     1
+                                                                         限X    XL     SYS       SYS
+
+        OAM7
+
+        NIC0
+             SYS
+                 SYS
+
+                 PIX
+                      SYS
+                           SYS
+
+                           PIX
+                                NODE
+                                     SYS
+
+                                     NODE
+                                          PIX
+                                              XL
+
+                                              NODE
+                                                       XL
+                                                   48-95,144-191
+                                                       SYS
+                                                                XL
+
+                                                                SYS
+                                                                   有 1
+                                                                        XL
+
+                                                                        SYS
+                                                                                X
+
+                                                                               SYS
+                                                                                      SYS
+
+                                                                                       X
+                                                                                                SYS
+
+                                                                                                NODE
+
+        NIC1
+             NODE
+
+             PIX
+                 NODE
+                      NODE
+
+                      NODE
+                           NODE
+                                SYS
+
+                                SYS
+                                     NODE
+                                          SYS
+
+                                          SYS
+                                              NODE     SYS   ）  SYS     SYS    SYS    NODE        X
+
+        NIC2
+              X
+                  NODE
+                       NODE
+                           NODE
+                                 SYS
+                                     NODE
+                                          SYS
+                                               NODE
+                                                      圳SYS      SYS     SYS    SYS    NODE      PIX
+
+        NIC3
+
+        NIC4
+             NODE
+                  NODE
+
+                  SYS
+                        X
+                            NODE
+
+                            SYS
+                                 SYS
+                                     PIX
+
+                                     SYS
+                                          SYS   深
+                                               PIX
+
+                                               SYS
+                                                       SYS
+
+                                                       PIX
+                                                                SYS
+
+                                                                PIX
+                                                                        SYS
+
+                                                                        NODE
+                                                                               SYS
+
+                                                                               NODE
+                                                                                      NODE
+
+                                                                                      SYS
+                                                                                                NODE
+
+                                                                                                SYS
+
+        NIC5
+             SYS
+
+             SYS
+                  SYS
+                       SYS
+
+                       SYS
+                            SYS
+                                  X
+
+                                 NODE
+                                     SYS  （
+                                          NODE
+
+                                           X
+                                               SYS     NODE     NODE    PIX    PIX    SYS       SYS
+
+
+        Legend:                     技
+          X    = Self
+                         讯科
+          SYS = Connection traversing PCIe as well as the SMP interconnect between NUMA nod
+        es (e.g., QPI/UPI)
+          NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Br
+        idges within a NUMA node
+
+        )         腾
+          PHB = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU
+
+
+
+            供
+          PXB = Connection traversing multiple PCIe bridges (without traversing the PCIe Ho
+        st Bridge)
+          PIX = Connection traversing at most a single PCIe bridge
+
+        仅 XL   = Connection traversing XPULink
+
+        NIC Legend:
+
+    芯     NIC0: mlx5_0
+          NIC1: mlx5_1
+仑         NIC2: mlx5_2
+          NIC3: mlx5_3
+
+昆         NIC4: mlx5_4
+          NIC5: mlx5_5
+
+
+    ●   xpu-smi -q 或 --query：列出 XPU 的详细信息，部分环境或设备可能不支持某些数据
+        输出，此时会显示 N/A，示例如下：
+
+
+
+
+                          Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                                - 21 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    XPU 00000000:3A:00.0
+        Product Name                      : P800 OAM
+        Product Brand                     : KUNLUNXIN
+        Product Architecture              : KL3
+        Serial Number                     : 02K0M86242V0001D
+        XPU UUID                          : GPU-fd6f890f-263c-5bd9-b2f9-2d7e66c85ac8
+        Minor Number                      : 1
+        XPU Part Number                   : B00100300110112
+        Firmware Version
+            PBL Version
+            PCIE Version
+            SBL Version
+                                          : 1.0
+                                          : 2.1
+                                          : 1.25
+                                                                                       用
+        PCI
+            ALL Version
+            CPLD Version
+                                          : 1.0.2.1.1.25
+                                          : 1.3                               使
+            Bus
+            Device
+                                          : 0x3A
+                                          : 0x00
+                                                                         司
+            Function
+            Domain
+            Device Id
+                                          : 0x0
+                                          : 0x0000
+                                          : 0x36881D22
+                                                                    公
+            Bus Id
+            Sub System Id
+            XPU Link Info
+                                          : 00000000:3A:00.0
+                                          : 0x00010001         限
+                 PCIe Generation
+                     Max                  : 5              有
+                     Current
+                 Link Width
+                     Max
+                                          : 5
+
+                                          : 16x
+                                                       ）
+        Memory Usage
+            Total
+                     Current              : 16x
+                                                圳
+                                          : 98304 MiB
+            Reserved
+            Used                          深
+                                          : 0 MiB
+                                          : 100 MiB
+            Free
+        L3 Usage
+            Total
+                                      （   : 98204 MiB
+
+                                          : 96 MiB
+            Reserved
+            Used
+            Free
+                                      技   : 0 MiB
+                                          : 0 MiB
+                                          : 96 MiB
+        Utilization
+            Xpu
+        Ecc Mode
+                             科            : 0 %
+
+            Current
+            Pending
+                        讯                 : Enabled
+                                          : Enabled
+        ECC Errors
+                  腾
+            Volatile
+                 DRAM Correctable         : 0
+
+             供   DRAM Uncorrectable
+            Aggregate
+                 DRAM Correctable
+                                          : 0
+
+                                          : 0
+       仅         DRAM Uncorrectable
+        Temperature
+                                          : 0
+
+
+    芯       XPU Current Temp
+        Power Readings
+            Enforced Power Limit
+                                          : 52 C
+
+                                          : 400.00 W
+
+仑           Power Draw
+        Clocks
+            Cluster
+                                          : 78.00 W
+
+                                          : 1450 MHz
+
+昆           CDNN
+        Processes
+                                          : 1450 MHz
+                                          : None
+
+
+    部分参数说明如下：
+      ● Product Name：产品名
+      ● Product Brand：产品品牌
+      ● Product Architecture：产品架构
+
+
+
+                          Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                      - 22 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+      ● Serial Number：序列号
+      ● XPU UUID：XPU 的 UUID
+      ● Firmware Version：固件版本
+      ● PCI：PCI 信息
+      ● Memory Usage：内存使用情况，包括总量、预留量、使用量和空闲量
+      ● L3 Usage：L3 内存使用情况，包括总量、预留量、使用量和空闲量
+      ● Utilization：占用率                                                                  用
+      ● Temperature：温度
+      ● Power Readings：功率值
+                                                                                  使
+      ● Clocks：时钟频率                                                          司
+      ● Processes：进程
+    通过这些命令和参数，您可以全面了解昆仑芯计算设备的状态和性能。
+                                                                           公
+                                                             有限
+    2.10 运维工具使用说明
+
+    说明及使用方法请参考如下内容。 运维工具均提供-h 帮助信息，方便用户使用。其他工具使
+                                                        ）
+    昆仑芯 XRE 目前提供一系列运维工具，位于安装后的目录/usr/local/xpu/tools 下。具体的
+
+    用说明请参考子页面的介绍。                                 圳
+    2.10.1 test_dma                          深
+                                  技
+    test_dma 用于测试主机到设备间双向 DMA 的正确性和速度。
+
+                                   （
+      ● AveragePCIeSpeed 表示 PCIe 链路上进行单纯数据传输测得的带宽，size 大于 16MB
+        时接近 PCIe 链路线速。
+
+                       讯
+      ● AverageUserSpeed 表示实际读写到进程用户态地址测得的带宽，一般小于
+
+                        科
+        AveragePCIeSpeed。
+    工具使用方法：
+
+                  腾
+    xre-<os>_<arch>/tools/test_dma --loop <loop_count> --host-alloc <1|0> <dev_id> <size>
+
+            供
+    test_dma [--hbm] [--l3] [--addr <address>] [--no-integrity-check]
+                 [--loop <loop_count>] <dev_id> <size>
+
+
+       仅
+    ~# /usr/local/xpu/tools/test_dma --loop 20 --host-alloc 1 0 0x400000
+
+
+
+    芯
+    回显：
+
+仑
+昆
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                           - 23 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    ==== TEST PLAN ====
+    DevID:          0
+    XpuAddr:        0x4001a00000
+    Size:           0x400000
+    UseTHP:         false
+    HostRegister:   false
+    HostAlloc:      true
+    CheckIntegrity: true
+    Verbose:        false
+
+    ==== Integrity Result for user speed test ====-
+    error_count= 0
+                                                                     用
+    ==== Integrity Result for pcie speed test ====-
+    error_count= 0
+                                                                   使
+    === Performance Result ===
+                                                               司
+    HOST TO DEVICE
+      AverageUserTime(us): 19795.349609
+      AverageUserSpeed(GB/s): 12.629229
+                                                               公
+      AveragePCIeTime(us): 9999.794922
+      AveragePCIeSpeed(GB/s): 25.000513
+    DEVICE TO HOST
+                                                          限
+      AverageUserTime(us): 11315.950195
+      AverageUserSpeed(GB/s): 22.092709               有
+      AveragePCIeTime(us): 9345.542969
+      AveragePCIeSpeed(GB/s): 26.750720               ）
+    参数说明：                                         圳
+      ● loop <loop_count> ：测试循环次数，默认值为 1。
+      ● host-alloc <1|0>：分配页锁定的主机内存，默认值为 0。
+                                             深
+      ● dev_id：指定设备 ID。                   （
+      ● size：指定测试数据大小，单位为字节。       技
+      ● hbm：指定测试内存类型为 HBM，如果设置了--addr 选项，则此选项被忽略。如果没
+                       讯
+        有设置--hbm 和--l3 选项，则默认使用 HBM。
+
+                        科
+      ● l3 ：指定测试内存类型为 L3，如果设置了--addr 选项，则此选项被忽略。
+      ● addr <address>：指定 XPU 内存 A 的地址，如果未提供此选项，则使用 malloc 分
+        配。        腾
+      ● no-integrity-check：不进行完整性检查，直接跳过。
+            供
+      ● XpuAddr：系统分配的 XPU 设备的地址。
+       仅
+      ● UseTHP：是否使用透明大页。
+
+    芯 ● host-register <1|0>： 注册主机内存，默认值为 1。
+      ● host-alloc <1|0> ：使用 malloc 分配主机内存，默认值为 0。 在这种模式下，主机寄
+仑       存器和透明大页功能无法使用。
+      ● CheckIntegrity：用户速度测试的完整性检查。
+昆     ● verbose：打印详细信息，默认值为 false。
+
+    2.10.2 test_launch
+    test_launch 用于测试从主机向设备下发计算任务，测试任务内容为求两个 float 类型向量的
+    计算加和。如果通过，则在日志末尾输出 Pass。
+    工具使用办法：
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司       - 24 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    xre-<os>_<arch>/tools/test_launch <dev_id>
+    test_launch [--thread-num <thread_num>] [--loop <loop>] [--use-stream]
+                    [--kernel-num <kernel_num> or <kn_min,kn_max>] [--perf] [--kl1]
+                    [--kl2] [--kl3] <dev_id>
+    /// 测试 0 号设备
+    ~# /usr/local/xpu/tools/test_launch 0
+
+
+    回显：
+
+    [ INFO][main:423] ---- test config ----
+                                                                                        用
+    [ INFO][main:424] dev_id      : 0
+    [ INFO][main:425] thread_num : 1                                              使
+    [ INFO][main:426] length
+    [ INFO][main:427] loop
+                                  : 5120
+                                  : 1
+    [ INFO][main:428] use_stream : False
+                                                                             司
+    [ INFO][main:430] kernel_num : 1
+    [ INFO][main:434] verbose
+    [ INFO][main:435] perf
+                                  : false
+                                  : false
+                                                                        公
+    PASS
+
+
+    参数说明：
+                                                              有限
+      ● dev_id：指定设备 ID。
+      ● thead-num<thread_num> ：指定启动的线程数，默认值为 1。
+                                                        ）
+      ● data-len<length>：指定测试数据长度，默认值为 5120。        圳
+      ● loop<loop> ：指定每个线程运行的循环次数，默认值为 1。
+      ● use-stream：指定是否使用不同的流，默认值为 false。
+                                              深
+        1。
+                                       （
+      ● kernel-num<kernel_num> or <kn_min,kn_max> ：指定启动的内核数量，默认值为
+
+      ● verbose：打印详细信息，默认值为 false。
+                                  技
+                             科
+      ● perf：指定是否显示性能结果，默认值为 false。
+
+    2.10.3 rr/rw          讯
+    明：
+                  腾
+    rr 用于读取设备指定内部寄存器数值，rw 用于写入设备指定内部寄存器数值。工具使用说
+
+
+            供
+    xre-<os>_<arch>/tools/rr <dev_id> <reg address>
+       仅
+    xre-<os>_<arch>/tools/rw <dev_id> <reg address> <value>
+
+
+    芯
+    /// 使能所有的 cluster
+    ~# /usr/local/xpu/tools/rw 0 0x24601020
+    /// 读取 cluster 的使能状态
+                                              0x0
+
+
+仑   ~# /usr/local/xpu/tools/rr 0 0x24601020
+
+
+
+昆   回显：
+
+    0x24601020= 0 (0x0)
+
+
+    参数说明：
+      ● dev_id：指定设备 ID。
+
+
+
+
+                          Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                         - 25 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+      ● reg address：指定寄存器地址。
+      ● value：指定写入寄存器的值。
+
+    2.10.4 dump_mem
+    dump_mem 用于打印设备内存指定地址范围内的数据。
+
+    xre-<os>_<arch>/tools/dump_mem <dev_id> <addr> <size>
+    // 打印设备 0 的物理地址为 0x24601024，大小为 1 字节的数据
+    ~# /usr/local/xpu/tools/dump_mem 0 0x24601024 1
+                                                                            用
+    回显：
+                                                                          使
+                                                                      司
+    Device physical address: 0x24601024; size: 0x1
+    [0x24601024] 00000000                                             公
+    参数说明：                                                         限
+      ● dev_id：指定设备 ID。
+      ● addr：指定打印数据的起始物理地址。
+                                                             有
+      ● size：指定打印数据的大小。
+                                                        ）
+    2.10.5 test_memcpy_peer
+                                                     圳
+    test_memcpy_peer 用于测试单机卡间内存拷贝。           深
+    工具使用方法：
+                                  技（
+    xre-<os>_<arch>/tools/test_memcpy_peer <src_id> <dst_id> <size>
+    ~# /usr/local/xpu/tools/test_memcpy_peer 0 1 0x10
+
+
+    回显：
+                       讯科
+                  腾
+    xpu_memcpy_peer(1, 0x4001a00000, 0, 0x4001a00000, 16)
+    DMA [16] bytes from XPU[0] to XPU[1] correctness check pass
+
+
+    参数说明：   供
+       仅
+      ● src_id：指定源设备 ID。
+      ● dst_id：指定目的设备 ID。
+    芯 ● size：指定拷贝数据大小。
+仑   2.11 通过 proc 文件系统查看更多信息
+昆   除了 xpu-smi 命令，驱动也通过 proc 文件系统向用户暴露设备相关信息，用户可使用 cat
+    命令查看这些文件。部分文件可写，用户可使用 echo 命令修改其内容。完整的 proc 文件系
+    统目录如下所示：
+
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司              - 26 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    ├── dev0
+    │   ├── errinfo
+    │   ├── errtask
+    │   ├── info
+    │   ├── state
+    │   ├── task_timeout_detect_threshold_in_ms
+    │   ├── tqinfo
+    │   └── use_ratio
+
+
+    根目录（/proc/kunlun）下的文件体现驱动相关信息，设备目录（如/proc/kunlun/dev0）
+    下的文件体现设备相关信息。设备目录与设备文件一一对应，如 /proc/kunlun/dev0 就对
+                                                                                         用
+    应 /dev/xpu0。                                                                 使
+    设备相关信息包括：                                                               司
+    表 2-3 proc 系统文件说明
+
+    文件名             描述
+                                                                       公
+    errtask         设备错误任务信息。                                     限
+    info
+    state
+                    设备基本信息，包括板卡型号、PCI 地址、SN、固件版本、硬件版本和驱动版本等。
+                    设备状态，正常为 RUNNING。                        有
+    tqinfo
+    use_ratio
+                    设备硬件队列状态。
+                    设备利用率。
+                                                        ）
+                                                   圳
+    3 XRE 常见问题及处理                             深
+    3.1 常见错误解释与处理
+                                         （
+                                    技
+    3.1.1 用户进程报错               科
+    1.       [ERROR][XPURT] Initialize default context for dev -1 fail 或 [WARN][XPURT]
+                          讯
+             devid(*) not exist
+             原因：     腾
+                供
+             找不到昆仑芯设备，有以下几种原因：
+              ● 机器尚未安装昆仑芯 AI 加速卡。
+           仅  ● 机器已经安装昆仑芯 AI 加速卡但是 PCIe 未识别。
+
+    芯         ● PCIe 可以识别但是没有装昆仑芯驱动。
+              ● 驱动已经安装但用户进程没有昆仑芯设备的权限。
+仑             ● 通过 XPU_VISIBLE_DEVICES 环境变量限制设备数量，导致目标设备不可见。
+
+昆            推荐解决方法：
+             第一步，首先使用如下命令，检查机器是否插卡以及 PCIe 是否已经识别：
+
+
+
+
+                            Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                      - 27 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+         $ /sbin/sudo lspci -d 1d22: -vvv
+         # 操作系统识别到的昆仑芯设备数量应当与实际机器上的昆仑芯 AI 加速卡数量一致，例如两卡机器应当看到如下
+         两块输出：
+         37:00.0 Class 1200: Device 1d22:3684 (rev 01)
+                 Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping
+         - SERR- FastB2B- DisINTx+
+         ....
+         ....
+
+         38:00.0 Class 1200: Device 1d22:3684 (rev 01)
+                                                                                        用
+                 Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping
+         - SERR- FastB2B- DisINTx+
+         ....
+         ....                                                                     使
+         如果已经插卡但 lspci 没有返回值，可以通过重启机器/重新插拔卡的方法解决，直到
+                                                                             司
+         PCIe 可以正常识别。
+         第二步，确认 PCIe 正常识别后，使用如下命令检查设备是否安装昆仑芯驱动。
+                                                                        公
+                                                                  限
+            # 4.0 以前版本采用：
+            $ lsmod | grep xpu_driver
+            # 预期输出如下：
+                                                             有
+            xpu_driver            655360   0
+                                                       ）
+            #4.0 及以后：
+            $ lsmod | grep kunlun
+            # 预期输出如下：
+                                                  圳
+            kunlun               1944359   4
+                                               深
+                                       （
+         如驱动已经安装，请检查昆仑芯设备权限，正确的文件访问权限应该是 crw-rw-rw-。
+
+            $ ls -l /dev/xpu*     技
+            crw-rw-rw- 1 root root 243,   0 Dec 15 14:12 /dev/xpu0
+
+
+                       讯
+            crw-rw-rw- 1 root root 243,   1 Dec 15 14:12 /dev/xpu1
+            crw-rw-rw- 1 root root 243, 128 Dec 15 14:12 /dev/xpuctrl
+
+
+                        科
+         如权限错误，可使用 chmod 命令临时修改，但该方法重新装载驱动后失效。如需权限
+
+                  腾
+         永久自动生效，可参考 XRE 安装指南正确复制 udev 规则文件。
+
+
+            供
+         $ sudo chmod +666 /dev/xpu*
+
+
+    2.   仅
+         错误码 (713) Device abnormal due to previous error
+
+    芯    原因：
+         加速卡已经处于异常状态下，导致后续任务下发失败。
+仑        推荐解决方法：
+昆        设备状态异常，需要进行软复位。
+    3.   错误码（707）Invalid parameter
+         原因：
+         调用 XRE 的 API 传入的参数异常。
+         推荐解决方法：
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                          - 28 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+         检查用户进程调用接口的参数，接口文档参考 XPU API 编程接口。
+    4.   错误码（712）Operation not supported
+         原因：
+          a. XRE 的驱动版本和动态链接库或者 XRE Tools 版本不兼容，导致调用 XRE API 或
+             者一些工具如 xpu-smi 时报错。
+          b. 昆仑芯 AI 加速卡的状态异常，导致算子无法正常下发。
+         推荐解决方法：
+                                                                  用
+         首先检查卡的状态，如果状态异常，请执行软复位。
+                                                                使
+         如果卡的状态正常，请升级昆仑芯驱动、用户进程依赖的 xpurt 动态链接库及 XRE 工
+         具，例如 xpu-smi。
+                                                            司
+    5.   错误码（714）Exception in kernel execution
+                                                            公
+         原因：                                         限
+         用户算子异常。                                 有
+         推荐解决方法：
+         首先检查卡的状态，如果状态异常，请执行软复位。
+                                                 ）
+                                           圳
+         如果卡的状态正常，检查用户进程调用算子的参数情况，或者算子实现是否有问题。
+    6.                                深
+         错误码（715）Kernel execution timed out
+         原因：
+         用户算子执行时间超时。
+                             技（
+         推荐解决方法：
+
+                    讯
+         首先检查卡的状态，如果状态异常，请执行软复位。
+                     科
+         如果卡的状态正常，检查用户进程调用算子的参数情况，或者算子实现是否有问题。
+    7.
+                腾
+         错误码（803）Error init HBM
+         原因：
+           供
+         HBM 初始化失败，可能是卡上的 HBM 颗粒存在物理问题。
+         仅
+         推荐解决方法：
+
+    芯
+    8.
+         更换一块加速卡。
+         错误码（807）Unknown IOCTL command
+仑        原因：
+昆        用户调用了尚未实现的 XRE API，或者用户驱动版本比较早，不支持当前操作。
+         推荐解决方法：
+         升级昆仑芯驱动、用户进程依赖的 xpurt 动态链接库及 XRE 工具，例如 xpu-smi。
+         如果升级不能解决问题，证明该功能尚未实现，可以联系昆仑芯客户支持团队。
+    9.   错误码（816）XPUERR_HOSTMEM_ALREADY_REGISTERED
+
+
+
+                      Copyright©2024-2026 昆仑芯（北京）科技股份有限公司       - 29 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+          原因：
+          同一进程的多个线程同时调用 xpu_host_register 注册同一内存区域。
+          推荐解决方法：
+          将 xpu_host_register 操作放到一个线程，或者增加锁对该操作进行保护。
+    10.   错误码（817） Tracer error
+          原因：                                                               用
+          Tracer 使用的后端内存，映射失败或者分配失败。
+          推荐解决方法：
+                                                                      使
+          如果 XRE_TRACER_DMA_DEST 配置为主机内存模式，可确认程序是否拥有 root 权
+                                                                  司
+          限，因为需要映射物理内存。如果工作模式为设备内存模式，可确认是否因为申请了过
+          大的后端内存（XRE_TRACER_MEM_SIZE）。
+                                                              公
+    11.   错误码（706）CPU memory not enough                  限
+          原因：                                       有
+          运行时库会分配主机内存，申请失败。
+          推荐解决方法：
+                                                   ）
+                                             圳
+          如果使用了 xpu_host_alloc 接口分配大量内存，建议优化代码，使用更少的主机内存。
+
+          扩大内存容量。
+                                        深
+          如果问题仍存在，建议检查主机内存使用情况，减少其他进程内存使用，或增加内存条
+
+
+     3.1.2 驱动报错
+                                    （
+                          科
+     对于内核异常、超时类报错，用户可以通过 dmesg 查看更多信息。
+                           技
+     1.   错误信息：axi rresp error 或 axi wresp error
+          原因：
+                      讯
+          直接原因为计算单元（SDNN/Cluster）的总线访问报错。真正原因可能是地址越界、
+                 腾
+          非法地址、HBM 或 NoC 硬件问题等。
+
+             供
+          推荐解决方法：
+
+          仅
+          该问题一般是因为使用了错误的地址，有可能发生了越界，或传入的地址非法，需要排
+          查地址的有效性。
+
+    芯     如果在新硬件测试阶段，使用的软件，运行的内核代码均是成熟稳定版本。首先排查
+          gddr ecc 错误，该错误会导致偶现的数据读写错误。
+仑    2.   错误信息：something unexpected happened, hardware stuck now, please check/
+昆         reset manually !!!
+          原因：
+          该问题一般是因为错误的使用硬件导致，需要整机复位。
+          推荐解决方法：
+
+
+
+
+                        Copyright©2024-2026 昆仑芯（北京）科技股份有限公司               - 30 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+         如果条件具备，可对机器进行重启。如果条件不允许，可以执行软复位，具体可参考安
+         装状态查询及异常卡处理。
+    3.   错误信息：BAR0 smaller than 256MB, bail out\n
+         原因：
+         昆仑芯产品在 PCI 设备枚举的过程中没有成功分配 BAR 基地址，驱动不能正常加载。
+         推荐解决方法：
+         多数情况是开启 BIOS 对 64 bit BAR 空间的支持，一般选项为 Above 4G decoding，
+                                                                                         用
+         如果 BIOS 较老旧无此选项，需要服务器厂家支持。                                               使
+    4.   错误信息：kunlun module in use
+         原因：
+                                                                             司
+         执行 rmmod 卸载驱动时，返回此错误信息，有两种可能。第一种是昆仑卡设备节点
+                                                                        公
+         (/dev/xpu*)在被其他进程占用，比如推理或训练进程，该情况可用 xpu-smi 查看到有
+         进程在运行。另一种是被监控卡状态的服务占用（例如 k8s 等相关组件），此时 xpu-         有限
+         smi 不能感知。
+         推荐解决方法：
+         使用 lsof /dev/xpu* 查看占用进程，将这些进程全部结束。
+                                                        ）
+    3.1.3 proc 信息
+                                                  圳
+    对于内核异常、超时类错误，用户可以在 proc 下查看更多信息。
+                                             深
+    以卡 0 为例，不同的错误内核可能有不同的报错码，例如下图错误信息为 （
+                                  技
+    UND_INSTRUCTION，错误信息解释请咨询昆仑芯客户支持团队。
+
+
+                       讯
+    $ cat/proc/kunlun/dev0/errtask
+
+
+                        科
+    cl-0 token=11 reason=0x401
+    ..reason[0]: UND_INSTRUCTION
+    ..reason[10]: LD_LM_NOALIGN
+    ETASK tk=11 .name=_ZN4xpu310calc_basicILi0EfEEvPKT0_S3_PS1_i .ncl=1 .nco=8 .addr=0x200000
+    000 .ksz=0x680
+                  腾
+    ..param[0]= 0x8000000
+    ..param[1]= 0x2
+            供
+    ..param[2]= 0x8020000
+    ..param[3]= 0x2
+
+         仅
+    ..param[4]= 0x8040000
+    ..param[5]= 0x2
+    ..param[6]= 0x1400
+
+    芯
+仑   3.2 错误码
+昆   所有运行时库提供的函数，均返回一个 int 标记调用是否成功，成功则返回 0，否则返回负
+    数，其绝对值为错误码。用户应当在使用时及时检查函数返回值，遇到错误及时处理。运行时
+    库提供了如下函数用于获取错误码字符串描述。
+
+    const char *xpu_strerror(int errno);
+
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                           - 31 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    3.2.1 XPUERR_INVALID_DEVICE（701）：非法设备
+    Invalid XPU device
+
+
+    说明：运行时库打开昆仑芯计算设备时出错。
+    可能原因与解决方法：
+      ● 检查/dev/xpu{N}设备文件是否存在。如果不存在，可能是驱动安装失败，进一步定位
+        是否操作系统未识别设备或设备状态异常。
+                                                                        用
+      ● 可通过 lspci 命令确认设备是否存在以及设备状态是否正确。                               使
+      ● 检查设备文件权限。如果当前用户不可读写该设备文件，可使用如下命令修改。                       司
+    sudo chmod 666 /dev/xpu                                       公
+    3.2.2 XPUERR_NODEV（703）：无可用设备                      有限
+    No available XPU device
+
+
+    说明：系统内未找到任何可用工作设备。在未指定工作设备场景下，运行时库根据
+                                                   ）
+                                               圳
+    xpu_device_list 返回值选择默认工作设备，如果该函数返回空列表，则触发该错误。
+    可能原因与解决方法：                            深
+    先通过以下命令判断是否成功安装驱动：
+
+    lsmod | grep kunlun
+                                  技（
+                          讯
+    如果驱动已经安装，大概率是操作系统未识别到昆仑芯设备，请参考安装常见问题排查。
+
+                           科
+    3.2.3 XPUERR_NOMEM（705）：设备内存不足
+                  腾
+    Device memory not enough
+
+            供
+    说明：一般 xpu_malloc 会返回此错误，表示设备内存不足。
+       仅
+    3.2.4 XPUERR_NOCPUMEM（706）：CPU 内存不足
+    芯
+仑   CPU memory not enough
+
+
+
+昆   说明：运行时库需要分配一些 CPU 内存，如果分配失败则返回此错误。
+
+    3.2.5 XPUERR_INVALID_PARAM（707）：非法参数
+    Invalid parameter
+
+
+    说明：函数传入参数未通过合法性检查。
+
+
+
+                            Copyright©2024-2026 昆仑芯（北京）科技股份有限公司       - 32 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    3.2.6 XPUERR_NOSUPPORT（712）：操作不支持
+    Operation not supported
+
+
+    说明：操作非法，当前状态下不支持，一般见于 Stream 标记为状态错误后继续下发内核。
+
+    3.2.7 XPUERR_ABNORMAL（713）：计算设备处于异常状态
+    说明：计算设备出现 714、715、808 错误后会进入异常状态，此后进行
+                                                                                   用
+    xpu_launch_async、xpu_wait 等操作将返回 713 错误。                                     使
+    该错误并非由报错函数直接导致，而是由于前序错误使设备状态异常，需要进行设备复位才可
+    恢复正常执行。                                                                  司
+    若要进行问题定位，则需要查看异常日志，排查前序错误。                                          公
+    3.2.8 XPUERR_KEXCEPTION（714）：计算核执行异常                     有限
+    Kernel execution exception
+
+                                                        ）
+    说明：计算核执行异常，请保存 dmesg 和/proc/kunlun/devN/errtask 文件并反馈给昆
+    仑芯客户支持团队。                                     圳
+    3.2.9 XPUERR_TIMEOUT（715）：计算核执行超时        深
+    Kernel execution timed out         （
+                                  技
+    说明：计算核执行超时，请保存/proc/kunlun/devN/文件并反馈给昆仑芯客户支持团队。
+                                科
+    3.2.10 XPUERR_BUSY（716）：设备当前忙
+    Resource busy
+                       讯
+                    腾
+    说明：设备当前忙，一般见于设备正在 reset 过程中。
+            供
+    3.2.11 XPUERR_EVENTWAIT（720）：event wait 任务导致
+       仅
+    的 Stream 状态异常
+    芯
+仑   Exception in event record or event wait, or stream tainted by event record
+
+
+
+昆   说明：event wait 任务导致的 Stream 状态异常。
+
+    3.2.12 XPUERR_NOCIDLE（721）：总线错误
+    Wait for NOC idle timeout
+
+
+    说明：一般是算子异常导致，使用软复位（如下所示）或重启即可解决。
+
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                     - 33 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    xpu-smi -r -i ${DEV_ID}
+
+
+
+    3.2.13 XPUERR_DEVRESET（801）：设备正在 reset 过程中
+    Device is being reset, try again later
+
+
+    说明：设备正在 reset 过程中。                                                         用
+    3.2.14 XPUERR_DMATIMEOUT（808）：DMA 超时                                     使
+    DMA timed out, a reboot maybe needed                                 司
+    说明：一般由硬件状态异常引起，这种情况需要重启系统复位 PCIe，如果重启后依然出现
+                                                                         公
+    808，请反馈给昆仑芯客户支持团队。
+
+    3.2.15 XPUERR_DMAABORT（809）：DMA 异常
+                                                             有限
+                                                        ）
+    DMA aborted due to error, possibly wrong address or hardware state
+
+
+    说明：绝大部分情况下，DMA 异常由传入的设备地址或进程用户态地址非法导致，不会影响    圳
+    后续正常 DMA，请检查代码逻辑和传入参数是否正确。
+                                        （深
+    小部分情况因为硬件状态异常，此时所有 DMA 都会出现 809 错误，需要重启系统复位
+    PCIe。
+
+                              科
+    3.2.16 XPUERR_FAULT（813）：用户传入地址非法
+                               技
+    Error copy between kernel and user space
+
+
+    说明：用户传入地址非法，拷贝数据出错。
+                       讯
+                  腾
+    3.2.17 XPUERR_INTERRUPTED（814）：当前操作被用户中
+    断       供
+       仅
+     Execution interrupted by user
+
+    芯
+    说明：当前操作被用户中断，一般见于用户发送了 SIGINT 信号。
+仑   3.2.18 XPUERR_HOSTMEM_ALREADY_REGISTERED
+昆   （816）：主机内存分配异常
+    Host memory is already registered
+
+
+    说明：极小概率，同进程的多个线程并行调用 xpu_host_register 注册同一内存区域导
+    致。
+
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                 - 34 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    3.2.19 XPUERR_TRACER（817）：Tracer 异常
+    Tracer subsystem error
+
+
+    说明：Tracer 子系统申请主机内存或设备内存失败。若使用主机内存，优先检查是否拥有
+    root 权限。
+    若使用设备内存，优先检查是否由于 XRE_TRACER_MEM_SIZE 设置过大，容量不足导致。
+                                                                     用
+    3.3 XPU Bug Report Tool 使用指南                                   使
+                                                               司
+    XPU Bug Report Tool (xpu-bug-tool.sh) 是昆仑芯提供的用于收集 XPU 系统信息和调试
+    数据的脚本工具。当遇到 XPU 相关问题时，可使用该工具生成详细的诊断报告，便于昆仑芯
+    客户支持团队定位和解决问题。
+                                                               公
+    3.3.1 使用方法                                      有限
+    sudo ./xpu-bug-tool.sh
+                                                ）
+    3.3.2 输出文件                              圳
+    脚本运行后会生成 xpu-bug-report.log 文件，报告包含以下信息：
+      ● 系统基本信息（CPU、内存、操作系统版本）
+                                       深
+      ● PCI 设备信息                   （
+      ● NUMA 配置信息
+      ● DMI 硬件信息
+                               技
+      ● 内核模块版本信息
+      ● 内核日志（dmesg）
+                       讯科
+      ● XPU 设备状态和错误信息
+      ● XPU 固件版本信息腾
+            供
+      ● xpu-smi 查询结果
+
+       仅
+    3.3.3 提交问题
+    芯
+    生成报告后，请将报告文件连同问题描述一起提交给昆仑芯客户支持，以便更好地定位和解决
+    您遇到的问题。
+仑
+昆   4 XRE API
+
+    4.1 XRE Runtime 接口函数使用说明
+    XRE Runtime 提供了一系列接口函数，供用户调用。本章列出了目前支持的一些函数接口。
+
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司       - 35 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    4.1.1 xpu_get_driver_version
+    int xpu_get_driver_version(uint32_t* major, uint32_t* minor);
+
+
+    说明：返回驱动版本号。
+    输出参数：
+      ● major：返回主版本号。                                                      用
+      ● minor：返回副版本号。
+
+    4.1.2 xpu_get_runtime_version
+                                                                         使
+                                                                     司
+    int xpu_get_runtime_version(uint32_t* major, uint32_t* minor);
+                                                                     公
+    说明：返回 Runtime 版本号。
+    输出参数：
+                                                             有限
+      ● major：返回主版本号。
+      ● minor：返回副版本号。                                   ）
+    4.1.3 xpu_set_device                          圳
+    int xpu_set_device(int devid);
+                                             深
+                                          （
+    说明：设定当前工作设备。当前工作设备是一个线程级的状态，设定当前工作设备之后，后续
+                                     技
+    所有的内存分配、搬运和 Stream 管理等函数调用都作用于该设备。如果用户希望在一个线程
+    内同时使用两个设备，需要确保利用该函数进行设备切换。如果该函数从未被调用，默认使用
+    0 号设备。
+    输入参数：
+                       讯科
+                  腾
+      ● devid：目标设备号。
+
+    4.1.4 xpu_current_device
+            供
+       仅
+    int xpu_current_device(int* devid);
+
+
+    芯
+    说明：获取当前系统中 XPU 设备的设备号。
+
+仑   输出参数：
+      ● devid：返回当前工作设备的设备号。
+昆   4.1.5 xpu_device_count
+    int xpu_device_count(int* dev_count);
+
+
+    说明：获取当前系统中 XPU 设备的个数。
+
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司             - 36 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    输出参数：
+        ● dev_count：返回 XPU 设备个数。
+
+    4.1.6 xpu_malloc
+    int xpu_malloc(void** pdevptr, uint64_t sz, XPUMemoryKind kind);
+
+
+    说明：在当前工作设备上分配内存。                                                         用
+    输入参数：
+        ● sz：所需分配的内存大小，单位为字节。
+                                                                           使
+        ● kind：分配的内存种类，默认值 XPU_MEM_MAIN。如果希望在 L3 内存上分配，使用
+                                                                       司
+    输出参数：
+          XPU_MEM_L3。
+                                                                       公
+        ● pdevptr：返回分配的 XPU 设备地址。
+                                                                  限
+    4.1.7 xpu_free
+                                                             有
+    int xpu_free(void* devptr);
+                                                        ）
+    说明：释放当前工作设备上的内存。
+                                                  圳
+    输入参数：
+                                             深
+        ● devptr：需要释放内存的工作设备地址。        （
+    4.1.8 xpu_host_alloc            技
+                             科
+    int xpu_host_alloc(void** ptr, uint64_t sz, unsigned int flags);
+
+                       讯
+    说明：分配并锁定大小为 sz 且尽量物理连续的主机内存页，这段内存可以用于加速
+    xpu_memcpy。   腾
+    输入参数：
+    ●
+             供
+         sz：所需分配的内存大小，单位为字节。
+    ●
+        仅flags placeholder：必须赋值为 0。
+    芯    输出参数
+
+仑        ：
+
+昆   ●    ptr：返回分配的主机内存页地址。
+
+    4.1.9 xpu_host_free
+    int xpu_host_free(void* ptr);
+
+
+    说明：释放由 xpu_host_alloc 分配的主机内存页。
+
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司               - 37 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    输入参数：
+      ● ptr：目标地址。
+
+    4.1.10 xpu_memcpy
+    int xpu_memcpy(void* dst, const void* src, uint64_t sz, XPUMemcpyKind kind);
+
+
+    说明：在 CPU 和 XPU 间进行内存拷贝。                                                              用
+    输入参数：
+      ● dst：目标地址。
+                                                                                   使
+      ● src：源地址。
+                                                                             司
+      ● sz：拷贝的内存大小，单位为字节。                                               公
+      ● kind：内存拷贝种类，可以是 XPU_DEVICE_TO_HOST，XPU_HOST_TO_DEVICE 或
+        XPU_DEVICE_TO_DEVICE。                                     限
+    4.1.11 xpu_memcpy_async                                  有
+                                                        ）
+    int xpu_memcpy_async(void* dst, const void* src, uint64_t sz, XPUMemcpyKind kind, XPUStre
+    am stream);
+                                                  圳
+    说明：在 CPU 和 XPU 间进行异步内存拷贝。                深
+    输入参数：
+      ● dst：目标地址。
+                                       （
+      ● src：源地址。
+      ● sz：拷贝的内存大小，单位为字节。
+                             科技
+      ● kind：内存拷贝种类，可以是 XPU_DEVICE_TO_HOST，XPU_HOST_TO_DEVICE 或
+                       讯
+        XPU_DEVICE_TO_DEVICE。
+      ● stream：异步拷贝绑定的流对象。
+                  腾
+    4.1.12 xpu_memcpy_peer
+            供
+       仅
+    int xpu_memcpy_peer(int dst_device, void* dst_addr, int src_device, const void* src_addr,
+     uint64_t sz);
+
+    芯
+    说明：在不同 XPU 设备上进行内存拷贝。
+仑   输入参数：
+
+昆     ● dst_device：目标设备。
+      ● dst_addr：目标地址。
+      ● src_device：源设备。
+      ● src_addr：源地址。
+      ● sz：拷贝的内存大小，单位为字节。
+
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                           - 38 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    4.1.13 xpu_event_create
+    int xpu_event_create(XPUEvent *pevent);
+
+
+    说明：在指定 Stream 上创建一个 Event，如未指定 Stream，则在默认 Stream 上创建。调
+    用该函数在 Stream 上创建一个 Event，当指定 Stream 位于该 Event 之前的所有 Kernel 都
+    执行完成后，该 Event 会被触发。
+    输出参数：
+                                                                       用
+      ● pevent：指向待创建的 Event。                                       使
+    4.1.14 xpu_event_record                                        司
+    int xpu_event_record(XPUEvent event, XPUStream stream);
+                                                               公
+    说明：标记该 event 已完成。                                         有限
+    输入参数：
+      ● event：待标记的事件对象。
+      ● stream：在该 Stream 上创建 Event。
+                                                        ）
+    4.1.15 xpu_event_wait
+                                                  圳
+                                              深
+    说明：等待 Event 触发。
+                                  技
+    int xpu_event_wait(XPUEvent event);
+
+
+                                   （
+    输入参数：
+      ● event：待等待的事件对象。讯科
+    4.1.16 xpu_event_query
+                  腾
+            供
+    int xpu_event_query(XPUEvent event);
+
+
+
+       仅
+    说明：查询一个 Event 的状态。
+    输入参数：
+    芯 ● event：待查询的事件对象。
+仑   4.1.17 xpu_event_destroy
+昆   int xpu_event_destroy(XPUEvent event);
+
+
+    说明：销毁一个 Event。
+    输入参数：
+      ● event：待销毁的事件对象。
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司       - 39 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    4.1.18 xpu_stream_create
+    int xpu_stream_create(XPUStream* pstream);
+
+
+    说明：在当前设备上创建一个 Stream。
+    输出参数：
+      ● pstream：指向待创建的 Stream。                                           用
+    4.1.19 xpu_stream_destroy                                          使
+    int xpu_stream_destroy(XPUStream stream);                      司
+    说明：销毁一个 Stream。
+                                                                   公
+    输入参数：
+      ● stream：待销毁的 Stream。
+                                                             有限
+    4.1.20 xpu_stream_wait_event                        ）
+                                                  圳
+    int xpu_stream_wait_event(XPUStream stream, XPUEvent event);
+
+
+                                                深
+    说明：令 Stream 等待指定 Event 触发。在 stream 上插入一个等待任务，该等待任务会
+
+    身并不会等待 Event 的触发。
+                                          （
+    Block 住 stream 上后续 Kernel 的执行，直到指定的 Event 触发后才会继续。注意该接口本
+
+
+    输入参数：
+      ● stream：插入等待任务的队列。
+                             科技
+      ● event：被等待的事件。
+                       讯
+    4.1.21 xpu_launch_async
+                  腾
+            供
+    int xpu_launch_async(XPUFunc func);
+
+
+
+       仅
+    说明：调用一个 XPU 函数。该函数为异步函数，如果调用配置中指定了 Stream，该函数会
+    在指定 Stream 上调用，否则使用默认 Stream 进行调用。指定 Stream 的情况下，所指定的
+    芯
+    Stream 必须是在当前工作设备上创建的。确保在调用 XPU 函数之前使用
+    xpu_launch_config 和 xpu_launch_argument_set 配置了调用配置和调用参数。
+仑   输入参数：
+
+昆     ● func：待调用的 XPU 函数。
+
+    4.1.22 xpu_wait
+    int xpu_wait(XPUStream stream);
+
+
+    说明：等待目标 Stream 上所有的函数调用完成。
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司           - 40 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    输入参数：
+      ● stream：待同步的 XPU Stream。
+
+    4.1.23 xpu_last_kernel_exec_time
+    int xpu_last_kernel_exec_time(uint64_t *value);
+
+
+    说明：获取上一次调用的函数的执行时间（ns）。                                                      用
+    输出参数：
+      ● value：返回函数的执行时间（ns）。
+                                                                               使
+                                                                            司
+    4.2 XPUML 编程接口使用说明                                                     公
+    XPUML（Management Library）是基于 C 语言用于监控和管理 XPU 各种状态的编程接
+    口。本文列出了 XPU 支持的部分编程接口及使用办法。
+                                                                  限
+    4.2.1 xpumlInit
+                                                             有
+                                                        ）
+    xpumlReturn_t DECLDIR xpumlInit(void);
+                                                  圳
+                                             深
+    说明： 初始化 XPUML，在调用其他 XPUML 接口前，应当先调用该接口初始化。
+
+    4.2.2 xpumlSystemGetXidCount
+                                  技（
+    xpumlReturn_t DECLDIR xpumlSystemGetXidCount(unsigned int *numXids);
+
+
+    说明： 返回系统的 Xid 数量。
+    输出参数：
+                       讯科
+                  腾
+      ● numXids：系统的 Xid 数量。
+
+    4.2.3 xpumlSystemClearXid
+            供
+       仅
+    xpumlReturn_t DECLDIR xpumlSystemClearXid(void);
+
+
+    芯
+    说明： 清除已经发生的 Xid。
+
+仑   4.2.4 xpumlDeviceGetCount
+昆   xpumlReturn_t DECLDIR xpumlDeviceGetCount(unsigned int *deviceCount);
+
+
+    说明： 返回系统中的计算设备数量。每一个计算设备是一个单一的 XPU。
+    输出参数：
+      ● deviceCount：设备数量。
+
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                   - 41 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    4.2.5 xpumlDeviceGetAttributes
+    xpumlReturn_t DECLDIR xpumlDeviceGetAttributes(xpumlDevice_t device, xpumlDeviceAttribute
+    s_t *attributes);
+
+
+    说明： 以 XPUML 设备句柄作为输入，返回它的各项属性。
+    输入参数：
+      ● device：XPUML 设备句柄。
+                                                                                         用
+    输出参数：                                                                         使
+      ● attributes：设备属性。                                                        司
+    4.2.6 xpumlDeviceGetHandleByIndex                                   公
+    ce);
+                                                                  限
+    xpumlReturn_t DECLDIR xpumlDeviceGetHandleByIndex(unsigned int index, xpumlDevice_t *devi
+
+
+
+
+    说明： 根据输入的序列号，返回对应设备的句柄。
+                                                             有
+    输入参数：
+                                                        ）
+      ● index：XPUML 设备序列号。                        圳
+    输出参数：
+      ● device：XPUML 设备句柄。
+                                             深
+    4.2.7 xpumlDeviceGetId
+                                       （
+                                  技
+                             科
+    xpumlReturn_t DECLDIR xpumlDeviceGetId(xpumlDevice_t device, int *devId);
+
+
+
+                       讯
+    说明： 根据输入的 device 句柄，返回对应的设备号 ID。
+    输入参数：
+                  腾
+      ● device：XPUML 设备句柄。
+    输出参数：   供
+       仅
+      ● devId：XPUML 设备 ID。
+
+    芯
+    4.2.8 xpumlDeviceGetIndex
+仑   xpumlReturn_t DECLDIR xpumlDeviceGetIndex(xpumlDevice_t device, unsigned int *index);
+
+
+昆   说明： 根据输入的设备句柄，返回对应设备的序列号。
+    输入参数：
+      ● device：XPUML 设备句柄。
+    输出参数：
+      ● index：XPUML 设备序列号。
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                           - 42 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    4.2.9 xpumlDeviceGetHandleByPciBusId
+    xpumlReturn_t DECLDIR xpumlDeviceGetHandleByPciBusId(const char *pciBusId, xpumlDevice_t
+    *device);
+
+
+    说明： 根据输入的 PciBusid，返回对应设备的句柄。
+    输入参数：
+      ● pciBusId：PCI 设备的 Bus ID。
+                                                                                         用
+    输出参数：                                                                         使
+      ● device：XPUML 设备句柄。                                                   司
+    4.2.10 xpumlDeviceGetName                                           公
+    ength);                                                  有
+    xpumlReturn_t DECLDIR xpumlDeviceGetName(xpumlDevice_t device, char *name, unsigned int l
+
+
+                                                              限
+    说明： 获取设备的名字。注意 length 为 char *name 的长度，且不能设置超过 96。
+    输入参数：
+                                                        ）
+      ● device：XPUML 设备句柄。                        圳
+      ● length：产品名称中返回的字符串的最大允许长度。
+    输出参数：
+                                             深
+      ● name：产品名称。                技（
+    4.2.11 xpumlDeviceGetSerial
+
+    nt length);
+                       讯科
+    xpumlReturn_t DECLDIR xpumlDeviceGetSerial(xpumlDevice_t device, char *serial, unsigned i
+
+
+
+
+                  腾
+    说明： 获取与该设备主板对应的全局唯一主板序列号。
+    输入参数：
+            供
+      ● device：XPUML 设备句柄。
+       仅
+      ● length：串行返回的序列号的最大允许长度。
+
+    芯
+    输出参数：
+
+仑     ● serial：板/模块序列号。
+
+    4.2.12 xpumlDeviceGetUUID
+昆
+    xpumlReturn_t DECLDIR xpumlDeviceGetUUID(xpumlDevice_t device, char *uuid, unsigned int l
+    ength);
+
+
+    说明： 获取设备的 UUID。注意 length 为 char *serial 的长度，且不能设置超过 96。
+    输入参数：
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                           - 43 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+      ● device：XPUML 设备句柄。
+      ● length：串行返回的 UUID 的最大允许长度。
+    输出参数：
+      ● uuid：XPU 设备的 UUID。
+
+    4.2.13 xpumlDeviceGetPciInfo
+                                                                                         用
+    xpumlReturn_t DECLDIR xpumlDeviceGetPciInfo(xpumlDevice_t device, xpumlPciInfo_t *pci);
+
+
+    说明： 获取设备的 PCI 信息，需要构造 PCI 结构体再将它的指针作为入参调用函数。
+                                                                                  使
+    输入参数：
+                                                                             司
+      ● device：XPUML 设备句柄。                                              公
+    输出参数：
+      ● pci：XPU 设备的 PCI 信息。
+                                                             有限
+    4.2.14 xpumlDeviceGetState
+                                                        ）
+    );                                            圳
+    xpumlReturn_t DECLDIR xpumlDeviceGetState(xpumlDevice_t device, xpumlDeviceState_t *state
+
+
+
+
+    说明： 获取某个 XPU 设备的状态。                      深
+    输入参数：                              （
+      ● device：XPUML 设备句柄。
+    输出参数：
+                             科技
+      ● state：XPU 设备状态。
+                       讯
+    4.2.15 xpumlDeviceGetTemperature
+                  腾
+    xpumlReturn_t DECLDIR xpumlDeviceGetTemperature(xpumlDevice_t device, xpumlTemperatureSen
+
+            供
+    sors_t sensorType, unsigned int *temp);
+
+
+
+       仅
+    说明： 获取某个 XPU 设备的温度，sensorType 应当始终设置为 0。
+
+    芯
+    输入参数：
+      ● device：XPUML 设备句柄。
+仑     ● sensorType：传感器类型。
+
+昆   输出参数：
+      ● temp：XPU 设备温度。
+
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                           - 44 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    4.2.16 xpumlDeviceGetTemperatureThreshold
+    xpumlReturn_t DECLDIR xpumlDeviceGetTemperatureThreshold(xpumlDevice_t device, xpumlTempe
+    ratureThresholds_t thresholdType, unsigned int *temp);
+
+
+    说明： 获取某个 XPU 设备的温度阈值，sensorType 应当始终设置为 0。
+    输入参数：
+      ● device：XPUML 设备句柄。
+                                                                                         用
+      ● thresholdType：查询的阈值类型。                                                    使
+    输出参数：
+      ● temp：读到的温度值。
+                                                                             司
+    4.2.17 xpumlDeviceGetPowerManagementLimit
+                                                                        公
+                                                             有限
+    xpumlReturn_t DECLDIR xpumlDeviceGetPowerManagementLimit(xpumlDevice_t device, unsigned i
+    nt *limit);
+
+
+    说明： 获取某个 XPU 设备的功率阈值。                               ）
+    输入参数：                                         圳
+      ● device：XPUML 设备句柄。
+    输出参数：
+                                             深
+      ● limit：返回的功率阈值（单位：毫瓦）。
+                                       （
+                             科
+    4.2.18 xpumlDeviceGetPowerUsage
+                              技
+    xpumlReturn_t DECLDIR xpumlDeviceGetPowerUsage(xpumlDevice_t device, unsigned int *power)
+    ;
+                       讯
+                  腾
+    说明： 获取某个 XPU 设备的功耗使用情况。
+    输入参数：
+            供
+      ● device：XPUML 设备句柄。
+       仅
+    输出参数：
+    芯 ● power：功耗使用信息。
+
+仑   4.2.19 xpumlDeviceGetMemoryInfo
+昆   xpumlReturn_t DECLDIR xpumlDeviceGetMemoryInfo(xpumlDevice_t device, xpumlMemory_t *memor
+    y);
+
+
+    说明： 获取某个 XPU 设备的内存信息。
+    输入参数：
+      ● device：XPUML 设备句柄。
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                           - 45 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    输出参数：
+      ● memory：内存信息。
+
+    4.2.20 xpumlDeviceGetBoardId
+    xpumlReturn_t DECLDIR xpumlDeviceGetBoardId(xpumlDevice_t device, unsigned int *boardId);
+
+
+    说明： 获取某个 XPU 设备的 board ID。                                                           用
+    输入参数：
+      ● device：XPUML 设备句柄。
+                                                                                  使
+    输出参数：
+                                                                             司
+      ● boardId：返回的 board ID。                                           公
+    4.2.21 xpumlDeviceGetOamId                                    限
+                                                             有
+    xpumlReturn_t DECLDIR xpumlDeviceGetOamId(xpumlDevice_t device, unsigned int *oamId);
+
+
+    说明： 获取某个 XPU 设备的 OAM ID。
+                                                        ）
+    输入参数：                                         圳
+      ● device：XPUML 设备句柄。                   深
+    输出参数：
+      ● oamId：返回的 OAM 设备 ID。
+                                       （
+                                  技
+    4.2.22 xpumlDeviceGetUtilizationRates
+                             科
+    on_t *utilization);讯
+    xpumlReturn_t DECLDIR xpumlDeviceGetUtilizationRates(xpumlDevice_t device, xpumlUtilizati
+
+
+
+                  腾
+    说明： 获取某个 XPU 设备的使用率。
+    输入参数：   供
+       仅
+      ● device：XPUML 设备句柄。
+    输出参数：
+    芯 ● utilization：设备利用率。
+
+仑   4.2.23 xpumlDeviceGetRegsValue
+昆   xpumlReturn_t DECLDIR xpumlDeviceGetRegsValue(xpumlDevice_t device, unsigned long long *r
+    egAddr, unsigned int *regValue);
+
+
+    说明： 获取某个 XPU 设备的指定寄存器的值。
+    输入参数：
+      ● device：XPUML 设备句柄。
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                           - 46 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+      ● regAddr：寄存器地址。
+    输出参数：
+      ● regValue：寄存器值。
+
+    4.2.24 xpumlDeviceGetXpuLinkNoCState
+
+    nk, xpumlIntNvLinkDeviceInfo_t *pNvLinkDeviceInfo);                                 用
+    xpumlReturn_t DECLDIR xpumlDeviceGetXpuLinkNoCState(xpumlDevice_t device, unsigned int li
+
+
+
+
+    说明： 获取某个 XPU 设备的指定 XPU Link 的 NoC 状态。                                         使
+    输入参数：                                                                    司
+      ● device：XPUML 设备句柄。
+      ● link：XPU Link 设备编号。
+                                                                        公
+    输出参数：                                                         限
+      ● pNvLinkDeviceInfo：XPU Link 设备 NoC 状态。                有
+    4.2.25 xpumlDeviceGetXpuLinkState                   ）
+     xpumlEnableState_t *isActive);
+                                                  圳
+    xpumlReturn_t DECLDIR xpumlDeviceGetXpuLinkState(xpumlDevice_t device, unsigned int link,
+
+
+
+
+    说明： 获取某个 XPU 设备的指定 XPU Link 的状态。
+                                             深
+    输入参数：
+                                       （
+      ● device：XPUML 设备句柄。        技
+      ● link：XPU Link 设备编号。
+    输出参数：
+                             科
+                       讯
+      ● isActive：XPU Link 状态，XlinkInactive 或者 XlinkActive。
+                  腾
+    4.2.26 xpumlGetXlinkSpeedLevel
+            供
+    xpumlReturn_t DECLDIR xpumlGetXlinkSpeedLevel(xpumlDevice_t device, unsigned int portId,
+       仅
+    unsigned int *level);
+
+
+    芯
+    说明： 获取某个 XPU 设备的指定 XPU Link 的频率等级。
+
+仑   输入参数：
+      ● device：XPUML 设备句柄。
+昆     ● portId：port ID 号码。
+    输出参数：
+      ● level：XPU Link 的频率等级。
+
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                          - 47 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    4.2.27 xpumlDeviceGetTotalEccErrors
+    xpumlReturn_t DECLDIR xpumlDeviceGetTotalEccErrors(xpumlDevice_t device, xpumlMemoryError
+    Type_t errorType, xpumlEccCounterType_t counterType, unsigned long long *eccCounts);
+
+
+    说明： 获取某个 XPU 设备的总 ECC 错误次数。
+    输入参数：
+      ● device：XPUML 设备句柄。
+                                                                                         用
+      ● errorType：ECC 错误类型，SBE/DBE。                                               使
+      ● counterType：计数类型，Volatile/Aggregate。
+    输出参数：
+                                                                             司
+      ● eccCounts：ECC 错误次数。                                             公
+    4.2.28 xpumlDeviceGetFwVersion                                限
+                                                             有
+    xpumlReturn_t DECLDIR xpumlDeviceGetFwVersion(xpumlDevice_t device, int object, char *ver
+    sion, unsigned int length);
+                                                        ）
+    说明： 获取固件版本号。                                  圳
+    输入参数：
+      ● device：XPUML 设备句柄。
+                                             深
+                                       （
+      ● object：固件版本号类型。object 应当可设置为 XPUML_INT_INFOROM_PBL、
+        XPUML_INT_INFOROM_PCIE、XPUML_INT_INFOROM_SBL。
+                                  技
+      ● length：固件版本信息字符串长度，length 设置为
+
+
+    输出参数：
+                       讯
+        XPUML_DEVICE_INFOROM_VERSION_BUFFER_SIZE。
+
+                        科
+      ● version：固件版本号。
+                  腾
+    4.2.29 xpumlDeviceGetXpuLinkInfo
+            供
+    xpumlReturn_t DECLDIR xpumlDeviceGetXpuLinkInfo(xpumlDevice_t device, xpumlXpuLinkInfo_st
+       仅
+     *xpuLinkInfo);
+
+
+    芯
+    说明： 查询 XPU Link 信息。在 32 卡机柜中，xpuLinkInfo 包含 serverid、xpuid、
+    oamlink 信息；在普通机柜中，oamlink 为 0。
+仑   输入参数：
+昆     ● device：XPUML 设备句柄。
+    输出参数：
+      ● xpuLinkInfo：XPU Link 信息结构体指针。
+
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                           - 48 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    4.2.30 xpumlDeviceGetSwitchInfoByXpu
+    xpumlReturn_t DECLDIR xpumlDeviceGetSwitchInfoByXpu(xpumlDevice_t device, unsigned int xp
+    uPort, unsigned int *switchId, unsigned int *switchPortId);
+
+
+    说明： 通过 XPU 获取交换机信息。
+    输入参数：
+      ● device：XPUML 设备句柄。
+                                                                                         用
+      ● xpuPort：XPU 端口号。                                                          使
+    输出参数：
+      ● switchId：交换机 ID。
+                                                                             司
+      ● switchPortId：交换机端口 ID。                                          公
+    4.2.31 xpumlSystemGetTopologyGpuSet                           限
+                                                             有
+    xpumlReturn_t DECLDIR xpumlSystemGetTopologyGpuSet(unsigned int cpuNumber, unsigned int *
+    count, xpumlDevice_t *deviceArray);
+                                                        ）
+    说明： 检索与给定 CPU 号具有 CPU 亲和性的 GPU 集合。            圳
+    输入参数：
+      ● cpuNumber：CPU 编号。
+                                             深
+    输出参数：                              （
+      ● count：设备数组中设备句柄的数量。
+      ● deviceArray：GPU 设备句柄数组。
+                                  技
+                             科
+    4.2.32 xpumlDeviceGetTopologyNearestGpus
+                       讯
+                  腾
+    xpumlReturn_t DECLDIR xpumlDeviceGetTopologyNearestGpus(xpumlDevice_t device, xpumlXPUTop
+    ologyLevel_t level, unsigned int *count, xpumlDevice_t* deviceArray);
+
+            供
+    说明： 检索在特定互连级别上最接近给定设备的 GPU 集合。
+       仅
+    输入参数：
+
+    芯 ● device：目标设备句柄。
+      ● level：XPU 拓扑级别。
+仑   输出参数：
+昆     ● count：设备数组中设备句柄的数量。
+      ● deviceArray：最近 GPU 设备句柄数组。
+
+
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                           - 49 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    4.2.33 xpumlDeviceGetTopologyCommonAncestor
+    xpumlReturn_t DECLDIR xpumlDeviceGetTopologyCommonAncestor(xpumlDevice_t device1, xpumlDe
+    vice_t device2, xpumlXPUTopologyLevel_t *pathInfo);
+
+
+    说明： 检索两个设备的共同祖先节点。
+    输入参数：
+      ● device1：第一个设备句柄。
+                                                                                         用
+      ● device2：第二个设备句柄。                                                          使
+    输出参数：
+      ● pathInfo：路径类型信息（XPU 拓扑级别）。
+                                                                             司
+    4.2.34 xpumlDeviceGetCurrPcieLinkWidth
+                                                                        公
+                                                             有限
+    xpumlReturn_t DECLDIR xpumlDeviceGetCurrPcieLinkWidth(xpumlDevice_t device, unsigned int
+    *currLinkWidth);
+
+
+    说明： 检索当前 PCIe 链路宽度。                                 ）
+    输入参数：                                         圳
+      ● device：目标设备句柄。
+    输出参数：
+                                             深
+      ● currLinkWidth：当前 PCIe 链路宽度。
+                                       （
+                                  技
+    4.2.35 xpumlDeviceGetMaxPcieLinkWidth
+                             科
+    xpumlReturn_t DECLDIR xpumlDeviceGetMaxPcieLinkWidth(xpumlDevice_t device, unsigned int *
+    maxLinkWidth);
+                       讯
+                  腾
+    说明： 检索此设备和系统可能的最大 PCIe 链路宽度。
+    输入参数：
+            供
+      ● device：目标设备句柄。
+       仅
+    输出参数：
+    芯 ● maxLinkWidth：最大 PCIe 链路宽度。
+
+仑
+昆
+
+
+                         Copyright©2024-2026 昆仑芯（北京）科技股份有限公司                           - 50 -
+

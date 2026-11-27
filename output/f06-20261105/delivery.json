@@ -1,0 +1,43 @@
+{
+  "report_docx": {
+    "file": "F06测试结果与方法问题报告_20261105.docx",
+    "sha256": "5eb4ac2b3dbd27f9fb7bcab66e1f1b48ce19e356fd06fc25f2bfd6a0b510e3ba",
+    "bytes": 114583
+  },
+  "report_pdf": {
+    "file": "F06测试结果与方法问题报告_20261105.pdf",
+    "sha256": "14efec6a14de8609939a1d881a41cbb10bbe804bc233b93ea25807a346adfba4",
+    "bytes": 3125561,
+    "pages": 30
+  },
+  "data_zip": {
+    "file": "F06测试数据包_20261105.zip",
+    "sha256": "4c9f8f11b656f3d7f033093f360858147b2b8b53f41dfe42451a3a83f1be151c",
+    "bytes": 3344372
+  },
+  "checks": {
+    "p800_cases": 216,
+    "rtx_cases": 216,
+    "special_cases": 216,
+    "special_route_rows": 982,
+    "mul_cases": 36,
+    "mul_route_rows": 216,
+    "mul_all_gates": 4,
+    "p800_fallback": 169,
+    "rtx_pass": 213,
+    "source_files": 58
+  },
+  "source_manifest_verified": true,
+  "source_files_verified": 58,
+  "concise_docx": {
+    "file": "F06测试结果_精简版_20261105.docx",
+    "sha256": "d246b0b41c3c6a0e4aadde8737b416274027aed25484a3f72aa548dd6684b483",
+    "bytes": 46001
+  },
+  "concise_pdf": {
+    "file": "F06测试结果_精简版_20261105.pdf",
+    "sha256": "6c6278ec6d3d1683aa322cb3111b1110ac6aad3c00bf87cb811446dd305ba86d",
+    "bytes": 607725,
+    "pages": 5
+  }
+}

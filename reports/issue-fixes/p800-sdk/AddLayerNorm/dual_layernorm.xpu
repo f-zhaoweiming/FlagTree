@@ -1,0 +1,158 @@
+#include "xpu/kernel/xtdk.h"
+#include "xpu/kernel/xtdk_simd.h"
+
+// The host specializes the row width and residual policy before loading the image.
+static_assert(COLS == 64 || COLS == 1024 || COLS == 2048, "unsupported row width");
+#define COMBINED_MOMENTS (COLS == 2048 && !ROUND_RESIDUAL)
+constexpr int slice = COMBINED_MOMENTS ? 1024 : (COLS < 512 ? COLS : 512);
+constexpr int group = COLS / slice;
+
+static __device__ inline float fold(float32x16_t x) {
+    x = vvadd_float32x16(x, vsrlp_float32x16(256, x));
+    x = vvadd_float32x16(x, vsrlp_float32x16(128, x));
+    x = vvadd_float32x16(x, vsrlp_float32x16(64, x));
+    x = vvadd_float32x16(x, vsrlp_float32x16(32, x));
+    return vextracti_f<0>(x);
+}
+
+static __device__ inline float16x32_t narrow(float32x16_t lo, float32x16_t hi) {
+    float16x32_t v = {};
+    return vfloat2fp16_h(hi, vfloat2fp16_l(lo, v));
+}
+
+extern "C" __global__ void dual_layernorm(
+    const _global_ptr_ uint16_t *x, const _global_ptr_ uint16_t *y,
+    const _global_ptr_ uint16_t *gamma, const _global_ptr_ uint16_t *beta,
+    _global_ptr_ uint16_t *output, _global_ptr_ uint16_t *residual,
+    int rows, float eps) {
+    #pragma clang fp contract(off)
+    __shared__ __simd__ uint16_t w[COLS], b[COLS];
+#if COMBINED_MOMENTS
+    // Alternate slots so other cores can finish reading the previous row's
+    // moments without an extra barrier before the next write.
+    __shared__ __simd__ float means[2][64], variances[2][64];
+    int slot = 0;
+#else
+    __shared__ __simd__ float sums[64], squares[64];
+#endif
+    __simd__ uint16_t right[slice];
+    __simd__ float values[slice];
+#if COMBINED_MOMENTS
+    // Expand forward from the high half of values. Each pair of half reads
+    // finishes before its FP32 stores can reach the next unconsumed pair.
+    uint16_t *left = (uint16_t*)values + slice;
+    uint16_t *res_tile = right;
+    uint16_t *out_tile = (uint16_t*)values;
+#else
+    __simd__ uint16_t left[slice];
+    uint16_t *res_tile = left;
+    uint16_t *out_tile = right;
+#endif
+    const int core = core_id(), lane = core % group;
+    const int col = lane * slice, leader = core - lane;
+    const int rows_per_cluster = core_num() / group;
+    if (core == 0) GM2SM_ASYNC(gamma, w, sizeof(w));
+    if (core == 1) GM2SM_ASYNC(beta, b, sizeof(b));
+    mfence_sm_gm();
+    sync_cluster();
+    // All cores, including those past the last row, reach the same barriers.
+    for (int base = cluster_id() * rows_per_cluster; base < rows;
+         base += cluster_num() * rows_per_cluster) {
+        int row = base + core / group;
+        bool active = row < rows;
+        int offset = row * COLS + col;
+        float32x16_t sum = {}, square = {};
+#if COMBINED_MOMENTS
+        float anchor = 0.f;
+#endif
+        if (active) {
+            GM2LM_ASYNC(x + offset, left, slice * sizeof(uint16_t));
+            GM2LM_ASYNC(y + offset, right, sizeof(right));
+            mfence_lm_gm();
+            for (int j = 0; j < slice; j += 32) {
+                auto a = vload_lm_float16x32(left + j), h = vload_lm_float16x32(right + j);
+                auto lo = vvadd_float32x16(vfp162float_l(a), vfp162float_l(h));
+                auto hi = vvadd_float32x16(vfp162float_h(a), vfp162float_h(h));
+                auto r = narrow(lo, hi);
+                vstore_lm_float16x32(res_tile + j, r);
+                if (ROUND_RESIDUAL) { lo = vfp162float_l(r); hi = vfp162float_h(r); }
+                vstore_lm_float32x16(values + j, lo);
+                vstore_lm_float32x16(values + j + 16, hi);
+#if COMBINED_MOMENTS
+                if (j == 0) anchor = vextracti_f<0>(lo);
+                auto dl = svadd_float32x16(-anchor, lo), dh = svadd_float32x16(-anchor, hi);
+                sum = vvadd_float32x16(sum, vvadd_float32x16(dl, dh));
+                square = __builtin_elementwise_fma(dl, dl, square);
+                square = __builtin_elementwise_fma(dh, dh, square);
+#else
+                sum = vvadd_float32x16(sum, vvadd_float32x16(lo, hi));
+#endif
+            }
+            mfence_lm();
+#if COMBINED_MOMENTS
+            LM2GM_ASYNC(res_tile, residual + offset, slice * sizeof(uint16_t));
+#else
+            LM2GM(res_tile, residual + offset, slice * sizeof(uint16_t));
+#endif
+        }
+#if COMBINED_MOMENTS
+        float delta = fold(sum) / slice;
+        means[slot][core] = anchor + delta;
+        variances[slot][core] = fold(square) / slice - delta * delta;
+        mfence_sm(); sync_cluster();
+        float mean = 0.f;
+        for (int i=0; i<group; ++i) mean += means[slot][leader+i];
+        mean /= group;
+        float var = 0.f;
+        for (int i=0; i<group; ++i) {
+            float diff = means[slot][leader+i] - mean;
+            var += variances[slot][leader+i] + diff*diff;
+        }
+        var = __builtin_fmaxf(0.f, var / group);
+        slot ^= 1;
+#else
+        float total = fold(sum);
+        if (group > 1) {
+            sums[core] = total;
+            mfence(); sync_cluster();
+            total = sums[leader];
+            for (int i = 1; i < group; ++i) total += sums[leader + i];
+        }
+        float mean = total / COLS;
+        if (active) {
+            for (int j = 0; j < slice; j += 16) {
+                auto d = svadd_float32x16(-mean, vload_lm_float32x16(values + j));
+                vstore_lm_float32x16(values + j, d);
+                square = __builtin_elementwise_fma(d, d, square);
+            }
+        }
+        float ss = fold(square);
+        if (group > 1) {
+            squares[core] = ss;
+            mfence(); sync_cluster();
+            ss = squares[leader];
+            for (int i = 1; i < group; ++i) ss += squares[leader + i];
+        }
+        float var = ss / COLS;
+#endif
+        if (active) {
+            float inv = 1.f / __builtin_sqrtf(var + eps);
+            mfence_lm();
+            for (int j = 0; j < slice; j += 32) {
+                auto weight = vload_sm_float16x32(w + col + j);
+                auto bias = vload_sm_float16x32(b + col + j);
+                auto lo = vload_lm_float32x16(values + j);
+                auto hi = vload_lm_float32x16(values + j + 16);
+#if COMBINED_MOMENTS
+                lo = svadd_float32x16(-mean, lo); hi = svadd_float32x16(-mean, hi);
+#endif
+                lo = svmul_float32x16(inv, lo); hi = svmul_float32x16(inv, hi);
+                lo = __builtin_elementwise_fma(lo, vfp162float_l(weight), vfp162float_l(bias));
+                hi = __builtin_elementwise_fma(hi, vfp162float_h(weight), vfp162float_h(bias));
+                vstore_lm_float16x32(out_tile + j, narrow(lo, hi));
+            }
+            mfence_lm();
+            LM2GM(out_tile, output + offset, sizeof(right));
+        }
+    }
+}

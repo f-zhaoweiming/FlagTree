@@ -14,7 +14,7 @@ from pathlib import Path
 
 POLICY = "cuda_gelu_tanh_branchless_v1"
 LIBDEVICE_SHA256 = "5c2fae37c86e68c3a38605a95f512d7d12d5f3db986310be47f57304aa72a5ee"
-_ACTIVE = ContextVar("fusion_cuda_precise_tanh", default=False)
+_ACTIVE = ContextVar("f06_cuda_precise_tanh", default=False)
 
 # Matches the validated __nv_tanhf expansion, including unordered small-range
 # selection for NaNs and FTZ for subnormal inputs. Do not reassociate its FMAs.

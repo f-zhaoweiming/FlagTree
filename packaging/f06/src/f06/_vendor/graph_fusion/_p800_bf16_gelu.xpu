@@ -1,0 +1,236 @@
+#include "xpu/kernel/xtdk.h"
+#include "xpu/kernel/xtdk_simd.h"
+
+using F = float32x16_t;
+using U = uint32x16_t;
+
+static __device__ inline U sdk_bf16(F x) {
+    U bits = (U)x;
+    return (bits + 0x7fffu + ((bits >> 16) & 1u)) & 0xffff0000u;
+}
+static __device__ inline U round_bf16(F x) {
+    U bits = (U)x;
+    U high = sdk_bf16(x);
+    int nan = svlt_uint32x16(0x7f800000u, bits & 0x7fffffffu);
+    return svor_uint32x16_mh(0x7fc00000u, (U)0u, high, nan);
+}
+
+static __device__ inline F exp2_tail(F x) {
+    // On the outer erf interval x is negative. At -32 the final subtraction
+    // already rounds to one in FP32. Center the residual in [-0.5, 0.5].
+    x = svmax_float32x16(-32.f, x);
+    F biased = x + 12582912.f;
+    F r = x - (biased - 12582912.f);
+    F scale = (F)((((U)biased - 0x4b400000u) + 127u) << 23);
+    F p = __builtin_elementwise_fma((F)0.0000152527338f, r, (F)0.000154035304f);
+    p = __builtin_elementwise_fma(p, r, (F)0.00133335581f);
+    p = __builtin_elementwise_fma(p, r, (F)0.00961812911f);
+    p = __builtin_elementwise_fma(p, r, (F)0.0555041087f);
+    p = __builtin_elementwise_fma(p, r, (F)0.240226507f);
+    p = __builtin_elementwise_fma(p, r, (F)0.693147181f);
+    return scale * __builtin_elementwise_fma(p, r, (F)1.f);
+}
+
+// Keep masks in KL3 predicate registers; generic vector selects scalarize on this backend.
+static __device__ inline F choose(int mask, F yes, F no) {
+    return (F)svor_uint32x16_mh(0u, (U)yes, (U)no, mask);
+}
+
+static __device__ inline F exact_gelu(F x) {
+    F t = x * 0.7071067811865476f;
+    F a = vabs_float32x16(t);
+    int inner = ~svlt_float32x16(1.002959966659546f, a);
+    F z = choose(inner, t * t, svmin_float32x16(8.f, a));
+    F p = choose(inner, (F)8.483494457323104e-05f, (F)1.6425845387857407e-05f);
+    p = __builtin_elementwise_fma(p, z, choose(inner, (F)-0.0008213091641664505f, (F)-0.0004680210549850017f));
+    p = __builtin_elementwise_fma(p, z, choose(inner, (F)0.005213488824665546f, (F)0.0052647641859948635f));
+    p = __builtin_elementwise_fma(p, z, choose(inner, (F)-0.026868773624300957f, (F)-0.034303076565265656f));
+    p = __builtin_elementwise_fma(p, z, choose(inner, (F)0.11284004896879196f, (F)0.1532936990261078f));
+    p = __builtin_elementwise_fma(p, z, choose(inner, (F)-0.37612664699554443f, (F)0.9163130521774292f));
+    p = __builtin_elementwise_fma(p, z, choose(inner, (F)0.12837915122509003f, (F)0.6282998323440552f));
+    F v = choose(inner, t, -z);
+    F u = __builtin_elementwise_fma(p, v, v);
+    F mag = 1.f - exp2_tail(u);
+    F erf = choose(inner, u, (F)((U)mag | ((U)t & 0x80000000u)));
+    return (0.5f * x) * (1.f + erf);
+}
+
+template<bool FinalOnly, bool Half=false> static __device__ inline void bias_gelu(const _global_ptr_ uint16_t *a,
+    const _global_ptr_ uint16_t *bias, _global_ptr_ uint16_t *out,
+    int pid, int programs, int total, int n, int width) {
+    #pragma clang fp contract(off)
+    __shared__ __simd__ uint16_t shared_bias[2048];
+    __simd__ uint16_t tile[512];
+    if (core_id() == 0) GM2SM_ASYNC(bias, shared_bias, n * sizeof(uint16_t));
+    mfence_sm_gm();
+    if (core_id() == 0) {
+        for (int i = n; i % 32; ++i) shared_bias[i] = 0;
+    }
+    sync_cluster();
+    // No vector crosses the end of a bias row. The last DMA copies only
+    // live elements; padding is confined to the per-core and shared arrays.
+    const int chunks = (n + width - 1) / width;
+    const int tasks = (total / n) * chunks;
+    for (int task = pid * core_num() + core_id(); task < tasks; task += programs * core_num()) {
+        const int column = (task % chunks) * width;
+        const int count = n - column < width ? n - column : width;
+        const int first = (task / chunks) * n + column;
+        GM2LM(a + first, tile, count * sizeof(uint16_t));
+        for (int i = count; i % 32; ++i) tile[i] = 0;
+        for (int i = 0; i < count; i += 32) {
+            auto x = vload_lm_float16x32(tile + i);
+            auto b = vload_sm_float16x32(shared_bias + column + i);
+            if (Half) {
+                F lo = exact_gelu(vvadd_float32x16(vfp162float_l(x), vfp162float_l(b)));
+                F hi = exact_gelu(vvadd_float32x16(vfp162float_h(x), vfp162float_h(b)));
+                vstore_lm_float16x32(tile + i, vfloat2fp16_lh(lo, hi));
+            } else {
+                U matrix_words = (U)x, bias_words = (U)b;
+                F even = (F)(matrix_words << 16) + (F)(bias_words << 16);
+                F odd = (F)(matrix_words & 0xffff0000u) + (F)(bias_words & 0xffff0000u);
+                if (!FinalOnly) { even = (F)round_bf16(even); odd = (F)round_bf16(odd); }
+                even = exact_gelu(even);
+                odd = exact_gelu(odd);
+                U packed = FinalOnly ? (sdk_bf16(even) >> 16) | sdk_bf16(odd)
+                                     : (round_bf16(even) >> 16) | round_bf16(odd);
+                vstore_lm_float16x32(tile + i, (float16x32_t)packed);
+            }
+        }
+        mfence_lm();
+        LM2GM(tile, out + first, count * sizeof(uint16_t));
+    }
+}
+
+#define BIAS_GELU(name, FinalOnly) \
+extern "C" __device__ void name(const _global_ptr_ uint16_t *a, const _global_ptr_ uint16_t *bias, \
+        _global_ptr_ uint16_t *out, int pid, int programs, int total, int n, int width) { \
+    bias_gelu<FinalOnly>(a, bias, out, pid, programs, total, n, width); \
+}
+BIAS_GELU(kl3_bf16_bias_gelu, false)
+BIAS_GELU(kl3_bf16_bias_gelu_final, true)
+extern "C" __device__ void kl3_fp16_bias_gelu_final(const _global_ptr_ uint16_t *a,
+        const _global_ptr_ uint16_t *b, _global_ptr_ uint16_t *out, int pid, int programs,
+        int total, int n, int width) {
+    bias_gelu<true,true>(a,b,out,pid,programs,total,n,width);
+}
+
+
+// Contiguous FP32 accumulator tiles use the same lane order as the SDK cast.
+// RNE is complete before the two exact field-packing conversions below.
+static __device__ inline void narrow(uint16_t *out, F lo, F hi) {
+    vstore_lm_float16x32(out, vfloat2fp16_lh(lo, hi));
+}
+static __device__ inline void narrow(int16_t *out, F lo, F hi) {
+    U a = sdk_bf16(lo) >> 16, b = sdk_bf16(hi) >> 16;
+    U low = (U)vfloat2fp16_lh_rz((F)(0x3f800000u | ((a & 1023u) << 13)),
+                                  (F)(0x3f800000u | ((b & 1023u) << 13)));
+    U high = (U)vfloat2fp16_lh_rz((F)(0x3f800000u | ((a >> 10) << 13)),
+                                   (F)(0x3f800000u | ((b >> 10) << 13)));
+    vstore_lm_float16x32(out, (float16x32_t)((low & 0x03ff03ffu) | ((high & 0x003f003fu) << 10)));
+}
+static __device__ inline F relu_fp32(F value) {
+    return choose(svlt_float32x16(0.f, -value), (F)0.f, value);
+}
+template<class T> static __device__ inline void finish_fp32(const _global_ptr_ float *src,
+        _global_ptr_ T *out, int pid, int total, int width, int act) {
+    __simd__ float tile[512];
+    __simd__ T result[512];
+    for (int start = (pid * core_num() + core_id()) * width; start < total;
+         start += 12 * core_num() * width) {
+        GM2LM(src + start, tile, width * sizeof(float));
+        if (act == 1) {
+            for (int i = 0; i < width; i += 8) {
+#pragma clang loop unroll(full)
+                for (int j = 0; j < 8; ++j) {
+                    float x = tile[i+j], e;
+                    asm("exp.f.rn %0, %1" : "=r"(e) : "r"(-x));
+                    tile[i+j] = x / (1.f + e);
+                }
+            }
+            mfence_lm();
+        }
+        for (int i = 0; i < width; i += 32) {
+            F lo = vload_lm_float32x16(tile+i), hi = vload_lm_float32x16(tile+i+16);
+            if (act == 4) { lo = exact_gelu(lo); hi = exact_gelu(hi); }
+            if (act == 2) {
+                lo = relu_fp32(lo);
+                hi = relu_fp32(hi);
+            }
+            narrow(result+i, lo, hi);
+        }
+        mfence_lm();
+        LM2GM(result, out + start, width * sizeof(T));
+    }
+}
+#define FINISH(name, T) \
+extern "C" __device__ void name(const _global_ptr_ float *src, _global_ptr_ T *out, \
+                                int pid, int total, int width, int act) { \
+    finish_fp32(src, out, pid, total, width, act); \
+}
+FINISH(kl3_finish_fp16, uint16_t)
+FINISH(kl3_finish_bf16, int16_t)
+
+// The 2048x2048 grouped product writes contiguous FP32 tiles. Overlap the
+// next tile read with the current epilogue, then narrow once at the store.
+template<class T, int Act>
+static __device__ inline void finish_pipeline(const _global_ptr_ float *src, _global_ptr_ T *out, int pid, int total = 2048 * 2048) {
+    constexpr int width = 512;
+    __simd__ float tiles[2][width];
+    __simd__ T result[width];
+    const int step = 12 * core_num() * width;
+    int start = (pid * core_num() + core_id()) * width;
+    if (start >= total) return;
+    GM2LM(src + start, tiles[0], width * sizeof(float));
+    for (int slot = 0; start < total; start += step, slot ^= 1) {
+        float *tile = tiles[slot];
+        if (start + step < total)
+            GM2LM_ASYNC(src + start + step, tiles[slot ^ 1], width * sizeof(float));
+        if (Act == 1) {
+            for (int i = 0; i < width; i += 16) {
+                #pragma clang loop unroll(full)
+                for (int j = 0; j < 16; ++j) {
+                    float x = tile[i + j], e;
+                    asm("exp.f.rn %0, %1" : "=r"(e) : "r"(-x));
+                    tile[i + j] = x / (1.f + e);
+                }
+            }
+            mfence_lm();
+        }
+        for (int i = 0; i < width; i += 32) {
+            F lo = vload_lm_float32x16(tile + i), hi = vload_lm_float32x16(tile + i + 16);
+            if (Act == 2) {
+                lo = relu_fp32(lo);
+                hi = relu_fp32(hi);
+            }
+            narrow(result + i, lo, hi);
+        }
+        mfence_lm();
+        LM2GM_ASYNC(result, out + start, width * sizeof(T));
+        mfence_lm_gm();
+    }
+}
+extern "C" __device__ void kl3_pipeline_cast_bf16(const _global_ptr_ float *src, _global_ptr_ int16_t *out, int pid) {
+    finish_pipeline<int16_t, 0>(src, out, pid);
+}
+extern "C" __device__ void kl3_pipeline_silu_fp16(const _global_ptr_ float *src, _global_ptr_ uint16_t *out, int pid) {
+    finish_pipeline<uint16_t, 1>(src, out, pid);
+}
+
+extern "C" __device__ void kl3_pipeline_relu_fp16(const _global_ptr_ float *src, _global_ptr_ uint16_t *out, int pid) {
+    finish_pipeline<uint16_t, 2>(src, out, pid);
+}
+extern "C" __device__ void kl3_pipeline_relu_bf16(const _global_ptr_ float *src, _global_ptr_ int16_t *out, int pid) {
+    finish_pipeline<int16_t, 2>(src, out, pid);
+}
+
+// Keep the transfer width constant so that the load of the next tile
+// overlaps the current tile's rounding. The caller supplies whole tiles.
+extern "C" __device__ void kl3_pipe_cast_bf(const _global_ptr_ float *src, _global_ptr_ int16_t *out, int pid, int total) {
+    finish_pipeline<int16_t, 0>(src, out, pid, total);
+}
+extern "C" __device__ void kl3_pipe_relu_bf(const _global_ptr_ float *src, _global_ptr_ int16_t *out, int pid, int total) {
+    finish_pipeline<int16_t, 2>(src, out, pid, total);
+}
+extern "C" __device__ void kl3_pipe_relu_half(const _global_ptr_ float *src, _global_ptr_ uint16_t *out, int pid, int total) {
+    finish_pipeline<uint16_t, 2>(src, out, pid, total);
+}

@@ -1,0 +1,317 @@
+diff --git a/reports/issue-fixes/p800-sdk/XFA/build_profile.py b/reports/issue-fixes/p800-sdk/XFA/build_profile.py
+new file mode 100644
+index 0000000..e02e3c4
+--- /dev/null
++++ b/reports/issue-fixes/p800-sdk/XFA/build_profile.py
+@@ -0,0 +1,54 @@
++"""Build a private XPyTorch 2.9 profile from the verified vendor release."""
++import argparse
++import os
++from pathlib import Path
++import shlex
++import subprocess
++import sys
++import tempfile
++
++from prepare_ops import fingerprint
++
++SDK_SHA = '51c2261bb34d5e0b378c3697c85ffd08e245c430209f042575c98950b8b9fd36'
++
++
++def build(installer, parent):
++    if not Path('/.dockerenv').exists() or not any(parent.resolve().is_relative_to(root)
++            for root in ('/data1/zhaoweiming', '/data2/zhaoweiming')):
++        raise ValueError('select a personal directory inside Docker')
++    if fingerprint(installer) != SDK_SHA:
++        raise ValueError('unexpected vendor installer SHA-256')
++    parent.mkdir(exist_ok=True, parents=True)
++    work = Path(tempfile.mkdtemp(prefix='xpytorch29-', dir=parent))
++    kit, envdir = work / 'release', work / 'venv'
++    env = dict(os.environ, HOME=str(work), TMPDIR=str(work), PYTHONNOUSERSITE='1',
++               PYTHONDONTWRITEBYTECODE='1', PIP_DISABLE_PIP_VERSION_CHECK='1')
++    subprocess.run(['bash', str(installer), '--noexec', '--target', str(kit)], cwd=work, env=env, check=True)
++    subprocess.run([sys.executable, '-m', 'venv', '--system-site-packages', '--without-pip', str(envdir)], env=env, check=True)
++    subprocess.run(['dpkg-deb', '-x', str(kit / 'xcudart_package.deb'), str(envdir)], env=env, check=True)
++    python = envdir / 'bin/python'
++    site = envdir / 'lib/python3.10/site-packages'
++    libs = [envdir / 'xcudart/lib', site / 'torch_xmlir', site / 'lib']
++    env['LD_LIBRARY_PATH'] = os.pathsep.join(map(str, libs)) + ':' + env.get('LD_LIBRARY_PATH','')
++    env['CONDA_PREFIX'] = str(envdir)
++    env['VIRTUAL_ENV'] = str(envdir)
++    subprocess.run([str(python), '-m', 'pip', 'install', '--no-index', '--no-deps', '--no-cache-dir',
++                    '--no-build-isolation', '--no-compile', '--target', str(site),
++                    *map(str, sorted(kit.glob('*.whl'))), str(kit / 'torch_plugin-0.1.0.tar.gz')],
++                   cwd=work, env=env, check=True)
++    launcher = work / 'python'
++    ld = shlex.quote(os.pathsep.join(map(str, libs)))
++    launcher.write_text('#!/bin/sh\n' + 'export PYTHONNOUSERSITE=1 PYTHONDONTWRITEBYTECODE=1\n' +
++                        f'export CONDA_PREFIX={shlex.quote(str(envdir))} VIRTUAL_ENV={shlex.quote(str(envdir))}\n' +
++                        f'export LD_LIBRARY_PATH={ld}${{LD_LIBRARY_PATH:+:\"$LD_LIBRARY_PATH\"}}\n' +
++                        f'exec {shlex.quote(str(python))} "$@"\n')
++    launcher.chmod(0o700)
++    return launcher
++
++
++if __name__ == '__main__':
++    p = argparse.ArgumentParser()
++    p.add_argument('installer', type=Path)
++    p.add_argument('parent', type=Path)
++    args = p.parse_args()
++    print(build(args.installer.resolve(), args.parent.resolve()))
+diff --git a/reports/issue-fixes/p800-sdk/XFA/prepare_ops.py b/reports/issue-fixes/p800-sdk/XFA/prepare_ops.py
+new file mode 100644
+index 0000000..bd00cc9
+--- /dev/null
++++ b/reports/issue-fixes/p800-sdk/XFA/prepare_ops.py
+@@ -0,0 +1,114 @@
++"""Prepare a private, ABI-checked kunlun_ops profile in the P800 audit container."""
++import argparse
++import ctypes
++import hashlib
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++import tempfile
++import urllib.request
++import zipfile
++
++WHEEL = 'kunlun_ops-0.1.227+2b100f96-cp310-cp310-linux_x86_64.whl'
++SHA256 = '7c17a6a8014366ba1f2cfaa06d8cfe838f4333f5d97c53eefe28bf83750f5f19'
++URL = 'https://klx-sdk-release-public.su.bcebos.com/kunlun2jituan/20260806/' + WHEEL.replace('+', '%2B')
++ROOT = Path('/data2/zhaoweiming/p800-interface-benchmark-20261126')
++API = ('gelu', 'relu', 'silu', 'matmul', 'matmul_v2', 'bmm', 'add_layernorm')
++
++
++def fingerprint(path):
++    h = hashlib.sha256()
++    with path.open('rb') as src:
++        for data in iter(lambda: src.read(1024 * 1024), b''):
++            h.update(data)
++    return h.hexdigest()
++
++
++def probe(site):
++    import torch
++    import torch_xmlir
++    result = {'torch': str(torch.__version__), 'xmlir': str(Path(torch_xmlir.__file__).resolve())}
++    try:
++        import kunlun_ops
++        for name in ('kunlun_ops', 'xpu_kunlun_ops', 'xpu_flash_ops'):
++            if not Path(sys.modules[name].__file__).resolve().is_relative_to(site):
++                raise RuntimeError(f'{name} resolved outside the staged wheel')
++        result['apis'] = [name for name in API if callable(getattr(kunlun_ops, name, None))]
++        if len(result['apis']) != len(API):
++            raise RuntimeError('missing benchmark API')
++    except (ImportError, OSError, RuntimeError) as exc:
++        result['import_error'] = str(exc)
++    paths = {Path(l.split()[-1]) for l in Path('/proc/self/maps').read_text().splitlines()
++             if l.split()[-1].endswith('/libxpu_flash_attention.so')}
++    if len(paths) != 1:
++        raise RuntimeError(f'expected one loaded XFA provider, found {paths}')
++    provider = paths.pop()
++    lib = ctypes.CDLL(str(provider))
++    symbols = set()
++    for elf in sorted(site.rglob('*.so')):
++        table = subprocess.check_output(['nm', '-D', '--undefined-only', str(elf)], text=True)
++        symbols.update(t[1] for line in table.splitlines()
++                       if len(t := line.split()) == 2 and t[0] == 'U' and '5baidu3xpu3xfa' in t[1])
++    if not symbols:
++        raise RuntimeError('no required XFA symbols found in the staged wheel')
++    missing = sorted(sym for sym in symbols if not hasattr(lib, sym))
++    result.update(provider=str(provider), provider_sha256=fingerprint(provider),
++                  required=len(symbols), missing=missing)
++    result['ok'] = not missing and 'import_error' not in result
++    return result
++
++
++def stage(wheel, python):
++    if not Path('/.dockerenv').exists() or not ROOT.resolve().is_relative_to('/data2/zhaoweiming'):
++        raise RuntimeError('run in the personal Docker')
++    ROOT.mkdir(parents=True, exist_ok=True)
++    # Each attempt gets its own directory. The manifest is replaced only after the import passes.
++    work = Path(tempfile.mkdtemp(prefix='ops-candidate-', dir=ROOT))
++    if wheel is None:
++        archive = ROOT.parent / 'sdk-release-20260806' / WHEEL
++        wheel = archive if archive.exists() else work / WHEEL
++        if not wheel.exists():
++            urllib.request.urlretrieve(URL, wheel)
++    if wheel.name != WHEEL or fingerprint(wheel) != SHA256:
++        raise ValueError('unexpected wheel name or SHA-256')
++    site = work / 'site'
++    with zipfile.ZipFile(wheel) as archive:
++        if any(not (site / m).resolve().is_relative_to(site) for m in archive.namelist()):
++            raise ValueError('wheel member outside target')
++        archive.extractall(site)
++    env = dict(os.environ, PYTHONDONTWRITEBYTECODE='1', PYTHONNOUSERSITE='1', TMPDIR=str(work),
++               CUDA_VISIBLE_DEVICES='', XPU_VISIBLE_DEVICES='',
++               PYTHONPATH=os.pathsep.join(filter(None, [str(site), os.environ.get('PYTHONPATH') or ''])))
++    if '__file__' in globals():
++        program = [str(Path(__file__).resolve())]
++    else:
++        # The existing staging runner ships this file as python -c.
++        program = ['-c', sys.orig_argv[sys.orig_argv.index('-c') + 1]]
++    child = subprocess.run([str(python), *program, '--probe', str(site)],
++                           env=env, cwd=work, capture_output=True, text=True, timeout=120)
++    lines = [s[len('ABI_RESULT '):] for s in child.stdout.splitlines() if s.startswith('ABI_RESULT ')]
++    result = json.loads(lines[-1]) if lines else {'ok': False, 'error': (child.stderr or child.stdout)[-1800:]}
++    result.update(wheel=wheel.name, wheel_sha256=SHA256, site=str(site), python=str(python),
++                  child_exit=child.returncode)
++    (work / 'receipt.json').write_text(json.dumps(result, indent=2) + '\n')
++    if result['ok'] and child.returncode == 0:
++        manifest = work / 'manifest.tmp'
++        manifest.write_text(json.dumps(result, indent=2) + '\n')
++        manifest.replace(ROOT / 'ops-profile.json')
++    print(json.dumps(result))
++    return bool(result['ok'] and child.returncode == 0)
++
++
++if __name__ == '__main__':
++    parser = argparse.ArgumentParser()
++    parser.add_argument('--wheel', type=Path)
++    parser.add_argument('--python', type=Path, default=Path(sys.executable))
++    parser.add_argument('--probe', type=Path)
++    args = parser.parse_args()
++    if args.probe:
++        report = probe(args.probe.resolve())
++        print('ABI_RESULT ' + json.dumps(report))
++        sys.exit(0 if report['ok'] else 1)
++    sys.exit(0 if stage(args.wheel, args.python.absolute()) else 1)
+diff --git a/reports/issue-fixes/p800-sdk/XFA/reproduce.py b/reports/issue-fixes/p800-sdk/XFA/reproduce.py
+new file mode 100644
+index 0000000..da45565
+--- /dev/null
++++ b/reports/issue-fixes/p800-sdk/XFA/reproduce.py
+@@ -0,0 +1,30 @@
++"""Probe the ELF imports of a vendor wheel in a fresh process without installing it."""
++import argparse
++import os
++from pathlib import Path
++import subprocess
++import sys
++import tempfile
++import zipfile
++
++from prepare_ops import fingerprint, SHA256
++
++parser = argparse.ArgumentParser()
++parser.add_argument('wheel', type=Path)
++parser.add_argument('scratch', type=Path)
++parser.add_argument('--python', type=Path, default=Path(sys.executable))
++args = parser.parse_args()
++known = {SHA256, '064bec6b29e833df0c10fc167ca3e966e303fb2ea7cd456da8b9aee91cb6121d'}
++if fingerprint(args.wheel) not in known:
++    parser.error('use one of the two published wheels from the issue')
++with tempfile.TemporaryDirectory(dir=args.scratch) as directory:
++    site = Path(directory).resolve()
++    with zipfile.ZipFile(args.wheel) as archive:
++        if any(not (site / n).resolve().is_relative_to(site) for n in archive.namelist()):
++            parser.error('wheel member outside scratch directory')
++        archive.extractall(site)
++    env = dict(os.environ, PYTHONPATH=os.pathsep.join(filter(None, [str(site), os.environ.get('PYTHONPATH')])),
++               PYTHONDONTWRITEBYTECODE='1', PYTHONNOUSERSITE='1', TMPDIR=str(site), HOME=str(site))
++    result = subprocess.run([str(args.python), str(Path(__file__).with_name('prepare_ops.py').resolve()),
++                             '--probe', str(site)], cwd=site, env=env)
++sys.exit(result.returncode)
+diff --git a/review-local/p800-interface-benchmark-20261126/benchmark.py b/review-local/p800-interface-benchmark-20261126/benchmark.py
+index aff1765..0f661e0 100644
+--- a/review-local/p800-interface-benchmark-20261126/benchmark.py
++++ b/review-local/p800-interface-benchmark-20261126/benchmark.py
+@@ -295,2 +295,6 @@ try:
+         import kunlun_ops as ops
++        providers = {Path(line.split()[-1]) for line in Path('/proc/self/maps').read_text().splitlines()
++                     if line.split()[-1].endswith('/libxpu_flash_attention.so')}
++        if len(providers) != 1 or hashlib.sha256(providers.pop().read_bytes()).hexdigest() != os.environ['OPS_PROVIDER_SHA256']:
++            raise RuntimeError('XFA runtime changed since the profile passed its ABI check')
+         names=['gelu','add_layernorm','matmul','matmul_v2','bmm','relu','silu']
+diff --git a/review-local/p800-interface-benchmark-20261126/prepare_ops.py b/review-local/p800-interface-benchmark-20261126/prepare_ops.py
+deleted file mode 100644
+index c39d609..0000000
+--- a/review-local/p800-interface-benchmark-20261126/prepare_ops.py
++++ /dev/null
+@@ -1,28 +0,0 @@
+-"""Stage the published binary wheel privately. Run in the existing personal Docker."""
+-import hashlib
+-import json
+-import os
+-from pathlib import Path
+-import subprocess
+-import sys
+-import urllib.request
+-import zipfile
+-
+-root = Path('/data2/zhaoweiming/p800-interface-benchmark-20261126')
+-assert Path('/.dockerenv').exists()
+-root.mkdir(exist_ok=True, parents=True)
+-url = 'https://baidu-kunlun-customer.su.bcebos.com/aiak/mimo/20260227/kunlun_ops-0.1.58+ee39020a-cp310-cp310-linux_x86_64.whl'
+-wheel = root / url.split('/')[-1]
+-if not wheel.exists():
+-    temp = wheel.with_suffix('.part')
+-    with urllib.request.urlopen(url, timeout=40) as response, temp.open('wb') as out:
+-        import shutil
+-        shutil.copyfileobj(response, out)
+-    assert temp.stat().st_size == 50931236
+-    with zipfile.ZipFile(temp) as archive:
+-        assert archive.testzip() is None
+-    temp.rename(wheel)
+-site = root / 'ops-deps'
+-env = dict(os.environ, TMPDIR=str(root), PYTHONDONTWRITEBYTECODE='1', PIP_DISABLE_PIP_VERSION_CHECK='1')
+-p = subprocess.run([sys.executable,'-m','pip','install','--no-index','--no-deps','--no-cache-dir','--no-compile','--target',str(site),str(wheel)], env=env, capture_output=True, text=True, timeout=60)
+-print(json.dumps({'status':p.returncode,'wheel_sha256':hashlib.sha256(wheel.read_bytes()).hexdigest(),'path':str(site),'log':p.stdout[-400:]+p.stderr[-400:]}))
+diff --git a/review-local/p800-interface-benchmark-20261126/prepare_ops.py b/review-local/p800-interface-benchmark-20261126/prepare_ops.py
+new file mode 120000
+index 0000000..28d51b1
+--- /dev/null
++++ b/review-local/p800-interface-benchmark-20261126/prepare_ops.py
+@@ -0,0 +1 @@
++../../reports/issue-fixes/p800-sdk/XFA/prepare_ops.py
+\ No newline at end of file
+diff --git a/review-local/p800-interface-benchmark-20261126/run.py b/review-local/p800-interface-benchmark-20261126/run.py
+index 1c5a087..aaaf105 100644
+--- a/review-local/p800-interface-benchmark-20261126/run.py
++++ b/review-local/p800-interface-benchmark-20261126/run.py
+@@ -46,3 +46,10 @@ if group=='comm':
+  env['BKCL_SOCKET_IFNAME']='lo'
+-if group=='ops':env['PYTHONPATH']=str(root/'ops-deps')+os.pathsep+env.get('PYTHONPATH','')
++python=sys.executable
++if group=='ops':
++ profile=json.loads((root/'ops-profile.json').read_text())
++ if not profile['ok'] or profile['child_exit'] or profile['missing']:
++  raise RuntimeError('Run prepare_ops.py with a compatible XPyTorch profile')
++ python=profile['python']
++ env['PYTHONPATH']=profile['site']+os.pathsep+env.get('PYTHONPATH','')
++ env['OPS_PROVIDER_SHA256']=profile['provider_sha256']
+ env.pop('XPU_NUM_CLUSTER',None);env.pop('LD_PRELOAD',None)
+@@ -52,3 +59,3 @@ resource.setrlimit(resource.RLIMIT_CORE,(0,0))
+ with (p/'log').open('w') as f:
+- proc=subprocess.run(['timeout','-k','5',('55' if group.startswith('torch_batch_') else '420'),sys.executable,'-u',str(p/'benchmark.py'),group],env=env,stdout=f,stderr=subprocess.STDOUT,cwd=p)
++ proc=subprocess.run(['timeout','-k','5',('55' if group.startswith('torch_batch_') else '420'),python,'-u',str(p/'benchmark.py'),group],env=env,stdout=f,stderr=subprocess.STDOUT,cwd=p)
+ print(json.dumps({'code':proc.returncode,'log_tail':(p/'log').read_text(errors='replace')[-1100:],'results':json.loads((p/'result.json').read_text()) if (p/'result.json').exists() else None}))
+diff --git a/review-local/p800-interface-benchmark-20261126/summarize.py b/review-local/p800-interface-benchmark-20261126/summarize.py
+index 2cb3eca..f0611ce 100644
+--- a/review-local/p800-interface-benchmark-20261126/summarize.py
++++ b/review-local/p800-interface-benchmark-20261126/summarize.py
+@@ -78,2 +78,4 @@ for g,title in family_titles.items():
+         'xfa512_headwise':'长度 512。逐头二维 mm 产生全部 eager 输出；与原生 batched 基线分开统计。'}[g])
++    if g == 'ops' and d.get('python_ops_path'):
++        meta['loaded_package'] = d['python_ops_path']
+     if d.get('invalid_event_samples'):meta['event_retries']=d['invalid_event_samples']
+@@ -116,2 +118,12 @@ report['unmeasured']+=[
+     dict(group='manual',reason='其余手册入口含 XTDK 设备内联指令、运行时管理与诊断、训练/反向以及本次未覆盖的 dtype、重载和形状。底层指令、API 别名及上层模型不共用同一覆盖分母。',inventory='reports/P800开发者手册接口目录.json')]
++ops_group = report['groups'].get('ops', {})
++if ops_group.get('measured', 0):
++    measured_ops = set(ops_group['api_labels'])
++    for gap in report['unmeasured']:
++        if gap.get('group') == 'ops':
++            missing = sorted(set(n.split('.')[-1] for n in gap['apis']) - measured_ops)
++            gap.update(apis=['kunlun_ops.' + n for n in missing],
++                       reason='配套 SDK 的 wheel 已通过导入。剩余入口在所测输入上未完成配对，具体错误见原始行。',
++                       receipt=ops_group['receipt'])
++            gap.pop('installation', None)
+ cause_file=root/'reports/P800_XFA与XFFT单卡故障归因.json'
+@@ -121,3 +133,3 @@ if cause_file.is_file():
+         section={'ops':'xfa','xfft':'xfft'}.get(gap.get('group'))
+-        if section:
++        if section and not (section == 'xfa' and ops_group.get('measured', 0)):
+             gap['binary_root_cause']=causes[section]['finding']

@@ -1,0 +1,1083 @@
+{
+  "device": "P800",
+  "single_card": true,
+  "oci_image": "sha256:63580d62f783f62be7c6b3e2ad55ab59992653792024270389f5cbd6f92eaa55",
+  "torch": "2.9.0+cu129",
+  "source_sha256": {
+    "benchmark.py": "c0baf90e6de197256e6c7da71227ca6c49d3c6306eaa06c5916f32ff86e4df5a"
+  },
+  "verified_idle_checks": {
+    "pci": true,
+    "memory_empty": true,
+    "utilization_zero": true,
+    "no_processes": true,
+    "device_node_pci": true,
+    "no_compute_openers": true,
+    "owned_running_container": true
+  },
+  "occupancy_samples": 7,
+  "foreign_samples": 0,
+  "raw_receipt_sha256": "41f5c950c50e55ba07a113e363a8337bbee7a7e12cb7194a5f2b38ca54982ad2",
+  "cases": [
+    {
+      "api": "gelu",
+      "group": "ops",
+      "shape": [
+        16,
+        64
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 1024,
+            "nonfinite": 0,
+            "max_abs": 0.0016815662384033203,
+            "rmse": 0.00019612941500967595,
+            "max_normalized": 1.5762298503629815,
+            "outside_fp32_band": 13
+          },
+          "fp16_eager": {
+            "elements": 1024,
+            "nonfinite": 0,
+            "max_abs": 0.0016815662384033203,
+            "rmse": 0.0001949183556240272,
+            "max_normalized": 1.5762298503629815,
+            "outside_fp32_band": 13
+          },
+          "not_worse": false
+        }
+      ],
+      "not_worse": false,
+      "speedup": 1.3018362662586076,
+      "median_wall_us": {
+        "sdk": 13.07,
+        "eager": 17.015
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        16,
+        64
+      ],
+      "pattern": "random",
+      "status": "failed",
+      "error": "RuntimeError('add_layernorm not support x/weight/output dtype')"
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        16,
+        64
+      ],
+      "pattern": "high_bias",
+      "status": "failed",
+      "error": "RuntimeError('add_layernorm not support x/weight/output dtype')"
+    },
+    {
+      "api": "matmul",
+      "group": "ops",
+      "shape": [
+        16,
+        64
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "rhs_shape": [
+        64,
+        64
+      ],
+      "output_dtype": "float16",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 1024,
+            "nonfinite": 0,
+            "max_abs": 0.0017383098602294922,
+            "rmse": 0.000376727033063544,
+            "max_normalized": 2.6089819236014007,
+            "outside_fp32_band": 163
+          },
+          "fp16_eager": {
+            "elements": 1024,
+            "nonfinite": 0,
+            "max_abs": 0.0017383098602294922,
+            "rmse": 0.000376727033063544,
+            "max_normalized": 2.6089819236014007,
+            "outside_fp32_band": 163
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.5324646074646076,
+      "median_wall_us": {
+        "sdk": 15.54,
+        "eager": 23.8145
+      }
+    },
+    {
+      "api": "matmul_v2",
+      "group": "ops",
+      "shape": [
+        16,
+        64
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "rhs_shape": [
+        64,
+        64
+      ],
+      "output_dtype": "float16",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 1024,
+            "nonfinite": 0,
+            "max_abs": 0.0017383098602294922,
+            "rmse": 0.000376727033063544,
+            "max_normalized": 2.6089819236014007,
+            "outside_fp32_band": 163
+          },
+          "fp16_eager": {
+            "elements": 1024,
+            "nonfinite": 0,
+            "max_abs": 0.0017383098602294922,
+            "rmse": 0.000376727033063544,
+            "max_normalized": 2.6089819236014007,
+            "outside_fp32_band": 163
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.4760978670012546,
+      "median_wall_us": {
+        "sdk": 15.940000000000001,
+        "eager": 23.529
+      }
+    },
+    {
+      "api": "bmm",
+      "group": "ops",
+      "shape": [
+        2,
+        16,
+        64
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "rhs_shape": [
+        2,
+        64,
+        64
+      ],
+      "output_dtype": "float16",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 2048,
+            "nonfinite": 0,
+            "max_abs": 0.0015997886657714844,
+            "rmse": 0.0003678340293069825,
+            "max_normalized": 3.151351214413003,
+            "outside_fp32_band": 277
+          },
+          "fp16_eager": {
+            "elements": 2048,
+            "nonfinite": 0,
+            "max_abs": 0.0015997886657714844,
+            "rmse": 0.0003678340293069825,
+            "max_normalized": 3.151351214413003,
+            "outside_fp32_band": 277
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.7015094339622643,
+      "median_wall_us": {
+        "sdk": 13.25,
+        "eager": 22.545
+      }
+    },
+    {
+      "api": "relu",
+      "group": "ops",
+      "shape": [
+        16,
+        64
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 1024,
+            "nonfinite": 0,
+            "max_abs": 0.0008935928344726562,
+            "rmse": 0.0001549681799226312,
+            "max_normalized": 0.9463597333890954,
+            "outside_fp32_band": 0
+          },
+          "fp16_eager": {
+            "elements": 1024,
+            "nonfinite": 0,
+            "max_abs": 0.0008935928344726562,
+            "rmse": 0.0001549681799226312,
+            "max_normalized": 0.9463597333890954,
+            "outside_fp32_band": 0
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.259660697455231,
+      "median_wall_us": {
+        "sdk": 10.61,
+        "eager": 13.365
+      }
+    },
+    {
+      "api": "silu",
+      "group": "ops",
+      "shape": [
+        16,
+        64
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 1024,
+            "nonfinite": 0,
+            "max_abs": 0.001333475112915039,
+            "rmse": 0.00019123654445691077,
+            "max_normalized": 1.508824060611025,
+            "outside_fp32_band": 18
+          },
+          "fp16_eager": {
+            "elements": 1024,
+            "nonfinite": 0,
+            "max_abs": 0.001333475112915039,
+            "rmse": 0.00019123654445691077,
+            "max_normalized": 1.508824060611025,
+            "outside_fp32_band": 18
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.2316901408450707,
+      "median_wall_us": {
+        "sdk": 14.2,
+        "eager": 17.490000000000002
+      }
+    },
+    {
+      "api": "gelu",
+      "group": "ops",
+      "shape": [
+        64,
+        1024
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 65536,
+            "nonfinite": 0,
+            "max_abs": 0.0019233226776123047,
+            "rmse": 0.0002059422786822244,
+            "max_normalized": 2.0038852836918526,
+            "outside_fp32_band": 1212
+          },
+          "fp16_eager": {
+            "elements": 65536,
+            "nonfinite": 0,
+            "max_abs": 0.0019233226776123047,
+            "rmse": 0.00020558543306404257,
+            "max_normalized": 2.0038852836918526,
+            "outside_fp32_band": 1213
+          },
+          "not_worse": false
+        }
+      ],
+      "not_worse": false,
+      "speedup": 1.4514900037721614,
+      "median_wall_us": {
+        "sdk": 13.254999999999999,
+        "eager": 19.2395
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        64,
+        1024
+      ],
+      "pattern": "random",
+      "status": "failed",
+      "error": "RuntimeError('add_layernorm not support x/weight/output dtype')"
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        64,
+        1024
+      ],
+      "pattern": "high_bias",
+      "status": "failed",
+      "error": "RuntimeError('add_layernorm not support x/weight/output dtype')"
+    },
+    {
+      "api": "matmul",
+      "group": "ops",
+      "shape": [
+        64,
+        512
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "rhs_shape": [
+        512,
+        1024
+      ],
+      "output_dtype": "float16",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 65536,
+            "nonfinite": 0,
+            "max_abs": 0.001708984375,
+            "rmse": 0.0003574082088057856,
+            "max_normalized": 4.170064944602181,
+            "outside_fp32_band": 9121
+          },
+          "fp16_eager": {
+            "elements": 65536,
+            "nonfinite": 0,
+            "max_abs": 0.001708984375,
+            "rmse": 0.0003574082088057856,
+            "max_normalized": 4.170064944602181,
+            "outside_fp32_band": 9121
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.31310266591038,
+      "median_wall_us": {
+        "sdk": 17.63,
+        "eager": 23.15
+      }
+    },
+    {
+      "api": "matmul_v2",
+      "group": "ops",
+      "shape": [
+        64,
+        512
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "rhs_shape": [
+        512,
+        1024
+      ],
+      "output_dtype": "float16",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 65536,
+            "nonfinite": 0,
+            "max_abs": 0.001708984375,
+            "rmse": 0.0003574082088057856,
+            "max_normalized": 4.170064944602181,
+            "outside_fp32_band": 9121
+          },
+          "fp16_eager": {
+            "elements": 65536,
+            "nonfinite": 0,
+            "max_abs": 0.001708984375,
+            "rmse": 0.0003574082088057856,
+            "max_normalized": 4.170064944602181,
+            "outside_fp32_band": 9121
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.2920395278616525,
+      "median_wall_us": {
+        "sdk": 18.215,
+        "eager": 23.5345
+      }
+    },
+    {
+      "api": "bmm",
+      "group": "ops",
+      "shape": [
+        2,
+        64,
+        512
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "rhs_shape": [
+        2,
+        512,
+        1024
+      ],
+      "output_dtype": "float16",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 131072,
+            "nonfinite": 0,
+            "max_abs": 0.00196075439453125,
+            "rmse": 0.00035884396120026225,
+            "max_normalized": 3.8582975406923388,
+            "outside_fp32_band": 18580
+          },
+          "fp16_eager": {
+            "elements": 131072,
+            "nonfinite": 0,
+            "max_abs": 0.00196075439453125,
+            "rmse": 0.00035884396120026225,
+            "max_normalized": 3.8582975406923388,
+            "outside_fp32_band": 18580
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.2937509031978365,
+      "median_wall_us": {
+        "sdk": 24.2195,
+        "eager": 31.334
+      }
+    },
+    {
+      "api": "relu",
+      "group": "ops",
+      "shape": [
+        64,
+        1024
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 65536,
+            "nonfinite": 0,
+            "max_abs": 0.0017390251159667969,
+            "rmse": 0.00014746983068291393,
+            "max_normalized": 1.1490755550102674,
+            "outside_fp32_band": 29
+          },
+          "fp16_eager": {
+            "elements": 65536,
+            "nonfinite": 0,
+            "max_abs": 0.0017390251159667969,
+            "rmse": 0.00014746983068291393,
+            "max_normalized": 1.1490755550102674,
+            "outside_fp32_band": 29
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.2346654275092936,
+      "median_wall_us": {
+        "sdk": 10.76,
+        "eager": 13.285
+      }
+    },
+    {
+      "api": "silu",
+      "group": "ops",
+      "shape": [
+        64,
+        1024
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 65536,
+            "nonfinite": 0,
+            "max_abs": 0.002655506134033203,
+            "rmse": 0.00019468229198013186,
+            "max_normalized": 2.124600262590704,
+            "outside_fp32_band": 1040
+          },
+          "fp16_eager": {
+            "elements": 65536,
+            "nonfinite": 0,
+            "max_abs": 0.002655506134033203,
+            "rmse": 0.00019468229198013186,
+            "max_normalized": 2.124600262590704,
+            "outside_fp32_band": 1040
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.2367401096406996,
+      "median_wall_us": {
+        "sdk": 14.319500000000001,
+        "eager": 17.7095
+      }
+    },
+    {
+      "api": "gelu",
+      "group": "ops",
+      "shape": [
+        577,
+        1024
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 590848,
+            "nonfinite": 0,
+            "max_abs": 0.002003908157348633,
+            "rmse": 0.00020782320949754257,
+            "max_normalized": 2.172837017141314,
+            "outside_fp32_band": 11127
+          },
+          "fp16_eager": {
+            "elements": 590848,
+            "nonfinite": 0,
+            "max_abs": 0.002003908157348633,
+            "rmse": 0.0002075349533664036,
+            "max_normalized": 2.172837017141314,
+            "outside_fp32_band": 11122
+          },
+          "not_worse": false
+        }
+      ],
+      "not_worse": false,
+      "speedup": 3.964605978260869,
+      "median_wall_us": {
+        "sdk": 14.72,
+        "eager": 58.358999999999995
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        577,
+        1024
+      ],
+      "pattern": "random",
+      "status": "failed",
+      "error": "RuntimeError('add_layernorm not support x/weight/output dtype')"
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        577,
+        1024
+      ],
+      "pattern": "high_bias",
+      "status": "failed",
+      "error": "RuntimeError('add_layernorm not support x/weight/output dtype')"
+    },
+    {
+      "api": "matmul",
+      "group": "ops",
+      "shape": [
+        577,
+        512
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "rhs_shape": [
+        512,
+        1024
+      ],
+      "output_dtype": "float16",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 590848,
+            "nonfinite": 0,
+            "max_abs": 0.002483844757080078,
+            "rmse": 0.0003590067620377896,
+            "max_normalized": 4.033675221264458,
+            "outside_fp32_band": 83734
+          },
+          "fp16_eager": {
+            "elements": 590848,
+            "nonfinite": 0,
+            "max_abs": 0.002483844757080078,
+            "rmse": 0.0003590067620377896,
+            "max_normalized": 4.033675221264458,
+            "outside_fp32_band": 83734
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.288342662448284,
+      "median_wall_us": {
+        "sdk": 20.545,
+        "eager": 26.469
+      }
+    },
+    {
+      "api": "matmul_v2",
+      "group": "ops",
+      "shape": [
+        577,
+        512
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "rhs_shape": [
+        512,
+        1024
+      ],
+      "output_dtype": "float16",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 590848,
+            "nonfinite": 0,
+            "max_abs": 0.002483844757080078,
+            "rmse": 0.0003590067620377896,
+            "max_normalized": 4.033675221264458,
+            "outside_fp32_band": 83734
+          },
+          "fp16_eager": {
+            "elements": 590848,
+            "nonfinite": 0,
+            "max_abs": 0.002483844757080078,
+            "rmse": 0.0003590067620377896,
+            "max_normalized": 4.033675221264458,
+            "outside_fp32_band": 83734
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.2820275403608736,
+      "median_wall_us": {
+        "sdk": 21.06,
+        "eager": 26.999499999999998
+      }
+    },
+    {
+      "api": "bmm",
+      "group": "ops",
+      "shape": [
+        2,
+        577,
+        512
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "rhs_shape": [
+        2,
+        512,
+        1024
+      ],
+      "output_dtype": "float16",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 1181696,
+            "nonfinite": 0,
+            "max_abs": 0.0026025772094726562,
+            "rmse": 0.000358671490221043,
+            "max_normalized": 4.307938529727517,
+            "outside_fp32_band": 167212
+          },
+          "fp16_eager": {
+            "elements": 1181696,
+            "nonfinite": 0,
+            "max_abs": 0.0026025772094726562,
+            "rmse": 0.000358671490221043,
+            "max_normalized": 4.307938529727517,
+            "outside_fp32_band": 167212
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.1889431505133985,
+      "median_wall_us": {
+        "sdk": 39.93,
+        "eager": 47.4745
+      }
+    },
+    {
+      "api": "relu",
+      "group": "ops",
+      "shape": [
+        577,
+        1024
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 590848,
+            "nonfinite": 0,
+            "max_abs": 0.0018143653869628906,
+            "rmse": 0.0001469072034869861,
+            "max_normalized": 1.1321522827834927,
+            "outside_fp32_band": 304
+          },
+          "fp16_eager": {
+            "elements": 590848,
+            "nonfinite": 0,
+            "max_abs": 0.0018143653869628906,
+            "rmse": 0.0001469072034869861,
+            "max_normalized": 1.1321522827834927,
+            "outside_fp32_band": 304
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.181740614334471,
+      "median_wall_us": {
+        "sdk": 11.719999999999999,
+        "eager": 13.85
+      }
+    },
+    {
+      "api": "silu",
+      "group": "ops",
+      "shape": [
+        577,
+        1024
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 590848,
+            "nonfinite": 0,
+            "max_abs": 0.002895832061767578,
+            "rmse": 0.00019332524956682876,
+            "max_normalized": 2.1326279984491894,
+            "outside_fp32_band": 9012
+          },
+          "fp16_eager": {
+            "elements": 590848,
+            "nonfinite": 0,
+            "max_abs": 0.002895832061767578,
+            "rmse": 0.00019332524956682876,
+            "max_normalized": 2.1326279984491894,
+            "outside_fp32_band": 9012
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.16991643454039,
+      "median_wall_us": {
+        "sdk": 20.104,
+        "eager": 23.52
+      }
+    },
+    {
+      "api": "gelu",
+      "group": "ops",
+      "shape": [
+        2048,
+        2048
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 4194304,
+            "nonfinite": 0,
+            "max_abs": 0.0020079612731933594,
+            "rmse": 0.00020810078884967923,
+            "max_normalized": 2.196647299506661,
+            "outside_fp32_band": 79054
+          },
+          "fp16_eager": {
+            "elements": 4194304,
+            "nonfinite": 0,
+            "max_abs": 0.0020079612731933594,
+            "rmse": 0.0002077763188883131,
+            "max_normalized": 2.196647299506661,
+            "outside_fp32_band": 78944
+          },
+          "not_worse": false
+        }
+      ],
+      "not_worse": false,
+      "speedup": 10.3447277195138,
+      "median_wall_us": {
+        "sdk": 22.789,
+        "eager": 235.746
+      }
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        2048,
+        2048
+      ],
+      "pattern": "random",
+      "status": "failed",
+      "error": "RuntimeError('add_layernorm not support x/weight/output dtype')"
+    },
+    {
+      "api": "add_layernorm",
+      "shape": [
+        2048,
+        2048
+      ],
+      "pattern": "high_bias",
+      "status": "failed",
+      "error": "RuntimeError('add_layernorm not support x/weight/output dtype')"
+    },
+    {
+      "api": "matmul",
+      "group": "ops",
+      "shape": [
+        2048,
+        512
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "rhs_shape": [
+        512,
+        2048
+      ],
+      "output_dtype": "float16",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 4194304,
+            "nonfinite": 0,
+            "max_abs": 0.002506256103515625,
+            "rmse": 0.0003589853412816009,
+            "max_normalized": 4.786701537893557,
+            "outside_fp32_band": 596022
+          },
+          "fp16_eager": {
+            "elements": 4194304,
+            "nonfinite": 0,
+            "max_abs": 0.002506256103515625,
+            "rmse": 0.0003589853412816009,
+            "max_normalized": 4.786701537893557,
+            "outside_fp32_band": 596022
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.1539467305234394,
+      "median_wall_us": {
+        "sdk": 34.0345,
+        "eager": 39.274
+      }
+    },
+    {
+      "api": "matmul_v2",
+      "group": "ops",
+      "shape": [
+        2048,
+        512
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "rhs_shape": [
+        512,
+        2048
+      ],
+      "output_dtype": "float16",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 4194304,
+            "nonfinite": 0,
+            "max_abs": 0.002506256103515625,
+            "rmse": 0.0003589853412816009,
+            "max_normalized": 4.786701537893557,
+            "outside_fp32_band": 596022
+          },
+          "fp16_eager": {
+            "elements": 4194304,
+            "nonfinite": 0,
+            "max_abs": 0.002506256103515625,
+            "rmse": 0.0003589853412816009,
+            "max_normalized": 4.786701537893557,
+            "outside_fp32_band": 596022
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.1363091759205144,
+      "median_wall_us": {
+        "sdk": 34.22,
+        "eager": 38.8845
+      }
+    },
+    {
+      "api": "bmm",
+      "group": "ops",
+      "shape": [
+        2,
+        2048,
+        512
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "rhs_shape": [
+        2,
+        512,
+        2048
+      ],
+      "output_dtype": "float16",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 8388608,
+            "nonfinite": 0,
+            "max_abs": 0.002772808074951172,
+            "rmse": 0.0003597652099317223,
+            "max_normalized": 4.855770037010137,
+            "outside_fp32_band": 1198579
+          },
+          "fp16_eager": {
+            "elements": 8388608,
+            "nonfinite": 0,
+            "max_abs": 0.002772808074951172,
+            "rmse": 0.0003597652099317223,
+            "max_normalized": 4.855770037010137,
+            "outside_fp32_band": 1198579
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.050226075537582,
+      "median_wall_us": {
+        "sdk": 167.53250000000003,
+        "eager": 175.947
+      }
+    },
+    {
+      "api": "relu",
+      "group": "ops",
+      "shape": [
+        2048,
+        2048
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 4194304,
+            "nonfinite": 0,
+            "max_abs": 0.00191497802734375,
+            "rmse": 0.00014687456356139063,
+            "max_normalized": 1.2177482908951347,
+            "outside_fp32_band": 1933
+          },
+          "fp16_eager": {
+            "elements": 4194304,
+            "nonfinite": 0,
+            "max_abs": 0.00191497802734375,
+            "rmse": 0.00014687456356139063,
+            "max_normalized": 1.2177482908951347,
+            "outside_fp32_band": 1933
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.1096175306888507,
+      "median_wall_us": {
+        "sdk": 19.714,
+        "eager": 21.875
+      }
+    },
+    {
+      "api": "silu",
+      "group": "ops",
+      "shape": [
+        2048,
+        2048
+      ],
+      "pattern": "random",
+      "status": "measured",
+      "outputs": [
+        {
+          "name": "out",
+          "sdk": {
+            "elements": 4194304,
+            "nonfinite": 0,
+            "max_abs": 0.0037059783935546875,
+            "rmse": 0.00019336209351252017,
+            "max_normalized": 2.300905934446712,
+            "outside_fp32_band": 64499
+          },
+          "fp16_eager": {
+            "elements": 4194304,
+            "nonfinite": 0,
+            "max_abs": 0.0037059783935546875,
+            "rmse": 0.00019336209351252017,
+            "max_normalized": 2.300905934446712,
+            "outside_fp32_band": 64499
+          },
+          "not_worse": true
+        }
+      ],
+      "not_worse": true,
+      "speedup": 1.0474465549002308,
+      "median_wall_us": {
+        "sdk": 64.59899999999999,
+        "eager": 67.664
+      }
+    }
+  ]
+}

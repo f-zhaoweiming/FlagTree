@@ -1,0 +1,606 @@
+{
+  "total": 216,
+  "fallback": 169,
+  "fallback_routes": {
+    "eager": 166,
+    "inductor": 3
+  },
+  "categories": {
+    "gpu_only": 33,
+    "gpu_and_e2e": 97,
+    "single_kernel": 3,
+    "precision": 31,
+    "compiler": 5
+  },
+  "e2e_only": 0,
+  "by_size_dtype": [
+    {
+      "size": "small",
+      "dtype": "float32",
+      "total": 36,
+      "fallback": 26,
+      "categories": {
+        "selected": 10,
+        "single_kernel": 2,
+        "gpu_only": 15,
+        "gpu_and_e2e": 9
+      }
+    },
+    {
+      "size": "small",
+      "dtype": "float16",
+      "total": 36,
+      "fallback": 23,
+      "categories": {
+        "selected": 13,
+        "single_kernel": 1,
+        "gpu_and_e2e": 16,
+        "gpu_only": 6
+      }
+    },
+    {
+      "size": "small",
+      "dtype": "bfloat16",
+      "total": 36,
+      "fallback": 29,
+      "categories": {
+        "gpu_only": 9,
+        "gpu_and_e2e": 14,
+        "selected": 7,
+        "precision": 6
+      }
+    },
+    {
+      "size": "large",
+      "dtype": "float32",
+      "total": 36,
+      "fallback": 27,
+      "categories": {
+        "selected": 9,
+        "gpu_and_e2e": 26,
+        "gpu_only": 1
+      }
+    },
+    {
+      "size": "large",
+      "dtype": "float16",
+      "total": 36,
+      "fallback": 28,
+      "categories": {
+        "selected": 8,
+        "gpu_and_e2e": 26,
+        "gpu_only": 2
+      }
+    },
+    {
+      "size": "large",
+      "dtype": "bfloat16",
+      "total": 36,
+      "fallback": 36,
+      "categories": {
+        "precision": 25,
+        "compiler": 5,
+        "gpu_and_e2e": 6
+      }
+    }
+  ],
+  "bf16_cross_experiment": {
+    "total": 36,
+    "normalization_passed": 21,
+    "matmul_still_failed": 15,
+    "identical_source_files": 21,
+    "identical_package_hashes": 46,
+    "default_controls": [
+      {
+        "ordinal": 114,
+        "record": "../f06-p800-bf16-formats/remote-final/artifacts/results/default-114/record.json",
+        "identical_mismatch_summary": true,
+        "mismatch_summary": "Mismatched elements: 2 / 131072 (0.0%)\nGreatest absolute difference: 0.03125 at index (87, 826) (up to 0.003 allowed)\nGreatest relative difference: 0.00439453125 at index (87, 826) (up to 0.003 allowed)\n"
+      },
+      {
+        "ordinal": 159,
+        "record": "../f06-p800-bf16-formats/remote-final/artifacts/results/default-159/record.json",
+        "identical_mismatch_summary": true,
+        "mismatch_summary": "Mismatched elements: 364 / 131072 (0.3%)\nGreatest absolute difference: inf at index (5, 962) (up to 0.03 allowed)\nGreatest relative difference: inf at index (5, 962) (up to 0.003 allowed)\n"
+      },
+      {
+        "ordinal": 168,
+        "record": "../f06-p800-bf16-formats/remote-final/artifacts/results/default-168/record.json",
+        "identical_mismatch_summary": true,
+        "mismatch_summary": "Mismatched elements: 127869 / 131072 (97.6%)\nGreatest absolute difference: 5.0 at index (0, 318) (up to 0.03 allowed)\nGreatest relative difference: 816.0 at index (0, 929) (up to 0.003 allowed)\n"
+      }
+    ]
+  },
+  "reduction_comparison": {
+    "pairs": 66,
+    "within_5pct": 60,
+    "within_10pct": 64,
+    "geometric_mean": 0.9947737191678766,
+    "evidence": [
+      {
+        "ordinal": 18,
+        "cluster_over_inductor": 0.9875615309106565
+      },
+      {
+        "ordinal": 19,
+        "cluster_over_inductor": 1.0613997397683337
+      },
+      {
+        "ordinal": 20,
+        "cluster_over_inductor": 1.0026141740765915
+      },
+      {
+        "ordinal": 21,
+        "cluster_over_inductor": 0.9549837862337658
+      },
+      {
+        "ordinal": 22,
+        "cluster_over_inductor": 1.0055784751910744
+      },
+      {
+        "ordinal": 23,
+        "cluster_over_inductor": 0.99924068588123
+      },
+      {
+        "ordinal": 24,
+        "cluster_over_inductor": 1.0086311991779293
+      },
+      {
+        "ordinal": 25,
+        "cluster_over_inductor": 0.9896084720593622
+      },
+      {
+        "ordinal": 54,
+        "cluster_over_inductor": 0.9973123743715481
+      },
+      {
+        "ordinal": 55,
+        "cluster_over_inductor": 1.0216070472825285
+      },
+      {
+        "ordinal": 56,
+        "cluster_over_inductor": 0.9987453753528034
+      },
+      {
+        "ordinal": 57,
+        "cluster_over_inductor": 0.9527136135992358
+      },
+      {
+        "ordinal": 58,
+        "cluster_over_inductor": 1.0253506271428479
+      },
+      {
+        "ordinal": 59,
+        "cluster_over_inductor": 0.9980958512869187
+      },
+      {
+        "ordinal": 60,
+        "cluster_over_inductor": 1.0606730040955985
+      },
+      {
+        "ordinal": 61,
+        "cluster_over_inductor": 1.0539240941490504
+      },
+      {
+        "ordinal": 63,
+        "cluster_over_inductor": 0.9987334182221245
+      },
+      {
+        "ordinal": 64,
+        "cluster_over_inductor": 0.9953442097154998
+      },
+      {
+        "ordinal": 65,
+        "cluster_over_inductor": 0.9983458013030146
+      },
+      {
+        "ordinal": 66,
+        "cluster_over_inductor": 0.983226156954184
+      },
+      {
+        "ordinal": 67,
+        "cluster_over_inductor": 1.0120550216080575
+      },
+      {
+        "ordinal": 68,
+        "cluster_over_inductor": 0.9966558144049511
+      },
+      {
+        "ordinal": 90,
+        "cluster_over_inductor": 1.0149678724794227
+      },
+      {
+        "ordinal": 91,
+        "cluster_over_inductor": 0.8749074897284084
+      },
+      {
+        "ordinal": 92,
+        "cluster_over_inductor": 0.996877835559017
+      },
+      {
+        "ordinal": 93,
+        "cluster_over_inductor": 0.9989195155403255
+      },
+      {
+        "ordinal": 94,
+        "cluster_over_inductor": 1.0074207658541052
+      },
+      {
+        "ordinal": 95,
+        "cluster_over_inductor": 0.9980483624570147
+      },
+      {
+        "ordinal": 99,
+        "cluster_over_inductor": 0.979740434603664
+      },
+      {
+        "ordinal": 100,
+        "cluster_over_inductor": 1.0034550784625318
+      },
+      {
+        "ordinal": 101,
+        "cluster_over_inductor": 0.9961448593400098
+      },
+      {
+        "ordinal": 102,
+        "cluster_over_inductor": 1.0055520918900585
+      },
+      {
+        "ordinal": 103,
+        "cluster_over_inductor": 0.9917100879005804
+      },
+      {
+        "ordinal": 104,
+        "cluster_over_inductor": 0.9967548159279705
+      },
+      {
+        "ordinal": 105,
+        "cluster_over_inductor": 1.0300578072386135
+      },
+      {
+        "ordinal": 106,
+        "cluster_over_inductor": 1.0408653083233301
+      },
+      {
+        "ordinal": 153,
+        "cluster_over_inductor": 1.0001993556449869
+      },
+      {
+        "ordinal": 154,
+        "cluster_over_inductor": 1.013361313166119
+      },
+      {
+        "ordinal": 155,
+        "cluster_over_inductor": 0.750686770358558
+      },
+      {
+        "ordinal": 156,
+        "cluster_over_inductor": 0.9999320019798268
+      },
+      {
+        "ordinal": 157,
+        "cluster_over_inductor": 0.9987827658982359
+      },
+      {
+        "ordinal": 158,
+        "cluster_over_inductor": 0.9030254858367054
+      },
+      {
+        "ordinal": 162,
+        "cluster_over_inductor": 0.9995710893263348
+      },
+      {
+        "ordinal": 163,
+        "cluster_over_inductor": 0.9990228878212777
+      },
+      {
+        "ordinal": 164,
+        "cluster_over_inductor": 0.9999685964820004
+      },
+      {
+        "ordinal": 165,
+        "cluster_over_inductor": 1.0004303561242016
+      },
+      {
+        "ordinal": 166,
+        "cluster_over_inductor": 1.001132902662949
+      },
+      {
+        "ordinal": 167,
+        "cluster_over_inductor": 0.9996460388314005
+      },
+      {
+        "ordinal": 171,
+        "cluster_over_inductor": 0.9964398568328203
+      },
+      {
+        "ordinal": 172,
+        "cluster_over_inductor": 1.00225363095237
+      },
+      {
+        "ordinal": 173,
+        "cluster_over_inductor": 0.9995022501605647
+      },
+      {
+        "ordinal": 174,
+        "cluster_over_inductor": 1.0016721961049684
+      },
+      {
+        "ordinal": 175,
+        "cluster_over_inductor": 0.9999080487919295
+      },
+      {
+        "ordinal": 176,
+        "cluster_over_inductor": 0.999871244800086
+      },
+      {
+        "ordinal": 180,
+        "cluster_over_inductor": 0.9966093673823574
+      },
+      {
+        "ordinal": 181,
+        "cluster_over_inductor": 1.0019720636411138
+      },
+      {
+        "ordinal": 182,
+        "cluster_over_inductor": 1.0004469333185533
+      },
+      {
+        "ordinal": 183,
+        "cluster_over_inductor": 0.9990894755303467
+      },
+      {
+        "ordinal": 184,
+        "cluster_over_inductor": 1.000029278504454
+      },
+      {
+        "ordinal": 185,
+        "cluster_over_inductor": 0.9998512861026743
+      },
+      {
+        "ordinal": 189,
+        "cluster_over_inductor": 0.9961158970421405
+      },
+      {
+        "ordinal": 190,
+        "cluster_over_inductor": 0.9991385441635401
+      },
+      {
+        "ordinal": 191,
+        "cluster_over_inductor": 0.9995018784778201
+      },
+      {
+        "ordinal": 192,
+        "cluster_over_inductor": 1.0227508768510098
+      },
+      {
+        "ordinal": 193,
+        "cluster_over_inductor": 1.00009782018135
+      },
+      {
+        "ordinal": 194,
+        "cluster_over_inductor": 0.9965698316442415
+      }
+    ],
+    "note": "Same-case timings, not proof of identical binaries or hardware bottleneck."
+  },
+  "near_winners": [
+    {
+      "ordinal": 121,
+      "kind": "matmul_bias_relu",
+      "dtype": "float16",
+      "shape": [
+        512,
+        1024,
+        1024
+      ],
+      "baseline": "eager",
+      "route": "sdnn_cluster_at_2",
+      "baseline_gpu_us": 28.13375753069681,
+      "candidate_gpu_us": 29.34371100531684,
+      "baseline_over_candidate": 0.9587661739716289,
+      "reduction_to_tie_pct": 4.123382602837111,
+      "e2e_speedups": [
+        1.43898893714803,
+        1.498501856550973
+      ],
+      "evidence": "../f06-p800-e2e-opt/remote-final/artifacts/results/full-e2e/case-121/final/record.json"
+    },
+    {
+      "ordinal": 82,
+      "kind": "mul_sum_keepdim",
+      "dtype": "float32",
+      "shape": [
+        32,
+        256,
+        null
+      ],
+      "baseline": "eager",
+      "route": "cluster",
+      "baseline_gpu_us": 6.203230991158434,
+      "candidate_gpu_us": 6.8058752244518645,
+      "baseline_over_candidate": 0.911452353530039,
+      "reduction_to_tie_pct": 8.854764646996106,
+      "e2e_speedups": [
+        1.5164463045752876,
+        1.4341637010676158
+      ],
+      "evidence": "../f06-p800-e2e-opt/remote-final/artifacts/results/full-e2e/case-082/final/record.json"
+    },
+    {
+      "ordinal": 73,
+      "kind": "mul_sum",
+      "dtype": "float32",
+      "shape": [
+        32,
+        256,
+        null
+      ],
+      "baseline": "eager",
+      "route": "cluster",
+      "baseline_gpu_us": 6.173628804967267,
+      "candidate_gpu_us": 6.785791613456961,
+      "baseline_over_candidate": 0.9097875615166683,
+      "reduction_to_tie_pct": 9.021243848333171,
+      "e2e_speedups": [
+        1.526521948866377,
+        1.5402943791366193
+      ],
+      "evidence": "../f06-p800-e2e-opt/remote-final/artifacts/results/full-e2e/case-073/final/record.json"
+    },
+    {
+      "ordinal": 6,
+      "kind": "matmul_bias",
+      "dtype": "bfloat16",
+      "shape": [
+        16,
+        128,
+        64
+      ],
+      "baseline": "eager",
+      "route": "sdnn",
+      "baseline_gpu_us": 6.9634180556061445,
+      "candidate_gpu_us": 7.695935426219817,
+      "baseline_over_candidate": 0.9048176303405551,
+      "reduction_to_tie_pct": 9.518236965944492,
+      "e2e_speedups": [
+        1.5778922058387592,
+        1.5721769696150338
+      ],
+      "evidence": "../f06-p800-e2e-opt/remote-final/artifacts/results/full-e2e/case-006/final/record.json"
+    },
+    {
+      "ordinal": 16,
+      "kind": "matmul_bias_relu",
+      "dtype": "bfloat16",
+      "shape": [
+        32,
+        256,
+        64
+      ],
+      "baseline": "eager",
+      "route": "sdnn",
+      "baseline_gpu_us": 9.41974908013135,
+      "candidate_gpu_us": 11.134840021229753,
+      "baseline_over_candidate": 0.8459707604394495,
+      "reduction_to_tie_pct": 15.402923956055048,
+      "e2e_speedups": [
+        1.7736317111558144,
+        1.7856428825306554
+      ],
+      "evidence": "../f06-p800-e2e-opt/remote-final/artifacts/results/full-e2e/case-016/final/record.json"
+    },
+    {
+      "ordinal": 135,
+      "kind": "matmul_bias_gelu_tanh",
+      "dtype": "float32",
+      "shape": [
+        128,
+        1024,
+        128
+      ],
+      "baseline": "eager",
+      "route": "sdnn_cluster_at_2",
+      "baseline_gpu_us": 19.438164178715198,
+      "candidate_gpu_us": 24.29211047268653,
+      "baseline_over_candidate": 0.8001842491442234,
+      "reduction_to_tie_pct": 19.981575085577663,
+      "e2e_speedups": [
+        1.3613937234244005,
+        1.3863749465247643
+      ],
+      "evidence": "../f06-p800-e2e-opt/remote-final/artifacts/results/full-e2e/case-135/final/record.json"
+    },
+    {
+      "ordinal": 34,
+      "kind": "matmul_bias_gelu_exact",
+      "dtype": "bfloat16",
+      "shape": [
+        32,
+        256,
+        64
+      ],
+      "baseline": "eager",
+      "route": "sdnn",
+      "baseline_gpu_us": 12.029907841613326,
+      "candidate_gpu_us": 16.467839911364127,
+      "baseline_over_candidate": 0.7305091564141164,
+      "reduction_to_tie_pct": 26.949084358588358,
+      "e2e_speedups": [
+        1.7190662640607892,
+        1.5743589743589743
+      ],
+      "evidence": "../f06-p800-e2e-opt/remote-final/artifacts/results/full-e2e/case-034/final/record.json"
+    },
+    {
+      "ordinal": 138,
+      "kind": "matmul_bias_gelu_tanh",
+      "dtype": "float16",
+      "shape": [
+        128,
+        1024,
+        128
+      ],
+      "baseline": "eager",
+      "route": "sdnn_cluster_at_1",
+      "baseline_gpu_us": 18.669485135842827,
+      "candidate_gpu_us": 26.19085876086286,
+      "baseline_over_candidate": 0.712824474611758,
+      "reduction_to_tie_pct": 28.717552538824197,
+      "e2e_speedups": [
+        1.2997048042300583,
+        1.3251044877813691
+      ],
+      "evidence": "../f06-p800-e2e-opt/remote-final/artifacts/results/full-e2e/case-138/final/record.json"
+    },
+    {
+      "ordinal": 52,
+      "kind": "matmul_bias_silu",
+      "dtype": "bfloat16",
+      "shape": [
+        32,
+        256,
+        64
+      ],
+      "baseline": "eager",
+      "route": "sdnn",
+      "baseline_gpu_us": 13.450652122497559,
+      "candidate_gpu_us": 18.98467254638672,
+      "baseline_over_candidate": 0.708500612250885,
+      "reduction_to_tie_pct": 29.149938774911497,
+      "e2e_speedups": [
+        1.3409266975147087,
+        1.3523537501322331
+      ],
+      "evidence": "../f06-p800-e2e-opt/remote-final/artifacts/results/full-e2e/case-052/final/record.json"
+    },
+    {
+      "ordinal": 83,
+      "kind": "mul_sum_keepdim",
+      "dtype": "float32",
+      "shape": [
+        64,
+        1024,
+        null
+      ],
+      "baseline": "eager",
+      "route": "cluster",
+      "baseline_gpu_us": 8.888530853781418,
+      "candidate_gpu_us": 12.814843562697384,
+      "baseline_over_candidate": 0.6936121233391381,
+      "reduction_to_tie_pct": 30.638787666086188,
+      "e2e_speedups": [
+        1.1997073201108448,
+        1.1799857240394764
+      ],
+      "evidence": "../f06-p800-e2e-opt/remote-final/artifacts/results/full-e2e/case-083/final/record.json"
+    }
+  ],
+  "limitations": [
+    "No new P800 runs in this audit.",
+    "no_promote experiments are diagnostic only, not a production policy change or fair performance result.",
+    "Pass ablation localizes the compiler path/configuration interaction, not an individual incorrect instruction.",
+    "Current C++ source is a navigation aid; exact correspondence to the deployed precompiled compiler is unproven.",
+    "PMU results do not provide a pure arithmetic / transfer / stall time partition for these 169 cases."
+  ]
+}

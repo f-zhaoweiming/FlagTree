@@ -4,6 +4,7 @@ import json
 import pytest
 import triton
 import triton.language as tl
+libdevice = pytest.importorskip("triton.language.extra.xpu.libdevice")
 
 
 @triton.jit
@@ -77,3 +78,49 @@ def test_wrapped_copy_bits_and_guards(p800, tmp_path, period, length, block, dty
                      is_sdnn=kernel.metadata.is_sdnn), indent=2))
         assert kernel.metadata.is_sdnn
         assert not bad and source_ok and guard_ok
+
+
+@triton.jit
+def _wrapped_full_tile(a, b, out, PERIOD: tl.constexpr, BLOCK: tl.constexpr):
+    i = tl.program_id(0) * BLOCK + tl.arange(0, BLOCK)
+    tl.store(out + i, tl.load(a + i) + tl.load(b + i % PERIOD))
+
+
+def test_unmasked_periodic_broadcast(p800):
+    torch = p800
+    period, block = 1024, 8192
+    a = torch.zeros(2 * block, device='cuda')
+    storage = torch.full_like(a, -42.)
+    storage[:period].copy_(torch.arange(period, dtype=torch.float32))
+    output = torch.empty_like(a)
+    _wrapped_full_tile[(2,)](a, storage[:period], output, PERIOD=period, BLOCK=block, is_sdnn=True)
+    torch.testing.assert_close(output.cpu(), torch.arange(period).float().repeat(16), atol=0, rtol=0)
+
+
+@triton.jit
+def _wrapped_bias_exact_gelu(a, bias, out, PERIOD: tl.constexpr, BLOCK: tl.constexpr):
+    i = tl.program_id(0) * BLOCK + tl.arange(0, BLOCK)
+    x = tl.load(a + i) + tl.load(bias + i % PERIOD)
+    tl.store(out + i, (x * 0.5) * (1.0 + libdevice.erf(x * 0.7071067811865476)))
+
+
+@pytest.mark.parametrize("period,block", [(2048, 1024), (513, 1024)])
+def test_f06_exact_gelu_preserves_wrapped_bias(p800, period, block):
+    from triton.experimental.graph_fusion._p800_compiler import resource_scope
+    torch = p800
+    length = 4 * block
+    a = torch.linspace(-2, 2, length).cuda()
+    bias_storage = torch.full((length,), 12345.)
+    bias_storage[:period] = torch.linspace(-1, 1, period)
+    bias_storage[1:4] = torch.tensor([float('nan'), float('inf'), -float('inf')])
+    bias = bias_storage.cuda()
+    out = torch.full((length + 8,), -777., device='cuda')
+    with resource_scope('sdnn'):
+        kernel = _wrapped_bias_exact_gelu[(length // block,)](a, bias[:period], out[:length], period, block)
+    assert kernel.metadata.is_sdnn
+    assert json.loads(kernel.metadata.native_exact_gelu_restored)
+    assert json.loads(kernel.metadata.native_gelu_lut_refinement)
+    actual = out.cpu()
+    expected = torch.nn.functional.gelu(a + bias_storage[torch.arange(length) % period].cuda()).cpu()
+    torch.testing.assert_close(actual[:length], expected, equal_nan=True, rtol=3e-4, atol=3e-4)
+    assert torch.all(actual[length:] == -777.)

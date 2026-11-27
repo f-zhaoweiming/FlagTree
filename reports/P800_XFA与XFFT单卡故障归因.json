@@ -1,0 +1,181 @@
+{
+  "title": "P800 单卡 XFA 导入故障与 XFFT 复数 FP16 计划失败的二进制归因",
+  "date": "2026-11-26",
+  "xfa": {
+    "finding": "公开 kunlun_ops wheel 的预编译调用方与当前 XPyTorch SDK 的 XFA 函数二进制接口不匹配。导入时加载 libxops_blocks.so，动态重定位需要旧签名。当前库的同类型函数带两个额外指针。",
+    "wheel": "kunlun_ops-0.1.58+ee39020a-cp310-cp310-linux_x86_64.whl",
+    "caller": "kunlun_ops/libxops_blocks.so",
+    "caller_sha256": "f81babd0123d5a4d27a7678d266170cb5cdfdfc543dd9cc278faf354f65d2330",
+    "wheel_sha256": "064bec6b29e833df0c10fc167ca3e966e303fb2ea7cd456da8b9aee91cb6121d",
+    "oci_image": "sha256:63580d62f783f62be7c6b3e2ad55ab59992653792024270389f5cbd6f92eaa55",
+    "provider": "/root/miniconda/envs/python310_torch29_cuda/lib/python3.10/site-packages/torch_xmlir/libxpu_flash_attention.so",
+    "provider_sha256": "f31c800f66a45267733b2681c4461ad88699f6f3c0e9f4720fe868a8819690f7",
+    "required": "int baidu::xpu::xfa::dsa_mqa_logits<signed char, float, float16, float, int>(baidu::xpu::api::Context*, signed char const*, float const*, signed char const*, float const*, float*, long, long, long, long, long, long, baidu::xpu::api::VectorParam<int> const&, baidu::xpu::api::VectorParam<int> const&, bool, bool)",
+    "exported": "int baidu::xpu::xfa::dsa_mqa_logits<signed char, float, float16, float, int>(baidu::xpu::api::Context*, signed char const*, float const*, signed char const*, float const*, float*, long, long, long, long, long, long, baidu::xpu::api::VectorParam<int> const&, baidu::xpu::api::VectorParam<int> const&, bool, bool, int const*, int const*)",
+    "sdk_header": "template <typename T, typename TO, typename TGEMM, typename TEW, typename TID>\nDLL_EXPORT int dsa_mqa_logits(api::Context* ctx,\n        const T* q,\n        const float* weight,\n        const T* k,\n        const float* k_scale,\n        TO* logits,\n        int64_t batch_num,\n        int64_t max_seq_q,\n        int64_t max_seq_k,\n        int64_t head_num,\n        int64_t head_dim,\n        int64_t kv_head_num,\n        const api::VectorParam<TID>& qlod,\n        const api::VectorParam<TID>& klod,\n        bool is_causal,\n        bool clean_logits,\n        const TID* cu_seq_len_k_start = nullptr,\n        const TID* cu_seq_len_k_end = nullptr);",
+    "first_unresolved_call": {
+      "containing_symbol": "000000000008dc70 <_ZN5baidu3xpu9xopsblock25xops_dsa_mqa_logits_blockIafLb0EEEiPNS1_11XOPSContextEPKNS1_6TensorES7_S7_S7_PS5_RKNS1_16TransformerParamERKNS1_14TransformerVslE>:",
+      "instruction": "8dea9:\tcall   48430 <_ZN5baidu3xpu3xfa14dsa_mqa_logitsIaf7float16fiEEiPNS0_3api7ContextEPKT_PKfS9_SB_PT0_llllllRKNS4_11VectorParamIT3_EESI_bb@plt>",
+      "demangled": "int baidu::xpu::xopsblock::xops_dsa_mqa_logits_block<signed char, float, false>(baidu::xpu::xopsblock::XOPSContext*, baidu::xpu::xopsblock::Tensor const*, baidu::xpu::xopsblock::Tensor const*, baidu::xpu::xopsblock::Tensor const*, baidu::xpu::xopsblock::Tensor const*, baidu::xpu::xopsblock::Tensor*, baidu::xpu::xopsblock::TransformerParam const&, baidu::xpu::xopsblock::TransformerVsl const&)"
+    },
+    "relocation": "00000000003370e0  0000001100000007 R_X86_64_JUMP_SLOT     0000000000000000 _ZN5baidu3xpu3xfa14dsa_mqa_logitsIaf7float16fiEEiPNS0_3api7ContextEPKT_PKfS9_SB_PT0_llllllRKNS4_11VectorParamIT3_EESI_bb + 0",
+    "loader_has_old": false,
+    "loader_has_new": true,
+    "source_control": "同一组旧式源代码实参用当前头文件单独编译，编译器补足两个默认空指针，产生对新符号的 PLT 调用。此项复核不涉及整包重编。",
+    "wheel_xfa_imports": 94,
+    "resolved_by_current_xfa": 65,
+    "unresolved_in_current_xfa": 29,
+    "unresolved_by_function": {
+      "block_sparse_attention_fwd": 5,
+      "dsa_decoding": 6,
+      "dsa_mqa_logits": 10,
+      "gated_delta_net": 2,
+      "multi_latent_attention": 4,
+      "speculative_multi_latent_attention": 2
+    },
+    "provenance": "原机单卡保留了完整导入错误和 SDK 文件哈希。本轮在镜像与 SDK 哈希匹配的个人容器使用相同 wheel 隔离复现，并保存动态加载器记录。补查时原机 SSH 关闭了连接。",
+    "references": [
+      "review-local/p800-interface-benchmark-20261126/ops-152.136.33.169-7-20261125T161949121164Z.json",
+      "review-local/f06-all-models-20261119/vendor-interface-audit-20261124/restored-sdk-identity-152.136.33.169-20261125T075257Z.json",
+      "review-local/p800-interface-benchmark-20261126/xfa-consumer-relocations.json",
+      "review-local/p800-interface-benchmark-20261126/xfa-import-replay.json",
+      "review-local/p800-interface-benchmark-20261126/xfa-header-dlsym-control.json",
+      "review-local/p800-interface-benchmark-20261126/xfa-compiled-control-43.179.154.78.json"
+    ],
+    "validated_resolution": {
+      "id": "SDK01",
+      "status": "配套环境修复，P800 已验证",
+      "evidence": "旧 wheel 全部 ELF 合计 106 个 XFA 符号缺 33 个；单看 libxops_blocks.so 为 94 个缺 29 个。新 wheel 配镜像原 SDK 为 176 个缺 116 个，配套运行后 176/176 解析，7 个 Python 入口均可导入。单卡 32 项中 24 项有配对结果，20 项满足既有相对精度门槛。GELU 4 项超门槛；add_layernorm 8 项报独立 dtype 错误。",
+      "issue": "reports/issue-fixes/p800-sdk/XFA/ISSUE.md",
+      "pr": "reports/issue-fixes/p800-sdk/XFA/PR.md",
+      "patch": "reports/issue-fixes/p800-sdk/XFA/fix.patch",
+      "device_results": "reports/issue-fixes/p800-sdk/XFA/p800-results.json"
+    },
+    "operator_follow_up": [
+      {
+        "id": "SDK03",
+        "status": "个人环境包装层修复，P800 两轮验证通过",
+        "evidence": "四个正式形状均通过既有 FP32 参考门槛。全部 65,536 个 FP16 位型的非 NaN 结果与 FP16 exact eager 逐位一致，NaN 掩码一致。两轮同步端到端加速比为 0.933–0.996×。",
+        "links": [
+          {
+            "label": "Issue 正文",
+            "path": "reports/issue-fixes/p800-sdk/GELU/ISSUE.md"
+          },
+          {
+            "label": "PR 正文",
+            "path": "reports/issue-fixes/p800-sdk/GELU/PR.md"
+          },
+          {
+            "label": "独立源码补丁",
+            "path": "reports/issue-fixes/p800-sdk/GELU/fix.patch"
+          },
+          {
+            "label": "公开入口回归脚本",
+            "path": "reports/issue-fixes/p800-sdk/FP16/verify_wrappers.py"
+          },
+          {
+            "label": "机器码与候选对照",
+            "path": "reports/issue-fixes/p800-sdk/FP16/diagnosis.json"
+          },
+          {
+            "label": "配套原版结果",
+            "path": "reports/issue-fixes/p800-sdk/XFA/p800-results.json"
+          },
+          {
+            "label": "两轮设备结果",
+            "path": "reports/issue-fixes/p800-sdk/FP16/p800-results.json"
+          },
+          {
+            "label": "边界条件回归",
+            "path": "reports/issue-fixes/p800-sdk/FP16/contract.json"
+          }
+        ]
+      },
+      {
+        "id": "SDK04",
+        "status": "个人环境包装层修复，P800 两轮验证通过",
+        "evidence": "四个形状、两类输入的八项双输出在两轮均通过。四组可选参数、非连续布局和别名回归通过。两轮同步端到端加速比为 0.347–0.472×，计时包括类型转换、临时张量和写回。",
+        "links": [
+          {
+            "label": "Issue 正文",
+            "path": "reports/issue-fixes/p800-sdk/AddLayerNorm/ISSUE.md"
+          },
+          {
+            "label": "PR 正文",
+            "path": "reports/issue-fixes/p800-sdk/AddLayerNorm/PR.md"
+          },
+          {
+            "label": "独立源码补丁",
+            "path": "reports/issue-fixes/p800-sdk/AddLayerNorm/fix.patch"
+          },
+          {
+            "label": "公开入口回归脚本",
+            "path": "reports/issue-fixes/p800-sdk/FP16/verify_wrappers.py"
+          },
+          {
+            "label": "机器码与候选对照",
+            "path": "reports/issue-fixes/p800-sdk/FP16/diagnosis.json"
+          },
+          {
+            "label": "配套原版结果",
+            "path": "reports/issue-fixes/p800-sdk/XFA/p800-results.json"
+          },
+          {
+            "label": "两轮设备结果",
+            "path": "reports/issue-fixes/p800-sdk/FP16/p800-results.json"
+          },
+          {
+            "label": "边界条件回归",
+            "path": "reports/issue-fixes/p800-sdk/FP16/contract.json"
+          }
+        ]
+      }
+    ]
+  },
+  "xfft": {
+    "finding": "20251230 KL3 公开 XFFT 的 x86-64 主机函数 cufftXtMakePlanMany 把复数 FP16 输入、输出和执行类型组合直接映射为返回值 14。此分支在调用内部规划器之前结束。",
+    "library_sha256": "0967c2d223c1d15b53f4eac4e47f44299857a58af43fc168e6e62cca54bd3ea3",
+    "release": "20251230",
+    "package_commit": "d63286983a3c7774badd6753a737e734d4cea655",
+    "fp16_trace": [
+      "0x1f68a: inputtype 6 的跳转表入口",
+      "0x1f695: executiontype 与 6 比较",
+      "0x1f69b: outputtype 与 5 比较；本例为 6",
+      "0x1f6a7: 跳转至 0x1f6b3",
+      "0x1f6b3: mov $0xe,%eax",
+      "0x1f6b9: ret"
+    ],
+    "source_location_from_dwarf": "XFFT/XPU3/src/cufftExec.cpp，返回指令所在基本块映射到第 1726 行。源码文本未参与归因。",
+    "physical_fp16_lengths_status": [
+      [
+        128,
+        14
+      ],
+      [
+        512,
+        14
+      ],
+      [
+        1024,
+        14
+      ]
+    ],
+    "control": "本地重放同一 ELF 的 x86-64 指令。6/6/6 直接返回 14，4/4/4 将 CUFFT_C2C (0x29) 传给内部规划器；在 call 指令处停止。FP32 没有在此对照中执行设备 FFT。",
+    "coverage": "该版本的 cufftXtMakePlanMany，单批、连续、一维、复数到复数。结论不外推其他接口、版本或硬件能力。",
+    "references": [
+      "review-local/p800-interface-benchmark-20261126/xfft-152.136.33.169-7-20261125T162323184588Z.json",
+      "review-local/p800-interface-benchmark-20261126/fourier.py",
+      "review-local/p800-interface-benchmark-20261126/xfft-plan-fp16-disassembly.txt",
+      "review-local/p800-interface-benchmark-20261126/xfft-host-dispatch-control.json"
+    ],
+    "validated_resolution": {
+      "id": "SDK02",
+      "status": "调用方兼容修复，P800 正逆变换通过",
+      "evidence": "128、512、1024 三个长度原生均返回 14。正逆变换 × 随机和复数脉冲共 12/12 通过。13,312 个实数分量中，8 个与 CPU FP64 结果最终舍入到 FP16 的值有差异，全部通过本次 FFT 专项检查。",
+      "issue": "reports/issue-fixes/p800-sdk/XFFT/ISSUE.md",
+      "pr": "reports/issue-fixes/p800-sdk/XFFT/PR.md",
+      "patch": "reports/issue-fixes/p800-sdk/XFFT/fix.patch",
+      "device_results": "reports/issue-fixes/p800-sdk/XFFT/p800-results.json"
+    }
+  }
+}

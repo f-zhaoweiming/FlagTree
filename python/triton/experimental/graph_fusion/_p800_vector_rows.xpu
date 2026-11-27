@@ -1,0 +1,725 @@
+#include "xpu/kernel/xtdk.h"
+#include "xpu/kernel/xtdk_simd.h"
+
+using F = float32x16_t;
+using U = uint32x16_t;
+struct Pair {
+    F x, y;
+};
+static __device__ inline F select_lanes(int mask, F yes, F no) {
+    return (F)svor_uint32x16_mh(0u, (U)yes, (U)no, mask);
+}
+// Round at the actual vendor operator boundaries, including NaNs and ties.
+static __device__ inline U sdk_bf16(F x) {
+    U bits = (U)x;
+    return (bits + 0x7fffu + ((bits >> 16) & 1u)) & 0xffff0000u;
+}
+static __device__ inline U bf_bits(F x) {
+    U bits = (U)x;
+    U hi = sdk_bf16(x);
+    return svor_uint32x16_mh(0x7fc00000u, (U)0u, hi, svlt_uint32x16(0x7f800000u, bits & 0x7fffffffu));
+}
+static __device__ inline Pair unpack(uint16_t *, float16x32_t w) {
+    return {vfp162float_l(w), vfp162float_h(w)};
+}
+static __device__ inline Pair unpack(int16_t *, float16x32_t w) {
+    float16x32_t zero = {};
+    return {(F)vvmerge_l_float16x32(zero, w), (F)vvmerge_h_float16x32(zero, w)};
+}
+static __device__ inline Pair read(const float *p) {
+    return {vload_lm_float32x16(p), vload_lm_float32x16(p + 16)};
+}
+static __device__ inline Pair shared(const _shared_ptr_ float *p) {
+    return {vload_sm_float32x16(p), vload_sm_float32x16(p + 16)};
+}
+template <class T> static __device__ inline Pair read(const T *p) {
+    return unpack((T *)0, vload_lm_float16x32(p));
+}
+template <class T> static __device__ inline Pair shared(const _shared_ptr_ T *p) {
+    return unpack((T *)0, vload_sm_float16x32(p));
+}
+static __device__ inline Pair rounded(float *, Pair v) { return v; }
+static __device__ inline Pair rounded(int16_t *, Pair v) { return {(F)bf_bits(v.x), (F)bf_bits(v.y)}; }
+static __device__ inline Pair rounded(uint16_t *t, Pair v) { return unpack(t, vfloat2fp16_lh(v.x, v.y)); }
+static __device__ inline void save(float *p, Pair v) {
+    vstore_lm_float32x16(p, v.x);
+    vstore_lm_float32x16(p + 16, v.y);
+}
+static __device__ inline void save(uint16_t *p, Pair v) { vstore_lm_float16x32(p, vfloat2fp16_lh(v.x, v.y)); }
+// Packed even/odd words for pointwise BF16 output; reductions above use contiguous half-vectors.
+static __device__ inline Pair even_odd(float16x32_t w) { return {(F)((U)w << 16), (F)((U)w & 0xffff0000u)}; }
+static __device__ inline Pair point_read(const int16_t *p) { return even_odd(vload_lm_float16x32(p)); }
+static __device__ inline Pair point_shared(const _shared_ptr_ int16_t *p) {
+    return even_odd(vload_sm_float16x32(p));
+}
+template <class T> static __device__ inline Pair point_read(const T *p) { return read(p); }
+template <class T> static __device__ inline Pair point_shared(const _shared_ptr_ T *p) { return shared(p); }
+static __device__ inline void save(int16_t *p, Pair v) {
+    vstore_lm_float16x32(p, (float16x32_t)((bf_bits(v.x) >> 16) | bf_bits(v.y)));
+}
+
+// Final casts preserve the vendor's rounding of the FP32 bit pattern,
+// including the sign and retained payload of a NaN.
+template<class T> static __device__ inline void save_final(T *p, Pair v) { save(p, v); }
+static __device__ inline void save_final(int16_t *p, Pair v) {
+    vstore_lm_float16x32(p, (float16x32_t)((sdk_bf16(v.x) >> 16) | sdk_bf16(v.y)));
+}
+
+// Add and ReLU already carry BF16-rounded values, so their store only packs words.
+template <class T> static __device__ inline void save_rounded(T *p, Pair v) { save(p, v); }
+static __device__ inline void save_rounded(int16_t *p, Pair v) {
+    vstore_lm_float16x32(p, (float16x32_t)(((U)v.x >> 16) | (U)v.y));
+}
+
+static __device__ inline F exp_negative(F x) {
+    F t = x * 1.4426950408889634f;
+    int tiny = svlt_float32x16(126.f, -t);
+    t = select_lanes(tiny, (F)-126.f, t);
+    F biased = t + 12582912.f, r = t - (biased - 12582912.f);
+    F scale = (F)((((U)biased - 0x4b400000u) + 127u) << 23);
+    F p = __builtin_elementwise_fma((F).00015403530f, r, (F).00133335581f);
+    p = __builtin_elementwise_fma(p, r, (F).00961812911f);
+    p = __builtin_elementwise_fma(p, r, (F).0555041087f);
+    p = __builtin_elementwise_fma(p, r, (F).240226507f);
+    p = __builtin_elementwise_fma(p, r, (F).693147181f);
+    return select_lanes(tiny, (F)0.f, scale * __builtin_elementwise_fma(p, r, (F)1.f));
+}
+static __device__ inline F reciprocal_unit(F d) {
+    // d is in [1,2]. Three Newton steps cover FP32 precision.
+    F y = (F)(0x7ef311c3u - (U)d);
+    for (int j = 0; j < 3; ++j)
+        y = __builtin_elementwise_fma(y, __builtin_elementwise_fma(-d, y, (F)1.f), y);
+    return y;
+}
+static __device__ inline F activation(F x, int mode) {
+    if (mode == 0)
+        return x;
+    if (mode == 1)
+        return select_lanes(svlt_float32x16(0.f, -x), (F)0.f, x);
+    F t = x;
+    if (mode == 3)
+        t = 1.5957691216057308f * __builtin_elementwise_fma(x, (.044715f * x) * x, x);
+    F e = exp_negative(-vabs_float32x16(t));
+    F inv = reciprocal_unit(1.f + e);
+    if (mode == 3) {
+        F mag = __builtin_elementwise_fma((F)-2.f, e * inv, (F)1.f);
+        F signed_mag = (F)((U)mag | ((U)t & 0x80000000u));
+        // The eager epilogue scales the gate before multiplying by x (0x374..0x388).
+        return x * (.5f * (1.f + signed_mag));
+    }
+    F result = x * select_lanes(svlt_float32x16(0.f, -t), e * inv, inv);
+    // Vendor SiLU divides x by 1 + exp(-x). Just before that denominator
+    // overflows, exp(x) is subnormal but the final quotient is still normal.
+    int near_overflow = svlt_float32x16(87.f, -x) & ~svlt_float32x16(88.72283935546875f, -x);
+    if (near_overflow) {
+        F scaled = (x * 0x1p-64f) * exp_negative(x + 44.3614195558365f);
+        result = select_lanes(near_overflow, scaled, result);
+    }
+    return (F)((U)result | ((U)x & 0x80000000u));
+}
+template <class T>
+static __device__ inline void point(const _global_ptr_ T *a, const _global_ptr_ T *bias, _global_ptr_ T *out,
+                                    int pid, int total, int n, int width, int mode) {
+    __shared__ __simd__ T b[2048];
+    __simd__ T tile[512];
+    if (core_id() == 0)
+        GM2SM_ASYNC(bias, b, n * sizeof(T));
+    mfence_sm_gm();
+    sync_cluster();
+    for (int start = (pid * core_num() + core_id()) * width; start < total;
+         start += 12 * core_num() * width) {
+        GM2LM(a + start, tile, width * sizeof(T));
+        for (int i = 0; i < width; i += 32) {
+            Pair v = point_read(tile + i), w = point_shared(b + start % n + i);
+            Pair z = rounded((T *)0, {v.x + w.x, v.y + w.y});
+            Pair result = {activation(z.x, mode), activation(z.y, mode)};
+            if (mode < 2)
+                save_rounded(tile + i, result);
+            else
+                save(tile + i, result);
+        }
+        mfence_lm();
+        LM2GM(tile, out + start, width * sizeof(T));
+    }
+}
+#define POINT(name, T)                                                                                       \
+    extern "C" __device__ void name(const _global_ptr_ T *a, const _global_ptr_ T *b, _global_ptr_ T *o,     \
+                                    int pid, int total, int n, int width, int mode) {                        \
+        point(a, b, o, pid, total, n, width, mode);                                                          \
+    }
+POINT(kl3_point_bf, int16_t)
+POINT(kl3_point_half, uint16_t)
+POINT(kl3_point_float, float)
+
+template<int Unroll = 8> static __device__ inline void silu_in_lm(float *tile, int count) {
+    for (int i = 0; i < count; i += Unroll) {
+#pragma clang loop unroll(full)
+        for (int j = 0; j < Unroll; ++j) {
+            float x = tile[i + j], e;
+            asm("exp.f.rn %0, %1" : "=r"(e) : "r"(-x));
+            tile[i + j] = x / (1.f + e);
+        }
+    }
+    mfence_lm();
+}
+
+// For a full 2048-column row each of the 12 programs reuses one shared
+// bias vector across its cores. Unroll scalar exp/div from an FP32 LM tile.
+static __device__ inline void silu_half_rows(const _global_ptr_ uint16_t *a,
+        const _global_ptr_ uint16_t *bias, _global_ptr_ uint16_t *out, int pid, int total) {
+    constexpr int width = 512, cols = 2048;
+    __shared__ __simd__ uint16_t shared_bias[cols];
+    __simd__ uint16_t tiles[2][width];
+    __simd__ float compute[width];
+    if (core_id() == 0) GM2SM_ASYNC(bias, shared_bias, cols * sizeof(uint16_t));
+    int start = (pid * core_num() + core_id()) * width;
+    const int step = 12 * core_num() * width;
+    if (start < total) GM2LM(a + start, tiles[0], width * sizeof(uint16_t));
+    mfence_sm_gm();
+    sync_cluster();
+    for (int slot = 0; start < total; start += step, slot ^= 1) {
+        uint16_t *tile = tiles[slot];
+        if (start + step < total)
+            GM2LM_ASYNC(a + start + step, tiles[slot ^ 1], width * sizeof(uint16_t));
+        for (int i = 0; i < width; i += 32) {
+            Pair x = read(tile + i), b = shared(shared_bias + start % cols + i);
+            save(compute + i, {x.x + b.x, x.y + b.y});
+        }
+        mfence_lm();
+        silu_in_lm<16>(compute, width);
+        for (int i = 0; i < width; i += 32) save(tile + i, read(compute + i));
+        mfence_lm();
+        LM2GM_ASYNC(tile, out + start, width * sizeof(uint16_t));
+        mfence_lm_gm();
+    }
+}
+
+extern "C" __device__ void kl3_silu_half_2048(const _global_ptr_ uint16_t *a,
+        const _global_ptr_ uint16_t *bias, _global_ptr_ uint16_t *out, int pid) {
+    silu_half_rows(a, bias, out, pid, 2048 * 2048);
+}
+extern "C" __device__ void kl3_silu_half_rows(const _global_ptr_ uint16_t *a,
+        const _global_ptr_ uint16_t *bias, _global_ptr_ uint16_t *out, int pid, int total) {
+    silu_half_rows(a, bias, out, pid, total);
+}
+
+// The packed inputs and the packed output use the same lane arrangement.
+template<class T> static __device__ inline void mixed_activation(const _global_ptr_ T *a,
+        const _global_ptr_ T *bias, _global_ptr_ T *out, int pid, int total, int n, int width, int mode) {
+    __simd__ T tiles[2][512], bias_tile[512];
+    __simd__ float compute[512];
+    const int step = 12 * core_num() * width;
+    int start = (pid * core_num() + core_id()) * width;
+    if (start >= total) return;
+    GM2LM_ASYNC(bias + start % n, bias_tile, width * sizeof(T));
+    GM2LM(a + start, tiles[0], width * sizeof(T));
+    for (int slot = 0; start < total; start += step, slot ^= 1) {
+        T *tile = tiles[slot];
+        if (start + step < total)
+            GM2LM_ASYNC(a + start + step, tiles[slot ^ 1], width * sizeof(T));
+        for (int i = 0; i < width; i += 32) {
+            Pair v = point_read(tile + i), b = point_read(bias_tile + i);
+            Pair z = {v.x + b.x, v.y + b.y};
+            if (mode == 2)
+                save(compute + i, z);
+            else
+                save_final(tile + i, {activation(z.x, mode), activation(z.y, mode)});
+        }
+        mfence_lm();
+        if (mode == 2) {
+            silu_in_lm(compute, width);
+            for (int i = 0; i < width; i += 32)
+                save_final(tile + i, read(compute + i));
+            mfence_lm();
+        }
+        LM2GM_ASYNC(tile, out + start, width * sizeof(T));
+        mfence_lm_gm();
+    }
+}
+#define MIXED_ACT(name, T) \
+extern "C" __device__ void name(const _global_ptr_ T *a, const _global_ptr_ T *b, _global_ptr_ T *out, \
+                               int pid, int total, int n, int width, int mode) { \
+    mixed_activation(a, b, out, pid, total, n, width, mode); \
+}
+MIXED_ACT(kl3_mixed_act_half, uint16_t)
+MIXED_ACT(kl3_mixed_act_bf, int16_t)
+
+// Aligned FP32 broadcast rows. The inter-core step is a whole number of
+// rows, so each core can reuse its own bias slice throughout this launch.
+extern "C" __device__ void kl3_silu_pipeline(const _global_ptr_ float *a, const _global_ptr_ float *bias,
+        _global_ptr_ float *out, int pid, int n, int total, int width, int grid) {
+    __simd__ float slots[2][512], bias_tile[512];
+    const int step = grid * core_num() * width;
+    int start = (pid * core_num() + core_id()) * width;
+    if (start >= total)
+        return;
+    GM2LM_ASYNC(bias + start % n, bias_tile, width * sizeof(float));
+    GM2LM(a + start, slots[0], width * sizeof(float));
+    for (int slot = 0; start < total; start += step, slot ^= 1) {
+        float *tile = slots[slot];
+        if (start + step < total)
+            GM2LM_ASYNC(a + start + step, slots[slot ^ 1], width * sizeof(float));
+        for (int i = 0; i < width; i += 16)
+            vstore_lm_float32x16(tile + i, vload_lm_float32x16(tile + i) + vload_lm_float32x16(bias_tile + i));
+        mfence_lm();
+        silu_in_lm(tile, width);
+        LM2GM_ASYNC(tile, out + start, width * sizeof(float));
+        mfence_lm_gm();
+    }
+}
+
+// 512x1024 distributed over 12 clusters of 64 cores, in contiguous
+// 32-element slices. Each core owns 672 or 704 elements and transfers once.
+extern "C" __device__ void kl3_silu_balanced(const _global_ptr_ float *a, const _global_ptr_ float *bias,
+        _global_ptr_ float *out, int pid) {
+    __simd__ float tile[704];
+    __shared__ __simd__ float b[1024];
+    if (core_id() == 0)
+        GM2SM_ASYNC(bias, b, sizeof(b));
+    for (int lane = core_id(); lane < 64; lane += core_num()) {
+        int shard = pid * 64 + lane;
+        int start = 32 * (shard * 21 + (shard < 256 ? shard : 256));
+        int count = shard < 256 ? 704 : 672;
+        GM2LM(a + start, tile, count * sizeof(float));
+        if (lane == core_id()) {
+            mfence_sm_gm();
+            sync_cluster();
+        }
+        for (int i = 0; i < count; i += 16) {
+            F x = vload_lm_float32x16(tile + i) + vload_sm_float32x16(b + (start + i) % 1024);
+            vstore_lm_float32x16(tile + i, x);
+        }
+        mfence_lm();
+        silu_in_lm(tile, count);
+        LM2GM(tile, out + start, count * sizeof(float));
+    }
+}
+
+static __device__ inline float serial_fold(F x) {
+    __simd__ float lanes[16];
+    vstore_lm_float32x16(lanes, x);
+    mfence_lm();
+    float s = 0.f;
+#pragma clang loop unroll(disable)
+    for (int i = 0; i < 16; ++i)
+        s += lanes[i];
+    return s;
+}
+static __device__ inline void store_sum(_shared_ptr_ float *p, float x) { *p = x; }
+static __device__ inline void store_sum(_shared_ptr_ int16_t *p, float x) {
+    *p = (int16_t)(vextracti_u<0>(bf_bits((F)x)) >> 16);
+}
+static __device__ inline void store_sum(_shared_ptr_ uint16_t *p, float x) {
+    __simd__ uint16_t t[32];
+    save(t, {(F)x, (F)x});
+    mfence_lm();
+    *p = t[0];
+}
+template<class T> static __device__ inline void store_final_sum(_shared_ptr_ T *out, float value) {
+    store_sum(out, value);
+}
+static __device__ inline void store_final_sum(_shared_ptr_ int16_t *out, float value) {
+    *out = (int16_t)(vextracti_u<0>(sdk_bf16((F)value)) >> 16);
+}
+template <class T> static __device__ inline F chunk_product(const T *tile, const _shared_ptr_ T *b, int count) {
+#pragma clang fp contract(off)
+    F partial = {};
+    for (int i = 0; i < count; i += 32) {
+        Pair x = read(tile + i), w = shared(b + i);
+        Pair z = rounded((T *)0, {x.x * w.x, x.y * w.y});
+        partial = (partial + z.x) + z.y;
+    }
+    return partial;
+}
+template <class T> static __device__ inline F fp32_chunk(const T *tile, const _shared_ptr_ T *b, int count) {
+#pragma clang fp contract(off)
+    // reduce_mt seeds its 16 lanes with the final two vectors of each
+    // 512-element chunk, then visits the preceding vectors in address order.
+    Pair tail = read(tile + count - 32), last = shared(b + count - 32);
+    F partial = tail.x * last.x + tail.y * last.y;
+    for (int i = 0; i < count - 32; i += 32) {
+        Pair x = read(tile + i), w = shared(b + i);
+        partial = (partial + x.x * w.x) + x.y * w.y;
+    }
+    return partial;
+}
+static __device__ inline F chunk_product(const float *tile, const _shared_ptr_ float *b, int count) {
+    return fp32_chunk(tile, b, count);
+}
+template <class T, bool Wide=false>
+static __device__ inline void product_sum(const _global_ptr_ T *a, const _global_ptr_ T *bias,
+                                          _global_ptr_ T *o, int first, int rows, int n) {
+#pragma clang fp contract(off)
+    __shared__ __simd__ T b[2048], output[192];
+    __simd__ T tile[2048 / sizeof(T)];
+    if (core_id() == 0)
+        GM2SM_ASYNC(bias, b, n * sizeof(T));
+    mfence_sm_gm();
+    sync_cluster();
+    for (int row = core_id(); row < rows; row += core_num()) {
+        float sum = 0.f, error = 0.f;
+        const int chunk = Wide ? 512 : 2048 / sizeof(T);
+        for (int start = 0; start < n; start += chunk) {
+            int count = n - start < chunk ? n - start : chunk;
+            GM2LM(a + (first + row) * n + start, tile, count * sizeof(T));
+            F partial = Wide ? fp32_chunk(tile, b + start, count) : chunk_product(tile, b + start, count);
+            float corrected = serial_fold(partial) - error;
+            float next = sum + corrected;
+            error = (next - sum) - corrected;
+            sum = next;
+        }
+        if (Wide) store_final_sum(output + row, sum);
+        else store_sum(output + row, sum);
+    }
+    mfence();
+    sync_cluster();
+    if (core_id() == 0)
+        SM2GM(output, o + first, rows * sizeof(T));
+}
+#define SUM(name, T)                                                                                         \
+    extern "C" __device__ void name(const _global_ptr_ T *a, const _global_ptr_ T *b, _global_ptr_ T *o,     \
+                                    int first, int rows, int n) {                                            \
+        product_sum(a, b, o, first, rows, n);                                                                \
+    }
+SUM(kl3_sum_bf, int16_t)
+SUM(kl3_sum_half, uint16_t)
+SUM(kl3_sum_float, float)
+static __device__ inline void pad_soft(float *p) { *p = -__builtin_inff(); }
+static __device__ inline void pad_soft(uint16_t *p) { *p = 0xfc00u; }
+static __device__ inline void pad_soft(int16_t *p) { *p = (int16_t)0xff80u; }
+template <class T, bool FinalOnly = false, bool Tail = false>
+static __device__ inline void row_softmax(const _global_ptr_ T *a, const _global_ptr_ T *bias,
+                                          _global_ptr_ T *o, int first, int rows, int n, int lanes) {
+    __shared__ __simd__ T b[2048];
+    __shared__ float maxima[64], sums[64];
+    __simd__ float workspace[1024];
+    T *src = (T *)(sizeof(T) == sizeof(float) ? workspace : workspace + 512);
+    T *dst = (T *)workspace;
+    if (core_id() == 0)
+        GM2SM_ASYNC(bias, b, n * sizeof(T));
+    mfence_sm_gm();
+    if (Tail && core_id() == 0) {
+        const int padded = (n + 31) & ~31;
+        for (int i = n; i < padded; ++i) b[i] = 0;
+        mfence();
+    }
+    sync_cluster();
+    int width = FinalOnly ? lanes : (n > 1024 ? n / 2 : n);
+    int core = core_id(), parts = n / width, begin = (core % parts) * width;
+    for (int wave = 0; wave < rows; wave += core_num() / parts) {
+        int row = wave + core / parts;
+        int64_t offset = (int64_t)(first + row) * n + begin;
+        float peak = -__builtin_inff();
+        if (row < rows) {
+            GM2LM(a + offset, src, width * sizeof(T));
+            if (Tail) {
+                const int padded = (width + 31) & ~31;
+                for (int i = width; i < padded; ++i) pad_soft(src + i);
+                mfence_lm();
+            }
+            F vmax = (F)peak;
+            for (int i = 0; i < width; i += 32) {
+                Pair x = point_read(src + i), w = point_shared(b + begin + i);
+                Pair z = {x.x + w.x, x.y + w.y};
+                if (!FinalOnly)
+                    z = rounded((T *)0, z);
+                vmax = vvmax_float32x16(vmax, vvmax_float32x16(z.x, z.y));
+                save(workspace + i, z);
+            }
+            peak = vrmax_float32x16(vmax);
+        }
+        if (parts > 1) {
+            maxima[core] = peak;
+            mfence();
+            sync_cluster();
+            if (parts == 2) {
+                float value = maxima[core ^ 1];
+                if (value > peak) peak = value;
+            } else {
+                int group = core - core % parts;
+                for (int j = 0; j < parts; ++j) {
+                    float value = maxima[group + j];
+                    if (value > peak) peak = value;
+                }
+            }
+        }
+        float sum = 0.f;
+        if (row < rows) {
+            mfence_lm();
+            F partial = {};
+            for (int i = 0; i < width; i += 16) {
+                F e = exp_negative(vload_lm_float32x16(workspace + i) - peak);
+                vstore_lm_float32x16(workspace + i, e);
+                partial += e;
+            }
+            sum = serial_fold(partial);
+        }
+        if (parts > 1) {
+            sums[core] = sum;
+            mfence();
+            sync_cluster();
+            if (parts == 2)
+                sum += sums[core ^ 1];
+            else {
+                int group = core - core % parts;
+                sum = 0.f;
+                for (int j = 0; j < parts; ++j)
+                    sum += sums[group + j];
+            }
+        }
+        if (row < rows) {
+            mfence_lm();
+            float inv = 1.f / sum;
+            for (int i = 0; i < width; i += 32) {
+                Pair z = read(workspace + i);
+                if (FinalOnly) save_final(dst + i, {z.x * inv, z.y * inv});
+                else save(dst + i, {z.x * inv, z.y * inv});
+            }
+            mfence_lm();
+            LM2GM(dst, o + offset, width * sizeof(T));
+        }
+        if (parts > 1)
+            sync_cluster();
+    }
+}
+#define SOFT(name, T)                                                                                        \
+    extern "C" __device__ void name(const _global_ptr_ T *a, const _global_ptr_ T *b, _global_ptr_ T *o,     \
+                                    int first, int rows, int n, int lanes) {                                 \
+        row_softmax(a, b, o, first, rows, n, lanes);                                                         \
+    }
+SOFT(kl3_soft_bf, int16_t)
+SOFT(kl3_soft_half, uint16_t)
+extern "C" __device__ void kl3_soft_wide_bf(const _global_ptr_ int16_t *a, const _global_ptr_ int16_t *b,
+        _global_ptr_ int16_t *out, int first, int rows, int n, int lanes) {
+    row_softmax<int16_t, true>(a, b, out, first, rows, n, lanes);
+}
+
+extern "C" __device__ void kl3_soft_wide_half(const _global_ptr_ uint16_t *a,
+        const _global_ptr_ uint16_t *b, _global_ptr_ uint16_t *out,
+        int first, int rows, int n, int lanes) {
+    row_softmax<uint16_t, true>(a, b, out, first, rows, n, lanes);
+}
+extern "C" __device__ void kl3_soft_wide_float(const _global_ptr_ float *a,
+        const _global_ptr_ float *b, _global_ptr_ float *out,
+        int first, int rows, int n, int lanes) {
+    row_softmax<float, true>(a, b, out, first, rows, n, lanes);
+}
+
+// Rows that do not fit the descriptor tile use bounded LM, including a
+// final partial DMA. One core owns each complete output row.
+template<class T>
+static __device__ inline Pair stream_logits(T *x, T *b, int i, int final_only) {
+    Pair a = point_read(x + i), h = point_read(b + i);
+    Pair v = {a.x + h.x, a.y + h.y};
+    return final_only ? v : rounded((T *)0, v);
+}
+template<int Pass, class T>
+static __device__ inline float stream_pass(const _global_ptr_ T *a, const _global_ptr_ T *bias, _global_ptr_ T *out,
+        T *x, T *b, T *y, int64_t cols, int final_only, float peak, float inv) {
+    const int block = 512;
+    F vmax = (F)-__builtin_inff(), sum = {};
+    for (int64_t start = 0; start < cols; start += block) {
+        int count = cols - start < block ? (int)(cols - start) : block;
+        GM2LM(a + start, x, count * sizeof(T));
+        GM2LM(bias + start, b, count * sizeof(T));
+        mfence_lm();
+        int padded = (count + 31) & ~31;
+        for (int i = count; i < padded; ++i) {
+            pad_soft(x + i);
+            b[i] = 0;
+        }
+        mfence_lm();
+        for (int i = 0; i < padded; i += 32) {
+            Pair v = stream_logits(x, b, i, final_only);
+            if (Pass == 0)
+                vmax = vvmax_float32x16(vmax, vvmax_float32x16(v.x, v.y));
+            else {
+                Pair e = {exp_negative(v.x - peak), exp_negative(v.y - peak)};
+                if (Pass == 1)
+                    sum += e.x + e.y;
+                else
+                    if (final_only) save_final(y + i, {e.x * inv, e.y * inv});
+                    else save(y + i, {e.x * inv, e.y * inv});
+            }
+        }
+        mfence_lm();
+        if (Pass == 2)
+            LM2GM(y, out + start, count * sizeof(T));
+    }
+    if (Pass == 0) return vrmax_float32x16(vmax);
+    if (Pass == 1) return serial_fold(sum);
+    return 0.f;
+}
+// Short rows need one row of logits in LM. Keep this entry separate from
+// the three streaming tiles so the compiler can allocate their stacks independently.
+template<class T> static __device__ inline void short_softmax(const _global_ptr_ T *a,
+        const _global_ptr_ T *bias, _global_ptr_ T *out, int pid, int programs, int rows,
+        int cols, int final_only) {
+    const int base = rows / programs, extra = rows % programs;
+    const int first = pid * base + (pid < extra ? pid : extra);
+    const int count = base + (pid < extra);
+    if (sizeof(T) == sizeof(float) || final_only)
+        row_softmax<T,true,true>(a,bias,out,first,count,cols,cols);
+    else
+        row_softmax<T,false,true>(a,bias,out,first,count,cols,cols);
+}
+#define SHORT_SOFT(name, T) \
+extern "C" __device__ void name(const _global_ptr_ T *a, const _global_ptr_ T *b, _global_ptr_ T *out, \
+        int pid, int programs, int m, int n, int final_only) { \
+    short_softmax(a,b,out,pid,programs,m,n,final_only); \
+}
+SHORT_SOFT(kl3_short_soft_float,float)
+SHORT_SOFT(kl3_short_soft_half,uint16_t)
+SHORT_SOFT(kl3_short_soft_bf,int16_t)
+
+template<class T>
+static __device__ inline void stream_softmax(const _global_ptr_ T *a, const _global_ptr_ T *bias,
+        _global_ptr_ T *out, int pid, int programs, int64_t rows, int64_t cols, int final_only) {
+    __simd__ T x[512], b[512], y[512];
+    for (int64_t row = pid + programs * core_id(); row < rows; row += programs * core_num()) {
+        const int64_t base = row * cols;
+        float peak = stream_pass<0>(a+base, bias, out+base, x, b, y, cols, final_only, 0.f, 0.f);
+        float sum = stream_pass<1>(a+base, bias, out+base, x, b, y, cols, final_only, peak, 0.f);
+        stream_pass<2>(a+base, bias, out+base, x, b, y, cols, final_only, peak, 1.f / sum);
+    }
+}
+#define STREAM_SOFT(name, T) \
+    extern "C" __device__ void name(const _global_ptr_ T *a, const _global_ptr_ T *b, _global_ptr_ T *out, \
+            int pid, int grid, int64_t m, int64_t n, int final_only) { \
+        stream_softmax(a, b, out, pid, grid, m, n, final_only); \
+    }
+STREAM_SOFT(kl3_stream_soft_float, float)
+STREAM_SOFT(kl3_stream_soft_half, uint16_t)
+STREAM_SOFT(kl3_stream_soft_bf, int16_t)
+// reduce_mt assigns two 2 KiB partials per row. For a shard with 42 or 43
+// rows, some of its 64 cores process a second partial belonging to another
+// row. That core carries its compensation to the second partial.
+template<class T>
+static __device__ inline void cross_sum(const _global_ptr_ T *a, const _global_ptr_ T *bias,
+                                        _global_ptr_ T *out, int first, int rows) {
+#pragma clang fp contract(off)
+    __shared__ __simd__ T b[1024], output[64];
+    __shared__ __simd__ float residual[64];
+    __simd__ T tile[1024];
+    const int row = core_id();
+    if (row == 0)
+        GM2SM_ASYNC(bias, b, 1024 * sizeof(T));
+    mfence_sm_gm();
+    sync_cluster();
+    float lo = 0.f, hi = 0.f;
+    if (row < rows) {
+        GM2LM(a + (first + row) * 1024, tile, 1024 * sizeof(T));
+        for (int k = 0; k < 2; ++k) {
+            F partial = fp32_chunk(tile + k * 512, b + k * 512, 512);
+            if (k == 0)
+                lo = serial_fold(partial);
+            else
+                hi = serial_fold(partial);
+        }
+        residual[row] = lo - lo;
+    }
+    mfence();
+    sync_cluster();
+    if (row < rows) {
+        const int distance = core_num() - rows;
+        float carry = row >= distance ? residual[row - distance] : 0.f;
+        store_final_sum(output + row, lo + (hi - carry));
+    }
+    mfence();
+    sync_cluster();
+    if (row == 0)
+        SM2GM(output, out + first, rows * sizeof(T));
+}
+
+extern "C" __device__ void kl3_sum_cross(const _global_ptr_ float *a, const _global_ptr_ float *b,
+                                         _global_ptr_ float *out, int first, int rows) {
+    cross_sum(a, b, out, first, rows);
+}
+template<class T>
+static __device__ inline void final_sum(const _global_ptr_ T *a, const _global_ptr_ T *b,
+                                        _global_ptr_ T *out, int first, int rows, int n) {
+    if (n == 1024)
+        cross_sum(a, b, out, first, rows);
+    else
+        product_sum<T,true>(a, b, out, first, rows, n);
+}
+extern "C" __device__ void kl3_sum_wide_bf(const _global_ptr_ int16_t *a, const _global_ptr_ int16_t *b,
+        _global_ptr_ int16_t *out, int first, int rows, int n) { final_sum(a,b,out,first,rows,n); }
+extern "C" __device__ void kl3_sum_wide_half(const _global_ptr_ uint16_t *a, const _global_ptr_ uint16_t *b,
+        _global_ptr_ uint16_t *out, int first, int rows, int n) { final_sum(a,b,out,first,rows,n); }
+
+// reduce_mt distributes 2 KiB partials across the cores in column-block
+// order. Its compensation survives when a core advances to a different row.
+template<class T> static __device__ inline void shard_sum(const _global_ptr_ T *a,
+        const _global_ptr_ T *bias, _global_ptr_ T *out, int first, int rows, int n) {
+#pragma clang fp contract(off)
+    __shared__ __simd__ T b[2048], output[64];
+    __shared__ __simd__ float partials[4][64];
+    __simd__ T tile[512];
+    const int cid = core_id(), parts = (n + 511) / 512;
+    if (cid == 0) {
+        GM2SM_ASYNC(bias, b, n * sizeof(T));
+        mfence_sm_gm();
+        for (int i = n; i < ((n + 31) & ~31); ++i) b[i] = 0;
+    }
+    mfence();
+    sync_cluster();
+    float carry = 0.f;
+    for (int task = cid; task < parts * rows; task += core_num()) {
+        int part = task / rows, row = task % rows;
+        int off = part * 512, count = n - off < 512 ? n - off : 512;
+        int padded = (count + 31) & ~31;
+        GM2LM(a + (first + row) * n + off, tile, count * sizeof(T));
+        for (int i = count; i < padded; ++i) tile[i] = 0;
+        mfence_lm();
+        float value = serial_fold(fp32_chunk(tile, b + off, padded)) - carry;
+        partials[part][row] = value;
+        carry = value - value;
+    }
+    mfence();
+    sync_cluster();
+    if (cid < rows) {
+        float sum = partials[0][cid];
+        for (int part = 1; part < parts; ++part) sum += partials[part][cid];
+        store_final_sum(output + cid, sum);
+    }
+    mfence();
+    sync_cluster();
+    if (cid == 0 && rows) SM2GM(output, out + first, rows * sizeof(T));
+}
+#define SHARD_SUM(name, T) \
+extern "C" __device__ void name(const _global_ptr_ T *a, const _global_ptr_ T *b, _global_ptr_ T *o, \
+                                int first, int rows, int n) { shard_sum(a,b,o,first,rows,n); }
+SHARD_SUM(kl3_shard_sum_float, float)
+SHARD_SUM(kl3_shard_sum_bf, int16_t)
+SHARD_SUM(kl3_shard_sum_half, uint16_t)
+
+// Odd row strides change the bias phase on each flat tile. Stage valid bytes
+// of one row and share one bias per cluster instead of computing a remainder
+// for every output element.
+extern "C" __device__ void kl3_bf_activation_rows(const _global_ptr_ int16_t *a,
+        const _global_ptr_ int16_t *bias, _global_ptr_ int16_t *out,
+        int first, int rows, int n, int mode) {
+    __shared__ __simd__ int16_t b[1024];
+    __simd__ int16_t tile[1024];
+    const int padded = (n + 31) & ~31;
+    if (core_id() == 0) {
+        GM2SM_ASYNC(bias, b, n * sizeof(int16_t));
+        mfence_sm_gm();
+        for (int i = n; i < padded; ++i) b[i] = 0;
+    }
+    mfence();
+    sync_cluster();
+    for (int row = core_id(); row < rows; row += core_num()) {
+        int offset = (first + row) * n;
+        GM2LM(a + offset, tile, n * sizeof(int16_t));
+        for (int i = n; i < padded; ++i) tile[i] = 0;
+        mfence_lm();
+        for (int i = 0; i < padded; i += 32) {
+            Pair x = point_read(tile + i), y = point_shared(b + i);
+            save_final(tile + i, {activation(x.x + y.x, mode), activation(x.y + y.y, mode)});
+        }
+        mfence_lm();
+        LM2GM(tile, out + offset, n * sizeof(int16_t));
+    }
+}

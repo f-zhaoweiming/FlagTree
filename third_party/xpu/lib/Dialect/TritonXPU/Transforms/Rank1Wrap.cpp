@@ -87,7 +87,7 @@ struct CaptureRank1Wrap
       return signalPassFailure();
     }
     SmallVector<Attribute> specs;
-    unsigned skipped = 0;
+    bool unsupported = false;
     module.walk([&](Operation *load) {
       if (!named(load, "tt.load"))
         return;
@@ -99,12 +99,11 @@ struct CaptureRank1Wrap
       if (!containsRemainder(ptr, seen))
         return;
 
-      // Unmatched modulo loads are legal on the vendor path (they simply do
-      // not need the wrap repair). Skip them instead of failing the pipeline:
-      // Inductor emits mask-less broadcast loads such as (xindex % PERIOD)
-      // for activation kernels, and a fatal error here would hide the real
-      // lowering of every fused matmul/activation region.
-      auto reject = [&]() { ++skipped; };
+      auto reject = [&]() {
+        load->emitError("unsupported P800 SDNN rank-1 modulo load; "
+                        "cannot prove its DMA addresses");
+        unsupported = true;
+      };
       int64_t width = type.getDimSize(0);
       // Nested control flow, reused pointers, arbitrary strides, dynamic
       // periods and non-prefix masks need a different lowering. Fail rather
@@ -131,24 +130,28 @@ struct CaptureRank1Wrap
       if (!rampType || !rampType.getElementType().isInteger(32))
         return reject();
       int64_t period = values.getSplatValue<APInt>().getSExtValue();
-      if (period <= 0 || period > maxIndex || load->getNumOperands() < 2)
+      if (period <= 0 || period > maxIndex)
         return reject();
-      Operation *mask = load->getOperand(1).getDefiningOp();
-      if (!named(mask, "arith.cmpi") ||
-          mask->getOperand(0) != rem->getOperand(0))
-        return reject();
-      auto predicate =
-          mask->getAttrOfType<arith::CmpIPredicateAttr>("predicate");
-      Operation *limitOp = mask->getOperand(1).getDefiningOp();
-      auto limit = limitOp
-                       ? limitOp->getAttrOfType<DenseIntElementsAttr>("value")
-                       : DenseIntElementsAttr();
-      if (!predicate || predicate.getValue() != arith::CmpIPredicate::slt ||
-          !limit || !limit.isSplat())
-        return reject();
-      int64_t length = limit.getSplatValue<APInt>().getSExtValue();
-      if (length < 0 || length > maxIndex - width)
-        return reject();
+      // Maskless tiles transfer the whole width. Masked tiles must expose a
+      // contiguous prefix so that the lowered DMA count is the active length.
+      if (load->getNumOperands() > 1) {
+        Operation *mask = load->getOperand(1).getDefiningOp();
+        if (!named(mask, "arith.cmpi") ||
+            mask->getOperand(0) != rem->getOperand(0))
+          return reject();
+        auto predicate =
+            mask->getAttrOfType<arith::CmpIPredicateAttr>("predicate");
+        Operation *limitOp = mask->getOperand(1).getDefiningOp();
+        auto limit = limitOp
+                         ? limitOp->getAttrOfType<DenseIntElementsAttr>("value")
+                         : DenseIntElementsAttr();
+        if (!predicate || predicate.getValue() != arith::CmpIPredicate::slt ||
+            !limit || !limit.isSplat())
+          return reject();
+        int64_t length = limit.getSplatValue<APInt>().getSExtValue();
+        if (length < 0 || length > maxIndex - width)
+          return reject();
+      }
 
       Builder builder(module.getContext());
       int64_t id = specs.size();
@@ -160,15 +163,14 @@ struct CaptureRank1Wrap
       specs.push_back(builder.getDictionaryAttr(
           {builder.getNamedAttr("id", builder.getI64IntegerAttr(id)),
            builder.getNamedAttr("period", builder.getI64IntegerAttr(period)),
+           builder.getNamedAttr("unmasked_width", builder.getI64IntegerAttr(
+               load->getNumOperands() == 1 ? width : 0)),
            builder.getNamedAttr(
                "arg", builder.getI64IntegerAttr(arg.getArgNumber()))}));
     });
 
-    if (skipped)
-      module.emitRemark()
-          << "rank-1 wrap: " << skipped
-          << " modulo load(s) do not match the wrap pattern and stay on the "
-             "vendor path";
+    if (unsupported)
+      return signalPassFailure();
     module->setAttr(specsAttr, ArrayAttr::get(module.getContext(), specs));
   }
 };
@@ -243,18 +245,29 @@ struct RepairRank1Wrap : PassWrapper<RepairRank1Wrap, OperationPass<ModuleOp>> {
       auto castOp = dma->getOperand(0).getDefiningOp<memref::CastOp>();
       auto src = castOp ? castOp.getSource().getDefiningOp<memref::SubViewOp>()
                         : memref::SubViewOp();
-      auto view =
-          src ? src.getSource().getDefiningOp<memref::ReinterpretCastOp>()
-              : memref::ReinterpretCastOp();
-      auto dst = dma->getOperand(1).getDefiningOp<memref::SubViewOp>();
-      auto arg =
-          view ? dyn_cast<BlockArgument>(view.getSource()) : BlockArgument();
-      if (!view || !dst || src.getType().getRank() != 1 ||
-          dst.getType().getRank() != 1 || !arg ||
-          arg.getArgNumber() != cast<IntegerAttr>(spec.get("arg")).getInt() ||
-          src.getMixedSizes() != dst.getMixedSizes() ||
-          !isConstantIntValue(src.getMixedOffsets()[0], 0) ||
-          !isConstantIntValue(src.getMixedStrides()[0], 1) ||
+      // A masked load lowers to matching active-prefix subviews. For a
+      // maskless load the source cast points directly at the (possibly
+      // period-sized) GM view, while the destination is the full SRAM tile.
+      auto widthAttr = spec.getAs<IntegerAttr>("unmasked_width");
+      int64_t fullWidth = widthAttr ? widthAttr.getInt() : 0;
+      auto view = src ? src.getSource().getDefiningOp<memref::ReinterpretCastOp>()
+                      : (castOp ? castOp.getSource().getDefiningOp<memref::ReinterpretCastOp>()
+                                : memref::ReinterpretCastOp());
+      Value destination = dma->getOperand(1);
+      auto dst = destination.getDefiningOp<memref::SubViewOp>();
+      auto dstType = dyn_cast<MemRefType>(destination.getType());
+      auto arg = view ? dyn_cast<BlockArgument>(view.getSource()) : BlockArgument();
+      bool fullTile = fullWidth > 0 && !src && dstType && dstType.getRank() == 1 &&
+                      dstType.getDimSize(0) == fullWidth &&
+                      dstType.getLayout().isIdentity() &&
+                      destination.getDefiningOp<memref::AllocOp>();
+      bool prefixTile = src && dst && src.getType().getRank() == 1 &&
+                        dst.getType().getRank() == 1 &&
+                        src.getMixedSizes() == dst.getMixedSizes() &&
+                        isConstantIntValue(src.getMixedOffsets()[0], 0) &&
+                        isConstantIntValue(src.getMixedStrides()[0], 1);
+      if (!view || view.getType().getRank() != 1 || (!fullTile && !prefixTile) ||
+          !arg || arg.getArgNumber() != cast<IntegerAttr>(spec.get("arg")).getInt() ||
           !isConstantIntValue(view.getMixedStrides()[0], 1)) {
         dma->emitError("unexpected rank-1 wrap DMA views; refusing repair");
         return signalPassFailure();
@@ -266,7 +279,8 @@ struct RepairRank1Wrap : PassWrapper<RepairRank1Wrap, OperationPass<ModuleOp>> {
         return getValueOrCreateConstantIndexOp(builder, loc, value);
       };
       Value offset = materialize(view.getMixedOffsets()[0]);
-      Value count = materialize(src.getMixedSizes()[0]);
+      Value count = fullTile ? builder.create<arith::ConstantIndexOp>(loc, fullWidth).getResult()
+                             : materialize(src.getMixedSizes()[0]);
       Value zero = builder.create<arith::ConstantIndexOp>(loc, 0);
       Value one = builder.create<arith::ConstantIndexOp>(loc, 1);
       Value modulus = builder.create<arith::ConstantIndexOp>(loc, period);
@@ -303,7 +317,7 @@ struct RepairRank1Wrap : PassWrapper<RepairRank1Wrap, OperationPass<ModuleOp>> {
           ArrayRef<OpFoldResult>{builder.getIndexAttr(1)});
       auto dynamicSource = builder.create<memref::CastOp>(loc, oldType, source);
       auto dest = builder.create<memref::SubViewOp>(
-          loc, dst.getResult(), ArrayRef<OpFoldResult>{pos},
+          loc, destination, ArrayRef<OpFoldResult>{pos},
           ArrayRef<OpFoldResult>{length},
           ArrayRef<OpFoldResult>{builder.getIndexAttr(1)});
       Operation *copy = dma->clone();
@@ -314,7 +328,7 @@ struct RepairRank1Wrap : PassWrapper<RepairRank1Wrap, OperationPass<ModuleOp>> {
       dma->erase();
       if (castOp->use_empty())
         castOp->erase();
-      if (src->use_empty())
+      if (src && src->use_empty())
         src->erase();
       if (view->use_empty())
         view->erase();

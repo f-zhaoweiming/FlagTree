@@ -1,0 +1,2029 @@
+{
+  "records": 220,
+  "superseded_records": 38,
+  "precision_scope": "same historical tolerances and graph fresh-data gates; no fair performance speedups measured",
+  "variants": {
+    "default": {
+      "total": 8,
+      "executed": 8,
+      "results": {
+        "passed": 5,
+        "precision": 3
+      },
+      "range_probes": {
+        "not_run": 8
+      },
+      "passed_ordinals": [
+        6,
+        24,
+        60,
+        78,
+        204
+      ]
+    },
+    "no_promote": {
+      "total": 72,
+      "executed": 72,
+      "results": {
+        "precision": 30,
+        "passed": 42
+      },
+      "range_probes": {
+        "not_run": 72
+      },
+      "passed_ordinals": [
+        24,
+        25,
+        26,
+        60,
+        61,
+        62,
+        69,
+        70,
+        71,
+        78,
+        79,
+        80,
+        87,
+        88,
+        89,
+        96,
+        97,
+        98,
+        105,
+        106,
+        107,
+        159,
+        160,
+        161,
+        168,
+        169,
+        170,
+        177,
+        178,
+        179,
+        186,
+        187,
+        188,
+        195,
+        196,
+        197,
+        204,
+        205,
+        206,
+        213,
+        214,
+        215
+      ]
+    },
+    "vendor_fp16": {
+      "total": 30,
+      "executed": 26,
+      "results": {
+        "precision": 8,
+        "single_kernel": 2,
+        "execution": 15,
+        "timeout": 1,
+        "not_run": 4
+      },
+      "range_probes": {
+        "not_run": 30
+      },
+      "passed_ordinals": []
+    },
+    "explicit_fp16": {
+      "total": 72,
+      "executed": 72,
+      "results": {
+        "precision": 52,
+        "passed": 18,
+        "single_kernel": 2
+      },
+      "range_probes": {
+        "not_run": 54,
+        "failed": 18
+      },
+      "passed_ordinals": [
+        24,
+        25,
+        26,
+        60,
+        61,
+        62,
+        105,
+        106,
+        107,
+        159,
+        160,
+        161,
+        168,
+        169,
+        170,
+        186,
+        187,
+        188
+      ]
+    },
+    "native_bf16": {
+      "total": 8,
+      "executed": 8,
+      "results": {
+        "compile_or_other": 2,
+        "passed": 4,
+        "precision": 2
+      },
+      "range_probes": {
+        "not_run": 8
+      },
+      "passed_ordinals": [
+        24,
+        60,
+        159,
+        168
+      ]
+    },
+    "fp16_no_upcast": {
+      "total": 8,
+      "executed": 8,
+      "results": {
+        "precision": 4,
+        "passed": 4
+      },
+      "range_probes": {
+        "not_run": 4,
+        "failed": 4
+      },
+      "passed_ordinals": [
+        24,
+        60,
+        159,
+        168
+      ]
+    },
+    "fp16_rounded": {
+      "total": 8,
+      "executed": 8,
+      "results": {
+        "precision": 4,
+        "passed": 4
+      },
+      "range_probes": {
+        "not_run": 4,
+        "failed": 4
+      },
+      "passed_ordinals": [
+        24,
+        60,
+        159,
+        168
+      ]
+    }
+  },
+  "groups": [
+    {
+      "variant": "default",
+      "kind": "add_layernorm",
+      "size": "small",
+      "total": 1,
+      "results": {
+        "passed": 1
+      }
+    },
+    {
+      "variant": "default",
+      "kind": "add_layernorm",
+      "size": "large",
+      "total": 1,
+      "results": {
+        "precision": 1
+      }
+    },
+    {
+      "variant": "default",
+      "kind": "add_softmax",
+      "size": "small",
+      "total": 1,
+      "results": {
+        "passed": 1
+      }
+    },
+    {
+      "variant": "default",
+      "kind": "add_softmax",
+      "size": "large",
+      "total": 1,
+      "results": {
+        "precision": 1
+      }
+    },
+    {
+      "variant": "default",
+      "kind": "matmul_bias",
+      "size": "small",
+      "total": 1,
+      "results": {
+        "passed": 1
+      }
+    },
+    {
+      "variant": "default",
+      "kind": "matmul_bias",
+      "size": "large",
+      "total": 1,
+      "results": {
+        "precision": 1
+      }
+    },
+    {
+      "variant": "default",
+      "kind": "mul_sum",
+      "size": "small",
+      "total": 1,
+      "results": {
+        "passed": 1
+      }
+    },
+    {
+      "variant": "default",
+      "kind": "mul_sum",
+      "size": "large",
+      "total": 1,
+      "results": {
+        "passed": 1
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "add_layernorm",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "add_layernorm",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "add_layernorm_affine",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "add_layernorm_affine",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "add_layernorm_bias",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "add_layernorm_bias",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "add_layernorm_weight",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "add_layernorm_weight",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "add_softmax",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "add_softmax",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "matmul_bias",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "matmul_bias",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "matmul_bias_gelu_exact",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "matmul_bias_gelu_exact",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "matmul_bias_gelu_tanh",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "matmul_bias_gelu_tanh",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "matmul_bias_relu",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "matmul_bias_relu",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "matmul_bias_silu",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "matmul_bias_silu",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "mul_sum",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "mul_sum",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "mul_sum_keepdim",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "no_promote",
+      "kind": "mul_sum_keepdim",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "vendor_fp16",
+      "kind": "matmul_bias",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "precision": 2,
+        "single_kernel": 1
+      }
+    },
+    {
+      "variant": "vendor_fp16",
+      "kind": "matmul_bias",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "precision": 2,
+        "timeout": 1
+      }
+    },
+    {
+      "variant": "vendor_fp16",
+      "kind": "matmul_bias_gelu_exact",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "execution": 3
+      }
+    },
+    {
+      "variant": "vendor_fp16",
+      "kind": "matmul_bias_gelu_exact",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "execution": 2,
+        "not_run": 1
+      }
+    },
+    {
+      "variant": "vendor_fp16",
+      "kind": "matmul_bias_gelu_tanh",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "execution": 3
+      }
+    },
+    {
+      "variant": "vendor_fp16",
+      "kind": "matmul_bias_gelu_tanh",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "execution": 2,
+        "not_run": 1
+      }
+    },
+    {
+      "variant": "vendor_fp16",
+      "kind": "matmul_bias_relu",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "precision": 2,
+        "single_kernel": 1
+      }
+    },
+    {
+      "variant": "vendor_fp16",
+      "kind": "matmul_bias_relu",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "precision": 2,
+        "not_run": 1
+      }
+    },
+    {
+      "variant": "vendor_fp16",
+      "kind": "matmul_bias_silu",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "execution": 3
+      }
+    },
+    {
+      "variant": "vendor_fp16",
+      "kind": "matmul_bias_silu",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "execution": 2,
+        "not_run": 1
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "add_layernorm",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "add_layernorm",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "add_layernorm_affine",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "add_layernorm_affine",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "add_layernorm_bias",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "add_layernorm_bias",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "add_layernorm_weight",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "add_layernorm_weight",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "add_softmax",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "add_softmax",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "passed": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "matmul_bias",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "matmul_bias",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "matmul_bias_gelu_exact",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "matmul_bias_gelu_exact",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "matmul_bias_gelu_tanh",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "single_kernel": 2,
+        "precision": 1
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "matmul_bias_gelu_tanh",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "matmul_bias_relu",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "matmul_bias_relu",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "matmul_bias_silu",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "matmul_bias_silu",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "mul_sum",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "mul_sum",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "mul_sum_keepdim",
+      "size": "small",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "explicit_fp16",
+      "kind": "mul_sum_keepdim",
+      "size": "large",
+      "total": 3,
+      "results": {
+        "precision": 3
+      }
+    },
+    {
+      "variant": "native_bf16",
+      "kind": "add_layernorm",
+      "size": "small",
+      "total": 1,
+      "results": {
+        "passed": 1
+      }
+    },
+    {
+      "variant": "native_bf16",
+      "kind": "add_layernorm",
+      "size": "large",
+      "total": 1,
+      "results": {
+        "passed": 1
+      }
+    },
+    {
+      "variant": "native_bf16",
+      "kind": "add_softmax",
+      "size": "small",
+      "total": 1,
+      "results": {
+        "passed": 1
+      }
+    },
+    {
+      "variant": "native_bf16",
+      "kind": "add_softmax",
+      "size": "large",
+      "total": 1,
+      "results": {
+        "passed": 1
+      }
+    },
+    {
+      "variant": "native_bf16",
+      "kind": "matmul_bias",
+      "size": "small",
+      "total": 1,
+      "results": {
+        "compile_or_other": 1
+      }
+    },
+    {
+      "variant": "native_bf16",
+      "kind": "matmul_bias",
+      "size": "large",
+      "total": 1,
+      "results": {
+        "compile_or_other": 1
+      }
+    },
+    {
+      "variant": "native_bf16",
+      "kind": "mul_sum",
+      "size": "small",
+      "total": 1,
+      "results": {
+        "precision": 1
+      }
+    },
+    {
+      "variant": "native_bf16",
+      "kind": "mul_sum",
+      "size": "large",
+      "total": 1,
+      "results": {
+        "precision": 1
+      }
+    },
+    {
+      "variant": "fp16_no_upcast",
+      "kind": "add_layernorm",
+      "size": "small",
+      "total": 1,
+      "results": {
+        "passed": 1
+      }
+    },
+    {
+      "variant": "fp16_no_upcast",
+      "kind": "add_layernorm",
+      "size": "large",
+      "total": 1,
+      "results": {
+        "passed": 1
+      }
+    },
+    {
+      "variant": "fp16_no_upcast",
+      "kind": "add_softmax",
+      "size": "small",
+      "total": 1,
+      "results": {
+        "passed": 1
+      }
+    },
+    {
+      "variant": "fp16_no_upcast",
+      "kind": "add_softmax",
+      "size": "large",
+      "total": 1,
+      "results": {
+        "passed": 1
+      }
+    },
+    {
+      "variant": "fp16_no_upcast",
+      "kind": "matmul_bias",
+      "size": "small",
+      "total": 1,
+      "results": {
+        "precision": 1
+      }
+    },
+    {
+      "variant": "fp16_no_upcast",
+      "kind": "matmul_bias",
+      "size": "large",
+      "total": 1,
+      "results": {
+        "precision": 1
+      }
+    },
+    {
+      "variant": "fp16_no_upcast",
+      "kind": "mul_sum",
+      "size": "small",
+      "total": 1,
+      "results": {
+        "precision": 1
+      }
+    },
+    {
+      "variant": "fp16_no_upcast",
+      "kind": "mul_sum",
+      "size": "large",
+      "total": 1,
+      "results": {
+        "precision": 1
+      }
+    },
+    {
+      "variant": "fp16_rounded",
+      "kind": "add_layernorm",
+      "size": "small",
+      "total": 1,
+      "results": {
+        "passed": 1
+      }
+    },
+    {
+      "variant": "fp16_rounded",
+      "kind": "add_layernorm",
+      "size": "large",
+      "total": 1,
+      "results": {
+        "passed": 1
+      }
+    },
+    {
+      "variant": "fp16_rounded",
+      "kind": "add_softmax",
+      "size": "small",
+      "total": 1,
+      "results": {
+        "passed": 1
+      }
+    },
+    {
+      "variant": "fp16_rounded",
+      "kind": "add_softmax",
+      "size": "large",
+      "total": 1,
+      "results": {
+        "passed": 1
+      }
+    },
+    {
+      "variant": "fp16_rounded",
+      "kind": "matmul_bias",
+      "size": "small",
+      "total": 1,
+      "results": {
+        "precision": 1
+      }
+    },
+    {
+      "variant": "fp16_rounded",
+      "kind": "matmul_bias",
+      "size": "large",
+      "total": 1,
+      "results": {
+        "precision": 1
+      }
+    },
+    {
+      "variant": "fp16_rounded",
+      "kind": "mul_sum",
+      "size": "small",
+      "total": 1,
+      "results": {
+        "precision": 1
+      }
+    },
+    {
+      "variant": "fp16_rounded",
+      "kind": "mul_sum",
+      "size": "large",
+      "total": 1,
+      "results": {
+        "precision": 1
+      }
+    }
+  ],
+  "primitive": [
+    {
+      "job": {
+        "id": "primitive-v3-bfloat16-0-2048",
+        "primitive": true,
+        "dtype": "bfloat16",
+        "convert": "0",
+        "size": 2048,
+        "ordinal": 0,
+        "variant": "default"
+      },
+      "status": "failed",
+      "failure_stage": "precision",
+      "error": "Traceback (most recent call last):\n  File \"/data2/zhaoweiming/f06-bf16-formats-20261103/primitive_worker.py\", line 43, in main\n    torch.testing.assert_close(z.cpu(),((x+y)*y).cpu(),equal_nan=True,**tolerance)\n  File \"/data2/zhaoweiming/f06-bf16-formats-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py\", line 1589, in assert_close\n    raise error_metas[0].to_error(msg)\nAssertionError: Tensor-likes are not close!\n\nMismatched elements: 28 / 2048 (1.4%)\nGreatest absolute difference: 0.125 at index (1920,) (up to 0.03 allowed)\nGreatest relative difference: 0.015380859375 at index (843,) (up to 0.003 allowed)\n",
+      "ir": [
+        {
+          "file": "before-llvm-0.mlir",
+          "arithmetic_lines": [
+            "%31 = arith.addf %29, %30 : tensor<128xbf16, #cluster>",
+            "%32 = arith.mulf %31, %30 : tensor<128xbf16, #cluster>"
+          ]
+        }
+      ],
+      "evidence": "remote-final/artifacts/results/primitive-v3-bfloat16-0-2048/record.json"
+    },
+    {
+      "job": {
+        "id": "primitive-v3-bfloat16-0-4194304",
+        "primitive": true,
+        "dtype": "bfloat16",
+        "convert": "0",
+        "size": 4194304,
+        "ordinal": 0,
+        "variant": "default"
+      },
+      "status": "failed",
+      "failure_stage": "precision",
+      "error": "Traceback (most recent call last):\n  File \"/data2/zhaoweiming/f06-bf16-formats-20261103/primitive_worker.py\", line 43, in main\n    torch.testing.assert_close(z.cpu(),((x+y)*y).cpu(),equal_nan=True,**tolerance)\n  File \"/data2/zhaoweiming/f06-bf16-formats-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py\", line 1589, in assert_close\n    raise error_metas[0].to_error(msg)\nAssertionError: Tensor-likes are not close!\n\nMismatched elements: 59403 / 4194304 (1.4%)\nGreatest absolute difference: 0.25 at index (8392,) (up to 0.03 allowed)\nGreatest relative difference: 0.015380859375 at index (4586,) (up to 0.003 allowed)\n",
+      "ir": [
+        {
+          "file": "before-llvm-0.mlir",
+          "arithmetic_lines": [
+            "%31 = arith.addf %29, %30 : tensor<128xbf16, #cluster>",
+            "%32 = arith.mulf %31, %30 : tensor<128xbf16, #cluster>"
+          ]
+        }
+      ],
+      "evidence": "remote-final/artifacts/results/primitive-v3-bfloat16-0-4194304/record.json"
+    },
+    {
+      "job": {
+        "id": "primitive-v3-bfloat16-1-2048",
+        "primitive": true,
+        "dtype": "bfloat16",
+        "convert": "1",
+        "size": 2048,
+        "ordinal": 0,
+        "variant": "default"
+      },
+      "status": "failed",
+      "failure_stage": "precision",
+      "error": "Traceback (most recent call last):\n  File \"/data2/zhaoweiming/f06-bf16-formats-20261103/primitive_worker.py\", line 43, in main\n    torch.testing.assert_close(z.cpu(),((x+y)*y).cpu(),equal_nan=True,**tolerance)\n  File \"/data2/zhaoweiming/f06-bf16-formats-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py\", line 1589, in assert_close\n    raise error_metas[0].to_error(msg)\nAssertionError: Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: 0.0625 at index (1303,) (up to 0.03 allowed)\nGreatest relative difference: 0.007049560546875 at index (1303,) (up to 0.003 allowed)\n",
+      "ir": [
+        {
+          "file": "before-llvm-0.mlir",
+          "arithmetic_lines": [
+            "%31 = arith.addf %29, %30 : tensor<128xf32, #cluster>",
+            "%32 = arith.mulf %31, %30 : tensor<128xf32, #cluster>"
+          ]
+        }
+      ],
+      "evidence": "remote-final/artifacts/results/primitive-v3-bfloat16-1-2048/record.json"
+    },
+    {
+      "job": {
+        "id": "primitive-v3-bfloat16-1-4194304",
+        "primitive": true,
+        "dtype": "bfloat16",
+        "convert": "1",
+        "size": 4194304,
+        "ordinal": 0,
+        "variant": "default"
+      },
+      "status": "failed",
+      "failure_stage": "precision",
+      "error": "Traceback (most recent call last):\n  File \"/data2/zhaoweiming/f06-bf16-formats-20261103/primitive_worker.py\", line 43, in main\n    torch.testing.assert_close(z.cpu(),((x+y)*y).cpu(),equal_nan=True,**tolerance)\n  File \"/data2/zhaoweiming/f06-bf16-formats-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py\", line 1589, in assert_close\n    raise error_metas[0].to_error(msg)\nAssertionError: Tensor-likes are not close!\n\nMismatched elements: 5477 / 4194304 (0.1%)\nGreatest absolute difference: 0.125 at index (8392,) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (69584,) (up to 0.003 allowed)\n",
+      "ir": [
+        {
+          "file": "before-llvm-0.mlir",
+          "arithmetic_lines": [
+            "%31 = arith.addf %29, %30 : tensor<128xf32, #cluster>",
+            "%32 = arith.mulf %31, %30 : tensor<128xf32, #cluster>"
+          ]
+        }
+      ],
+      "evidence": "remote-final/artifacts/results/primitive-v3-bfloat16-1-4194304/record.json"
+    },
+    {
+      "job": {
+        "id": "primitive-v3-float16-0-2048",
+        "primitive": true,
+        "dtype": "float16",
+        "convert": "0",
+        "size": 2048,
+        "ordinal": 0,
+        "variant": "default"
+      },
+      "status": "passed",
+      "failure_stage": null,
+      "error": null,
+      "ir": [
+        {
+          "file": "before-llvm-0.mlir",
+          "arithmetic_lines": [
+            "%31 = arith.addf %29, %30 : tensor<128xf16, #cluster>",
+            "%32 = arith.mulf %31, %30 : tensor<128xf16, #cluster>"
+          ]
+        }
+      ],
+      "evidence": "remote-final/artifacts/results/primitive-v3-float16-0-2048/record.json"
+    },
+    {
+      "job": {
+        "id": "primitive-v3-float16-0-4194304",
+        "primitive": true,
+        "dtype": "float16",
+        "convert": "0",
+        "size": 4194304,
+        "ordinal": 0,
+        "variant": "default"
+      },
+      "status": "passed",
+      "failure_stage": null,
+      "error": null,
+      "ir": [
+        {
+          "file": "before-llvm-0.mlir",
+          "arithmetic_lines": [
+            "%31 = arith.addf %29, %30 : tensor<128xf16, #cluster>",
+            "%32 = arith.mulf %31, %30 : tensor<128xf16, #cluster>"
+          ]
+        }
+      ],
+      "evidence": "remote-final/artifacts/results/primitive-v3-float16-0-4194304/record.json"
+    },
+    {
+      "job": {
+        "id": "primitive-v3-float16-1-2048",
+        "primitive": true,
+        "dtype": "float16",
+        "convert": "1",
+        "size": 2048,
+        "ordinal": 0,
+        "variant": "default"
+      },
+      "status": "passed",
+      "failure_stage": null,
+      "error": null,
+      "ir": [
+        {
+          "file": "before-llvm-0.mlir",
+          "arithmetic_lines": [
+            "%31 = arith.addf %29, %30 : tensor<128xf16, #cluster>",
+            "%32 = arith.mulf %31, %30 : tensor<128xf16, #cluster>"
+          ]
+        }
+      ],
+      "evidence": "remote-final/artifacts/results/primitive-v3-float16-1-2048/record.json"
+    },
+    {
+      "job": {
+        "id": "primitive-v3-float16-1-4194304",
+        "primitive": true,
+        "dtype": "float16",
+        "convert": "1",
+        "size": 4194304,
+        "ordinal": 0,
+        "variant": "default"
+      },
+      "status": "passed",
+      "failure_stage": null,
+      "error": null,
+      "ir": [
+        {
+          "file": "before-llvm-0.mlir",
+          "arithmetic_lines": [
+            "%31 = arith.addf %29, %30 : tensor<128xf16, #cluster>",
+            "%32 = arith.mulf %31, %30 : tensor<128xf16, #cluster>"
+          ]
+        }
+      ],
+      "evidence": "remote-final/artifacts/results/primitive-v3-float16-1-4194304/record.json"
+    }
+  ],
+  "rounding_audit": [
+    {
+      "job": {
+        "id": "rounding-audit-bfloat16-0-2048",
+        "primitive": true,
+        "dtype": "bfloat16",
+        "convert": "0",
+        "size": 2048,
+        "ordinal": 0,
+        "variant": "default",
+        "audit": true
+      },
+      "audit": {
+        "kernel_vs_eager": {
+          "mismatched": 28,
+          "exact_different": 1229,
+          "max_abs": 0.125,
+          "total": 2048
+        },
+        "kernel_vs_cpu_sequential": {
+          "mismatched": 28,
+          "exact_different": 1229,
+          "max_abs": 0.125,
+          "total": 2048
+        },
+        "eager_vs_cpu_sequential": {
+          "mismatched": 0,
+          "exact_different": 0,
+          "max_abs": 0.0,
+          "total": 2048
+        },
+        "kernel_vs_cpu_single_round": {
+          "mismatched": 16,
+          "exact_different": 1411,
+          "max_abs": 0.125,
+          "total": 2048
+        },
+        "samples": [
+          {
+            "index": 251,
+            "x": 2.09375,
+            "y": 1.3984375,
+            "kernel": 4.84375,
+            "eager": 4.90625,
+            "cpu_sequential": 4.90625,
+            "cpu_single_round": 4.875
+          },
+          {
+            "index": 324,
+            "x": -1.03125,
+            "y": -2.453125,
+            "kernel": 8.5,
+            "eager": 8.5625,
+            "cpu_sequential": 8.5625,
+            "cpu_single_round": 8.5625
+          },
+          {
+            "index": 598,
+            "x": 0.01129150390625,
+            "y": 2.65625,
+            "kernel": 7.03125,
+            "eager": 7.09375,
+            "cpu_sequential": 7.09375,
+            "cpu_single_round": 7.09375
+          },
+          {
+            "index": 631,
+            "x": -0.17578125,
+            "y": 2.546875,
+            "kernel": 6.0,
+            "eager": 6.0625,
+            "cpu_sequential": 6.0625,
+            "cpu_single_round": 6.03125
+          },
+          {
+            "index": 747,
+            "x": -2.453125,
+            "y": -1.984375,
+            "kernel": 8.75,
+            "eager": 8.8125,
+            "cpu_sequential": 8.8125,
+            "cpu_single_round": 8.8125
+          },
+          {
+            "index": 843,
+            "x": -0.271484375,
+            "y": -1.8828125,
+            "kernel": 4.0,
+            "eager": 4.0625,
+            "cpu_sequential": 4.0625,
+            "cpu_single_round": 4.0625
+          },
+          {
+            "index": 862,
+            "x": -2.125,
+            "y": -1.2109375,
+            "kernel": 4.0,
+            "eager": 4.0625,
+            "cpu_sequential": 4.0625,
+            "cpu_single_round": 4.03125
+          },
+          {
+            "index": 1039,
+            "x": -1.8828125,
+            "y": -1.890625,
+            "kernel": 7.09375,
+            "eager": 7.15625,
+            "cpu_sequential": 7.15625,
+            "cpu_single_round": 7.125
+          },
+          {
+            "index": 1047,
+            "x": -1.8515625,
+            "y": -2.09375,
+            "kernel": 8.1875,
+            "eager": 8.25,
+            "cpu_sequential": 8.25,
+            "cpu_single_round": 8.25
+          },
+          {
+            "index": 1071,
+            "x": 0.625,
+            "y": 2.734375,
+            "kernel": 9.125,
+            "eager": 9.1875,
+            "cpu_sequential": 9.1875,
+            "cpu_single_round": 9.1875
+          },
+          {
+            "index": 1094,
+            "x": 3.421875,
+            "y": 1.8046875,
+            "kernel": 9.375,
+            "eager": 9.4375,
+            "cpu_sequential": 9.4375,
+            "cpu_single_round": 9.4375
+          },
+          {
+            "index": 1134,
+            "x": 0.609375,
+            "y": 1.9453125,
+            "kernel": 4.9375,
+            "eager": 5.0,
+            "cpu_sequential": 5.0,
+            "cpu_single_round": 4.96875
+          }
+        ]
+      },
+      "evidence": "remote-final/artifacts/results/rounding-audit-bfloat16-0-2048/record.json"
+    },
+    {
+      "job": {
+        "id": "rounding-audit-bfloat16-0-4194304",
+        "primitive": true,
+        "dtype": "bfloat16",
+        "convert": "0",
+        "size": 4194304,
+        "ordinal": 0,
+        "variant": "default",
+        "audit": true
+      },
+      "audit": {
+        "kernel_vs_eager": {
+          "mismatched": 59573,
+          "exact_different": 2535937,
+          "max_abs": 0.25,
+          "total": 4194304
+        },
+        "kernel_vs_cpu_sequential": {
+          "mismatched": 59573,
+          "exact_different": 2535937,
+          "max_abs": 0.25,
+          "total": 4194304
+        },
+        "eager_vs_cpu_sequential": {
+          "mismatched": 0,
+          "exact_different": 0,
+          "max_abs": 0.0,
+          "total": 4194304
+        },
+        "kernel_vs_cpu_single_round": {
+          "mismatched": 35541,
+          "exact_different": 2905676,
+          "max_abs": 0.25,
+          "total": 4194304
+        },
+        "samples": [
+          {
+            "index": 4,
+            "x": -1.2890625,
+            "y": -2.328125,
+            "kernel": 8.375,
+            "eager": 8.4375,
+            "cpu_sequential": 8.4375,
+            "cpu_single_round": 8.4375
+          },
+          {
+            "index": 82,
+            "x": -0.10546875,
+            "y": -2.28125,
+            "kernel": 5.40625,
+            "eager": 5.46875,
+            "cpu_sequential": 5.46875,
+            "cpu_single_round": 5.4375
+          },
+          {
+            "index": 94,
+            "x": 1.6171875,
+            "y": 2.4375,
+            "kernel": 9.8125,
+            "eager": 9.875,
+            "cpu_sequential": 9.875,
+            "cpu_single_round": 9.875
+          },
+          {
+            "index": 109,
+            "x": 0.8671875,
+            "y": 2.25,
+            "kernel": 6.96875,
+            "eager": 7.03125,
+            "cpu_sequential": 7.03125,
+            "cpu_single_round": 7.0
+          },
+          {
+            "index": 182,
+            "x": 1.1953125,
+            "y": 2.53125,
+            "kernel": 9.375,
+            "eager": 9.4375,
+            "cpu_sequential": 9.4375,
+            "cpu_single_round": 9.4375
+          },
+          {
+            "index": 405,
+            "x": -0.431640625,
+            "y": -2.140625,
+            "kernel": 5.46875,
+            "eager": 5.53125,
+            "cpu_sequential": 5.53125,
+            "cpu_single_round": 5.5
+          },
+          {
+            "index": 491,
+            "x": 0.65625,
+            "y": 2.75,
+            "kernel": 9.3125,
+            "eager": 9.375,
+            "cpu_sequential": 9.375,
+            "cpu_single_round": 9.375
+          },
+          {
+            "index": 539,
+            "x": 1.1484375,
+            "y": 1.53125,
+            "kernel": 4.0625,
+            "eager": 4.125,
+            "cpu_sequential": 4.125,
+            "cpu_single_round": 4.09375
+          },
+          {
+            "index": 569,
+            "x": 0.05029296875,
+            "y": -2.1875,
+            "kernel": 4.625,
+            "eager": 4.6875,
+            "cpu_sequential": 4.6875,
+            "cpu_single_round": 4.6875
+          },
+          {
+            "index": 608,
+            "x": 0.166015625,
+            "y": 1.9375,
+            "kernel": 4.03125,
+            "eager": 4.09375,
+            "cpu_sequential": 4.09375,
+            "cpu_single_round": 4.0625
+          },
+          {
+            "index": 624,
+            "x": -0.19140625,
+            "y": 2.265625,
+            "kernel": 4.65625,
+            "eager": 4.71875,
+            "cpu_sequential": 4.71875,
+            "cpu_single_round": 4.6875
+          },
+          {
+            "index": 705,
+            "x": 0.5078125,
+            "y": 1.921875,
+            "kernel": 4.625,
+            "eager": 4.6875,
+            "cpu_sequential": 4.6875,
+            "cpu_single_round": 4.65625
+          }
+        ]
+      },
+      "evidence": "remote-final/artifacts/results/rounding-audit-bfloat16-0-4194304/record.json"
+    },
+    {
+      "job": {
+        "id": "rounding-audit-bfloat16-1-2048",
+        "primitive": true,
+        "dtype": "bfloat16",
+        "convert": "1",
+        "size": 2048,
+        "ordinal": 0,
+        "variant": "default",
+        "audit": true
+      },
+      "audit": {
+        "kernel_vs_eager": {
+          "mismatched": 1,
+          "exact_different": 401,
+          "max_abs": 0.0625,
+          "total": 2048
+        },
+        "kernel_vs_cpu_sequential": {
+          "mismatched": 1,
+          "exact_different": 401,
+          "max_abs": 0.0625,
+          "total": 2048
+        },
+        "eager_vs_cpu_sequential": {
+          "mismatched": 0,
+          "exact_different": 0,
+          "max_abs": 0.0,
+          "total": 2048
+        },
+        "kernel_vs_cpu_single_round": {
+          "mismatched": 0,
+          "exact_different": 0,
+          "max_abs": 0.0,
+          "total": 2048
+        },
+        "samples": [
+          {
+            "index": 1303,
+            "x": -1.9765625,
+            "y": -2.15625,
+            "kernel": 8.9375,
+            "eager": 8.875,
+            "cpu_sequential": 8.875,
+            "cpu_single_round": 8.9375
+          }
+        ]
+      },
+      "evidence": "remote-final/artifacts/results/rounding-audit-bfloat16-1-2048/record.json"
+    },
+    {
+      "job": {
+        "id": "rounding-audit-bfloat16-1-4194304",
+        "primitive": true,
+        "dtype": "bfloat16",
+        "convert": "1",
+        "size": 4194304,
+        "ordinal": 0,
+        "variant": "default",
+        "audit": true
+      },
+      "audit": {
+        "kernel_vs_eager": {
+          "mismatched": 5552,
+          "exact_different": 820550,
+          "max_abs": 0.125,
+          "total": 4194304
+        },
+        "kernel_vs_cpu_sequential": {
+          "mismatched": 5552,
+          "exact_different": 820550,
+          "max_abs": 0.125,
+          "total": 4194304
+        },
+        "eager_vs_cpu_sequential": {
+          "mismatched": 0,
+          "exact_different": 0,
+          "max_abs": 0.0,
+          "total": 4194304
+        },
+        "kernel_vs_cpu_single_round": {
+          "mismatched": 0,
+          "exact_different": 0,
+          "max_abs": 0.0,
+          "total": 4194304
+        },
+        "samples": [
+          {
+            "index": 209,
+            "x": 3.171875,
+            "y": 1.8671875,
+            "kernel": 9.4375,
+            "eager": 9.375,
+            "cpu_sequential": 9.375,
+            "cpu_single_round": 9.4375
+          },
+          {
+            "index": 1272,
+            "x": 0.23828125,
+            "y": 3.03125,
+            "kernel": 9.9375,
+            "eager": 9.875,
+            "cpu_sequential": 9.875,
+            "cpu_single_round": 9.9375
+          },
+          {
+            "index": 2264,
+            "x": 1.0703125,
+            "y": 2.390625,
+            "kernel": 8.25,
+            "eager": 8.3125,
+            "cpu_sequential": 8.3125,
+            "cpu_single_round": 8.25
+          },
+          {
+            "index": 2805,
+            "x": -1.8359375,
+            "y": -2.3125,
+            "kernel": 9.5625,
+            "eager": 9.625,
+            "cpu_sequential": 9.625,
+            "cpu_single_round": 9.5625
+          },
+          {
+            "index": 3210,
+            "x": -0.93359375,
+            "y": -2.5,
+            "kernel": 8.5625,
+            "eager": 8.625,
+            "cpu_sequential": 8.625,
+            "cpu_single_round": 8.5625
+          },
+          {
+            "index": 4135,
+            "x": -0.34765625,
+            "y": 3.140625,
+            "kernel": 8.75,
+            "eager": 8.8125,
+            "cpu_sequential": 8.8125,
+            "cpu_single_round": 8.75
+          },
+          {
+            "index": 4170,
+            "x": 0.5390625,
+            "y": 2.8125,
+            "kernel": 9.4375,
+            "eager": 9.375,
+            "cpu_sequential": 9.375,
+            "cpu_single_round": 9.4375
+          },
+          {
+            "index": 5169,
+            "x": 1.5390625,
+            "y": 2.390625,
+            "kernel": 9.375,
+            "eager": 9.4375,
+            "cpu_sequential": 9.4375,
+            "cpu_single_round": 9.375
+          },
+          {
+            "index": 6403,
+            "x": 0.9296875,
+            "y": 2.578125,
+            "kernel": 9.0625,
+            "eager": 9.0,
+            "cpu_sequential": 9.0,
+            "cpu_single_round": 9.0625
+          },
+          {
+            "index": 6501,
+            "x": 0.51953125,
+            "y": 2.609375,
+            "kernel": 8.1875,
+            "eager": 8.125,
+            "cpu_sequential": 8.125,
+            "cpu_single_round": 8.1875
+          },
+          {
+            "index": 7062,
+            "x": 1.3515625,
+            "y": 2.484375,
+            "kernel": 9.5,
+            "eager": 9.5625,
+            "cpu_sequential": 9.5625,
+            "cpu_single_round": 9.5
+          },
+          {
+            "index": 7825,
+            "x": 0.18359375,
+            "y": -3.171875,
+            "kernel": 9.5,
+            "eager": 9.4375,
+            "cpu_sequential": 9.4375,
+            "cpu_single_round": 9.5
+          }
+        ]
+      },
+      "evidence": "remote-final/artifacts/results/rounding-audit-bfloat16-1-4194304/record.json"
+    },
+    {
+      "job": {
+        "id": "rounding-rtz-audit-bfloat16-0-2048",
+        "primitive": true,
+        "dtype": "bfloat16",
+        "convert": "0",
+        "size": 2048,
+        "ordinal": 0,
+        "variant": "default",
+        "audit": true
+      },
+      "audit": {
+        "kernel_vs_eager": {
+          "mismatched": 28,
+          "exact_different": 1229,
+          "max_abs": 0.125,
+          "total": 2048
+        },
+        "kernel_vs_cpu_sequential": {
+          "mismatched": 28,
+          "exact_different": 1229,
+          "max_abs": 0.125,
+          "total": 2048
+        },
+        "eager_vs_cpu_sequential": {
+          "mismatched": 0,
+          "exact_different": 0,
+          "max_abs": 0.0,
+          "total": 2048
+        },
+        "kernel_vs_cpu_single_round": {
+          "mismatched": 16,
+          "exact_different": 1411,
+          "max_abs": 0.125,
+          "total": 2048
+        },
+        "kernel_vs_cpu_truncate_each": {
+          "mismatched": 0,
+          "exact_different": 0,
+          "max_abs": 0.0,
+          "total": 2048
+        },
+        "samples": [
+          {
+            "index": 251,
+            "x": 2.09375,
+            "y": 1.3984375,
+            "kernel": 4.84375,
+            "eager": 4.90625,
+            "cpu_sequential": 4.90625,
+            "cpu_single_round": 4.875,
+            "cpu_truncate_each": 4.84375
+          },
+          {
+            "index": 324,
+            "x": -1.03125,
+            "y": -2.453125,
+            "kernel": 8.5,
+            "eager": 8.5625,
+            "cpu_sequential": 8.5625,
+            "cpu_single_round": 8.5625,
+            "cpu_truncate_each": 8.5
+          },
+          {
+            "index": 598,
+            "x": 0.01129150390625,
+            "y": 2.65625,
+            "kernel": 7.03125,
+            "eager": 7.09375,
+            "cpu_sequential": 7.09375,
+            "cpu_single_round": 7.09375,
+            "cpu_truncate_each": 7.03125
+          },
+          {
+            "index": 631,
+            "x": -0.17578125,
+            "y": 2.546875,
+            "kernel": 6.0,
+            "eager": 6.0625,
+            "cpu_sequential": 6.0625,
+            "cpu_single_round": 6.03125,
+            "cpu_truncate_each": 6.0
+          },
+          {
+            "index": 747,
+            "x": -2.453125,
+            "y": -1.984375,
+            "kernel": 8.75,
+            "eager": 8.8125,
+            "cpu_sequential": 8.8125,
+            "cpu_single_round": 8.8125,
+            "cpu_truncate_each": 8.75
+          },
+          {
+            "index": 843,
+            "x": -0.271484375,
+            "y": -1.8828125,
+            "kernel": 4.0,
+            "eager": 4.0625,
+            "cpu_sequential": 4.0625,
+            "cpu_single_round": 4.0625,
+            "cpu_truncate_each": 4.0
+          },
+          {
+            "index": 862,
+            "x": -2.125,
+            "y": -1.2109375,
+            "kernel": 4.0,
+            "eager": 4.0625,
+            "cpu_sequential": 4.0625,
+            "cpu_single_round": 4.03125,
+            "cpu_truncate_each": 4.0
+          },
+          {
+            "index": 1039,
+            "x": -1.8828125,
+            "y": -1.890625,
+            "kernel": 7.09375,
+            "eager": 7.15625,
+            "cpu_sequential": 7.15625,
+            "cpu_single_round": 7.125,
+            "cpu_truncate_each": 7.09375
+          },
+          {
+            "index": 1047,
+            "x": -1.8515625,
+            "y": -2.09375,
+            "kernel": 8.1875,
+            "eager": 8.25,
+            "cpu_sequential": 8.25,
+            "cpu_single_round": 8.25,
+            "cpu_truncate_each": 8.1875
+          },
+          {
+            "index": 1071,
+            "x": 0.625,
+            "y": 2.734375,
+            "kernel": 9.125,
+            "eager": 9.1875,
+            "cpu_sequential": 9.1875,
+            "cpu_single_round": 9.1875,
+            "cpu_truncate_each": 9.125
+          },
+          {
+            "index": 1094,
+            "x": 3.421875,
+            "y": 1.8046875,
+            "kernel": 9.375,
+            "eager": 9.4375,
+            "cpu_sequential": 9.4375,
+            "cpu_single_round": 9.4375,
+            "cpu_truncate_each": 9.375
+          },
+          {
+            "index": 1134,
+            "x": 0.609375,
+            "y": 1.9453125,
+            "kernel": 4.9375,
+            "eager": 5.0,
+            "cpu_sequential": 5.0,
+            "cpu_single_round": 4.96875,
+            "cpu_truncate_each": 4.9375
+          }
+        ]
+      },
+      "evidence": "remote-final/artifacts/results/rounding-rtz-audit-bfloat16-0-2048/record.json"
+    },
+    {
+      "job": {
+        "id": "rounding-rtz-audit-bfloat16-0-4194304",
+        "primitive": true,
+        "dtype": "bfloat16",
+        "convert": "0",
+        "size": 4194304,
+        "ordinal": 0,
+        "variant": "default",
+        "audit": true
+      },
+      "audit": {
+        "kernel_vs_eager": {
+          "mismatched": 59573,
+          "exact_different": 2535937,
+          "max_abs": 0.25,
+          "total": 4194304
+        },
+        "kernel_vs_cpu_sequential": {
+          "mismatched": 59573,
+          "exact_different": 2535937,
+          "max_abs": 0.25,
+          "total": 4194304
+        },
+        "eager_vs_cpu_sequential": {
+          "mismatched": 0,
+          "exact_different": 0,
+          "max_abs": 0.0,
+          "total": 4194304
+        },
+        "kernel_vs_cpu_single_round": {
+          "mismatched": 35541,
+          "exact_different": 2905676,
+          "max_abs": 0.25,
+          "total": 4194304
+        },
+        "kernel_vs_cpu_truncate_each": {
+          "mismatched": 0,
+          "exact_different": 0,
+          "max_abs": 0.0,
+          "total": 4194304
+        },
+        "samples": [
+          {
+            "index": 4,
+            "x": -1.2890625,
+            "y": -2.328125,
+            "kernel": 8.375,
+            "eager": 8.4375,
+            "cpu_sequential": 8.4375,
+            "cpu_single_round": 8.4375,
+            "cpu_truncate_each": 8.375
+          },
+          {
+            "index": 82,
+            "x": -0.10546875,
+            "y": -2.28125,
+            "kernel": 5.40625,
+            "eager": 5.46875,
+            "cpu_sequential": 5.46875,
+            "cpu_single_round": 5.4375,
+            "cpu_truncate_each": 5.40625
+          },
+          {
+            "index": 94,
+            "x": 1.6171875,
+            "y": 2.4375,
+            "kernel": 9.8125,
+            "eager": 9.875,
+            "cpu_sequential": 9.875,
+            "cpu_single_round": 9.875,
+            "cpu_truncate_each": 9.8125
+          },
+          {
+            "index": 109,
+            "x": 0.8671875,
+            "y": 2.25,
+            "kernel": 6.96875,
+            "eager": 7.03125,
+            "cpu_sequential": 7.03125,
+            "cpu_single_round": 7.0,
+            "cpu_truncate_each": 6.96875
+          },
+          {
+            "index": 182,
+            "x": 1.1953125,
+            "y": 2.53125,
+            "kernel": 9.375,
+            "eager": 9.4375,
+            "cpu_sequential": 9.4375,
+            "cpu_single_round": 9.4375,
+            "cpu_truncate_each": 9.375
+          },
+          {
+            "index": 405,
+            "x": -0.431640625,
+            "y": -2.140625,
+            "kernel": 5.46875,
+            "eager": 5.53125,
+            "cpu_sequential": 5.53125,
+            "cpu_single_round": 5.5,
+            "cpu_truncate_each": 5.46875
+          },
+          {
+            "index": 491,
+            "x": 0.65625,
+            "y": 2.75,
+            "kernel": 9.3125,
+            "eager": 9.375,
+            "cpu_sequential": 9.375,
+            "cpu_single_round": 9.375,
+            "cpu_truncate_each": 9.3125
+          },
+          {
+            "index": 539,
+            "x": 1.1484375,
+            "y": 1.53125,
+            "kernel": 4.0625,
+            "eager": 4.125,
+            "cpu_sequential": 4.125,
+            "cpu_single_round": 4.09375,
+            "cpu_truncate_each": 4.0625
+          },
+          {
+            "index": 569,
+            "x": 0.05029296875,
+            "y": -2.1875,
+            "kernel": 4.625,
+            "eager": 4.6875,
+            "cpu_sequential": 4.6875,
+            "cpu_single_round": 4.6875,
+            "cpu_truncate_each": 4.625
+          },
+          {
+            "index": 608,
+            "x": 0.166015625,
+            "y": 1.9375,
+            "kernel": 4.03125,
+            "eager": 4.09375,
+            "cpu_sequential": 4.09375,
+            "cpu_single_round": 4.0625,
+            "cpu_truncate_each": 4.03125
+          },
+          {
+            "index": 624,
+            "x": -0.19140625,
+            "y": 2.265625,
+            "kernel": 4.65625,
+            "eager": 4.71875,
+            "cpu_sequential": 4.71875,
+            "cpu_single_round": 4.6875,
+            "cpu_truncate_each": 4.65625
+          },
+          {
+            "index": 705,
+            "x": 0.5078125,
+            "y": 1.921875,
+            "kernel": 4.625,
+            "eager": 4.6875,
+            "cpu_sequential": 4.6875,
+            "cpu_single_round": 4.65625,
+            "cpu_truncate_each": 4.625
+          }
+        ]
+      },
+      "evidence": "remote-final/artifacts/results/rounding-rtz-audit-bfloat16-0-4194304/record.json"
+    }
+  ]
+}

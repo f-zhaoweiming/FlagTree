@@ -1,4 +1,4 @@
-"""Explicit, correctness-gated preparation for the FUSION SDNN experiment.
+"""Explicit, correctness-gated preparation for the F06 SDNN experiment.
 
 The private lowering module is also used by diagnostics, including intentionally
 ineligible configurations. Use this entry to prepare a candidate for comparison.
@@ -13,7 +13,7 @@ def _admit(gm, inputs):
     calls = tuple(n for n in gm.graph.nodes if n.op not in ('placeholder', 'get_attr', 'output'))
     selected, _ = match_graph(gm, default_registry())
     if len(selected) != 1 or selected[0][1].nodes != calls:
-        raise ValueError('expected one complete FUSION activation or multiply-sum graph')
+        raise ValueError('expected one complete F06 activation or multiply-sum graph')
     match = selected[0][1]
     placeholders = tuple(n for n in gm.graph.nodes if n.op == 'placeholder')
     if (tuple(match.inputs) != placeholders or len(inputs) != len(placeholders)
@@ -36,7 +36,7 @@ def _admit(gm, inputs):
                 or (a.shape[0], b.shape[1], a.shape[1]) not in (
                     (16, 128, 64), (32, 256, 64), (64, 1024, 64),
                     (128, 1024, 128), (512, 1024, 1024), (2048, 2048, 2048))):
-            raise ValueError('no measured FUSION activation for this shape')
+            raise ValueError('no measured F06 activation for this shape')
     else:
         raise ValueError('no experimental repair for ' + match.kind)
     return match.kind
@@ -111,7 +111,7 @@ def prepare_special_candidate(gm, inputs, *, tolerance):
     if set(tolerance) != {'atol', 'rtol'} or not all(
             type(tolerance[k]) in (int, float) and 0 <= tolerance[k] <= cap
             for k, cap in zip(('atol', 'rtol'), limits)):
-        raise ValueError('expected tolerances at least as strict as the FUSION reference')
+        raise ValueError('expected tolerances at least as strict as the F06 reference')
     plan = next(p for p in auto.candidate_plans(gm, inputs) if p.name == 'sdnn')
     with experimental_scope('optimized'):
         fn, proof = auto.compile_candidate(gm, inputs, plan)

@@ -1,4 +1,5 @@
 #include "mlir/IR/IRMapping.h"
+#include "mlir/Interfaces/SideEffectInterfaces.h"
 #include "triton/Analysis/TileAnalysis.h"
 #include "triton/Analysis/TileDecision.h"
 #include "triton/Dialect/Triton/IR/Dialect.h"
@@ -34,7 +35,7 @@ COMOP(arith::MinNumFOp, triton::xpu::VvminNumFOp);
 COMOP(arith::OrIOp, triton::xpu::VvorIOp);
 COMOP(arith::XOrIOp, triton::xpu::VvxorIOp);
 COMOP(arith::AndIOp, triton::xpu::VvandIOp);
-// TLE-ext combine ops (see COMBINE_OP_TLE_EXT in Analysis/Utility.h): the
+// Integer combine ops (now folded into COMBINE_OP, Analysis/Utility.h): the
 // reduces that carry them are admitted by reduceCombineIsVectorizable, so
 // these fire only where that predicate already let the op into a combine.
 COMOP(arith::AddIOp, triton::xpu::VvaddIOp);
@@ -732,6 +733,46 @@ public:
                          getRowsPerCore(valTy)))
         return true;
     return false;
+  }
+
+  // Under TRITONXPU_TILE_REPORT, name a store/reduce root the pass has no
+  // tiling option for, with why. Mirrors `canTile`'s gate so the two never
+  // disagree: it prints exactly `canTile`'s genuine-failure false branches and
+  // stays silent on the two that are not failures (already inside a tile loop
+  // this pass built, or a width small enough that no tiling is needed). Safe to
+  // call unconditionally after the gate -- it self-filters, so a root canTile
+  // accepts produces no line. Off unless TRITONXPU_TILE_REPORT=1.
+  void reportUnrollFail(const char *site, Operation *op, Type valTy,
+                        int64_t numCol, int64_t numUnroll) {
+    if (!mlir::triton::tools::getBoolEnvXPU("TRITONXPU_TILE_REPORT"))
+      return;
+    const char *why = nullptr;
+    if (inUnrollLoop(op)) {
+      return; // already tiled by this pass -- not a failure
+    } else if (!this->budgetTiling) {
+      if (numCol > numUnroll && numCol % numUnroll != 0)
+        why =
+            "factor-not-divisor"; // wants tiling, factor does not divide width
+      else
+        return; // numCol <= numUnroll: no tiling needed
+    } else {
+      int64_t widthPerCore = 1, coresPerGroup = 1;
+      getTileGeometry(valTy, numCol, widthPerCore, coresPerGroup);
+      if (widthPerCore <= 1)
+        return; // one element per core -- nothing to tile, not a failure
+      for (int64_t iterNum = 2; iterNum <= widthPerCore; ++iterNum)
+        if (isLegalIterNum(iterNum, numCol, widthPerCore, /*minVecWidth=*/0,
+                           getRowsPerCore(valTy)))
+          return; // a legal factor exists -- canTile would have accepted
+      why = "no-legal-iternum";
+    }
+    StringRef kernel = "<unknown>";
+    if (auto funcOp = op->getParentOfType<triton::FuncOp>())
+      kernel = funcOp.getName();
+    llvm::errs() << "[UnrollControl][fail] " << kernel << " site=" << site
+                 << " op=" << op->getName() << " numCol=" << numCol
+                 << " numUnroll=" << numUnroll << " reason=" << why
+                 << " loc=" << op->getLoc() << "\n";
   }
 
   void remarkDecision(const char *site, Operation *insertPt, int64_t numCol,
@@ -1711,7 +1752,26 @@ public:
         auto tensorTy = cast<RankedTensorType>(resTy);
         auto shape = tensorTy.getShape().vec();
         if (sliceShape) {
-          shape[shape.size() - 1] = ceil<int64_t>(shape.back(), iterNum);
+          // A tt.trans permutes its result axes, so narrowing the *last*
+          // dimension of the result -- correct for elementwise/load/store ops
+          // -- produces a shape that TransOp::verify rejects ("result shape
+          // must match the permutation of the source shape").  Rebuild the
+          // result from the (already sliced) source, permuted by `order`, the
+          // same idiom handleTransInLoop uses in
+          // TritonXPU/Transforms/Legalize.cpp.
+          if (auto transOp = dyn_cast<triton::TransOp>(op)) {
+            auto srcTy = dyn_cast<RankedTensorType>(transOp.getSrc().getType());
+            auto order = transOp.getOrder();
+            if (srcTy && order.size() == srcTy.getShape().size()) {
+              shape.clear();
+              for (int32_t d : order)
+                shape.push_back(srcTy.getShape()[d]);
+            } else {
+              shape[shape.size() - 1] = ceil<int64_t>(shape.back(), iterNum);
+            }
+          } else {
+            shape[shape.size() - 1] = ceil<int64_t>(shape.back(), iterNum);
+          }
         }
         RankedTensorType controledTensorTy;
         Attribute enc = tensorTy.getEncoding();
@@ -1869,6 +1929,44 @@ public:
         builder.create<triton::xpu::ExtractSliceOp>(
             loc, controledTensorTy, op->getOperand(operandIndex));
     return extractSliceOp;
+  }
+
+  // Main-DAG counterpart of setHoistedOperand's SameTypeOperands branch. After
+  // a cloned op's result is narrowed by setTensorType, a splat-constant operand
+  // that is a DAG leaf keeps its full width and no longer matches the sibling
+  // operand, failing the SameTypeOperands verifier (e.g. the `0.0 - abs(x)`
+  // subf in log's extern lowering under create_log, seen as
+  // "triton_xpu.vvsubf op requires the same type for all operands"). Narrow
+  // such splat operands with extract_slice (its lowering always reads slice 0,
+  // exact for a splat) so the op verifies. Only splat constants carrying a
+  // ClusterLayout are touched; any other mismatch is left exactly as before,
+  // so kernels that already compile are unaffected.
+  void sliceSplatConstOperands(MLIRContext *context, OpBuilder &builder,
+                               Location &loc, Operation *op, int64_t iterNum) {
+    // vvsubf/vvaddf/... carry SameOperandsAndResultType; vcmpf requires
+    // lhs==rhs only via its lowering assertion (no MLIR trait), so name it
+    // explicitly.
+    bool sameOperandTy = op->hasTrait<OpTrait::SameTypeOperands>() ||
+                         op->hasTrait<OpTrait::SameOperandsAndResultType>() ||
+                         isa<triton::xpu::VCmpFOp>(op);
+    if (!sameOperandTy)
+      return;
+    if (op->getNumOperands() != 2)
+      return;
+    for (unsigned i = 0; i < 2; ++i) {
+      if (op->getOperand(i).getType() == op->getOperand(i ^ 1).getType())
+        continue;
+      if (!isSliceInvariant(op->getOperand(i)))
+        continue; // only a splat constant may be narrowed via extract_slice
+      auto tensorTy = dyn_cast<RankedTensorType>(op->getOperand(i).getType());
+      if (!tensorTy ||
+          !isa<triton::xpu::ClusterLayoutAttr>(tensorTy.getEncoding()))
+        continue; // getExtractedOperand needs a ClusterLayout; else leave as-is
+      auto extractSliceOp =
+          getExtractedOperand(context, builder, loc, op, i, iterNum);
+      extractSliceOp->moveBefore(op);
+      op->setOperand(i, extractSliceOp->getResult(0));
+    }
   }
 
   // Determine whether the operand has been hoisted
@@ -2164,6 +2262,7 @@ public:
         newOp = builder.clone(*op, mapping);
       }
       setTensorType(context, newOp, iterNum, isOuter);
+      sliceSplatConstOperands(context, builder, loc, newOp, iterNum);
       TypeSwitch<Operation *>(newOp)
           .Case<triton::xpu::LoadOp>([&](auto loadOp) {
             if (auto tensorTy =
@@ -2448,6 +2547,77 @@ public:
 
   // `iterNum` is decided by the caller: it has to be known before
   // findDiscretePtrChain() rewrites the pointer chain.
+  // Compute only the first register tile used to initialize a reduction.
+  // Extracting a prefix after computing the whole row can keep every vector
+  // live, because target select intrinsics are not all eliminated by LLVM DCE.
+  static bool isRowValueOperation(Operation *op) {
+    // These value-only XPU operations do not all carry MLIR's Pure trait.
+    // Keep the explicit list narrow; never erase DMA, stores, calls or syncs.
+    return isa<triton::xpu::VSelectOp, triton::xpu::VExtFOp,
+               triton::xpu::VTruncFOp, triton::xpu::VConstOp,
+               triton::xpu::VSplatOp, triton::xpu::VvaddFOp,
+               triton::xpu::VvsubFOp, triton::xpu::VvmulFOp,
+               triton::xpu::VvdivFOp, triton::xpu::OutRangeOp,
+               triton::xpu::ExtractOp, triton::xpu::ExtractSliceOp,
+               triton::xpu::SvaddFOp, triton::xpu::SvsubFOp,
+               triton::xpu::SvmulFOp>(op);
+  }
+
+  Value tileReductionInitializer(MLIRContext *context,
+                                 triton::xpu::ExtractSliceOp slice,
+                                 int64_t iterNum) {
+    auto module = slice->getParentOfType<ModuleOp>();
+    if (!module->hasAttr("flagtree.row_shared"))
+      return slice;
+    auto ty = dyn_cast<RankedTensorType>(slice.getTensor().getType());
+    if (!ty || ty.getRank() != 2 || !isa<VectorType>(ty.getElementType()))
+      return slice;
+    auto layout = dyn_cast_or_null<triton::xpu::ClusterLayoutAttr>(ty.getEncoding());
+    if (!layout || layout.getSizePerCore()[0] != 1)
+      return slice;
+    auto root = slice.getTensor().getDefiningOp();
+    if (!root)
+      return slice;
+    SetVector<Operation *> excluded, visited, tree, outer;
+    getExcludeChainOps(module, excluded);
+    SmallVector<SetVector<Operation *>> trees;
+    getDAG(root, visited, trees, excluded, false);
+    for (auto &part : trees)
+      for (auto *op : part)
+        tree.insert(op);
+    if (!tree.count(root) || llvm::any_of(tree, [&](Operation *op) {
+          return op->getNumRegions() || op->getBlock() != slice->getBlock() ||
+                 (!isMemoryEffectFree(op) && !isRowValueOperation(op) &&
+                  !isa<triton::xpu::LoadOp>(op));
+        }))
+      return slice;
+    tree = sortOpTree(tree);
+    getOuterChain(tree, outer);
+    OpBuilder builder(slice);
+    auto loc = slice.getLoc();
+    auto zero = builder.create<arith::ConstantIndexOp>(loc, 0);
+    auto index = builder.create<arith::IndexCastOp>(loc, builder.getI32Type(), zero);
+    IRMapping mapping;
+    createLoopBody(context, builder, loc, iterNum, tree, outer, index, mapping);
+    auto result = mapping.lookup(slice.getTensor());
+    assert(result.getType() == slice.getType() && "reduction initial tile type mismatch");
+    module->setAttr("xpu.tiled_reduction_initializer", builder.getUnitAttr());
+    return result;
+  }
+
+  void eraseUnusedRowValues(ModuleOp m) {
+    if (!m->hasAttr("xpu.tiled_reduction_initializer"))
+      return;
+    SmallVector<Operation *> values;
+    m.walk([&](Operation *op) {
+      if (isRowValueOperation(op))
+        values.push_back(op);
+    });
+    for (Operation *op : llvm::reverse(values))
+      if (op->use_empty())
+        op->erase();
+  }
+
   void unrollControlReduce(MLIRContext *context,
                            SetVector<Operation *> &unrollOpTree,
                            Operation *insertPt, ValueRange &iterArgs,
@@ -2468,12 +2638,15 @@ public:
         auto extractSliceOp = builder.create<triton::xpu::ExtractSliceOp>(
             loc, iterArgs[i].getType(), iterArgs[i]);
         setTensorType(context, extractSliceOp, iterNum, isOuter);
+        Value initial = tileReductionInitializer(context, extractSliceOp, iterNum);
         auto inUnrollOpTree = [&](OpOperand &operand) {
           return unrollOpTree.count(operand.getOwner());
         };
-        iterArgs[i].replaceUsesWithIf(extractSliceOp.getResult(),
+        iterArgs[i].replaceUsesWithIf(initial,
                                       inUnrollOpTree);
-        newIterArgs[i] = extractSliceOp.getResult();
+        newIterArgs[i] = initial;
+        if (initial != extractSliceOp.getResult())
+          extractSliceOp.erase();
       }
       // 2. Unroll control
       // 2.1 Create forOp
@@ -2766,14 +2939,24 @@ public:
       int64_t numUnroll = getNumUnroll(valType);
       if (dryRun)
         reportGate("pointwise", op, numCol, numUnroll);
+      reportUnrollFail("pointwise", op, valType, numCol, numUnroll);
       if (canTile(op, valType, numCol, numUnroll)) {
         getDAG(op, visitedOps, unrollOpTrees, excludeChainOps);
       }
+      // An address/mask-chain value can also feed multiple independent
+      // compute trees. Each tiled tree needs its own slice of such pure values.
+      // Keeping the global visited mark leaves later trees using the unsliced
+      // original with sliced arithmetic operands.
+      SmallVector<Operation *> reusable;
       for (auto visitedOp : visitedOps) {
-        if (isa<arith::ConstantOp>(visitedOp)) {
-          visitedOps.remove(visitedOp);
-        }
+        if (isa<arith::ConstantOp>(visitedOp) ||
+            (excludeChainOps.count(visitedOp) &&
+             visitedOp->getNumRegions() == 0 &&
+             isMemoryEffectFree(visitedOp)))
+          reusable.push_back(visitedOp);
       }
+      for (auto reusableOp : reusable)
+        visitedOps.remove(reusableOp);
     });
     if (unrollOpTrees.size() == 0)
       return;
@@ -2904,6 +3087,8 @@ public:
       getUnrollInfoReduce(reduceOp, numCol, numUnroll);
       if (dryRun)
         reportGate("reduce", reduceOp, numCol, numUnroll);
+      reportUnrollFail("reduce", reduceOp, reduceOp.getInputTypes()[0], numCol,
+                       numUnroll);
       if (canTile(reduceOp, reduceOp.getInputTypes()[0], numCol, numUnroll)) {
         llvm::SetVector<Operation *> reduceOpDefsBwd;
         getOpChainBwd(reduceOpDefsBwd, reduceOp);
@@ -3022,6 +3207,10 @@ public:
                           reduceOp.getInputTypes()[0], numCol, numUnroll,
                           /*loopResults=*/reduceOperandNum)
                 .iterNum;
+        // Reusing the producer must not change the grouping of floating-point
+        // additions merely because the consumer DAG is now cheaper.
+        if (auto saved = reduceOp->getAttrOfType<IntegerAttr>("xpu.pre_cache_iter_num"))
+          iterNum = saved.getInt();
         if (iterNum <= 1)
           return;
         // 1. Copy Defined Op Chain of Reduce Operand for InitArgs
@@ -3275,13 +3464,108 @@ public:
     unrollControl(context, unrollOpTrees, plan, /*postReduce=*/true);
   }
 
+  // Reuse a rounded elementwise producer shared by several reductions and the
+  // epilogue. Materialize it in a fresh LM buffer before splitting consumer
+  // DAGs; otherwise each consumer clones the same arithmetic and cast chain.
+  // This schedule is independently selectable and keeps the rounded value.
+  void cacheReductionProducer(ModuleOp &m, MLIRContext *context) {
+    if (!m->hasAttr("flagtree.reduction_reuse"))
+      return;
+    // Freeze each original within-core reduction plan before changing any
+    // producer. Resource validation still applies to the resulting kernel;
+    // this does not promise equivalence across separately chosen layouts.
+    SetVector<Operation *> originalExcluded;
+    getExcludeChainOps(m, originalExcluded);
+    m.walk([&](triton::xpu::ReduceOp reduce) {
+      int64_t columns = 1, unroll = 1;
+      getUnrollInfoReduce(reduce, columns, unroll);
+      if (!canTile(reduce, reduce.getInputTypes()[0], columns, unroll))
+        return;
+      SetVector<Operation *> visited, probe;
+      SmallVector<SetVector<Operation *>> trees;
+      for (unsigned i = 0; i + 1 < reduce.getNumOperands(); ++i)
+        if (auto *def = reduce.getOperands()[i].getDefiningOp())
+          getDAG(def, visited, trees, originalExcluded, false);
+      for (auto &tree : trees)
+        for (auto *op : tree)
+          probe.insert(op);
+      int64_t iterations = decideIterNum("reduce", reduce, probe,
+          reduce.getInputTypes()[0], columns, unroll,
+          reduce.getNumOperands() - 1).iterNum;
+      reduce->setAttr("xpu.pre_cache_iter_num", OpBuilder(context).getI64IntegerAttr(iterations));
+    });
+    SmallVector<triton::xpu::VExtFOp> candidates;
+    m.walk([&](triton::xpu::VExtFOp ext) {
+      auto narrow = ext.getOperand().getDefiningOp<triton::xpu::VTruncFOp>();
+      if (!narrow || !narrow.getOperand().getDefiningOp<triton::xpu::VvaddFOp>() ||
+          ext.getResult().hasOneUse())
+        return;
+      auto ty = dyn_cast<RankedTensorType>(ext.getType());
+      if (!ty || ty.getRank() != 2 || !isa<VectorType>(ty.getElementType()) ||
+          !getElementTypeOrSelf(ty.getElementType()).isF32())
+        return;
+      auto layout = dyn_cast_or_null<triton::xpu::ClusterLayoutAttr>(ty.getEncoding());
+      // One row per core avoids a second row-stride contract in the cache.
+      // Bound the additional LM allocation independently of the register tile.
+      if (!layout || layout.getSizePerCore()[0] != 1 ||
+          getTotalElemsPerThread(ty) * getNumInVector(ty.getElementType()) > 1024)
+        return;
+      candidates.push_back(ext);
+    });
+    for (auto ext : candidates) {
+      auto ty = cast<RankedTensorType>(ext.getType());
+      auto narrowTy = cast<RankedTensorType>(ext.getOperand().getType());
+      // The value has already crossed the model's FP16 rounding boundary.
+      // Storing that exact rounded representation halves the extra LM budget;
+      // storing FP32 can otherwise force a multi-core row despite eliminating
+      // arithmetic. Widen after loading, preserving every numerical boundary.
+      // BF16 has separate placement rules: retain its existing FP32 cache.
+      bool packedHalf = m->hasAttr("flagtree.reduction_half_cache") &&
+                        getElementTypeOrSelf(narrowTy.getElementType()).isF16();
+      auto cacheTy = packedHalf ? narrowTy : ty;
+      Value stored = packedHalf ? ext.getOperand() : ext.getResult();
+      int64_t lanes = getNumInVector(cacheTy.getElementType());
+      OpBuilder builder(ext);
+      builder.setInsertionPointAfter(ext);
+      auto buffer = builder.create<triton::xpu::AllocaOp>(
+          ext.getLoc(), createPointerType(cacheTy, lanes), getTensorSize(cacheTy) * lanes);
+      auto store = builder.create<triton::xpu::StoreOp>(
+          ext.getLoc(), buffer, stored, Value(), Value(), -1, false,
+          Dtype::UNKNOWN, MemorySyncMode::SYNC);
+      auto load = builder.create<triton::xpu::LoadOp>(
+          ext.getLoc(), cacheTy, buffer, Value(), Value(), Value(), 1,
+          -1, false, false, false, MemorySyncMode::SYNC);
+      Value reused = load;
+      if (packedHalf)
+        reused = builder.create<triton::xpu::VExtFOp>(ext.getLoc(), ty, load);
+      ext.getResult().replaceUsesWithIf(reused, [&](OpOperand &use) {
+        return use.getOwner() != store.getOperation();
+      });
+      if (packedHalf) {
+        ext.erase();
+        m->setAttr("xpu.rounded_half_cache", builder.getUnitAttr());
+      }
+      SetVector<Operation *> excluded, visited;
+      getExcludeChainOps(m, excluded);
+      SmallVector<SetVector<Operation *>> trees;
+      getDAG(store, visited, trees, excluded);
+      if (!trees.empty()) {
+        auto plan = planIterNums(trees, "reduction-producer-cache");
+        unrollControl(context, trees, plan);
+      }
+      m->setAttr("xpu.fast_producer_reuse", builder.getUnitAttr());
+    }
+  }
+
   void reductionUnrollControl(ModuleOp &m, MLIRContext *context) {
+    cacheReductionProducer(m, context);
     // 1. Unroll Control for Reduce For
     forUnrollControl(m, context);
     // 2. Create For for ReduceWithinCore
     createReduceWithinCore(m, context);
     // 3. Deal with BroadCastOp/ReduceOp to StoreOp
     postReduceUnrollControl(m, context);
+    eraseUnusedRowValues(m);
     // 4. Calculate discrete offset in the runtime
     createDiscreteOffset(m);
     // 5. Check Def-Use Shape Match
@@ -3303,6 +3587,18 @@ public:
     bool isScan = false;
     m.walk([&](triton::xpu::ScanOp scanOp) { isScan = true; });
     if (isScan) {
+      // The whole module is abandoned here, so every root that would have been
+      // unroll-controlled is skipped; name the scan op(s) that force it.
+      if (mlir::triton::tools::getBoolEnvXPU("TRITONXPU_TILE_REPORT"))
+        m.walk([&](triton::xpu::ScanOp scanOp) {
+          StringRef kernel = "<unknown>";
+          if (auto funcOp = scanOp->getParentOfType<triton::FuncOp>())
+            kernel = funcOp.getName();
+          llvm::errs() << "[UnrollControl][fail] " << kernel
+                       << " site=module op=" << scanOp->getName()
+                       << " reason=scan-in-module loc=" << scanOp.getLoc()
+                       << "\n";
+        });
       return;
     }
 

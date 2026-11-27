@@ -1,0 +1,3998 @@
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+
+                                               用
+                                            使
+                                         司
+                                       公
+                                   有限  昆仑芯
+                                   ）
+                              圳        P 系列
+                           深
+                     技（   XPyTorch 训练用户手册
+
+               讯科
+            腾
+         供
+      仅
+    芯
+仑
+昆
+                                   文档版本：V3.3.1.0
+
+                                   文档时间：2025-08-25
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+
+    法律声明
+    欢迎使用昆仑芯（北京）科技有限公司（以下简称“昆仑芯”）的产品或服务，在开始使用
+    前，请确保您已经阅读并同意接受下列条款和条件的约束。
+    一、免责声明
+    客户对昆仑芯产品或服务的使用承担风险，昆仑芯对此不作任何类型的担保，不论是明确的或
+                                               用
+    本说明书要求使用昆仑芯产品，或客户自行变更设计等。
+                                           使
+    隐含的。昆仑芯不对任何直接、间接、特殊及附带的损害承担责任，这些损害可能来自：未按
+
+
+    二、信息准确性                                司
+                                       公
+    昆仑芯对通过本产品所获得的资源均按现状提供，对其准确性、内容、完整性、合法性、可靠
+    性、可操作性或可用性不承担任何责任。昆仑芯对通过本产品所获得的产品或服务以及通过本
+
+    本说明书所述产品作出修改和变更的权利。
+                                       限
+    产品任何链接而得到的任何讯息不做任何担保。昆仑芯保留在任何时候不经通知对本说明书或
+
+
+    三、知识产权声明
+                                   有
+                                   ）
+    本说明书中所有官方产品、技术、软件、程序、数据及其他信息（包括文字、图标、图片、照
+
+                              圳
+    片、音频、视频、图表、色彩组合、版面设计等）的所有权利（包括著作权、商标权、专利
+    权）均归昆仑芯及/或其关联公司所有，受法律法规保护。未经昆仑芯事先许可，任何人擅自
+
+    法律责任。               （
+    使用上述内容、信息等，视为对昆仑芯知识产权等合法权益的侵犯，昆仑芯将会追究侵权者的
+
+                         深
+    四、版权声明
+
+                  科
+    © 昆仑芯（北京）科技有限公司保留一切权利。
+
+                   技
+               讯
+             腾
+         供
+      仅
+    芯
+仑
+昆
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+                                                                目                      录
+    1 XPyTorch 软件安装和环境变量配置................................................................................................... 1
+       1.1 XPyTorch 概述.................................................................................................................................1
+       1.2 软件安装............................................................................................................................................2
+                                                                                                                                                   用
+       1.3 训练基础配置....................................................................................................................................5
+
+
+    2 XPyTorch 模型训练迁移精度调试指南...............................................................................................9
+                                                                                                                                          使
+       1.4 训练调试............................................................................................................................................7
+
+                                                                                                                                司
+    3 集群调试工具.........................................................................................................................................23
+                                                                                                                       公
+       3.1 TorchHardwareDiff 工具............................................................................................................23
+
+                                                                                                              限
+          3.1.1 TorchHardwareDiff 简介..................................................................................................... 23
+          3.1.2 核心原理...................................................................................................................................23
+                                                                                                     有
+          3.1.3 工具使用前置条件.................................................................................................................. 25
+
+                                                                                            ）
+          3.1.4 快速上手...................................................................................................................................25
+          3.1.5 详细使用说明...........................................................................................................................26
+                                                                                   圳
+          3.1.6 常见问题...................................................................................................................................30
+
+                                                                         深
+       3.2 TorchOnlineDiag 工具................................................................................................................30
+          3.2.1 TorchOnlineDiag 工具简介.................................................................................................30
+                                                                （
+          3.2.2 TorchOnlineDiag 使用指南.................................................................................................31
+
+                                                       技
+    4 软件框架调试工具................................................................................................................................ 32
+       4.1 XFLAGS 工具................................................................................................................................. 32
+                                     讯
+       4.2 日志打印工具................................................................................................................................. 33
+                                      科
+    5 API 支持列表......................................................................................................................................... 34
+       5.1 PyTorch API 支持情况.................................................................................................................34
+                            腾
+       5.2 Torch 2.0 CUDA API 支持情况................................................................................................. 45
+                   供
+       5.3 torch.distributed.algorithms API 支持情况.........................................................................47
+
+          仅
+       5.4 torch.distributed API 支持情况............................................................................................... 47
+
+
+    芯
+仑
+昆
+
+
+                                                                               I
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+    表目录
+    表 1-1 软件栈层次和内容......................................................................................................................... 1
+    表 3-1 耗时项分类与处理方法.............................................................................................................. 29
+
+                                                                                                                                     用
+                                                                                                                            使
+                                                                                                                    司
+                                                                                                            公
+                                                                                            有限
+                                                                                   ）
+                                                                            圳
+                                                                   深
+                                                  技（
+                                  讯科
+                          腾
+                  供
+         仅
+    芯
+仑
+昆
+
+
+                                                                       II
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+    图目录
+    图 1-1 软件栈整体架构图......................................................................................................................... 1
+    图 1-2 IB 设备和 XPU 的互联拓扑..........................................................................................................7
+    图 3-1 精度诊断流程图...........................................................................................................................24
+                                                                                                                                        用
+    图 3-2 性能诊断流程图...........................................................................................................................25
+                                                                                                                                使
+    图 3-3 日志收集完成示例.......................................................................................................................28
+    图 3-4 状态正常示例...............................................................................................................................28
+                                                                                                                       司
+    图 3-5 状态异常示例...............................................................................................................................29
+                                                                                                               公
+    图 3-6 性能诊断测试发现异常示例...................................................................................................... 30
+
+                                                                                                       限
+                                                                                              有
+                                                                                      ）
+                                                                              圳
+                                                                     深
+                                                            （
+                                                    技
+                                           科
+                                   讯
+                          腾
+                  供
+         仅
+    芯
+仑
+昆
+
+
+                                                                        III
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+
+    1 XPyTorch 软件安装和环境变量配置
+    1.1 XPyTorch 概述
+    XPyTorch 是一个专为昆仑芯芯片打造的深度学习框架适配方案, 旨在为开发者能在昆仑芯产
+    品上使用 PyTorch 进行模型训练和推理任务提供高性能和易用的平台工具。                       用
+    1.1.1 关键需求                                               使
+    在生成式 AI 的场景下，用户在使用国产 AI 芯片构建超大规模集群训练系统时，关键需求如
+    下：
+                                                         司
+      ● 迅速评估国产芯片在大模型训练任务中的可用性、性能表现及模型迁移成本。               公
+      ● 清晰了解主流深度学习框架和并行框架的适配流程，以及软件版本更新的方法。
+      ● 确保用户系统能够支持国产 AI 芯片所支持的调试工具。
+                                                   限
+      ● 有效集合厂商提供的关键算子和融合算子, 并具备对长尾算子的自定义开发能力。
+                                               有
+                                           ）
+      ● 标准化 AI 算力纳管机制，并与用户系统深入协作，以提升整体系统的有效训练率。
+
+    1.1.2 产品方案                         圳
+    昆仑芯的大模型训练产品可以满足行业的需求, 如下图所示：
+                                  深
+                              （
+                          技
+                      科
+                     讯
+               腾
+            供
+      仅
+    芯
+    图 1-1 软件栈整体架构图
+仑   表 1-1 软件栈层次和内容
+
+昆   软件栈层次    内容
+    模型       大模型仓：覆盖国内外不同的主流大模型架构, 同时提供训练所需数据集。在软件安装后, 用户可以在昆
+             仑芯硬件上观测到指定模型在目标训练场景中（预训练, 监督微调 SFT）的性能和精度表现，以此作为进
+             一步产品评估的判断标准。迁移大模型仓中覆盖的模型, 不会涉及额外的开发工作。针对其他情况，模型
+             迁移样例，为迁移过程提供明确指导。
+    框架       深度学习框架和并行框架的适配，全面兼容 PyTorch 接口以及 Megatron 等并行技术栈的实现。支持社
+             区内广泛使用的特性，有效降低了用户的学习与使用门槛，显著提升了产品的易用性。
+
+
+
+
+                     Copyright©2024-2025 昆仑芯（北京）科技有限公司          -1-
+    让计算更智能 INTELLIGENT COMPUTING
+
+    软件栈层次   内容
+    专业库     专业库覆盖了大模型所需的关键算子。支持从基础数学运算到 Flash Attention 等复杂融合算子的广泛需
+            求。包括深度神经网络加速库 XDNN，针对 TRANSFORMER 架构的专业加速库 XFA 和 XFT，线性代数
+            库 XBLAS，傅里叶变换库 XFFT，和矩阵乘法模板库 XTLASS。以及其他专业库包括计算视觉库 XECV 和
+            集合通信库 XCCL 等。
+    开发工具包   大模型生产到部署需要强大的芯片开发工具。覆盖算子移植，开发和集成，以及调试调优等诸多方面。
+            开发栈提供了基础编译套件 XTDK，CUDA 迁移工具 XTRANSCUDA，算子生成器 XTRITON，调试调优
+            工具和数据中心套件：
+            - 基础编译套件 XTDK，是以 XPU C/C++为编程语言的开发套件，编译器内置了针对昆仑芯产品对应的
+            优化算法。与各种调试调优工具组合，可以把芯片效能发挥到极致。
+            - XTRANSCUDA 是针对 CUDA 开发者设计的工具包。可以提供直编 CUDA 源码到昆仑芯 P800 的能
+                                                                       用
+            力，使得无改或者微改直编大型 CUDA 项目成为可能。
+                                                                   使
+            - XTRITON 是基于开源 TRITON 为 P800 定制的算子生成器，提供了 Python DSL 编程方式的能力，与
+            PyTorch 框架无缝集成，降低训练推理迁移成本的同时获得性能加速。
+    运行时     底层架构为整个开发栈提供稳定可靠的运行环境，包括硬件驱动、运行时库以及硬件管理和监控等模
+            块。驱动层直接与硬件交互，确保指令的准确执行与数据的快速传输；运行时支持提供了一系列底层服
+                                                              司
+            务，如内存管理和任务调度等，为上层应用提供坚实支撑。
+                                                          公
+    1.1.3 产品特点                                       限
+    XPyTorch 适配方案具有以下特性：
+     ● 较低的迁移成本：实现全自动性能优化，显著降低软件迁移的复杂度和成本。
+                                                 有
+       零成本适配主流的大语言模型。
+                                            ）
+     ● 大模型的并行策略支持：兼容 Megatron, DeepSpeed 等大模型训练框架，使用户能够
+
+                                        圳
+     ● 简易安装与操作：一键安装配套的 Docker 镜像及最新 XPyTorch 版本。直接使用
+       PyTorch 官方模型脚本指令进行训练，无需额外配置。
+     ● 确保与主流深度学习框架的兼容性。
+                                   深
+                               （
+    综上所述，XPyTorch 以其易用性、低迁移成本及支持多种大模型策略等特性，成为用户从
+
+    用。
+                           技
+    NVIDIA GPU 迁移到昆仑芯 XPU 的优选解决方案，助力用户实现高效和强大的深度学习应
+
+
+
+    1.2 软件安装
+                  讯科
+             腾
+    本章节阐述了 XPyTorch 软件包的安装步骤，帮助您轻松完成设置。
+
+    1.2.1 前置条件
+            供
+     ● 操作系统：目前仅支持 Linux 系统， 3.10.x 以上。
+      仅
+     ● 设备驱动：请参考《昆仑芯 P 系列 XRE 用户手册》中的 XRE 安装指南。
+
+    芯● Docker：23.0.1 版本及以上， 请参阅 Docker 官网安装文档。
+     ● bcecmd：0.3.2 版本及以上，请参阅安装 BOSCMD。
+仑   1.2.2 依赖库介绍
+昆    ● XHPC：昆仑芯片算子库，其实现了如矩阵乘法等算子。
+     ● XRE：昆仑芯片运行时库，其在多种体系结构和操作系统组合之上为昆仑芯计算设备提
+       供一致的编程接口和使用支持。
+     ● XCCL：昆仑芯片通信库，其提供了集合通信和点对点通信等通信操作。
+
+
+
+
+                     Copyright©2024-2025 昆仑芯（北京）科技有限公司                 -2-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    1.2.3 创建容器
+    本产品需要满足以下基本环境要求：
+         ● Ubuntu 20.04
+         ● XPyTorch 2.5：Python 3.10
+    为解决软件安装过程中各种版本依赖问题，XPyTorch 使用 Docker 快速搭建标准环境，提供
+    了一个标准的 Docker 环境，包含了所有依赖项。可以通过一键启动脚本来快速启动环境，操
+    作步骤如下：
+                                                                                          用
+    1.     下载 Docker 镜像, 请联系昆仑芯客户支持人员确认具体下载地址。                                      使
+           wget                                                                司
+           https://klx-sdk-release-public.su.bcebos.com/xpytorch/docker/ubuntu2004_v038/ubuntu_
+           2004_x86_64_v38.tar
+                                                                         公
+    2.     导入 Docker image:                                         限
+           docker load < ubuntu_2004_x86_64_v38.tar            有
+    3.     创建 Docker 容器，假设物理机有 8 张卡。以下操作为参考：
+                                                         ）
+                                                      圳
+           docker run -dti --name <你的容器名> --net=host --security-opt=seccomp=unconfined --ca
+
+                                               深
+           p-add=SYS_PTRACE --shm-size=256g --cap-add=SYS_ADMIN --device /dev/fuse --restart=al
+           ways --ulimit=memlock=-1 --ulimit=nofile=120000 --ulimit=stack=67108864 -v ~:/home -
+
+                                            （
+           -cpuset-cpus=0-120 --device=/dev/xpu0:/dev/xpu0 --device=/dev/xpu1:/dev/xpu1 --devic
+           e=/dev/xpu2:/dev/xpu2 --device=/dev/xpu3:/dev/xpu3 --device=/dev/xpu4:/dev/xpu4 --de
+           vice=/dev/xpu5:/dev/xpu5 --device=/dev/xpu6:/dev/xpu6 --device=/dev/xpu7:/dev/xpu7 -
+
+           6_64:v0.38               技
+           -device=/dev/xpuctrl:/dev/xpuctrl iregistry.baidu-int.com/xmlir/xmlir_ubuntu_2004_x8
+
+
+
+
+    4.                    讯
+           创建容器后，使用如下命令进入容器环境：
+                           科
+           docker exec -it <你的容器名> /bin/bash
+
+
+    5.
+                    腾
+           执行如下命令，查看容器中的 XPyTorch 软件包是否是最新版本： 您可联系昆仑芯客户
+              供
+           支持人员获取最新 XPyTorch 软件包版本信息。
+
+          仅python -m torch_xmlir --docker
+
+
+    芯      回显类似如下信息则代表 XPyTorch 软件包安装成功（下图为示例，具体回显信息以客
+仑          户安装的版本为准）:
+
+
+昆          > python -m torch_xmlir --doctor
+           xpytorch: XPYTORCH-p800_release_v*.*-*
+           xhpc: *.*
+           xtdk: *.*.*.*
+           xre: *.*.*.*
+           xccl: *.*.*.*
+           compile_date: 2025****-00:44:04
+           arch: x86_64
+
+
+
+
+                             Copyright©2024-2025 昆仑芯（北京）科技有限公司                           -3-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    1.2.4 安装软件
+    1.   进入 Docker 容器环境后，运行如下命令，切换到相应的 conda 环境：
+
+         conda activate python310_torch25_cuda
+
+
+         使用 pip list 命令可查看已安装工具，包括 Transformers, DeepSpeed,
+
+
+    2.
+         LLama-Factory 等。
+         从产品发布地址中获取最新版本的软件安装包：https://klx-sdk-release-
+                                                                                        用
+                                                                                  使
+         public.su.bcebos.com/xpytorch/release/3.3.1.0/latest/xpytorch-cp310-torch251-
+
+
+    3.
+         ubuntu2004-x64.run
+         安装软件安装包（.run 文件）并验证安装，执行操作如下：
+                                                                             司
+         a. 公网下载安装包：
+                                                                       公
+                                                                    限
+         wget https://klx-sdk-release-public.su.bcebos.com/xpytorch/release/3.3.1.0/xpytorch-
+         cp310-torch251-ubuntu2004-x64.run
+                                                             有
+         如有问题，请联系昆仑芯客户支持人员。                            ）
+         b. 执行安装：
+                                                  圳
+                                             深
+         bash xpytorch-cp310-torch251-ubuntu2004-x64.run
+
+
+
+
+         示例，具体回显信息以客户安装的版本为准）:
+                                       （
+         c. 确认安装成功, 可通过查看版本信息来确认，正确回显类似如下信息（下图为 3.3.0.0
+
+
+                       讯
+                        科
+         > python -m torch_xmlir --doctor
+         XPYTORCH: XMLIR-p800_release_v3.3.0-e10602af5+2025071614
+         XHPC: 3.4.0
+         XTDK: 3.4.0.1
+         XRE: 5.0.21.26
+         XCCL: 3.0.3.1
+                         技
+                  腾
+         compile_date: 20250716-14:37:46
+         arch: x86_64
+
+            供
+         XTE: 1.13.0+4db9084
+
+
+    4.
+         仅
+         使用 PyTorch 官方 Example 说明如何加速训练。
+         下载 pytorch/exmaples 源代码， 并进入 mnist 例子。
+    芯
+仑        git clone --depth 1 https://github.com/pytorch/examples.git
+         cd examples/mnist
+
+
+昆        运行以下命令， 启动训练过程。
+
+         python main.py --epochs 1
+
+
+         执行结果：
+
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                           -4-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+         > python main.py --epochs 1
+         Train Epoch: 1 [0/60000 (0%)]    Loss: 2.316347
+         Train Epoch: 1 [640/60000 (1%)] Loss: 1.383152
+         Train Epoch: 1 [1280/60000 (2%)]         Loss: 0.871919
+         Train Epoch: 1 [1920/60000 (3%)]         Loss: 0.686058
+         ...
+
+
+
+    1.2.5 安装大模型训练框架 （可选）
+    安装完 XPyTorch 软件包后，如果用户需要使用大模型训练业务，则需安装如下大模型产品。
+                                                                                 用
+    1.2.5.1 安装 Megatron-LM 大模型
+                                                                             使
+    Megatron-LM 能够以规模化方式训练大型 Transformer 语言模型。它为预训练基于
+    Transformer 的语言模型提供了高效的张量、管道和基于序列的模型并行，例如 GPT（仅解
+                                                                        司
+    码器）、BERT（仅编码器）和 T5（编码器-解码器）。有关详细介绍及安装方法，请参阅                    公
+    GitHub 仓库。
+
+    1.2.5.2 安装 LLaMA-Factory 大模型
+                                                                   限
+    LLaMA-Factory 项目的目标是整合各种主流的高效大模型训练微调技术，适配市场主流开源
+                                                              有
+    模型，形成一个功能丰富，适配性好的训练框架。项目提供了多个高层次抽象的调用接口，包
+    含多阶段训练，推理测试，基准评测，API Server 等，使开发者开箱即用。有关详细介绍及
+                                                        ）
+    安装方法，请参阅 GitHub 仓库。                            圳
+    1.2.6 卸载和升级                              深
+      ● 执行以下命令来卸载 XPyTorch 软件：
+                                  技（
+    pip uninstall xmlir
+    pip uninstall torch
+
+
+      ● 升级 XPyTorch 软件：
+                          讯科
+    下载最新版本的软件包，直接升级（自动卸载旧版本），按安装步骤进行安装即可。
+
+
+    1.3 训练基础配置
+                  腾
+            供
+       仅
+    1.3.1 单机和多机基础配置
+    芯
+    下面是单机基础配置步骤：
+
+
+仑   export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7" # 指定可见 device id
+    export XMLIR_CUDNN_ENABLED=1 # true 为使用 cuDNN，支持 conv3d 等，false 为不使用 cuDNN
+
+昆   export CUDA_DISABLE_PRINTF=1
+
+
+    下面是多机基础配置步骤：
+
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                     -5-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7" # 指定可见 device id
+    export XMLIR_CUDNN_ENABLED=1 # true 为使用 cuDNN，支持 conv3d 等，false 为不使用 cuDNN
+    export BKCL_TREE_THRESHOLD=0
+    export BKCL_ENABLE_XDR=1
+    export BKCL_RING_HOSTID_USE_RANK=1
+    export CUDA_DISABLE_PRINTF=1
+    export BKCL_RDMA_NICS="eth1,eth1,eth2,eth2,eth3,eth3,eth4,eth4" # 以实际情况为准, 多机要按机
+    器环境网卡联通性来配，参考【1.2】
+    # export BKCL_SOCKET_IFNAME=ens11np0 # 以实际情况为准, 默认不开, 找不到网卡时再指定
+
+
+    环境变量详细说明：
+                                                                                   用
+    环境变量                  来源         默认值     可配置值     备注
+                                                                             使
+    XMLIR_CUDNN_ENABLED   XPyTorch   false   bool
+                                                                        司
+                                                      使用新版 cudnn 库 xcudnn::conv， true 为
+                                                      使用 cuDNN，支持 conv3d 等，false 为不
+                                                      使用 cuDNN。
+    BKCL_TREE_THRESHOLD   XCCL       30720   int                  公
+                                                      设置为 0，即关闭 tree 算法。
+    BKCL_ENABLE_XDR       XCCL       0       bool
+                                                             限
+                                                      开启 XDR（xpu direct RDMA），使能 dire
+                                                      ct rdma，此时流量会直接从 XPU 到 RDMA
+                                                      网卡，多机训练需要开启。
+    BKCL_RING_HOSTID_USE_R XCCL
+    ANK
+                                     0       bool       有
+                                                      多机机器顺序按照 Rank 顺序排列，默认使用
+                                                      机器 ip 排序。
+    CUDA_DISABLE_PRINTF   XCCL       0       bool
+                                                    ） 关闭 kernel printf 功能，可以显著降低通信
+                                                      初始化的时间（10s->1s），建议打开。
+    BKCL_RDMA_NICS
+    BKCL_SOCKET_IFNAME
+                          XCCL
+                          XCCL
+                                     以实际为准
+                                     以实际为准
+                                               圳
+                                             str
+                                             str
+                                                      RDMA 网卡选配说明
+                                                      Socket 通信的网卡选配说明：支持标准以太
+
+                                             深        网卡或任意 RDMA 兼容网卡，默认情况下可
+                                                      不进行特定配置。
+
+
+    1.3.2 网卡配置                           （
+                                  技
+    多机训练时，需要通过设置环境变量 BKCL_RDMA_NICS 为每张 XPU 绑定对应的 RDMA 网
+    卡。若网卡数量少于 XPU 数量，可复用网卡。网卡与 XPU 的互联优先级顺序为：
+
+
+    1.
+                          讯
+    PIX/PXB/PHB/NODE/SYS。具体配置流程如下：
+         IB 设备和 XPU 的互联    科
+         使用 xpu_smi topo -m 命令可查看 IB（InfiniBand） 设备与 XPU 的拓扑关系。如图
+                  腾
+         所示： XPU1/XPU2 绑定网卡 NIC1 (mlx5_1)，XPU3/XPU4 绑定网卡，NIC2
+
+            供
+         (mlx5_2) XPU5/XPU6 绑定网卡 NIC3 (mlx5_3) ，XPU7/XPU8 绑定网卡 NIC4
+         (mlx5_4)。
+         仅
+    芯
+仑
+昆
+
+
+                          Copyright©2024-2025 昆仑芯（北京）科技有限公司                       -6-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+
+                                                                              用
+                                                                            使
+                                                                        司
+         图 1-2 IB 设备和 XPU 的互联拓扑
+                                                                        公
+    2.   IB 设备到网卡名的映射
+                                                                  限
+    如下所示，在物理机通过 ibdev2netdev（如果命令不存在，需要手动安装）命令获取 IB 设       有
+    备到网卡名的映射。因此 BKCL_RDMA_NICS 需要配置为：
+                                                       ）
+    BKCL_RDMA_NICS="eth1,eth1,eth2,eth2,eth3,eth3,eth4,eth4"。
+
+    mlx5_0 port 1 ==> eth0 (Up)
+                                                  圳
+    mlx5_1 port 1 ==> eth1 (Up)
+
+    mlx5_2 port 1 ==> eth2 (Up)
+                                        （深
+                             科
+    mlx5_3 port 1 => eth3 (Up)
+
+    mlx5_4 port 1 ==> eth4(Up)
+                              技
+    1.4 训练调试           讯
+    1.4.1 日志/调试相关
+                   腾
+    配置示例    供
+         仅
+    export XPUAPI_DEBUG=0x1 # 输出 api 算子规模数据
+
+    芯
+    export XPURT_DISPATCH_MODE=PROFILING # 输出性能数据
+    export BKCL_DEBUG=1 # 开启 XCCL 调试模式
+    export BKCL_FORCE_SYNC=1 # 通信前，在 CPU 强制同步
+
+仑   export CUDA_ERROR_LEVEL=99 # 驱动输出所有信息到 stdout
+    export LOG_SYMBOL_REPLACE=1 # 打印 XFLAGS 替换的具体函数
+
+昆   export XLOG_LEVEL="capture=info,dist=info" # 打印 XPyTorch info log
+
+
+    环境变量详细说明：
+
+    环境变量             来源           默认值     可配置值      备注
+    XPUAPI_DEBUG     API          全关                XDNN 一些常用 debug 功能的开关，16 进制的每一
+                                                    位表示一个选项，默认不设置表示全部关闭如：0x10
+                                                    01 # 产出 api 算子规模数据
+
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                  -7-
+    让计算更智能 INTELLIGENT COMPUTING
+
+    环境变量              来源         默认值      可配置值         备注
+    XPURT_DISPATCH_   XRE                 PROFILING    打印每个 kernel 的消耗 cycle 数
+    MODE
+    BKCL_DEBUG        XCCL       0        bool         XCCL 开启 debug 模式
+    BKCL_FORCE_SYNC   XCCL       0        bool         通信同步屏障：在通信入口处实现与 MPI_Barrier 等
+                                                       效的同步机制，该机制可用于确保通信耗时统计的准
+                                                       确性，但需注意当前实现不支持 sendrecv 通信模
+                                                       式。
+    CUDA_ERROR_LEVE XRE
+    L
+                                          99/70/60     打开调试 log，一般 60 即可，可以查看每一个 cuda
+                                                       driver api 的参数和返回值，仅在-O0 的 so 目录生
+                                                       效，-O2 的 so_relwithdebinfo 目录不生效 5.0.x 正
+                                                                                              用
+                                                       式版本仅在 so_debug 即-O0 目录生效，so 即-O2
+                                                       目录不生效                            使
+    LOG_SYMBOL_REPL XPyTorch
+    ACE
+                                 0        bool
+                                                                                  司
+                                                       打印 XFLAGS 替换的具体函数。其中，XFLAGS 是管
+                                                       理 XPytorch 插件的命令行工具，主要功能包括插件
+                                                       开关控制、状态观测和默认配置管理。
+    XLOG_LEVEL        XPyTorch            str                               公
+                                                       基本使用配置："capture=info": 打开 xmlir 内部框架
+                                                       模块日志 2. "capture=info,dist=info": 打开 xmlir 内
+
+                                                                      限
+                                                       部框架模块日志和通信 log 一般和 XPUAPI_DEBUG/
+                                                       XPURT_DISPATCH_MODE=PROFILING 结合使用
+
+
+    1.4.2 fallback 相关                                          有
+    1.4.2.1 配置示例                                         ）
+                                                     圳
+    export XMLIR_XDNN_PYTORCH_CHECK_ENABLE_FALLBACK_BOOL=1 # 允许 XDNN 出错后 fallback cpu
+
+                                                深
+    export XMLIR_ENABLE_FALLBACK_TO_CPU_BOOL=True # 允许 fallback 到 cpu
+    export XMLIR_DUMP_FALLBACK_OP_LIST_BOOL=true # 产出 fallback 算子列表
+    export XMLIR_D_FORCE_FALLBACK_STR="aten::add.Tensor" # 指定 fallback aten 算子
+
+                                       （
+    export XMLIR_DEBUG_FALLBACK_ALL=true # fallback 所有算子到 cpu
+
+
+
+    1.4.2.1.1 获取 fallback aten 算子名   技
+    import torch
+                        讯
+    以 conv2d 算子为例说明获取 fallback aten 算子名的过程，conv2d.py 代码如下：
+
+                         科
+    import torch.nn as nn
+
+
+    a")
+                  腾
+    m = nn.Conv2d(16, 33, (3, 5), stride=(2, 1), padding=(4, 2), dilation=(3, 1), device="cud
+
+
+            供
+    input = torch.randn(20, 16, 50, 100).cuda()
+    output = m(input)
+
+       仅
+    运行时设置环境变量如下, 运行完成后本地会生成一个名为 fallback_op_list.log 的文件
+    芯
+    >> export XMLIR_ENABLE_FALLBACK_TO_CPU_BOOL=True
+
+仑   >> export XMLIR_DEBUG_FALLBACK_ALL=true
+    >> export XMLIR_DUMP_FALLBACK_OP_LIST_BOOL=true
+
+昆   >> python conv2d.py
+    >> cat fallback_op_list.log
+    aten::convolution
+    aten::uniform_
+    aten::uniform_
+    aten::convolution
+
+
+    运行时设置如下环境变量进行 fallback
+
+
+
+
+                             Copyright©2024-2025 昆仑芯（北京）科技有限公司                               -8-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    >> export XMLIR_ENABLE_FALLBACK_TO_CPU_BOOL=True
+    >> unset XMLIR_DEBUG_FALLBACK_ALL
+    >> export XMLIR_DUMP_FALLBACK_OP_LIST_BOOL=true
+    >> export XMLIR_D_FORCE_FALLBACK_STR="aten::convolution"
+    // 执行你的代码
+
+
+    环境变量详细说明：
+
+    环境变量                          来源
+    XMLIR_XDNN_PYTORCH_CHECK_E XPyTorch
+                                             默认值
+                                             0
+                                                      可配置值
+                                                      bool
+                                                               备注
+                                                               允许将不支持的 xpu dnn 算子 fallba
+                                                                                         用
+    NABLE_FALLBACK_BOOL
+    XMLIR_ENABLE_FALLBACK_TO_CP   XPyTorch   0        bool
+                                                               ck 至 cpu 计算。
+                                                                                   使
+                                                               允许将不支持的算子 fallback 至 cpu
+    U_BOOL
+    XMLIR_DUMP_FALLBACK_OP_LIST
+    _BOOL
+                                  XPyTorch   0        bool
+                                                               计算。
+                                                                            司
+                                                               产出 fallback op 列表。
+
+    XMLIR_DEBUG_FALLBACK_ALL      XPyTorch   0        bool            公
+                                                               fallback 所有算子到 cpu。
+    XMLIR_D_FORCE_FALLBACK_STR    XPyTorch            str
+                                                                限
+                                                               指定算子名，可强制将算子放到 cpu
+                                                               上计算示例：XMLIR_D_FORCE_FALL
+                                                               BACK_STR="aten::native_group_no
+
+                                                               有
+                                                               rm_backward"
+
+
+
+
+    2 XPyTorch 模型训练迁移精度调试指南
+                                                        ）
+                                                   圳
+    2.1 目标                                       深
+    一般情况下，模型精调在 loss 层的基本要求如下。
+                                         （
+    本章节是为使用 XPyTorch 训练模型的开发者提供模型精调的基本流程指导。
+
+
+                                   技
+    在同样配置下，XPU 和 GPU 实现训练的 loss 对齐，主要有以下三个要求：
+                               科
+      ● 前 20 步误差在千分位，前几步误差最好在万分位及以上
+
+                       讯
+      ● 前 1000 步平均误差在千分位（绝对和相对误差小于 1e-2）
+      ● loss 收敛趋势和 GPU 保持一致
+    ⚠注意           腾
+    以不做严格限制。
+            供
+    如果前几十步的 loss 误差均小于或等于千分位，且收敛趋势和 GPU 保持一致，平均 loss 可
+
+       仅
+    在实际业务中，可能会涉及到 GSB/Accuracy/Recall/Precision 等相关指标的要求，具体情
+    芯
+    况需要根据业务需求决定。
+
+仑   2.2 XPyTorch 训练配置
+昆   参考训练基础配置以及调试。
+
+
+    2.3 XPyTorch 模型训练精度对齐基本流程
+    一般来说需要考虑如下几点：
+
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                            -9-
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    |类别|检查项| |-|-| |环境|主要软件包一致| |数据|数据集一致数据加载顺序相同| |模型|初始权重
+    相同模型结构参数一致| |训练|随机种子固定梯度裁剪一致 GPU 计算模式设置（确定性模式）|
+
+    2.3.1 环境与数据准备
+    2.3.1.1 环境一致性检查
+    对比执行前需要检查主要软件包在 XPU 和 GPU 上是否一致。示例代码如下：
+                                                                                        用
+    pip freeze |grep -E "torch|deepspeed|megatron|llama_factory"
+                                                                                  使
+    2.3.1.2 数据准备
+    1.   使用相同预处理脚本生成数据集，保证生成的数据的完整性和一致性（也可以校验原始
+                                                                            司
+         数据的 md5 值是否一致）。                                               公
+    2.   固定数据集拆分随机种子                                               限
+          ● Megatron 框架代码中数据拆分的随机种子设置如下：
+                                                             有
+             document_index = _build_document_index(    ）
+             numpy_random_state = numpy.random.RandomState(self.config.random_seed)
+
+
+             )                                    圳
+                 self.indices, num_epochs, numpy_random_state, separate_final_epoch
+
+
+
+
+          ● llama-factory 代码中数据拆分的随机种子设置如下：  深
+             if dataset is not None:
+                                       （
+                                  技
+                 if data_args.streaming:
+                     dataset = dataset.shuffle(buffer_size=data_args.buffer_size, seed=seed)
+
+
+
+                       讯
+                 if data_args.val_size > 1e-6:
+                     if data_args.streaming:
+
+                        科dataset_dict["validation"] = dataset.take(int(data_args.val_size))
+                         dataset_dict["train"] = dataset.skip(int(data_args.val_size))
+                     else:
+
+                  腾      val_size = int(data_args.val_size) if data_args.val_size > 1 else d
+             ata_args.val_size
+                         dataset_dict = dataset.train_test_split(test_size=val_size, seed=se
+
+            供ed)
+                         dataset = dataset.train_test_split(test_size=val_size, seed=seed)
+                         dataset_dict = {"train": dataset["train"], "validation": dataset["t
+
+         仅   est"]}
+                 else:
+
+    芯                dataset_dict["train"] = dataset
+
+
+
+仑         ● 其他，如 torch 数据生成器的随机种子设置如下：
+
+
+昆            import torch
+             g = torch.Generator()
+             g.manual_seed(42) # 设置生成器随机种子
+             dataloader = torch.utils.data.DataLoader(dataset, batch_size=64, shuffle=True,
+             generator=g)
+
+
+    如果想要完全避免数据 shuffle 可能带来的精度问题，可以根据不同框架的参数配置禁用数据
+    集 shuffle。
+
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                          - 10 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    2.3.1.3 全局确定性设置
+    ●   随机数种子
+        Megatron/llama-factory 框架:
+
+        # 设定随机种子
+        --seed 42
+
+
+        确定随机种子是否设置完整，如下：
+                                                                       用
+        random.seed(seed)
+                                                                     使
+        np.random.seed(seed)
+        torch.manual_seed(seed)                                司
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+        transformers.set_seed(seed) # transformer 随机种子设置
+                                                              公
+    ●   确定性算法                                           有限
+        当前 XPU 的算法为确定性算法，因此与 GPU 对齐时也建议开启确定性算法。即需要先
+        开启如下三个环境变量：
+                                                    ）
+        export NVTE_ALLOW_NONDETERMINISTIC_ALGO=0
+        export CUBLAS_WORKSPACE_CONFIG=:4096:8
+                                                    圳
+        export NCCL_ALGO=Ring
+                                            深
+        其次需要根据框架配置不同的参数来配置确定性算法。
+        Megatron 需要增加如下参数：
+                                      （
+                                 技
+                      讯
+        --deterministic-mode
+
+
+
+                       科
+        llama-factory/其他框架需要在框架中增加如下代码：
+
+
+                 腾
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
+           供
+        torch.use_deterministic_algorithms(True)
+
+
+    ●
+        仅
+        模型初始化对齐
+          ○ 预训练(pretrain)场景
+    芯       1. 预训练场景保证 XPU 和 GPU 随机数种子的一致，一般情况下即可保证模型参
+仑              数初始化的一致。
+
+昆           2. 对于 Megatron 框架需要额外设置，如下参数：
+
+               --use-cpu-initialization # cpu 初始化模型参数，保证初始化后参数的一致性
+
+
+          ○ 微调(finetune)场景
+             加载模型参数一致，即可保证模型参数的一致。
+
+
+
+
+                          Copyright©2024-2025 昆仑芯（北京）科技有限公司          - 11 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+           ○ 可能导致模型参数不一致的情况
+              使用 Megatron/DeepSpeed 框架训练的时候，有可能因为多机通信等问题导致
+              loss 精度问题。这种情况一般可以加 BKCL_FORCE_SYNC=1 验证，或者在通信
+              前后加 wait，如下示例：
+
+              # torch.cuda.synchronize()
+              cdb.barrier()
+              start_time = time.perf_counter_ns()
+              out = func(*args, **kwargs)
+              torch.cuda.synchronize()
+                                                                            用
+                                                                          使
+    2.3.2 模型结构对齐                                                      司
+    可以在执行时打印模型结构，确认 XPU 和 GPU 的模型结构是否对齐。
+    示例模型结果如下：
+                                                                  公
+                                                                  限
+    import torch
+    import torch.nn as nn                                    有
+    # 定义一个简单的神经网络模型
+    class SimpleModel(nn.Module):
+        def __init__(self):
+                                                        ）
+            super(SimpleModel, self).__init__()
+                                                    圳
+            self.conv1 = nn.Conv2d(1, 32, kernel_size=3)
+
+
+       def forward(self, x):
+                                             深
+            self.fc1 = nn.Linear(32 * 26 * 26, 10) # 假设输入是 28x28 的单通道图像
+
+
+           x = self.conv1(x)
+
+                                  技
+           x = x.view(x.size(0), -1)
+           x = self.fc1(x)
+           return x
+                                   （
+    # 实例化模型
+
+
+    # 打印模型结构
+                       讯
+    model = SimpleModel()
+
+
+    print(model)        科
+    模型结构打印输出如下：    腾
+            供
+    SimpleModel(
+
+
+    )
+       仅
+      (conv1): Conv2d(1, 32, kernel_size=(3, 3), stride=(1, 1))
+      (fc1): Linear()
+
+
+    芯
+    打印模型时，一般在代码中增加 print(model)即可。
+仑   ⚠注意
+昆   多卡或多机训练，需要确认 XPU 和 GPU 每张卡的模型结构是否分别一致。
+
+    2.3.3 训练执行
+    精度排查时，提供算子和 module 层两种方案。一般情况下，通过算子层的排查基本可以确
+    定对应算子的精度问题。
+
+
+
+
+                            Copyright©2024-2025 昆仑芯（北京）科技有限公司             - 12 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    2.3.3.1 Loss diff 异常排查流程：算子层
+    算子层的问题排查需要使用 torch_xray 工具，该工具可以获取 XPU 算子层的接口名称和参数
+    等信息，并支持生成算子单测复现问题。如果可复现，需要找相关开发人员排查修复。
+    torch_xray 支持修改代码和环境变量两种方式（二选一）。使用环境变量可以无侵入代码即
+    可开启，建议使用环境变量。
+    torch_xray 会保存算子的基本信息，其保存路径默认为：./xray_debug/
+    rank_{rank_id}/proc_{pid}/dump.json****                                                用
+    torch_xray 环境变量使用流程主要分为如下几步：                                                  使
+    1.   抓取模型中的算子信息，该流程可以只保存算子的 shape 和 dtype 信息，也可以保存
+         torch tensor 为.pt 文件（二选一）                                           司
+          ● 设置环境变量(dump 算子参数 shape 和 dtype 信息)                         公
+             export X_DEDUP=true # 根据 shape 及 dtype 去重
+                                                             有限
+             export X_DEBUG=0x102 # trace 算子名称、arguments shape、dtype、data_range
+             export X_ENABLE_RANKS=0 # 建议指定某一个 rank dump tensor，避免存过多，可以根据需要设
+             置多个
+
+
+          ● dump 算子参数 torch tensor 保存为.pt 文件
+                                                       ）
+             export X_DEBUG=0x102
+                                                  圳
+             export X_DEDUP=true
+                                             深
+    2.   根据 JSON 生成算子单测
+                                    技（
+         jprof --cpu_init dump.json # 将 dump.json 中的全部 op 生成 xtest 单测
+         jprof --cpu_init --blacklist dump.json # 屏蔽掉随机算子和部分无计算算子生成 xtest 单测
+
+                       讯
+         jprof --cpu_init --blacklist --factory=load # 在上一步 dump 算子参数真实 torch tensor 保
+
+
+                        科
+         存为.pt 文件情况下，加载保存的完整真实 tensor 参数进行单测
+         jprof --cpu_init --blacklist --sample_num 100 dump.json # 如果 dump.json 中算子过多，可
+         以利用 sample_num 设置每个 aten 算子随机选择 n 个进行抽样精度检测
+
+
+    3.            腾
+         pytest 运行单测
+
+            供
+         cd pytests
+
+         仅
+         # 批量
+         pytest --detail_compare_enable=True ./ --seed 42
+
+
+    芯    # 在 xpu 上执行单个 case
+         pytest xtest_570255_custom_ops_mha_varlen_fwd_default.py --xpu_only --seed 42
+
+仑        参数介绍：
+         --count，指定重复跑次数，有的算子只跑一次可能不能暴露问题，比如越界问题。
+
+昆        -k 滤掉随机算子；
+         --detail_compare_enable 设置为 True，开启详细对比，计算并保存每个算子对应的 diff 指标到 detail_
+         compare_result.csv 文件。
+         --seed xxx 指定随机种子，可以控制多次运行输入数据一致性；
+
+
+         执行结果示例：
+
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                             - 13 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+
+         每列介绍如下：
+
+         "max_abs_diff", "max_diff", "min_diff" # 最大绝对值误差、最大误差值、最小误差值；评估最大误             用
+         差值
+         "1e-1", "1e-2", "1e-3", "1e-4", "1e-5" # 误差超过 1e-x 的元素个数；评估误差数据个数
+         "max_ulp", "mean_ulp", "ulp_ratio" # 最大 ulp 误差，平均 ulp 误差，存在 ulp 误差的比例，ulp
+                                                                                  使
+         为最后一位上的单位值或称最小精度单位；评估对应精度及数据值下的误差程度
+         "gt_cpu_num", "lt_cpu_num" # 大于 cpu 的元素个数，小于 cpu 的元素个数；评估误差大小分布
+         "gt_cpu_sum", "lt_cpu_sum" # 大于 cpu 的误差之和，小于 cpu 的误差之和；评估误差大小分布
+                                                                             司
+    4.   结合 GPU vs CPU 及 XPU vs CPU 的精度差异，给出算子对比结果是否通过建议。
+                                                                       公
+                                                                  限
+         lt.csv ./result.csv                                 有
+         summary_diff_check $xpu_path/detail_compare_result.csv $gpu_path/detail_compare_resu
+
+
+
+
+         输出 CSV 示例：                                    ）
+                                                  圳
+                                             深
+                                  技（
+         用户手册中工具说明部分。
+                       讯
+         torch_xray 支持设置算子列表的白名单和黑名单，提高 dump 效率。详细用法可以参考
+
+                        科
+    2.3.3.2 Loss diff 异常排查流程：Module 层精度对比
+                  腾
+    本节介绍使用 torch_xray 从模型层面对 XPU/GPU 进行对比，通过模型计算过程中的数据，
+            供
+    对 XPU 和 GPU 进行精度对比。使用的模型定义示例如下：
+
+         仅
+    芯
+仑
+昆
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                          - 14 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    import torch
+    import torch.nn as nn
+
+    # 定义一个简单的神经网络模型
+    class SimpleModel(nn.Module):
+        def __init__(self):
+            super(SimpleModel, self).__init__()
+            self.conv1 = nn.Conv2d(1, 32, kernel_size=3)
+            self.fc1 = nn.Linear(32 * 26 * 26, 10) # 假设输入是 28x28 的单通道图像
+
+         def forward(self, x):
+             x = self.conv1(x)
+                                                                                        用
+             x = x.view(x.size(0), -1)
+             x = self.fc1(x)
+             return x
+                                         # 展平
+                                                                                      使
+    # 实例化模型
+                                                                               司
+    model = SimpleModel()
+
+    # 打印模型结构
+                                                                        公
+    print(model)
+                                                                   限
+    1.    第一个 step loss 对齐
+          XPU 与 GPU 第一个 step 的 loss 有较大差异的主要原因可能有以下几方面：
+                                                             有
+           ● 输入数据差异：每步的输入数据以随机的方式从训练数据集中获取。
+                                                        ）
+           ● 初始权重差异                                圳
+                ○ 权重初始化使用的随机种子不同：固定随机种子。
+                                                深
+                ○ XPU/GPU 端初始化，不同设备的随机数产生机制不同： 统一在 CPU 端初始
+                  化。
+           ● 算子功能错误。
+                                         （
+    2.    模型输入对齐
+                                   技
+                              科
+          检测方法：Dump GPU/XPU 模型的输入 Tensor，对比精度。
+
+                        讯
+           ● 遍历模型结构，获取各 module 的名称和类型，使用示例如下所示：
+
+                   腾
+              model = SimpleModel()
+              for name, module in model.named_modules():
+
+             供    print(f"Module Name: {name}, Module Type: {type(module)}")
+
+
+
+         仅    输出：
+
+    芯         Module Name: , Module Type: <class '__main__.SimpleModel'>
+              Module Name: fc1, Module Type: <class 'torch_xmlir.nn.linear.Linear'>
+
+仑             Module Name: fc2, Module Type: <class 'torch_xmlir.nn.linear.Linear'>
+              Module Name: fc3, Module Type: <class 'torch_xmlir.nn.linear.Linear'>
+
+昆          ● 通过 PercisionDebugger 工具捕获最外层 nn.Module 的输入输出，使用示例如下
+             所示：
+
+
+
+
+                            Copyright©2024-2025 昆仑芯（北京）科技有限公司                         - 15 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+          from torch_xray import PrecisionDebugger
+          debugger = PrecisionDebugger(dump_path="./dump/xpu", hook_name="dump", rank=0,
+          step=[0], model=model, dump_torch_api=False)
+          debugger.start()
+
+          # training process
+          ....
+
+          #############################################
+          PrecisionDebugger 初始化参数介绍：
+              dump_path: 中间结果保存路径；（如不存在会自动创建，如已有同名文件会自动覆盖）
+              hook_name: 暂时仅支持"dump"
+                                                                                     用
+              rank: 指定 dump 的 rank，支持 int 或 list[int]类型
+              step: 指定 dump 的 step，list[int]类型；从 1 开始计数，配置 step 参数需>=1；
+              model: 传入需要 dump 的模型；
+                                                                               使
+              dump_torch_api: 是否 dump 算子粒度中间结果；（建议初次跑设置为 False，后续根据实际需求
+          制定范围后，再开启）
+                                                                         司
+        ● 对比 nn.moudule 层级 dump 数据：
+                                                                    公
+                                                               限
+          compare ./dump/gpu/globalrank-0_localrank-0.h5 ./dump/xpu/globalrank-0_localran
+          k-0.h5 gpu-xpu.txt
+                                                         有
+                                                    ）
+          # 如果由于 gpu/xpu name 或 shape 不匹配导致对比出错，可以开启模糊匹配尝试
+          compare ./dump/gpu/globalrank-0_localrank-0.h5 ./dump/xpu/globalrank-0_localran
+          k-0.h5 gpu-xpu.txt --fuzzy-match name shape
+
+
+          对比结果如下：
+                                               圳
+                                         深
+                                    （
+                    讯
+                     科
+          其中 Status 列中为 Fail 的表示 XPU/GPU tensor 最大绝对值误差超过 0.01 的中间
+
+                      技
+          结果，但是并不能百分百确定问题点，具体问题 module 可以结合后面多种误差指
+          标判断，建议先查找某个 module 输入及权重 的 Max Abs Err 较小而输出 Max
+          Abs Err 明显变大的位置。Stack Info 列可以看到该中间结果对应模型代码中位
+          置。  腾
+         供输出结果中的指标说明：
+
+      仅   相似性指标：
+          Cosine（Similarity）: 两个 Tensor 之间的余弦相似度，取值 [-1, 1]，越大越好；
+
+    芯     RMSE（Root Mean Square Error）: 两个 Tensor 之间的均方根误差，越小越好；
+          IsClose（%）：两个 Tensor 绝对值之间相对误差小于 0.01 的元素所占百分比，越大越好；
+          Min Abs Err: 两个 Tensor 之间的最小绝对误差，越小越好；
+仑         Max Abs Err: 两个 Tensor 之间的最大绝对误差，越小越好；
+          统计指标：
+
+昆         Min: Tensor 的最小值；
+          Max: Tensor 的最大值；
+          Shape: Tensor 的形状；
+          Dtype: Tensor 的数据类型；
+          精度对比结果：
+          Status：表示两个 Tensor 间精度对比是否达标，Fail 表示不达标；
+          检测不达标条件：
+          Max Abs Err > 0.01；
+
+
+        ● 进一步算子误差对比
+
+
+
+                        Copyright©2024-2025 昆仑芯（北京）科技有限公司                          - 16 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+          假如上述步骤中发现以下两个参数均无误差：
+
+          module.module.language_model.encoder.layers.0.self_attention.query_key_value.Co
+          lumnParallelLinear.4.forward_input.0
+
+
+          和
+
+
+          lumnParallelLinear.4.forward_params.weight                                 用
+          module.module.language_model.encoder.layers.0.self_attention.query_key_value.Co
+
+
+
+
+          而以下参数误差变大：
+                                                                               使
+                                                                         司
+          module.module.language_model.encoder.layers.0.self_attention.query_key_value.Co
+          lumnParallelLinear.4.forward_output.0
+                                                                    公
+          则可以选定这个 module 范围内的算子进行 dump 及对比。                    限
+          ...                                            有
+          model = load_model(tokenizer, model_args, finetuning_args, training_args.do_tra
+          in)
+                                                    ）
+                                               圳
+          from torch_xray import PrecisionDebugger
+          debugger = PrecisionDebugger(dump_path="./dump/xpu", hook_name="dump", rank=0,
+          step=[0], model=model, dump_torch_api=True)
+
+
+          backward 作为 dump 结束位置
+                                         深
+          # scope 分别传入问题 module.forward or backward 作为起始位置，下一个 module.forward or
+
+
+                                    （
+          debugger.configure_hook(mode="range", scope=["module.module.language_model.enco
+          der.layers.0.self_attention.query_key_value.ColumnParallelLinear.4.forward", "m
+
+
+                         科
+          odule.module.language_model.encoder.layers.0.self_attention.core_attention_flas
+          h.FlashSelfAttention.2.forward"])
+
+
+                          技
+          debugger.start()
+
+          ###############################################################################
+          ###############
+
+                    讯
+          configure_hook 参数：
+              mode: dump 范围选定模式，可取值"all", "range", "match"，默认为"all"。
+                  设置为"all"时，dump 全模型范围数据，scope 及 api_list 不需要传入；
+              腾   设置为"range"时，scope 参数必须，且列表长度为 2，dump scope[0]到 scope[1]指定模
+          型范围之间的部分；
+
+          供       设置为"match"时，scope 或 api_list 参数至少指定一个，列表长度可>=1；
+              scope: 在 mode 为"range"时，指定 dump 起始和结束位置 module 名称；在 mode 为"match
+          "时，指定 dump scope 中 module 名称匹配模块，默认为[]；
+
+         仅    api_list: 在 mode 为"match"时，指定 dump 的算子名称，默认为[]；
+              filters: 指定 dump 数据类别，可取值"all"、"forward"、"backward"、"input"、"output
+          "、"params"、"grad"或其列表组合，默认为["all"]；
+    芯         summary_only：不 dump 中间结果完整 tensor 数据，直接生成 tensor 信息统计列表； ['Step
+          ', 'Rank', 'Module', 'Min', 'Max', 'Shape', 'inf/nan', 'mean', 'std', 'norm', '
+
+仑         Dtype', 'Stack Info']，默认为 False；
+              tensorboard_only: 不 dump 中间结果完整 tensor 数据，不生成 tensor 信息统计列表，仅生成
+          tensorboard 输出项，针对每个观测范围内 tensor，可查看['Min', 'Max', 'mean', 'std', 'no
+
+昆         rm']及数据直方分布，可观测多 step 过程中 tensor 指标变化趋势，默认为 False；
+
+
+
+
+          对比结果误差指标同上。Stack Info 列可以看到该中间结果对应模型代码中位置。
+    3.   初始权重差异
+
+
+
+                        Copyright©2024-2025 昆仑芯（北京）科技有限公司                          - 17 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+         dump 模型的所有权重 Tensor(s)，对比所有 Tensor 的精度。由于是第一个 step，权
+         重 Tensor 不应该存在任何差异。
+          ● 基于 PercisionDebugger 工具 dump 模型权重：
+
+            from torch_xray import PrecisionDebugger
+            debugger = PrecisionDebugger(dump_path="./dump/xpu", hook_name="dump", rank=0,
+            step=[0], model=model, dump_torch_api=True)
+            debugger.start()
+
+            # training process
+                                                                                       用
+            ......
+            loss = loss_func()                                                   使
+            # 这里只需要 dump 第一个 step 的权重，所以到这里就可以退出了
+            exit(0)                                                        司
+          ● 对比 dump 的权重数据，对比方法同上。
+                                                                      公
+    4.   对齐 loss function 输入 Tensor
+         遍历所有 forward 输出 Tensor，对比其精度。
+                                                           有限
+          ● dump 前向的输入和输出，方法同上。
+          ● 对比 dump 数据，方法同上。
+                                                      ）
+          ● 分析过程                                 圳
+                误差的 nn.Module。             深
+              ○ 根据模型结构和 dump 数据对比结果，如果存在错误情况，找到最早出现精度
+
+
+                                 技
+              ○ 分析 nn.Module 中的算子组成，找到可能导致精度错误的算子：
+
+                                  （
+                  ○ 重点关注：conv/fa/fc 等算子，可以通过修改环境变量将 GEMM TYPE 替
+                    换为更高精度类型，方法如下：
+
+                         讯科
+                    FA 配置方式：
+                    export XMLIR_FA_GEMM_TYPE=float32
+                    FC 配置方式：
+                    export XBLAS_GEMM_COMPUTE_TYPE=fp32
+
+                 腾  CONV 配置方式：
+                    export XMLIR_CONV_GEMM_DTYPE=float
+
+            供     ○ 将可能导致精度误差的算子 fallback 到 CPU。
+         仅               ○ Aten 算子：直接 fallback。
+
+    芯                    ○ custom op: 检查是否有对应的 CPU 算子实现。
+                            ○ 有：直接 fallback
+仑                           ○ 无：在模型中 fallback。如果是 fusion 算子，可以先拆分为其他
+                              算子的组合，检查是否有精度问题。
+昆                   export XMLIR_D_FORCE_FALLBACK_STR="aten::elu"
+
+
+    5.   Loss Function
+         当上述步骤执行完成后，XPU/GPU Tensor 之间没有显著的差异，接下来的怀疑对象就
+         是 loss function。需要深入模型代码观察 loss 的计算逻辑，进一步分析。
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                         - 18 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+        ● 替换 loss 函数，对比精度是否有差异。
+        ● 获取 loss func 中调用的算子，fallback 可疑算子。
+           ○ 通过 module_logging 获取 loss function 的 Aten 算子调用
+
+             import torch
+             import torch.nn as nn
+
+             import module_logging as ml
+             # 定义自定义模型
+             class AddSubMulDivModel(nn.Module):
+                                                                                    用
+                 def __init__(self):
+                     super(AddSubMulDivModel, self).__init__()                使
+                def forward(self, x, y):
+                    # 逐元素的加、减、乘、除操作
+                                                                        司
+                    result_add = torch.add(x, y)
+                    result_sub = torch.sub(x, y)
+                    result_mul = torch.mul(x, y)
+                                                                     公
+                    result_div = torch.div(x, y)
+
+                     # 将结果相加，输出最终结果（可根据需要修改）
+                                                             限
+                     return output
+                                                        有
+                     output = result_add + result_sub + result_mul + result_div
+
+
+             # 初始化模型
+             model = AddSubMulDivModel()
+                                                   ）
+             # 创建输入张量                        圳
+             x = torch.tensor([1.0, 2.0, 3.0], requires_grad=True)
+                                           深
+             y = torch.tensor([4.0, 5.0, 6.0], requires_grad=True)
+
+             # 前向/反向传播
+                                     （
+             with ml.logger.PerformanceLogger():
+                 output = model(x, y)
+
+
+                  讯
+                 loss = output.sum()
+                 loss.backward()
+
+
+                   科
+                    技
+             腾
+         供
+      仅
+    芯      ○ 通过 XLOG_LEVEL="capture=info" 打印 xpu op 调用信息：
+
+仑            import torch
+             x = torch.randn((16, 16), dtype=torch.float32).cuda()
+
+昆            y = torch.randn((16, 16), dtype=torch.float32).cuda()
+             z = torch.mul(x, y)
+
+
+
+
+                      Copyright©2024-2025 昆仑芯（北京）科技有限公司                           - 19 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+
+    6.   第二个 Step Loss 对齐
+                                                                                      用
+         在第一个 step loss 对齐的基础上，模型的前向计算精度已经都是正确的。所以要关注
+                                                                                使
+         的就是第一个 step 的反向计算。
+         ● 反向计算对齐
+                                                                          司
+            在前述章节中，dump 和对比了所有前反向中每个 nn.Module 的 Tensor。根据模
+                                                                     公
+            型反向的执行顺序排查，找到最先出现精度误差的 nn.Module，分析可能存在错误
+            的算子。                                          有限
+                                                     ）
+         ● 权重梯度对齐                              圳
+             ○ 获取梯度 tensor 信息：
+                                          深
+            dump 和对比所有前反向中每个 nn.Module 的 Tensor。
+
+
+                               技（
+               from torch_xray import PrecisionDebugger
+               debugger = PrecisionDebugger(dump_path="./dump-xpu/", hook_name="dump", ran
+               k=0, step=[2], model=model[0], dump_torch_api=False)
+
+                    讯
+               debugger.configure_hook(mode="all", filters=["grad"])
+               debugger.start()
+
+                     科
+             ○ 在对比结果中，根据 tensor name 找到最先出现精度差异的操作。
+               腾
+           供
+         仅
+    芯
+仑
+昆
+             ○ 尝试 fallback 精度异常 op 到 CPU，观察第二个 step loss 精度是否正常。
+    7.   对齐优化器
+
+
+
+
+                        Copyright©2024-2025 昆仑芯（北京）科技有限公司                           - 20 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+       模型反向过程中会计算每个权重 tensor 对应的梯度，优化器会使用梯度信息实现对权
+       重的更新。当模型的反向计算过程中 XPU/GPU 所有梯度 tensor 的精度都一致，那么
+       错误大概出现在优化器部分。因此可以采用 torch 官方提供的 hook 进行排查，其介绍
+       和使用示例如下：
+       首先定义 pre/post 的 hook：
+
+
+                                                                       用
+                                                                   使
+       实现代码如下：
+                                                                   司
+                                                               公
+       def pre_step_hook(optimizer):
+           print("Before optimizer step")
+           for param_group in optimizer.param_groups:
+               for param in param_group['params']:
+                                                              有限
+                   # 自定义逻辑：例如对参数值做某些修改
+                   if param.grad is not None:
+
+           return None
+                                                     ）
+                       print(f"Param before step: {param}")
+
+       # 注册 pre-step hook 到优化器
+                                                圳
+       optimizer.register_step_pre_hook(pre_step_hook)
+
+       # 定义 post-step hook 函数
+       def post_step_hook(optimizer):      深
+                                技
+           print("After optimizer step")
+           for param_group in optimizer.param_groups:
+
+
+
+           return None
+                                 （
+               for param in param_group['params']:
+                   if param.grad is not None:
+                       print(f"Param after step: {param}")
+
+
+
+                     讯
+       # 注册 post-step hook 到优化器
+
+                      科
+       optimizer.register_step_post_hook(post_step_hook)
+
+
+
+                腾
+       然后定义状态字典的 hook：
+
+
+          供
+      仅
+    芯
+仑
+昆
+
+
+                         Copyright©2024-2025 昆仑芯（北京）科技有限公司         - 21 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+        # 定义 pre-state-dict hook 函数
+        def pre_state_dict_hook(optimizer, state_dict):
+            print("Before saving state dict")
+            # 修改状态字典的逻辑，例如添加自定义项
+            state_dict['custom_key'] = 'custom_value'
+            return state_dict
+
+        # 注册 state_dict pre-hook 到优化器
+        optimizer.register_state_dict_pre_hook(pre_state_dict_hook)
+
+        # 定义 post-state-dict hook 函数
+        def post_state_dict_hook(optimizer, state_dict):
+                                                                              用
+            print("After saving state dict")
+            # 自定义逻辑：例如日志输出或者状态检查
+            print(f"State dict keys: {state_dict.keys()}")
+                                                                            使
+            return None # 这个 hook 不需要修改 state_dict, 返回 None 即可
+                                                                        司
+        # 注册 state_dict post-hook 到优化器
+        optimizer.register_state_dict_post_hook(post_state_dict_hook)   公
+        通过上述 hook 机制可以获取优化器更新前后的状态字典、梯度 tensor 以及更新后的权           限
+        重 tensor。通过对比 XPU/GPU 对应的 tensor 信息并结合优化器的源码，可以基本确
+        定出导致精度错误的算子范围。然后参考前述步骤使用 torch_xray 工具进一步对这些算       有
+        子进行详细分析。
+                                                      ）
+    2.4 其他 loss 问题                               圳
+    2.4.1 Loss 出现 NaN 的排查流程
+                                            深
+                                      （
+    该问题表现为：第一个 step loss=0/grad_norm=NaN。后续 step loss=0/NaN，
+    grad_norm=NaN。
+    触发该问题的情况，一般可分为如下 3 种情况：
+                                 技
+    ●   learning-rate 问题
+                           科
+                      讯
+        学习率过大一般会导致 loss 出现 NaN 问题，此时需要同样的配置在 GPU 跑一下，如
+        果 loss 正常则表明不是学习率问题。如果 loss 表现和 XPU 一致，此时尝试将学习率调
+        低即可。     腾
+    ●      供
+        数据集问题
+
+        仅
+        如果数据中存在脏数据可能会导致 loss/grad_norm 出现 NaN，此时需要同样的配置在
+        GPU 跑一下，如果 loss/grad_norm 表现正常则表明不是数据问题。如果 GPU 的 loss/
+    芯
+    ●
+        grad_norm 表现和 XPU 一致，此时需要更换数据集或者清洗数据。
+        模型参数或某些算子计算问题
+仑       定位该问题可使用环境变量 XPUAPI_DEBUG，该环境变量可以计算每个 kernel 的输
+昆       入/输出的 mean/std，用来判断 INF/NaN 问题，但是速度会非常慢。
+
+        export XPUAPI_DEBUG=0x1011
+
+
+        输出示例：
+
+
+
+
+                          Copyright©2024-2025 昆仑芯（北京）科技有限公司                 - 22 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+
+         可以将出现错误的算子测试脚本或者以下算子说明提供给开发人员，便于快速定位。
+
+
+                                                                                         用
+         {"op": "fc_fusion", "types": ["float16", "float16", "bfloat16", "bfloat16", "float16
+         ", "float", "float", "float", "float", "float16"], "params": {"a": {"ptr": "GM", "ma
+         xptr": "NULL", "rows": 16384, "cols": 3584, "ld": 3584, "trans": false}, "b": {"ptr"
+
+                                                                                       使
+         : "GM", "maxptr": "NULL", "rows": 4608, "cols": 3584, "ld": 3584, "trans": true}, "c
+         ": {"ptr": "GM", "maxptr": "NULL", "rows": 16384, "cols": 4608, "ld": 4608, "trans":
+          false}, "d": {"ptr": "GM", "maxptr": "NULL", "rows": 16384, "cols": 4608, "ld": 460
+
+                                                                               司
+         8, "trans": false}, "desc": {"alpha": 1, "beta": 0}, "epilogue": {"act": {"type": 0,
+          "leaky_alpha": 0}, "bias": "GM", "scale_a": "GM", "scale_b": "GM", "scale_a_mode":
+         0, "scale_b_mode": 0, "res_maxptr": "NULL"}, "ms_desc": {"multi_stream_type": 0, "bk
+
+         : 0, "extra": {}}
+                                                                         公
+         cl": "NULL", "bkcl_inout": "NULL", "in_max_ptr": "NULL"}}, "dev": "kXPU3", "l3_size"
+
+
+
+
+    2.4.2 Loss 震荡问题
+                                                              有限
+    训练过程中，loss 出现震荡可能是由于当前处在局部最小值，训练多步会逐渐正常。该问题
+    一般属于正常情况，只要 loss 正常收敛即可。                             ）
+    2.4.3 Loss 多步后跑飞问题                             圳
+                                              深
+    如果在 torch gpu 上出现同样的跑飞情况，说明不是 XPyTorch 触发，可能是由于脏数据或者
+    该任务就比较难收敛（比如强化学习相关任务）；如果在 torch gpu 上 Loss 曲线正常，说明
+    有精度溢出等问题，可尝试使用 FP32 高精度类型对模型进行训练。   （
+    3 集群调试工具                 科技
+                        讯
+    3.1 TorchHardwareDiff 工具
+                  腾
+    3.1.1 TorchHardwareDiff 简介
+             供
+    TorchHardwareDiff 是一款专为集群环境设计的工具，旨在离线状态下对昆仑芯 P800 进行精
+    度与性能诊断。它适用于 P800 部署前的故障排查，以及部署后的不定期健康检查。
+       仅
+    工具下载链接: https://su.bcebos.com/klx-sdk-release-public/TorchDiag/release/v1.0.1.0/
+    芯
+    torchdiag-1.0.1.0-py3-none-any.whl
+
+仑   3.1.2 核心原理
+昆     ● 精度异常：表现为计算结果错误，可能导致模型训练的 loss 不收敛，需回退
+        checkpoint 或重新训练。
+      ● 性能异常：表现为算子执行时间延长，增加训练总时长与成本。
+      ● 诊断要求：为确保诊断准确性，需独占资源进行测试，避免外部程序干扰。测试负载模
+        拟实际 LLM 训练场景，支持单机单卡和单机 8 卡任务。
+      ● 一致性原则：所有 P800 硬件配置一致，固定软件环境与输入数据后，计算结果与耗时
+        分布应保持一致。
+
+
+
+                            Copyright©2024-2025 昆仑芯（北京）科技有限公司                          - 23 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    3.1.2.1 精度诊断
+    3.1.2.1.1 精度诊断方法
+    精度故障直接导致计算结果错误，反映在 LLM 训练中为损失值(loss)和梯度范数(grad norm)
+    异常。通过记录并比对这些值，可判断芯片是否存在精度问题。
+    对比方式：
+     ● 静态对比：预先保存正确输入输出，测试后比对。精度诊断中不支持此种对比方式。
+     ● 动态对比：使用相同输入，在测试芯片与参照芯片上同时计算，比对输出值。考虑到任
+                                                              用
+       意的软件迭代、环境变化、工具迭代都可能导致计算结果的变化，本工具采用动态对
+       比，通过“精度”任务类型实现。
+                                                            使
+    具体方法：
+                                                        司
+     ● 多数卡计算结果作为基准，横向比对所有损失值和梯度范数值，差异视为计算错误。            公
+    3.1.2.1.2 流程图                                 限
+    以单卡模型训练任务为例，精度诊断功能主要可分为以下 3 个步骤：
+    步骤 1：启动单卡训练任务。
+                                              有
+    步骤 2：计算损失值和梯度范数值众数。
+                                          ）
+    步骤 3：汇总有差异的 device 信息。            圳
+    对应的流程图如下：                    深
+                         技（
+                    讯科
+    图 3-1 精度诊断流程图
+
+
+    数值即可。
+              腾
+    对于单机 8 卡任务甚至更大规模任务类似，仅需以对应规模为单位收集一份损失值和梯度范
+
+          供
+    3.1.2.2 性能诊断
+      仅
+    3.1.2.2.1 性能诊断方法
+    芯
+    性能故障导致算子耗时增加。通过收集并比对训练过程中的性能数据（如迭代耗时、算子耗
+仑   时），可判断芯片性能状态。
+
+昆   对于性能数据，也有静态对比和动态对比两种方法，分别对应本工具的其中两种任务类型：性
+    能（perf）和性能基准测试（bench-perf）。
+     ● 静态对比：预先保存性能基准数据，测试后比对。支持“性能基准测试（bench-
+       perf）”任务类型。
+     ● 动态对比：使用相同输入，在测试芯片与参照芯片上同时计算，比对性能数据。支持
+       “性能诊断测试（perf）”任务类型。
+    具体方法：
+
+
+
+                    Copyright©2024-2025 昆仑芯（北京）科技有限公司       - 24 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+     ● 多数卡性能数据中值作为基准，横向比对所有性能数据，超出基准值一定比例视为性能
+       故障。本工具以 0.5 为阈值，耗时超过基准值 50% 则视为性能故障。
+
+    3.1.2.2.2 流程图
+    以“性能”任务类型，单卡模型训练任务为例，主要可分为 3 个步骤：
+    步骤 1：启动单卡训练任务。
+    步骤 2：比较算子耗时、端到端耗时。
+    步骤 3：汇总有差异的设备编号。
+                                                                                     用
+    对应的流程图如下：
+                                                                               使
+                                                                         司
+                                                                    公
+                                                               限
+    图 3-2 性能诊断流程图
+                                                         有
+    注：单机 8 卡或更大规模任务流程类似，仅需按规模收集耗时数据。
+                                                    ）
+    "性能基准测试"任务类型唯一不同点在于基准值从预先保存的性能基准数据中读取。
+                                                 圳
+    3.1.3 工具使用前置条件
+                                         深
+                              技
+     ● 配置 Kubernetes 集群（P800），可参考官方文档。
+
+                               （
+     ● 安装 kubectl 客户端，配置文件保存到~/.kube/config，可参考官方文档。
+     ● 本地环境中 Python 版本为 3.8 及以上。
+                    讯
+     ● 安装 TorchHardwareDiff 工具：
+                     科
+         ○ 命令行安装：
+
+              腾
+           download_url=https://su.bcebos.com/klx-sdk-release-public/TorchDiag/release/v1
+           .0.1.0/torchdiag-1.0.1.0-py3-none-any.whl
+          供whl_path=./torchdiag-1.0.1.0-py3-none-any.whl
+
+
+      仅    wget -O ${whl_path} ${download_url}
+           pip install ${whl_path}
+
+
+    芯      推荐在 Docker 容器中安装以上依赖。
+
+仑   3.1.4 快速上手
+昆    ● 使用流程：创建任务 ➡️ 收集日志 ➡️ 分析日志 ➡️ 删除任务。
+     ● 支持任务类型：精度、性能、性能基准测试三种任务类型。
+     ● 异常处理：检测出异常时，参照"常见问题"章节解读异常信息，并确定对策。
+
+    3.1.4.1 精度诊断测试
+    运行精度诊断测试：
+
+
+
+
+                       Copyright©2024-2025 昆仑芯（北京）科技有限公司                           - 25 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    # 示例：单机 8 卡精度诊断 180 分钟，修改 example_ip_list.txt 为所需测试的节点 IP 列表文件
+    # 若需测试单机单卡，参数改为 -d 1
+    torchdiag -n -i example_ip_list.txt -t 180m -d 8 -c loss-grad
+
+    # 检查运行状态并取回日志
+    torchdiag -r
+
+    # 分析最后一次的运行日志
+    torchdiag -a
+
+    # 删除所有任务
+    torchdiag -k
+                                                                       用
+    3.1.4.2 性能诊断测试
+                                                                     使
+    运行性能诊断测试：
+                                                             司
+                                                            公
+                                                  有
+    # 示例：单机 8 卡性能诊断 2 小时，修改 example_ip_list.txt 为所需测试的节点 ip 列表文件
+    # 若需测试单机单卡，参数改为 -d 1
+
+
+    # 检查运行状态并取回日志                                  限
+    torchdiag -n -i example_ip_list.txt -t 2h -d 8 -c perf
+
+
+    torchdiag -r
+
+    # 分析最后一次的运行日志                             ）
+    torchdiag -a
+
+    # 删除所有任务
+                                          圳
+    torchdiag -k
+                                     深
+    3.1.4.3 性能基准测试               （
+    ●
+    ●
+         暂时仅支持单机单卡任务。
+         运行性能基准测试：
+                         科技
+          ip 列表文件       讯
+         # 示例：单机单卡性能基准测试，每个模型运行 50 次迭代，修改 example_ip_list.txt 为所需测试的节点
+
+         torchdiag -n -i example_ip_list.txt -t 50 -d 1 -c bench-perf
+
+
+         torchdiag -r
+                     腾
+         # 检查运行状态并取回日志
+
+
+            供
+         # 分析最后一次的运行日志
+
+        仅torchdiag -a
+
+         # 删除所有任务
+
+    芯    torchdiag -k
+
+
+
+仑   3.1.5 详细使用说明
+昆   ●    工具入口：
+
+         torchdiag
+
+
+    ●    查看参数列表：
+
+
+
+
+                        Copyright©2024-2025 昆仑芯（北京）科技有限公司            - 26 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+          torchdiag -h
+
+
+    ●     所有任务文件、日志和分析结果保存在工具默认日志目录：
+
+          ~/.hardware_diff/
+
+
+    ●     所有任务使用工具命名空间：
+                                                                        用
+          torch-hardware-diff
+                                                                      使
+    3.1.5.1 创建任务                                                  司
+    必选参数：
+        ● -n：创建新任务。
+                                                                  公
+        ● -i：IP 地址文件路径，文件中每行一个 ip 地址，"#"开头视为注释。              有限
+        ● -c：任务类型，支持 loss-grad（精度诊断）、perf（性能诊断）、bench-perf（性能
+          基准测试）。
+    可选参数：
+                                                        ）
+        ● -t：时间或退出迭代次数，加单位（m 或 h）代表时间，不加单位代表单模型迭代次
+          数，默认 1h。
+                                                  圳
+                                             深
+        ● -d：设备数量，仅能设置 1（单卡任务）或 8（单机 8 卡任务），默认 1。
+    示例：                                （
+                                科
+    torchdiag -n -i example_ip_list.txt -c perf -t 1h -d 1
+
+                                 技
+    进阶参数：
+                         讯
+        ● -m：模型列表文件路径，文件中每行一个模型名称，支持 llama3_8b、
+
+                   腾
+          llama3_70b、deepseek_v2、internvl_8b、internvl_8b_32k，"#"开头视为
+          注释，默认空字符串，代表默认模型列表。
+
+             供
+        ● 默认模型列表为 llama3_8b、deepseek_v2。
+        ● 其中 internvl_8b、internvl_8b_32k 为试验性模型，不够稳定，需要额外添加命
+        仅 令行参数才可使用。
+
+    芯   ● -f：新任务强制使用镜像地址，默认空字符串。
+        ● -q：指定 PyTorchJob 提交队列。
+仑       ● --enable-experimental-models：允许使用试验性模型。如果不添加此参数，创
+
+昆         建任务时无法添加试验性模型到模型列表文件。
+    创建任务提示：
+        ● 若命名空间中存在历史任务，创建将失败，需手动删除历史任务。
+        ● 建议使用 kubectl -n torch-hardware-diff get pods 检查任务运行状态。
+
+
+
+
+                              Copyright©2024-2025 昆仑芯（北京）科技有限公司       - 27 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    3.1.5.2 收集日志
+    必选参数：
+    -r：查询任务状态，若失败或未完成则退出，否则取回模型日志，并获取对应节点的 dmesg
+    日志。
+    示例：
+
+    torchdiag -r                                             用
+    进阶参数：
+                                                           使
+    -f：获取 dmesg 日志强制使用镜像地址，默认空字符串。                     司
+    完成提示：
+    出现绿色字体文字表示本步骤完成，否则需根据命令行输出处理。
+                                                       公
+                                                 限
+                                             有
+    图 3-3 日志收集完成示例
+                                         ）
+    3.1.5.3 分析日志
+    必选参数：
+                                     圳
+        ● -a：分析任务日志。
+                                深
+    示例：                     （
+    torchdiag -a        技
+    进阶参数：
+                       科
+                   讯
+        ● -s：指定需要分析的日志时间戳（可于工具日志目录中查看），若不指定则自动分析最
+          新日志，默认空字符串。
+                   腾
+        ● -e：指定需要注入的错误数量，仅用于展示本工具功能。
+    分析结果：   供
+    ●
+        仅
+    程序先在命令行中输出详细诊断信息，最后输出总结性信息。
+         状态正常：命令行无红色字体信息，总结性信息为绿色字体。
+    芯
+仑        图 3-4 状态正常示例
+昆   ●    状态异常：详细诊断信息以红色字体输出具体异常，总结性信息以红色字体输出对应节
+         点 IP，单卡任务还输出异常 P800 序列号(SN)。
+
+
+
+
+                   Copyright©2024-2025 昆仑芯（北京）科技有限公司       - 28 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+
+
+                                                                  用
+            图 3-5 状态异常示例
+                                                               使
+            异常处理：
+                                                           司
+    ●       检测出异常后，参照"常见问题"章节解读异常信息，并确定对策。
+                                                           公
+    3.1.5.4 删除任务
+                                                     限
+    强制删除工具命名空间中所有历史任务。                           有
+    必选参数：                                    ）
+    -k：强制删除所有任务。
+    示例：
+                                         圳
+                                       深
+    torchdiag -k
+                                 （
+    3.1.5.5 异常信息解读与对策           技
+    3.1.5.5.1 精度诊断      科
+        ● 查看总结性信息：红色字体输出精度异常节点 IP，单卡任务还输出异常 P800 序列号
+          (SN)。     讯
+                   腾
+        ● 处理对策：直接隔离对应节点，将机器和测试日志交给昆仑侧稳定性接口人处理。
+
+    3.1.5.5.2 性能诊断或性能基准测试
+              供
+        ● 查看详细诊断信息：红色字体输出具体异常耗时项信息（包括所在节点、日志文件、耗
+        仅 时分类、训练迭代编号、分类耗时中位数、端到端耗时中位数）。
+        ● 处理对策： 根据异常耗时项分类，采取相应处理方法（详见下表）。
+    芯
+    表 3-1 耗时项分类与处理方法
+
+仑   耗时项分类                  意义             处理方法
+
+
+昆   iter_ms                端到端迭代耗时，毫秒     一般会伴随其他异常项，以出现的其他异常项处理方法
+                                          作为对策。若没有其他异常项，则隔离对应节点，把机
+                                          器和当前测试日志交给昆仑侧稳定性接口人处理。
+    cpu_ms                 CPU 耗时，毫秒      排查主机后台程序、基础环境，或使用 CPU 性能工具
+                                          进行下一步定位。
+    h2d_ms                 数据搬运（主机到设备）耗   隔离对应节点，把机器和当前测试日志交给昆仑侧稳定
+                           时，毫秒           性接口人处理。
+    fc_ms                  FC 类算子耗时，毫秒    隔离对应节点，把机器和当前测试日志交给昆仑侧稳定
+                                          性接口人处理。
+
+
+
+
+                       Copyright©2024-2025 昆仑芯（北京）科技有限公司        - 29 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    耗时项分类                    意义                     处理方法
+    flash_attntion_ms        Flash Attention 类算子耗   隔离对应节点，把机器和当前测试日志交给昆仑侧稳定
+                             时，毫秒                   性接口人处理。
+    communication_ms         通信类算子耗时，毫秒             使用通信库测试工具进行分析。
+    non_critical_func_ms     其他 XPU 小算子总耗时，         隔离对应节点，把机器和当前测试日志交给昆仑侧稳定
+                             毫秒                     性接口人处理。
+    其他，如：_ZN14xpukernel_xpu 具体 XPU 算子耗时，毫秒          隔离对应节点，把机器和当前测试日志交给昆仑侧稳定
+    310exp_fwd_klIfEEvPKT_PS1_l                     性接口人处理。
+
+    此处以性能诊断异常为例：具体异常耗时分析显示，节点 10.129.250.109 在测试期间出现                      用
+    CPU 耗时异常情况，建议排查该主机后台程序及基础环境，或借助 CPU 性能分析工具进一步
+    定位问题。具体异常信息如下图所示：
+                                                                      使
+                                                                     司
+                                                               公
+                                                            限
+                                                           有
+                                                      ）
+                                                    圳
+    图 3-6 性能诊断测试发现异常示例                      深
+    3.1.6 常见问题                        （
+    3.1.6.1 创建任务后命名空间里一直没有 pod    技
+                            科
+    等待 1 分钟左右，如果还是没有 pod 出现，可能是任务队列没有设置或设置错误。
+    如果是任务队列问题，需要删除现有任务，使用正确的任务队列重新创建任务。
+                           讯
+    3.1.6.2 创建任务后部分节点的 pod 一直处于 Pending 状态
+                     腾
+    检查对应节点是否被其他任务占用。测试前确保所需节点都是空闲状态。
+              供
+    3.1.6.3 创建单卡任务后，部分节点的 8 个 pod 中一些 pod 处于
+       仅
+    Running 状态，其他 pod 一直处于 ContainerCreating 状态
+
+    芯
+    等待 1 分钟左右，如果还是有部分 pod 没有进入 Running 状态，可能是容器网络中可用 IP
+    数量不足，需要联系集群管理员处理。
+
+仑   本次测试无效，可直接删除任务，不建议使用本次测试结果。
+
+昆   3.2 TorchOnlineDiag 工具
+    3.2.1 TorchOnlineDiag 工具简介
+    在大模型 LLM 训练过程中，单次迭代可能涉及超过 1018 次的浮点运算、横跨数百张 AI 加速
+    卡的分布式计算以及混合精度 (FP8/FP16/BF16/FP32) 的协同。由于规模庞大，训练过程中
+
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司            - 30 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    常常出现数值异常，比较典型的例子就是训练 loss 中出现 NaN 以及 INF 等异常值。所有
+    LLM 都是各种底层算子的组合，模型训练就是用 AI 加速卡运行各种算子组合，因此故障芯片
+    最终会导致算子的计算结果错误，所以能够保证芯片正常运行是保证大模型训练的重要前提。
+    P800 加速卡的在线精度诊断工具 TorchOnlineDiag，用于在 AI 加速卡进行分布式模型训练
+    过程中动态检测潜在的故障芯片。
+
+    3.2.2 TorchOnlineDiag 使用指南
+    用户基于 P800 加速卡进行 LLM 训练，且使用的 XPyTorch 发布版本为 3.2.3 及以上。
+                                                                                          用
+    TorchOnlineDiag 工具内嵌在 XPyTorch 中。                                             使
+    3.2.2.1 默认模式：异步检测
+    在模型训练前，使用以下环境变量开启检测功能。
+                                                                             司
+                                                                        公
+    export XMLIR_DIST_CHECK_INF_NAN=1
+
+
+    开启后，工具默认使用异步检查算子对跨节点通信算子的输入数据进行检查，如果发现 NaN
+                                                             有限
+    或 INF 值，异步检查算子会直接报错退出，节点训练日志和 dmesg 日志会出现如下特征。
+                                                        ）
+                                                  圳
+    [check_kernel][ERROR] found nan or inf, calling assert_device
+    check_kernel.xpu:L147: check_in_cluster Assertion `nan_inf_share[i] == 0' failed.
+
+
+                                              深
+    [Thu Nov 21 11:36:39 2024] KLRM: kl3_dev3: [XPUW] err task, pid=1774135, comm=python, ses
+
+
+    ... # 此处省略参数地址打印
+                                        （
+    s=1, hwq=0, .tk=608 .name=_ZN14xpukernel_xpu316check_in_clusterI8bfloat16EEvPKT_Pilb .ncl
+    =12 .nco=64 .addr=400b270000 .ksz=1568
+
+
+    ption                         技
+    [Thu Nov 21 11:36:39 2024] KLRM: kl3_dev3: [XPUW] cluster[0]: ..reason[30] core trap exce
+
+
+
+
+    3.2.2.2 进阶模式：同步检测
+                             科
+                       讯
+    由于异步特性，异步检测模式给程序性能带来的影响很小，但只能定位出现 NaN 或 INF 值的
+                  腾
+    节点，实际出现 NaN 或 INF 值的代码位置通常在节点训练日志的报错位置之前。
+    为了精确定位实际出现 NaN 或 INF 值的代码位置，可以选择以同步模式运行工具，该模式下
+            供
+    程序会阻塞等待检测结果，检测通过后才会进行其他操作。
+
+       仅
+    3.2.2.2.1 开启同步检测功能
+    芯
+    在模型训练前，使用以下环境变量开启同步模式检测功能。
+
+仑   export XMLIR_DIST_CHECK_INF_NAN=1
+    export XMLIR_DIST_CHECK_INF_NAN_ASYNC=0
+
+昆   同步模式下，如果发现 NaN 或 INF 值，节点训练日志和 dmesg 日志会出现和异步模式相同
+    的特征。
+
+    3.2.2.2.2 【可选】同步模式下保存含 NaN 或 INF 值的 tensor
+    同步模式中，可以选择开启保存检测到的 NaN 或 INF 值 tensor 的功能，通过环境变量设置
+    合理的保存目录路径，程序会将对应的 tensor 以 PyTorch 的.pt 格式保存到指定的目录下。
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                            - 31 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    在模型训练前，使用以下环境变量开启同步模式检测功能，同时保存检测到的 NaN 或 INF 值
+    tensor 到共享目录中。
+
+    export XMLIR_DIST_CHECK_INF_NAN=1
+    export XMLIR_DIST_CHECK_INF_NAN_ASYNC=0
+    export XMLIR_DIST_CHECK_INF_NAN_SAVE_DIR="/mnt/shared_dir/experiment_name"
+
+
+    保存的 tensor 命名规则为
+                                                                                         用
+    nputs}_{timestamp}.pt                                                         使
+    {communication_op_name}_{host_name}_{process_group_name}_{global_rank}_{tensor_index_in_i
+
+
+
+
+    例如，ALLREDUCE_zwlt-node1012.bcc-                                          司
+    zwlt.baidu.com_26_49_0_25-08-18-16-32-06.pt 表示：发现 NaN 或 INF 值的通信
+    算子为 ALLREDUCE；该异常 tensor 位于主机名为 zwlt-node1012.bcc-
+                                                                        公
+    zwlt.baidu.com 的节点上；该通信算子使用的通信组名称为 26；该异常 tensor 所在节点
+    的 rank 为 49；该异常 tensor 在对应通信算子输入 tensor 列表中的索引为 0；保存该异常
+                                                             有限
+    tensor 时的时间戳为 25-08-18-16-32-06。
+
+                                                        ）
+    4 软件框架调试工具                                    圳
+    4.1 XFLAGS 工具                      （深
+    引入 XFLAGS 配置 XPyTorch，支持功能包括 PyTorch API 兼容，APEX 兼容，
+
+                             科
+    DeepSpeed 兼容以及 Megatron 兼容等。
+
+
+                              技
+    XFLAGS 作为独立的命令行工具，具备自己的 CLI 界面，允许用户控制各种插件以及其他开
+    关。
+
+
+    息。
+                       讯
+    使用方法： XFLAGS --help 获取使用帮助信息； XFLAGS --list 获取当前生效的配置信
+
+                  腾
+            供
+       仅
+    芯
+仑
+昆
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司                           - 32 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+
+    > XFLAGS --help
+    usage: XFLAGS [-h] [--enable ENABLE] [--disable DISABLE] [--list] [--reset]
+
+    Enable and Disable Options
+
+    optional arguments:
+      -h, --help          show this help message and exit
+      --enable ENABLE     Comma-separated list of options to enable
+      --disable DISABLE   Comma-separated list of options to disable
+      --list
+      --reset
+                          List the current status
+                          Reset the flags                                           用
+    > XFLAGS --list
+
+    ██╗ ██╗███████╗██╗       █████╗ ██████╗ ███████╗
+                                                                                  使
+    ╚██╗██╔╝██╔════╝██║
+     ╚███╔╝ █████╗ ██║
+                            ██╔══██╗██╔════╝ ██╔════╝
+                            ███████║██║ ███╗███████╗
+                                                                             司
+     ██╔██╗ ██╔══╝ ██║
+    ██╔╝ ██╗██║
+    ╚═╝ ╚═╝╚═╝
+                            ██╔══██║██║   ██║╚════██║
+                    ███████╗██║ ██║╚██████╔╝███████║
+                    ╚══════╝╚═╝ ╚═╝ ╚═════╝ ╚══════╝
+                                                                        公
+    +-------------------------+--------+---------+
+                                                                   限
+    |       XFLAG-NAMES       | STATUS | DEFAULT |
+    +-------------------------+--------+---------+            有
+    |
+    |
+    |
+               torch
+         deepspeed_0_14_4
+         deepspeed_0_11_1
+                              | True | True
+                              | True | True
+                              | False | False |
+                                                 |
+                                                 |       ）
+    |
+    |
+    |
+              logloss
+          torchbenchmark
+           torch_vision
+                              | False | False |
+                              | False | False |
+                              | True | True      |
+                                                     圳
+    |
+    |
+             reproduce
+          flagscale_infer                     深
+                              | False | False |
+                              | False | False |
+    |
+    |
+    |
+           flagscale_0_2
+        flagscale_megatron
+             flagscale
+                                        （
+                              | False | False |
+                              | False | False |
+                              | False | False |
+    |
+    |
+    |
+          megatron_23_05
+           megatron_aiak
+        megatron_core_aiak
+                                   技
+                              | False | False |
+                              | False | False |
+                              | False | False |
+    |
+    |
+    |
+         megatron_core_0_6
+        megatron_core_0_10
+            flash_attn
+                              科
+                              | False | False |
+                              | False | False |
+                              | True | True      |
+    |
+    |
+         flash_attn_2_4_2
+             profiler
+                          讯   | False | False |
+                              | True | True      |
+    |
+    |
+    |
+                  腾
+             lamb_amp
+               apex
+        transformers_4_32_1
+                              | True | True
+                              | True | True
+                              | False | False |
+                                                 |
+                                                 |
+
+    |
+    |       供
+        transformers_4_42_3
+        transformers_4_43_3
+                              | False | False |
+                              | False | False |
+    | transformer_engine_1_13 | False | False |
+       仅
+    | transformer_engine_1_7 | False | False |
+    | mmsegmentation_1_0_0    | False | False |
+
+    芯
+    |
+    |
+    |
+             deep_gemm
+             speedgate
+           grouped_gemm
+                              | False | False |
+                              | False | False |
+                              | False | False |
+
+仑   +-------------------------+--------+---------+
+
+
+
+昆   4.2 日志打印工具
+    可配置环境变量：
+      ● XLOG_LEVEL， 设置日志等级，包括：off, debug, info, warn, error,
+        fatal 等，默认日志关闭。
+
+
+
+
+                            Copyright©2024-2025 昆仑芯（北京）科技有限公司                     - 33 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+        ● XMLIR_D_FILE_LOG_BOOL, 设置是否保持日志信息到文件，默认保存路径为："./
+          xlog/", 文件名格式为：时间戳 + ".log"。
+    使用示例：
+
+    export XLOG_LEVEL="info"              //表示设置所有日志子模块的等级为 INFO
+    export XLOG_LEVEL="off"               //表示关闭日志输出
+    export XLOG_LEVEL="capture=info"      //表示设置 capture 子模块的日志等级为 INFO，常用调试方式。
+    export XMLIR_D_FILE_LOG_BOOL=1        //表示打屏日志的同时，保存日志信息到文件
+
+
+    其中，设置 XLOG_LEVEL="capture=info", 可以查看算子输入参数的详细信息，帮助故障
+                                                                                         用
+    问题定位。打印日志效果如下。                                                                使
+                                                                             司
+    [2024-01-09 01:28:21.013622][p 27154][t 27154][info][capture][CUDANativeFunctions.cpp:528
+
+    Tensor &, const at::Tensor &) : 1 times                             公
+    9] capture eager mode: static at::Tensor torch_xmlir::CUDANativeFunctions::div(const at::
+
+    [2024-01-09 01:28:21.013634][p 27154][t 27154][info][capture][CUDANativeFunctions.cpp:529
+
+    0 Memory Format: Contiguous                              有
+    2] div args['self']: Tensor CUDAHalfType[200]<0x830000000>
+
+
+                                                              限
+                                                                   Length: 400 Device: cuda:
+
+    [2024-01-09 01:28:21.013649][p 27154][t 27154][info][capture][CUDANativeFunctions.cpp:529
+    6] div args['other']: Tensor CUDAHalfType[1]<0x830000200>     Length: 2 Device: cuda:0
+    Memory Format: Contiguous
+
+                                                        ）
+    [2024-01-09 01:28:21.013716][p 27154][t 27154][info][capture][CUDANativeFunctions.cpp:530
+    3] div args['result'] compute shape:MetaHalfType[200]
+
+
+                                                  圳
+    5 API 支持列表                               深
+    5.1 PyTorch API 支持情况                （
+    序号            算子名称
+                                    技
+    1
+    2
+                        讯
+                  torch.abs
+
+
+                         科
+                  torch.absolute
+    3             torch.acos
+    4
+    5             腾
+                  torch.add
+                  torch.addbmm
+    6
+    7
+            供     torch.addcdiv
+                  torch.addcmul
+    8
+    9
+         仅        torch.addmm
+                  torch.addmv
+
+    芯
+    10
+    11
+                  torch.addmv_
+                  torch.adjoint
+
+仑   12
+    13
+                  torch.all
+                  torch.allclose
+昆   14
+    15
+                  torch.amax
+                  torch.amin
+    16            torch.aminmax
+    17            torch.angle
+    18            torch.any
+    19            torch.arange
+    20            torch.arccos
+
+
+
+
+                               Copyright©2024-2025 昆仑芯（北京）科技有限公司                       - 34 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    序号       算子名称
+    21       torch.arcsin
+    22       torch.arcsinh
+    23       torch.argmax
+    24       torch.argmin
+    25       torch.argsort
+    26       torch.argwhere
+    27
+    28
+             torch.asin
+             torch.asinh
+                                                                     用
+    29
+    30
+             torch.atan
+             torch.atan2
+                                                                   使
+    31
+    32
+             torch.atanh
+             torch.atleast_1d
+                                                               司
+    33       torch.atleast_2d                                  公
+    34
+    35
+             torch.atleast_3d
+             torch.baddbmm                               限
+    36
+    37
+             torch.bartlett_window
+             torch.bernoulli
+                                                     有
+    38
+    39
+             torch.bincount
+             torch.bitwise_and
+                                                 ）
+    40
+    41
+             torch.bitwise_not
+             torch.bitwise_or
+                                             圳
+    42
+    43
+             torch.bitwise_xor
+             torch.blackman_window
+                                        深
+    44       torch.bmm               （
+    45
+    46
+             torch.broadcast_to
+             torch.cat            技
+    47
+    48
+             torch.cdist
+             torch.ceil
+                            科
+    49
+    50
+                   讯
+             torch.chunk
+             torch.clamp
+    51
+    52
+             腾
+             torch.clamp_max
+             torch.clamp_min
+    53
+    54
+         供   torch.clip
+             torch.clone
+    55   仅   torch.complex
+
+
+    芯
+    56
+    57
+             torch.concat
+             torch.concatenate
+
+仑   58
+    59
+             torch.constant_pad_nd
+             torch.copysign
+
+昆   60
+    61
+             torch.cos
+             torch.cosh
+    62       torch.count_nonzero
+    63       torch.cumprod
+    64       torch.cumsum
+    65       torch.diag
+    66       torch.diagonal
+
+
+
+
+                           Copyright©2024-2025 昆仑芯（北京）科技有限公司       - 35 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    序号        算子名称
+    67        torch.div
+    68        torch.dot
+    69        torch.empty
+    70        torch.empty_like
+    71        torch.eq
+    72        torch.equal
+    73
+    74
+              torch.erf
+              torch.erfc
+                                                                                    用
+    75
+    76
+              torch.erfinv
+              torch.exp
+                                                                                使
+    77
+    78
+              torch.exp2
+              torch.expm1
+                                                                                司
+    79        torch.eye                                                     公
+    80
+    81
+              torch._fake_quantize_learnable_per_tensor_affine
+              torch.fake_quantize_per_channel_affine                  限
+    82
+    83
+              torch.fake_quantize_per_tensor_affine
+                                                                 有
+              torch._fake_quantize_per_tensor_affine_cachemask_tensor_qparams
+    84
+    85
+              torch.fill
+              torch.flatten
+                                                           ）
+    86
+    87
+              torch.flip
+              torch.floor
+                                                       圳
+    88
+    89
+              torch.floor_divide
+              torch.fmod
+                                        （深
+    90        torch._foreach_add
+    91
+    92
+    93
+                               科
+              torch._foreach_add_
+              torch._foreach_addcdiv_
+
+                                技
+              torch._foreach_addcmul
+    94        torch._foreach_div
+    95
+    96
+                     讯
+              torch._foreach_mul
+              torch._foreach_mul_
+    97
+    98
+              腾
+              torch._foreach_norm
+              torch._foreach_sqrt
+    99
+    100
+          供   torch._foreach_sqrt_
+              torch.full
+    101   仅   torch.gather
+
+
+    芯
+    102
+    103
+              torch.gcd
+              torch.ge
+
+仑   104
+    105
+              torch.gt
+              torch.hamming_window
+
+昆   106
+    107
+              torch.hann_window
+              torch.histc
+    108       torch.hsplit
+    109       torch.index_add
+    110       torch.index_select
+    111       torch.isclose
+    112       torch.isfinite
+
+
+
+
+                            Copyright©2024-2025 昆仑芯（北京）科技有限公司                   - 36 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    序号        算子名称
+    113       torch.isin
+    114       torch.isinf
+    115       torch.isnan
+    116       torch.is_nonzero
+    117       torch.lcm
+    118       torch.le
+    119
+    120
+              torch.lerp
+              torch.linalg.inv
+                                                                      用
+    121
+    122
+              torch.linalg.vector_norm
+              torch.linspace
+                                                                    使
+    123
+    124
+              torch.log
+              torch.log10
+                                                                司
+    125       torch.log1p                                       公
+    126
+    127
+              torch.log2
+              torch.logaddexp                             限
+    128
+    129
+              torch.logaddexp2
+              torch.logcumsumexp
+                                                       有
+    130
+    131
+              torch.logical_and
+              torch.logical_not
+                                                   ）
+    132
+    133
+              torch.logical_or
+              torch.logical_xor
+                                                   圳
+    134
+    135
+              torch.log_softmax
+              torch.logspace
+                                              深
+    136
+    137
+              torch.logsumexp
+              torch.lt
+                                  技（
+    138       torch.masked_select
+    139
+    140
+    141
+                    讯
+              torch.matmul
+
+
+
+                     科
+              torch.max
+              torch.maximum
+    142       torch.mean
+    143
+    144
+              腾
+              torch.meshgrid
+              torch.min
+    145
+    146
+          供   torch.minimum
+              torch.mm
+    147   仅   torch.mode
+
+
+    芯
+    148
+    149
+              torch.movedim
+              torch.mul
+
+仑   150
+    151
+              torch.multinomial
+              torch.mv
+
+昆   152
+    153
+              torch.nansum
+              torch.nan_to_num
+    154       torch.narrow
+    155       torch._native_multi_head_attention
+    156       torch.ne
+    157       torch.neg
+    158       torch.nn.AdaptiveAvgPool2d
+
+
+
+
+                            Copyright©2024-2025 昆仑芯（北京）科技有限公司       - 37 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    序号        算子名称
+    159       torch.nn.AdaptiveAvgPool3d
+    160       torch.nn.AdaptiveMaxPool1d
+    161       torch.nn.AdaptiveMaxPool2d
+    162       torch.nn.AdaptiveMaxPool3d
+    163       torch.nn.AvgPool2d
+    164       torch.nn.AvgPool3d
+    165
+    166
+              torch.nn.CELU
+              torch.nn.ConstantPad1d
+                                                                     用
+    167
+    168
+              torch.nn.ConstantPad2d
+              torch.nn.ConstantPad3d
+                                                                  使
+    169
+    170
+              torch.nn.Conv1d
+              torch.nn.CosineSimilarity
+                                                                 司
+    171       torch.nn.Dropout                                公
+    172
+    173
+              torch.nn.ELU
+              torch.nn.Embedding                             限
+    174
+    175
+              torch.nn.Flatten
+              torch.nn.Fold
+                                                          有
+    176
+    177
+              torch.nn.functional.adaptive_avg_pool2d
+              torch.nn.functional.adaptive_avg_pool3d
+                                                         ）
+    178
+    179
+              torch.nn.functional.adaptive_max_pool2d
+              torch.nn.functional.adaptive_max_pool3d
+                                                      圳
+    180
+    181
+              torch.nn.functional.affine_grid
+              torch.nn.functional.avg_pool2d
+                                                深
+    182
+    183
+                                  技
+              torch.nn.functional.avg_pool3d
+
+                                   （
+              torch.nn.functional.batch_norm
+    184       torch.nn.functional.binary_cross_entropy
+    185
+    186
+    187
+                    讯
+              torch.nn.functional.celu
+
+
+
+                     科
+              torch.nn.functional.conv1d
+              torch.nn.functional.cosine_similarity
+    188       torch.nn.functional.dropout
+    189
+    190
+              腾
+              torch.nn.functional.embedding
+              torch.nn.functional.fold
+    191
+    192
+          供   torch.nn.functional.gelu
+              torch.nn.functional.grid_sample
+    193   仅   torch.nn.functional.hardshrink
+
+
+    芯
+    194
+    195
+              torch.nn.functional.hardsigmoid
+              torch.nn.functional.hardswish
+
+仑   196
+    197
+              torch.nn.functional.hardtanh_
+              torch.nn.functional.interpolate
+
+昆   198
+    199
+              torch.nn.functional.kl_div
+              torch.nn.functional.layer_norm
+    200       torch.nn.functional.leaky_relu
+    201       torch.nn.functional.linear
+    202       torch.nn.functional.max_pool1d
+    203       torch.nn.functional.max_pool2d
+    204       torch.nn.functional.max_pool3d
+
+
+
+
+                         Copyright©2024-2025 昆仑芯（北京）科技有限公司        - 38 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    序号        算子名称
+    205       torch.nn.functional.mish
+    206       torch.nn.functional.mse_loss
+    207       torch.nn.functional.normalize
+    208       torch.nn.functional.one_hot
+    209       torch.nn.functional.pad
+    210       torch.nn.functional.pairwise_distance
+    211
+    212
+              torch.nn.functional.prelu
+              torch.nn.functional.rrelu
+                                                                   用
+    213
+    214
+              torch.nn.functional.softplus
+              torch.nn.functional.softshrink
+                                                                 使
+    215
+    216
+              torch.nn.functional.unfold
+              torch.nn.GELU
+                                                               司
+    217       torch.nn.GLU                                   公
+    218
+    219
+    220
+              torch.nn.GroupNorm
+              torch.nn.Hardshrink
+              torch.nn.Hardsigmoid
+                                                          有限
+    221       torch.nn.Hardswish
+    222
+    223
+              torch.nn.Hardtanh
+              torch.nn.KLDivLoss
+                                                      ）
+    224
+    225
+              torch.nn.L1Loss
+              torch.nn.LayerNorm
+                                                      圳
+    226
+    227
+              torch.nn.LeakyReLU
+              torch.nn.Linear
+                                               深
+    228
+    229
+              torch.nn.LogSigmoid
+              torch.nn.LogSoftmax
+                                    技（
+    230       torch.nn.LSTM
+    231
+    232
+    233
+                    讯
+              torch.nn.Mish
+
+
+
+                     科
+              torch.nn.NLLLoss
+              torch.nn.PairwiseDistance
+    234       torch.nn.ReflectionPad1d
+    235
+    236
+              腾
+              torch.nn.ReflectionPad2d
+              torch.nn.ReLU
+    237
+    238
+          供   torch.nn.ReplicationPad1d
+              torch.nn.ReplicationPad2d
+    239   仅   torch.nn.RReLU
+
+
+    芯
+    240
+    241
+              torch.nn.SELU
+              torch.nn.Sigmoid
+
+仑   242
+    243
+              torch.nn.SiLU
+              torch.nn.SmoothL1Loss
+
+昆   244
+    245
+              torch.nn.Softmax
+              torch.nn.Softplus
+    246       torch.nn.Softshrink
+    247       torch.nn.TripletMarginLoss
+    248       torch.nn.Unfold
+    249       torch.nn.Upsample
+    250       torch.nn.UpsamplingBilinear2d
+
+
+
+
+                         Copyright©2024-2025 昆仑芯（北京）科技有限公司       - 39 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    序号        算子名称
+    251       torch.nn.utils.weight_norm
+    252       torch.nonzero
+    253       torch.ones
+    254       torch.permute
+    255       torch.polar
+    256       torch.pow
+    257
+    258
+              torch.prod
+              torch.quantize_per_channel
+                                                                      用
+    259
+    260
+              torch.quantize_per_tensor
+              torch.randn
+                                                                    使
+    261
+    262
+              torch.randperm
+              torch.ravel
+                                                                司
+    263       torch.reciprocal                                  公
+    264
+    265
+              torch.relu
+              torch.remainder                             限
+    266
+    267
+              torch.renorm
+              torch.repeat_interleave
+                                                      有
+    268
+    269
+              torch.reshape
+              torch.roll
+                                                  ）
+    270
+    271
+              torch.round
+              torch.round_
+                                              圳
+    272
+    273
+              torch.rsqrt
+              torch.rsub
+                                           深
+    274
+    275
+              torch.scatter
+              torch.scatter_add
+                                   技（
+    276       torch.searchsorted
+    277
+    278
+    279
+                    讯
+              torch.select
+
+
+
+                     科
+              torch.sgn
+              torch.sigmoid
+    280       torch.sign
+    281
+    282
+              腾
+              torch.sin
+              torch.sinh
+    283
+    284
+          供   torch.sort
+              torch.split
+    285   仅   torch.sqrt
+
+
+    芯
+    286
+    287
+              torch.square
+              torch.squeeze
+
+仑   288
+    289
+              torch.stack
+              torch.std
+
+昆   290
+    291
+              torch.sub
+              torch.sum
+    292       torch.swapaxes
+    293       torch.swapdims
+    294       torch.t
+    295       torch.tan
+    296       torch.tanh
+
+
+
+
+                            Copyright©2024-2025 昆仑芯（北京）科技有限公司       - 40 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    序号        算子名称
+    297       torch.tensor
+    298       torch.Tensor.abs
+    299       torch.Tensor.abs_
+    300       torch.Tensor.absolute
+    301       torch.Tensor.absolute_
+    302       torch.Tensor.acos
+    303
+    304
+              torch.Tensor.acos_
+              torch.Tensor.add
+                                                                   用
+    305
+    306
+              torch.Tensor.add_
+              torch.Tensor.addbmm
+                                                                 使
+    307
+    308
+              torch.Tensor.addcdiv
+              torch.Tensor.addcdiv_
+                                                             司
+    309       torch.Tensor.addcmul                           公
+    310
+    311
+              torch.Tensor.addcmul_
+              torch.Tensor.addmm_                      限
+    312
+    313
+              torch.Tensor.addmv
+              torch.Tensor.adjoint
+                                                   有
+    314
+    315
+              torch.Tensor.all
+              torch.Tensor.allclose
+                                               ）
+    316
+    317
+              torch.Tensor.amin
+              torch.Tensor.angle
+                                              圳
+    318
+    319
+              torch.Tensor.arccos
+              torch.Tensor.arccos_
+                                          深
+    320       torch.Tensor.arcsin         （
+                    讯
+    321       torch.Tensor.arcsin_
+    322       torch.Tensor.asin
+    323
+                     科
+              torch.Tensor.asin_
+    324
+    325
+    326
+                      技
+              torch.Tensor.asinh_
+              torch.Tensor.as_strided
+              torch.Tensor.atan
+    327
+    328
+              腾
+              torch.Tensor.atan_
+              torch.Tensor.baddbmm_
+    329
+    330
+          供   torch.Tensor.bernoulli_
+              torch.Tensor.bitwise_and
+    331   仅   torch.Tensor.bitwise_and_
+
+
+    芯
+    332
+    333
+              torch.Tensor.bitwise_not
+              torch.Tensor.bitwise_or
+
+仑   334
+    335
+              torch.Tensor.bitwise_or_
+              torch.Tensor.bitwise_xor
+
+昆   336
+    337
+              torch.Tensor.bitwise_xor_
+              torch.Tensor.clamp
+    338       torch.Tensor.clamp_
+    339       torch.Tensor.clip
+    340       torch.Tensor.clip_
+    341       torch.Tensor.clone
+    342       torch.Tensor.contiguous
+
+
+
+
+                         Copyright©2024-2025 昆仑芯（北京）科技有限公司       - 41 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    序号        算子名称
+    343       torch.Tensor.copy_
+    344       torch.Tensor.cos
+    345       torch.Tensor.cos_
+    346       torch.Tensor.cosh_
+    347       torch.Tensor.cumsum_
+    348       torch.Tensor.div
+    349
+    350
+              torch.Tensor.div_
+              torch.tensordot
+                                                                    用
+    351
+    352
+              torch.Tensor.dot
+              torch.Tensor.eq
+                                                                  使
+    353
+    354
+              torch.Tensor.eq_
+              torch.Tensor.erf
+                                                              司
+    355       torch.Tensor.erfc                               公
+    356
+    357
+              torch.Tensor.erfc_
+              torch.Tensor.erfinv                       限
+    358
+    359
+              torch.Tensor.exp
+              torch.Tensor.exp_
+                                                    有
+    360
+    361
+              torch.Tensor.exp2
+              torch.Tensor.expand
+                                                   ）
+    362
+    363
+              torch.Tensor.expm1
+              torch.Tensor.expm1_
+                                               圳
+    364
+    365
+              torch.Tensor.exponential_
+              torch.Tensor.fill_
+                                               深
+    366       torch.Tensor.floor          （
+    367
+    368
+              torch.Tensor.floor_
+                                      技
+              torch.Tensor._foreach_addcdiv_
+    369
+    370
+                            科
+              torch.Tensor._foreach_addcmul_
+              torch.Tensor.FusedLayerNorm
+    371
+    372
+                    讯
+              torch.Tensor.gcd
+              torch.Tensor.gcd_
+    373
+    374
+              腾
+              torch.Tensor.ge
+              torch.Tensor.ge_
+    375
+    376
+          供   torch.Tensor.gt
+              torch.Tensor.gt_
+    377   仅   torch.Tensor.index_add_
+
+
+    芯
+    378
+    379
+              torch.Tensor.index_fill
+              torch.Tensor.index_fill_
+
+仑   380
+    381
+              torch.Tensor.index_put
+              torch.Tensor.index_put_
+
+昆   382
+    383
+              torch.Tensor.index_select
+              torch.Tensor.inv
+    384       torch.Tensor.isclose
+    385       torch.Tensor.isfinite
+    386       torch.Tensor.isinf
+    387       torch.Tensor.isnan
+    388       torch.Tensor.is_nonzero
+
+
+
+
+                          Copyright©2024-2025 昆仑芯（北京）科技有限公司       - 42 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    序号        算子名称
+    389       torch.Tensor.lcm
+    390       torch.Tensor.lcm_
+    391       torch.Tensor.le
+    392       torch.Tensor.le_
+    393       torch.Tensor.log
+    394       torch.Tensor.log_
+    395
+    396
+              torch.Tensor.log1p
+              torch.Tensor.log1p_
+                                                                   用
+    397
+    398
+              torch.Tensor.logaddexp
+              torch.Tensor.logaddexp2
+                                                                 使
+    399
+    400
+              torch.Tensor.logcumsumexp
+              torch.Tensor.logical_and
+                                                             司
+    401       torch.Tensor.logical_and_                      公
+    402
+    403
+              torch.Tensor.logical_not
+              torch.Tensor.logical_not_                限
+    404
+    405
+              torch.Tensor.logical_or
+              torch.Tensor.logical_or_
+                                                   有
+    406
+    407
+              torch.Tensor.logical_xor
+              torch.Tensor.logical_xor_
+                                                 ）
+    408
+    409
+              torch.Tensor.logsumexp
+              torch.Tensor.lshift
+                                              圳
+    410
+    411
+              torch.Tensor.lt
+              torch.Tensor.lt_
+                                             深
+    412       torch.Tensor.main           （
+    413
+    414                             技
+              torch.Tensor.masked_fill
+              torch.Tensor.masked_fill_
+    415
+    416
+                           科
+              torch.Tensor.masked_scatter
+              torch.Tensor.masked_scatter_
+    417
+    418
+                    讯
+              torch.Tensor.matmul
+              torch.Tensor.max
+    419
+    420
+              腾
+              torch.Tensor.min
+              torch.Tensor.mm
+    421
+    422
+          供   torch.Tensor.mul
+              torch.Tensor.mul_
+    423   仅   torch.Tensor.mv
+
+
+    芯
+    424
+    425
+              torch.Tensor.nan_to_num
+              torch.Tensor.nan_to_num_
+
+仑   426
+    427
+              torch.Tensor.ne_
+              torch.Tensor.neg
+
+昆   428
+    429
+              torch.Tensor.neg_
+              torch.Tensor.new_ones
+    430       torch.Tensor.new_zeros
+    431       torch.Tensor.normal_
+    432       torch.Tensor.random_
+    433       torch.Tensor.ravel
+    434       torch.Tensor.reciprocal
+
+
+
+
+                         Copyright©2024-2025 昆仑芯（北京）科技有限公司       - 43 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    序号        算子名称
+    435       torch.Tensor.reciprocal_
+    436       torch.Tensor.relu_
+    437       torch.Tensor.renorm
+    438       torch.Tensor.renorm_
+    439       torch.Tensor.repeat
+    440       torch.Tensor.repeat_interleave
+    441
+    442
+              torch.Tensor.rshift
+              torch.Tensor.rsqrt
+                                                                      用
+    443
+    444
+              torch.Tensor.rsqrt_
+              torch.Tensor.scatter_
+                                                                    使
+    445
+    446
+              torch.Tensor.scatter_add_
+              torch.Tensor.set_
+                                                                司
+    447       torch.Tensor.sgn_                                 公
+    448
+    449
+              torch.Tensor.sigmoid
+              torch.Tensor.sin_                           限
+    450
+    451
+              torch.Tensor.sinh_
+              torch.tensor_split
+                                                      有
+    452
+    453
+              torch.Tensor.sqrt_
+              torch.Tensor.square_
+                                                   ）
+    454
+    455
+              torch.Tensor.squeeze_
+              torch.Tensor.std
+                                               圳
+    456
+    457
+              torch.Tensor.stride
+              torch.Tensor.sub
+                                               深
+    458       torch.Tensor.sub_           （
+    459
+    460
+              torch.Tensor.sum
+                                    技
+              torch.Tensor.sum_to_size
+    461
+    462
+                             科
+              torch.Tensor.tan
+              torch.Tensor.tan_
+    463
+    464
+                     讯
+              torch.Tensor.tanh
+              torch.Tensor.tanh_
+    465
+    466
+              腾
+              torch.Tensor.tril
+              torch.Tensor.tril_
+    467
+    468
+          供   torch.Tensor.triu
+              torch.Tensor.triu_
+    469   仅   torch.Tensor.unbind
+
+
+    芯
+    470
+    471
+              torch.Tensor.unique
+              torch.Tensor.unsqueeze_
+
+仑   472
+    473
+              torch.Tensor.view
+              torch.Tensor.zero_
+
+昆   474
+    475
+              torch.threshold
+              torch.topk
+    476       torch.trace
+    477       torch.transpose
+    478       torch.tril
+    479       torch.triu
+    480       torch.trunc
+
+
+
+
+                            Copyright©2024-2025 昆仑芯（北京）科技有限公司       - 44 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    序号                  算子名称
+    481                 torch.unbind
+    482                 torch.unique
+    483                 torch.unique_consecutive
+    484                 torch.unsqueeze
+    485                 torch.var
+    486                 torch.vsplit
+    487
+    488
+                        torch.where
+                        torch.xlogy
+                                                                                 用
+    489
+    490
+                        torch.zero_
+                        torch.zeros
+                                                                               使
+    491                 torch.zeros_like                                    司
+    5.2 Torch 2.0 CUDA API 支持情况
+                                                                        公
+    CUDA API
+                                                                  限     是否支持
+    torch.cuda.StreamContext                                  有
+    torch.cuda.can_device_access_peer
+    torch.cuda.current_blas_handle                        ）
+    torch.cuda.current_device
+    torch.cuda.current_stream
+                                                       圳                是
+                                                                        是
+    torch.cuda.default_stream
+    torch.cuda.device
+                                                   深                    是
+                                                                        是
+    torch.cuda.device_count
+    torch.cuda.device_of
+                                                   （                    是
+                                                                        是
+    torch.cuda.get_arch_list
+                                讯                                       是
+
+
+    torch.cuda.get_device_name   科
+    torch.cuda.get_device_capability                                    是
+                                                                        是
+
+
+    torch.cuda.get_gencode_flags
+                                  技
+    torch.cuda.get_device_properties                                    是
+                                                                        是
+
+
+    torch.cuda.init
+                      腾
+    torch.cuda.get_sync_debug_mode                                      是
+                                                                        是
+
+               供
+    torch.cuda.ipc_collect
+    torch.cuda.is_available                                             是
+
+          仅
+    torch.cuda.is_initialized
+    torch.cuda.memory_usage
+                                                                        是
+
+
+    芯
+    torch.cuda.set_device
+    torch.cuda.set_stream
+                                                                        是
+                                                                        是
+仑   torch.cuda.set_sync_debug_mode                                      是
+
+
+昆   torch.cuda.stream
+    torch.cuda.synchronize
+    torch.cuda.utilization
+                                                                        是
+                                                                        是
+
+
+    torch.cuda.OutOfMemoryError                                         是
+    torch.cuda.get_rng_state                                            是
+    torch.cuda.get_rng_state_all                                        是
+    torch.cuda.set_rng_state                                            是
+    torch.cuda.set_rng_state_all                                        是
+
+
+
+
+                                    Copyright©2024-2025 昆仑芯（北京）科技有限公司          - 45 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    CUDA API                                                           是否支持
+    torch.cuda.manual_seed                                             是
+    torch.cuda.manual_seed_all                                         是
+    torch.cuda.seed                                                    是
+    torch.cuda.seed_all                                                是
+    torch.cuda.initial_seed                                            是
+    torch.cuda.comm.broadcast
+    torch.cuda.comm.broadcast_coalesced
+    torch.cuda.comm.reduce_add
+                                                                                用
+    torch.cuda.comm.scatter
+    torch.cuda.comm.gather
+                                                                              使
+    torch.cuda.Stream
+    torch.cuda.Stream.query
+                                                                       是
+                                                                       是
+                                                                           司
+    torch.cuda.Stream.record_event                                     公
+                                                                       是
+    torch.cuda.Stream.synchronize
+    torch.cuda.Stream.wait_event                                 限     是
+                                                                       是
+    torch.cuda.Stream.wait_stream
+    torch.cuda.ExternalStream
+                                                             有         是
+
+
+    torch.cuda.Event
+    torch.cuda.Event.elapsed_time
+                                                         ）             是
+
+
+    torch.cuda.Event.from_ipc_handle
+    torch.cuda.Event.ipc_handle
+                                                     圳
+    torch.cuda.Event.query
+    torch.cuda.Event.record
+                                                深                      是
+                                                                       是
+    torch.cuda.Event.synchronize
+    torch.cuda.Event.wait
+                                        技（
+                                                                       是
+                                                                       是
+    torch.cuda.is_current_stream_capturing
+
+
+    torch.cuda.CUDAGraph      讯
+    torch.cuda.graph_pool_handle
+
+
+
+                               科
+    torch.cuda.CUDAGraph.capture_begin
+    torch.cuda.CUDAGraph. capture_end
+
+                       腾
+    torch.cuda.CUDAGraph.debug_dump
+    torch.cuda.CUDAGraph.enable_debug_mode
+               供
+    torch.cuda.CUDAGraph.pool
+    torch.cuda.CUDAGraph.replay
+        仅
+    torch.cuda.CUDAGraph.reset
+
+
+    芯
+    torch.cuda.graph
+    torch.cuda.make_graphed_callables
+
+仑   torch.cuda.empty_cache
+    torch.cuda.list_gpu_processes
+                                                                       是
+
+
+
+昆   torch.cuda.mem_get_info
+    torch.cuda.memory_stats
+    torch.cuda.memory_summary
+    torch.cuda.memory_snapshot
+    torch.cuda.memory_allocated                                        是
+    torch.cuda.max_memory_allocated                                    是
+    torch.cuda.reset_max_memory_allocated                              是
+
+
+
+
+                                   Copyright©2024-2025 昆仑芯（北京）科技有限公司          - 46 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    CUDA API                                                               是否支持
+    torch.cuda.memory_reserved                                             是
+    torch.cuda.max_memory_reserved                                         是
+    torch.cuda.set_per_process_memory_fraction
+    torch.cuda.memory_cached                                               是
+    torch.cuda.max_memory_cached                                           是
+    torch.cuda.reset_max_memory_cached                                     是
+    torch.cuda.reset_peak_memory_stats
+    torch.cuda.caching_allocator_alloc
+                                                                           是
+                                                                           是
+                                                                                        用
+    torch.cuda.caching_allocator_delete
+    torch.cuda.get_allocator_backend
+                                                                           是
+                                                                           是
+                                                                                   使
+    torch.cuda.CUDAPluggableAllocator
+    torch.cuda.change_current_allocator
+                                                                               司
+    torch.cuda.nvtx.mark                                                   公
+                                                                           是
+    torch.cuda.nvtx.range_push
+    torch.cuda.nvtx.range_pop
+    torch.cuda.jiterator._create_jit_fn
+                                                                   有限
+                                                                           是
+                                                                           是
+
+
+    torch.cuda.jiterator._create_multi_output_jit_fn
+    torch.cuda.ByteTensor
+    torch.cuda.CharTensor
+                                                               ）           是
+                                                                           是
+    torch.cuda.ShortTensor
+    torch.cuda.IntTensor
+                                                               圳           是
+                                                                           是
+    torch.cuda.LongTensor
+    torch.cuda.BoolTensor
+                                                        深                  是
+                                                                           是
+                                                  （
+                                        科
+    5.3 torch.distributed.algorithms API 支持情况
+                                         技
+    torch.distributed.algorithms                                               是否支持
+
+
+                              讯
+    torch.distributed.algorithms.Join
+    torch.distributed.algorithms.Join.notify_join_context
+                                                                               是
+                                                                               是
+
+                       腾
+    torch.distributed.algorithms.Joinable
+    torch.distributed.algorithms.Joinable.join_device
+                                                                               是
+                                                                               是
+
+               供
+    torch.distributed.algorithms.Joinable.join_hook
+    torch.distributed.algorithms.Joinable.join_process_group
+                                                                               是
+                                                                               是
+
+        仅
+    torch.distributed.algorithms.JoinHook
+    torch.distributed.algorithms.JoinHook.main_hook
+                                                                               是
+                                                                               是
+
+    芯
+    torch.distributed.algorithms.JoinHook.post_hook                            是
+
+
+仑   5.4 torch.distributed API 支持情况
+昆   torch2.0 distributed api                                               是否支持
+    torch.distributed.is_available                                         是
+    torch.distributed.init_process_group                                   是
+    torch.distributed.is_initialized                                       是
+    torch.distributed.is_mpi_available                                     是
+    torch.distributed.is_nccl_available                                    是
+
+
+
+
+                                       Copyright©2024-2025 昆仑芯（北京）科技有限公司              - 47 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    torch2.0 distributed api                                            是否支持
+    torch.distributed.is_gloo_available                                 是
+    torch.distributed.is_torchelastic_launched                          是
+    torch.distributed.Backend                                           是
+    torch.distributed.Backend.register_backend
+    torch.distributed.get_backend                                       是
+    torch.distributed.get_rank                                          是
+    torch.distributed.get_world_size
+    torch.distributed.Store
+                                                                        是
+                                                                        是
+                                                                                 用
+    torch.distributed.TCPStore
+    torch.distributed.HashStore
+                                                                        是
+                                                                        是
+                                                                               使
+    torch.distributed.FileStore
+    torch.distributed.PrefixStore
+                                                                        是
+                                                                        是
+                                                                            司
+    torch.distributed.Store.set                                         公
+                                                                        是
+    torch.distributed.Store.get
+    torch.distributed.Store.add                                   限     是
+                                                                        是
+    torch.distributed.Store.compare_set
+    torch.distributed.Store.wait
+                                                              有         是
+                                                                        是
+    torch.distributed.Store.num_keys
+    torch.distributed.Store.delete_key
+                                                          ）             是
+                                                                        是
+    torch.distributed.Store.set_timeout
+    torch.distributed.new_group
+                                                      圳                 是
+                                                                        是
+    torch.distributed.get_group_rank
+    torch.distributed.get_global_rank
+                                                 深                      是
+    torch.distributed.get_process_group_ranks    （
+    torch.distributed.send
+    torch.distributed.recv                  技                           是
+                                                                        是
+    torch.distributed.isend
+    torch.distributed.irecv     讯科
+    torch.distributed.batch_isend_irecv
+                                                                        是
+                                                                        是
+
+
+    torch.distributed.P2POp                                             是
+
+                       腾
+    torch.distributed.broadcast
+    torch.distributed.broadcast_object_list
+                                                                        是
+                                                                        是
+               供
+    torch.distributed.all_reduce
+    torch.distributed.reduce
+                                                                        是
+                                                                        是
+        仅
+    torch.distributed.all_gather                                        是
+
+
+    芯
+    torch.distributed.all_gather_into_tensor
+    torch.distributed.all_gather_object
+                                                                        是
+                                                                        是
+
+仑   torch.distributed.gather
+    torch.distributed.gather_object
+                                                                        是
+                                                                        是
+
+昆   torch.distributed.scatter
+    torch.distributed.scatter_object_list
+                                                                        是
+                                                                        是
+    torch.distributed.reduce_scatter                                    是
+    torch.distributed.reduce_scatter_tensor                             是
+    torch.distributed.all_to_all_single                                 是
+    torch.distributed.all_to_all                                        是
+    torch.distributed.barrier                                           是
+
+
+
+
+                                    Copyright©2024-2025 昆仑芯（北京）科技有限公司          - 48 -
+    让计算更智能 INTELLIGENT COMPUTING
+
+    torch2.0 distributed api                                          是否支持
+    torch.distributed.monitored_barrier                               是
+    torch.distributed.ReduceOp                                        是
+    torch.distributed.reduce_op                                       是
+    torch.distributed.broadcast_multigpu                              是
+    torch.distributed.all_reduce_multigpu                             是
+    torch.distributed.reduce_multigpu                                 是
+    torch.distributed.all_gather_multigpu
+    torch.distributed.reduce_scatter_multigpu
+                                                                      是
+                                                                      是
+                                                                               用
+    torch.distributed.DistBackendError
+    torch.distributed.all_reduce_coalesced
+                                                                      是
+                                                                      是
+                                                                             使
+    torch.distributed._broadcast_coalesced                            是   司
+                                                                      公
+                                                                限
+                                                            有
+                                                        ）
+                                                    圳
+                                                深
+                                            技（
+                            讯科
+                     腾
+              供
+       仅
+    芯
+仑
+昆
+
+
+                                  Copyright©2024-2025 昆仑芯（北京）科技有限公司          - 49 -
+

@@ -7,7 +7,7 @@ from triton.experimental.graph_fusion import compile as graph_compile
 from triton.experimental.graph_fusion import _inference
 
 
-@unittest.skipUnless(os.environ.get("FUSION_RUN_CUDA_TESTS") == "1", "explicit idle-GPU acceptance only")
+@unittest.skipUnless(os.environ.get("F06_RUN_CUDA_TESTS") == "1", "explicit idle-GPU acceptance only")
 class PrecisionBoundaryCUDA(unittest.TestCase):
 
     @classmethod

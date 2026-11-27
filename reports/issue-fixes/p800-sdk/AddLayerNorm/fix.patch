@@ -1,0 +1,33 @@
+diff --git a/kunlun_ops/_xflashinfer_norm.py b/kunlun_ops/_xflashinfer_norm.py
+index d46568d..1808e8b 100644
+--- a/kunlun_ops/_xflashinfer_norm.py
++++ b/kunlun_ops/_xflashinfer_norm.py
+@@ -84,6 +84,28 @@ def add_layernorm(
+         经过add_layernorm的输出
+ 
+     """
++    if (x.is_cuda and x.ndim == 2 and x.shape == y.shape == output.shape
++            and weight.shape == (x.shape[-1],) and x.device == y.device == weight.device == output.device
++            and x.dtype == y.dtype == weight.dtype == output.dtype == torch.float16
++            and (bias is None or (bias.shape == weight.shape and bias.device == x.device and bias.dtype == x.dtype))
++            and (residual_output is None or (residual_output.shape == x.shape and residual_output.device == x.device
++                                             and residual_output.dtype == x.dtype))
++            and output_max is None):
++        # The native half kernel requires float affine parameters. The FP32
++        # fusion also keeps the residual sum wide through normalization.
++        with torch.no_grad():
++            out32 = torch.empty(output.shape, device=output.device, dtype=torch.float32)
++            residual32 = None if residual_output is None else torch.empty(
++                residual_output.shape, device=residual_output.device, dtype=torch.float32)
++            status = xpu_flash_ops.add_layernorm(
++                x.float().contiguous(), weight.float().contiguous(), out32,
++                y.float().contiguous(), eps, False,
++                None if bias is None else bias.float().contiguous(), residual32, None)
++            if status == 0:
++                output.copy_(out32)
++                if residual_output is not None:
++                    residual_output.copy_(residual32)
++            return status
+     return xpu_flash_ops.add_layernorm(
+         x, weight, output, y, eps, interweaved, bias, residual_output, output_max)
+ 

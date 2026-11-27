@@ -23,7 +23,7 @@ except ImportError:  # pragma: no cover - parent remote environment has torch
     torch = None
 
 _HERE = pathlib.Path(__file__).resolve().parents[3] / "triton" / "experimental" / "graph_fusion"
-_PACKAGE = "_fusion_static_inference_cpu_tests"
+_PACKAGE = "_f06_static_inference_cpu_tests"
 _LOADED = {}
 
 

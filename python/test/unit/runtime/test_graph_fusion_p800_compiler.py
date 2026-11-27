@@ -87,6 +87,24 @@ class P800CompilerTests(InferenceCPUTestBase):
         self.assertIn('# P800 compiler policy: ', changed)
         self.assertIn("ResourceHeuristics('cluster')", changed)
 
+    def test_auto_resource_uses_actual_binary_metadata(self):
+        for expected, is_sdnn in [('sdnn', True), ('cluster', False)]:
+            meta = types.SimpleNamespace(arch=3, is_sdnn=is_sdnn, name='native', resource_kind='auto',
+                                         effective_resource_kind=expected)
+            binary = types.SimpleNamespace(metadata=meta, hash='hash', asm={'xpubin': b'ELF'})
+            evidence = self.codegen._record_binary(binary, expected)
+            self.assertEqual(evidence['effective'], expected)
+            self.assertEqual(evidence['native_metadata']['resource_kind'], 'auto')
+            other = 'cluster' if is_sdnn else 'sdnn'
+            with self.assertRaises(RuntimeError):
+                self.codegen._record_binary(binary, other)
+            meta.effective_resource_kind = other
+            with self.assertRaises(RuntimeError):
+                self.codegen._record_binary(binary, expected)
+            del meta.effective_resource_kind
+            with self.assertRaises(RuntimeError):
+                self.codegen._record_binary(binary, expected)
+
     def test_legacy_resource_requires_boolean_binary_metadata(self):
         meta = types.SimpleNamespace(arch=3, is_sdnn=False, name='native')
         binary = types.SimpleNamespace(metadata=meta, hash='native-hash', asm={'xpubin': b'ELF'})

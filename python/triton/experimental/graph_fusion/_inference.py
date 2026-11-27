@@ -860,13 +860,13 @@ def _lift_graph_module(
     env = {}
 
     for index, node in enumerate(placeholders):
-        name = _placeholder_name(used_names, getattr(node, "target", None), f"_fusion_input_{index}")
+        name = _placeholder_name(used_names, getattr(node, "target", None), f"_f06_input_{index}")
         env[node] = graph.placeholder(name)
 
     attr_placeholders = []
     target_to_placeholder = {}
     for index, target in enumerate(attr_targets):
-        name = _placeholder_name(used_names, f"_fusion_attr_{index}", f"_fusion_attr_{index}")
+        name = _placeholder_name(used_names, f"_f06_attr_{index}", f"_f06_attr_{index}")
         placeholder = graph.placeholder(name)
         attr_placeholders.append(placeholder)
         target_to_placeholder[target] = placeholder
@@ -998,8 +998,19 @@ def _trace_compiler_graph(lifted, flat, *, emulate_precision):
     # an unrounded FP32 sum. Internal decomposition arithmetic stays unmarked.
     scope = config.patch({'emulate_precision_casts': True}) if emulate_precision else nullcontext()
     with compile_lock, scope:
-        return make_fx(lifted, decomposition_table=select_decomp_table(), tracing_mode='fake',
-                       _allow_non_fake_inputs=True)(*flat)
+        graph = make_fx(lifted, decomposition_table=select_decomp_table(), tracing_mode='fake',
+                        _allow_non_fake_inputs=True)(*flat)
+    if emulate_precision:
+        # Explicit casts are not tagged as eager pointwise outputs by make_fx.
+        # Without this barrier, Inductor's compute-type promotion turns
+        # float32 -> float16/bfloat16 -> float32 into a float32 identity.
+        # Keep the rounding in registers; no intermediate tensor is required.
+        for node in graph.graph.nodes:
+            if (node.op == 'call_function'
+                    and node.target is torch.ops.prims.convert_element_type.default
+                    and node.args[1] in (torch.float16, torch.bfloat16)):
+                node.meta['low_precision_pointwise_barrier'] = True
+    return graph
 
 
 def _make_compiler_plan(

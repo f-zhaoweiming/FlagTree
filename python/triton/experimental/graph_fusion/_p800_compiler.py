@@ -3,7 +3,7 @@
 The legacy backend bridge is needed by the deployed P800 runtime. Newer XPU
 backends carry an explicit resource context and do not need that bridge.
 """
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from contextvars import ContextVar
 import hashlib
 from pathlib import Path
@@ -62,9 +62,9 @@ def resource_scope(resource):
                 if args:
                     raise RuntimeError('unrecognized positional Triton compile target')
                 kwargs['target'] = actual_target
+            from ._p800_inductor_softmax import configure_row_kernel
+            configure_row_kernel(source, kwargs)
             return original_compile(source, **kwargs)
-
-        candidate_ttxir = original_ttxir
 
         def parse_options(backend, options):
             requested = _RESOURCE.get()
@@ -92,16 +92,17 @@ def resource_scope(resource):
             # SDNN cannot call the external scalar rsqrt ABI; use the native
             # tensor intrinsic for the identical operation on both resources.
             xpu_libdevice.rsqrt = tl.rsqrt
+            # The native context supplies resource selection. Activation lowering
+            # also needs both its TTIR preparation and its matching SDNN stage.
+            candidate_ttxir = install_stage(original_ttxir)
             if native_scope is None:
-                candidate_ttxir = install_stage(original_ttxir)
-            if native_scope is not None:
-                with native_scope(resource), compilation_scope():
-                    yield
-            else:
                 XPUBackend.parse_options = parse_options
                 XPUBackend.make_ttxir = staticmethod(make_ttxir)
-                with activation_scope(), compilation_scope():
-                    yield
+            else:
+                XPUBackend.make_ttxir = staticmethod(candidate_ttxir)
+            selection = native_scope(resource) if native_scope is not None else nullcontext()
+            with selection, activation_scope(), compilation_scope():
+                yield
         finally:
             for name, function in original_math.items():
                 setattr(xpu_libdevice, name, function)
@@ -140,6 +141,8 @@ def target_scope():
             if args:
                 raise RuntimeError('unrecognized positional Triton target')
             kwargs['target'] = triton.runtime.driver.active.get_current_target()
+            from ._p800_inductor_softmax import configure_row_kernel
+            configure_row_kernel(source, kwargs)
             return original(source, **kwargs)
 
         try:

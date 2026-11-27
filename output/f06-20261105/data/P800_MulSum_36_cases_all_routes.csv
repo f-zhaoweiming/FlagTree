@@ -1,0 +1,685 @@
+﻿case,kind,dtype,M,N,device,route,primary,status,all_gates,invalid_zero_errors,class_errors,wide_errors,GPU_us,E2E_us,error,vs_serial_GPU,vs_serial_E2E,vs_old_dual_GPU,vs_old_dual_E2E,vs_eager_GPU,vs_eager_E2E,vs_inductor_GPU,vs_inductor_E2E
+72,mul_sum,float32,16,128,7,eager,False,passed,False,0,8,0,6.08581295973963,42.585,,2.344614968008606,0.7796642010097452,0.7510929857484581,0.5486086650228954,1.0,1.0,0.4868395553289792,1.305624046025596
+72,mul_sum,float32,16,128,7,inductor,False,passed,False,0,8,0,2.96281447513498,55.6,,4.815991104963206,0.5971582733812949,1.5427936730426743,0.42018884892086333,2.0540648126347403,0.7659172661870504,1.0,1.0
+72,mul_sum,float32,16,128,7,cluster,False,passed,False,0,8,0,3.5903100487139588,23.637500000000003,,3.9742774201401847,1.4046324695928079,1.2731522806156603,0.9883659439450025,1.6950661299905156,1.8015864621893176,0.8252252409777963,2.352194606028556
+72,mul_sum,float32,16,128,7,sdnn_single,False,passed,False,0,8,0,14.268888157906293,33.202,,1.0,1.0,0.32034811514762157,0.7036473706403229,0.42650926213669443,1.282603457623035,0.20764157952231932,1.6745979157882056
+72,mul_sum,float32,16,128,7,sdnn_old_dual,False,passed,False,0,24,0,4.571011426637499,23.3625,,3.121604132239654,1.4211663991439272,1.0,1.0,1.331393075124391,1.822792937399679,0.6481748126616408,2.3798822899946495
+72,mul_sum,float32,16,128,7,sdnn_parallel,True,passed,False,0,8,0,5.196739615296288,24.288,,2.7457385234208553,1.367012516469038,0.8795921606660846,0.9618947628458498,1.1710829116445258,1.753334980237154,0.5701294839583871,2.2891963109354414
+75,mul_sum,float16,16,128,7,eager,False,passed,True,0,0,0,6.103827242265668,41.366,,2.3204094454698776,0.8044408451385195,0.720101724064481,0.5728859449789683,1.0,1.0,0.49737643603036985,1.3448121645796065
+75,mul_sum,float16,16,128,7,inductor,False,passed,True,0,0,0,3.0358998399031787,55.6295,,4.6652983080368395,0.5981808213268139,1.4478002412251623,0.42599699799566776,2.010549611037343,0.743598270701696,1.0,1.0
+75,mul_sum,float16,16,128,7,cluster,False,passed,True,0,0,0,3.9658895012928035,23.737499999999997,,3.5712992966275596,1.401853607161664,1.1082952561120136,0.9983359662980518,1.539081520116972,1.742643496577146,0.7655028812359834,2.3435281727224857
+75,mul_sum,float16,16,128,7,sdnn_single,False,passed,True,0,0,0,14.163378386469612,33.2765,,1.0,1.0,0.31033390485042694,0.71215422295013,0.4309584250108507,1.2430994846212793,0.21434856550915832,1.6717353087013358
+75,mul_sum,float16,16,128,7,sdnn_old_dual,False,passed,True,0,0,0,4.395376520547254,23.698,,3.222335633877886,1.4041902270233775,1.0,1.0,1.388692689632355,1.7455481475229977,0.6907030207107693,2.347434382648325
+75,mul_sum,float16,16,128,7,sdnn_parallel,True,passed,True,0,0,0,5.140572437766003,24.1025,,2.755214240814152,1.3806244165542993,0.8550363940513603,0.9832175085572037,1.1873827897887337,1.716253500674204,0.5905762201889182,2.3080385852090033
+76,mul_sum,float16,32,256,7,eager,False,passed,True,0,0,0,6.172621905148684,42.906,,6.055928059726909,1.331492099007132,1.2858519477655255,0.6359833123572461,1.0,1.0,1.0665718836086913,1.3546939821936326
+76,mul_sum,float16,32,256,7,inductor,False,passed,True,0,0,0,6.5835449721787,58.1245,,5.6779370924695565,0.9828729709502877,1.2055933289886767,0.46946640401207756,0.9375833128251528,0.7381740918201447,1.0,1.0
+76,mul_sum,float16,32,256,7,cluster,False,passed,True,0,0,0,6.7464626752413235,26.667,,5.540822798095116,2.1423107211159857,1.1764799246105178,1.0232684591442607,0.9149419780830386,1.608954888063899,0.9758513889566882,2.179641504481194
+76,mul_sum,float16,32,256,7,sdnn_single,False,passed,True,0,0,0,37.38095419747489,57.129,,1.0,1.0,0.21232946215406504,0.4776470794167586,0.16512745695415257,0.751037126503177,0.17612030279910357,1.0174254756778518
+76,mul_sum,float16,32,256,7,sdnn_old_dual,False,passed,True,0,0,0,7.937077899555584,27.2875,,4.709662002884959,2.093595968850206,1.0,1.0,0.777694509649994,1.5723683005038935,0.8294670980295316,2.130077874484654
+76,mul_sum,float16,32,256,7,sdnn_parallel,True,passed,True,0,0,0,9.449271317366716,29.1125,,3.9559615701554502,1.9623529411764704,0.8399671924932575,0.9373121511378274,0.6532378738881259,1.4737999141262343,0.6967251495973952,1.9965478746243022
+77,mul_sum,float16,64,1024,7,eager,False,passed,True,0,0,0,7.268457412719727,36.9415,,,,,,1.0,1.0,1.832275720885439,1.4708254943627086
+77,mul_sum,float16,64,1024,7,inductor,False,passed,True,0,0,0,13.31781804561615,54.3345,,,,,,0.5457693886358732,0.6798903091037922,1.0,1.0
+77,mul_sum,float16,64,1024,7,cluster,False,passed,True,0,0,0,13.097073435783386,31.881999999999998,,,,,,0.5549680581969626,1.1586945611944044,1.0168544989012318,1.7042375007841415
+77,mul_sum,float16,64,1024,7,sdnn256_cluster,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 1 / 64 (1.6%)
+Greatest absolute difference: 0.012939453125 at index (22,) (up to 0.003 allowed)
+Greatest relative difference: 0.1231689453125 at index (22,) (up to 0.003 allowed)",,,,,,,,
+77,mul_sum,float16,64,1024,7,sdnn256_cluster_old_dual,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 1 / 64 (1.6%)
+Greatest absolute difference: 0.012939453125 at index (22,) (up to 0.003 allowed)
+Greatest relative difference: 0.1231689453125 at index (22,) (up to 0.003 allowed)",,,,,,,,
+77,mul_sum,float16,64,1024,7,sdnn256_cluster_parallel,True,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 1 / 64 (1.6%)
+Greatest absolute difference: 0.012939453125 at index (22,) (up to 0.003 allowed)
+Greatest relative difference: 0.1231689453125 at index (22,) (up to 0.003 allowed)",,,,,,,,
+78,mul_sum,bfloat16,16,128,7,eager,False,passed,False,0,16,0,6.025050053229698,35.426500000000004,,3.123073768150215,1.0369779684699305,1.5823157315170673,0.7737710470975117,1.0,1.0,,
+78,mul_sum,bfloat16,16,128,7,inductor,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 18, in finite_validate
+    bench.assert_close(fn(*changed),bench._cpu(reference(*changed)),tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 2 / 16 (12.5%)
+Greatest absolute difference: 0.0625 at index (1,) (up to 0.03 allowed)
+Greatest relative difference: 0.007293701171875 at index (1,) (up to 0.003 allowed)",,,,,,,,
+78,mul_sum,bfloat16,16,128,7,cluster,False,passed,False,0,16,0,3.3819838670583873,22.403,,5.563798206228662,1.639802704994867,2.8189169011900868,1.2235861268580102,1.7815135405924396,1.5813283935187255,,
+78,mul_sum,bfloat16,16,128,7,sdnn_single,False,passed,False,0,16,0,18.81667577303373,36.7365,,1.0,1.0,0.5066533322567871,0.7461788684278579,0.3201973677977822,0.9643406421406504,,
+78,mul_sum,bfloat16,16,128,7,sdnn_old_dual,False,passed,False,0,32,0,9.533531482403095,27.412,,1.973736155145171,1.340161243251131,1.0,1.0,0.6319851216047988,1.292371953888808,,
+78,mul_sum,bfloat16,16,128,7,sdnn_parallel,True,passed,False,0,16,0,5.981409366314228,23.933,,3.145859883626165,1.5349726319308068,1.593860392852145,1.14536414156186,1.0072960541977354,1.4802364935444785,,
+79,mul_sum,bfloat16,32,256,7,eager,False,passed,False,0,16,0,6.402463576125257,31.561999999999998,,7.83125913958191,2.1492142449781384,3.6326284502499706,1.286071858564096,1.0,1.0,,
+79,mul_sum,bfloat16,32,256,7,inductor,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 6 / 32 (18.8%)
+Greatest absolute difference: 0.125 at index (26,) (up to 0.03 allowed)
+Greatest relative difference: 0.034423828125 at index (15,) (up to 0.003 allowed)",,,,,,,,
+79,mul_sum,bfloat16,32,256,7,cluster,False,passed,False,0,16,0,5.283771498050648,23.0175,,9.489311075406878,2.9470402954273927,4.40173677966625,1.763484305419789,1.2117222666588308,1.3712175518627132,,
+79,mul_sum,bfloat16,32,256,7,sdnn_single,False,passed,False,0,16,0,50.1393513963712,67.8335,,1.0,1.0,0.46386262866585554,0.5983916501433656,0.12769338648821515,0.4652863260778229,,
+79,mul_sum,bfloat16,32,256,7,sdnn_old_dual,False,passed,False,0,32,0,23.257771338321778,40.590999999999994,,2.1558106607470466,1.6711463132221431,1.0,1.0,0.2752827638981871,0.7775615284176296,,
+79,mul_sum,bfloat16,32,256,7,sdnn_parallel,True,passed,False,0,16,0,11.302284847032155,28.592,,4.4362137457133,2.3724643256855065,2.057793769410173,1.4196628427532176,0.5664751563757011,1.1038752098489089,,
+80,mul_sum,bfloat16,64,1024,7,eager,False,passed,False,0,16,0,8.064827805172543,44.041,,51.32309651496605,9.904464022161168,23.01577114501985,4.766104311891192,1.0,1.0,,
+80,mul_sum,bfloat16,64,1024,7,inductor,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 25 / 64 (39.1%)
+Greatest absolute difference: 0.25 at index (6,) (up to 0.03 allowed)
+Greatest relative difference: 1.609375 at index (22,) (up to 0.003 allowed)",,,,,,,,
+80,mul_sum,bfloat16,64,1024,7,cluster,False,passed,False,0,16,0,15.784237049618831,35.301500000000004,,26.22311959205198,12.356486268288881,11.75972145529368,5.946036287409883,0.5109418833371676,1.247567383822217,,
+80,mul_sum,bfloat16,64,1024,7,sdnn256_cluster,False,passed,False,0,16,0,413.9119358214523,436.2025,,1.0,1.0,0.44844860711606405,0.4812076959668961,0.019484405032116393,0.10096457493939168,,
+80,mul_sum,bfloat16,64,1024,7,sdnn256_cluster_old_dual,False,passed,False,0,32,0,185.61823108784398,209.904,,2.22990992531099,2.07810475264883,1.0,1.0,0.04344846816989575,0.20981496303071878,,
+80,mul_sum,bfloat16,64,1024,7,sdnn256_cluster_parallel,True,passed,False,0,16,0,90.6774586644666,114.219,,4.56466184559769,3.819001216960401,2.047016246614126,1.8377327765082867,0.08893972023427332,0.3855838345634264,,
+81,mul_sum_keepdim,float32,16,128,7,eager,False,passed,False,0,8,0,6.188130207198987,42.796,,2.304736799944342,0.7832975044396673,0.7178844819638716,0.5602860080381344,1.0,1.0,0.487194250347379,1.3308369941115992
+81,mul_sum_keepdim,float32,16,128,7,inductor,False,passed,False,0,8,0,3.0148214573482814,56.954499999999996,,4.730632182750555,0.5885750906425304,1.473507705503515,0.42100273024958523,2.052569379230113,0.7514068247460692,1.0,1.0
+81,mul_sum_keepdim,float32,16,128,7,cluster,False,passed,False,0,8,0,3.0364072580131696,24.138,,4.697002147436196,1.388764603529704,1.4630325482184585,0.9933714475101499,2.0379776760407635,1.7729720772226363,0.9928910061033734,2.3595368298947714
+81,mul_sum_keepdim,float32,16,128,7,sdnn_single,False,passed,False,0,8,0,14.26201141137871,33.522,,1.0,1.0,0.31148219700453783,0.7152914503907882,0.4338890236942238,1.2766541375812899,0.2113882376326635,1.69901855497882
+81,mul_sum_keepdim,float32,16,128,7,sdnn_old_dual,False,passed,False,0,24,0,4.44236264812003,23.978,,3.2104563587158452,1.3980315289014928,1.0,1.0,1.3929817750961306,1.7848027358411875,0.6786527116655207,2.375281508049045
+81,mul_sum_keepdim,float32,16,128,7,sdnn_parallel,True,passed,False,0,8,0,5.227330262712438,24.232,,2.7283547613420196,1.3833773522614725,0.8498339352706037,0.9895179927368769,1.183803183690176,1.7660944206008584,0.5767421046367758,2.3503837900297126
+82,mul_sum_keepdim,float32,32,256,7,eager,False,passed,False,0,8,0,6.280358283074348,42.056,,6.1450574227766115,1.3769497812440556,1.2620878265449016,0.6451517024919156,1.0,1.0,0.9667349381184979,1.3314271447593686
+82,mul_sum_keepdim,float32,32,256,7,inductor,False,passed,False,0,8,0,6.071441776149875,55.9945,,6.356507022220995,1.0341908580306993,1.3055158935304774,0.48455651894382484,1.0344097027735897,0.7510737661734634,1.0,1.0
+82,mul_sum_keepdim,float32,32,256,7,cluster,False,passed,False,0,8,0,6.161154757489214,24.8575,,6.263949503652791,2.3296389419692245,1.2865061903815438,1.0915216735391733,1.0193475947735666,1.6918837373026248,0.9854389339546635,2.2526199336216433
+82,mul_sum_keepdim,float32,32,256,7,sdnn_single,False,passed,False,0,8,0,38.59316228510259,57.909,,1.0,1.0,0.20538259282443516,0.46853684228703657,0.16273240934958674,0.7262428983404997,0.1573191056824468,0.9669395085392599
+82,mul_sum_keepdim,float32,32,256,7,sdnn_old_dual,False,passed,False,0,24,0,7.926363735408573,27.1325,,4.868961805613285,2.134303879111766,1.0,1.0,0.7923378856585641,1.5500230351055007,0.7659807168610735,2.0637427439417673
+82,mul_sum_keepdim,float32,32,256,7,sdnn_parallel,True,passed,False,0,8,0,9.500698990874238,28.7075,,4.062139251245904,2.0172080466776974,0.8342926918347935,0.9451362884263694,0.6610417074687722,1.464983018374989,0.6390521141635698,1.9505181572759733
+83,mul_sum_keepdim,float32,64,1024,7,eager,False,passed,False,0,8,0,7.215430369189859,47.015,,42.55387978032975,7.087684781452729,9.555900237464483,2.507572051472934,1.0,1.0,1.7833775859982055,1.3561310220142506
+83,mul_sum_keepdim,float32,64,1024,7,inductor,False,passed,False,0,8,0,12.867836793743951,63.7585,,23.861396551370905,5.2264011857242565,5.358315766941628,1.8490632621532814,0.5607337491798028,0.7373918771614766,1.0,1.0
+83,mul_sum_keepdim,float32,64,1024,7,cluster,False,passed,False,0,8,0,13.039812220547496,33.076499999999996,,23.546700773038726,10.074448626668483,5.287647675608541,3.5642676824936133,0.5533385180056609,1.4214019016522306,0.9868115104807602,1.927607213580639
+83,mul_sum_keepdim,float32,64,1024,7,sdnn256_cluster,False,passed,False,0,8,0,307.04455649384556,333.2275,,1.0,1.0,0.2245600233584726,0.3537928292232783,0.02349961989746099,0.14108979601023325,0.041908695404609383,0.19133624925913975
+83,mul_sum_keepdim,float32,64,1024,7,sdnn256_cluster_old_dual,False,passed,False,0,24,0,68.94993277834982,117.89349999999999,,4.45315236899342,2.826512912077426,1.0,1.0,0.10464738801682333,0.3987921301852944,0.18662580622245992,0.5408143790794234
+83,mul_sum_keepdim,float32,64,1024,7,sdnn256_cluster_parallel,True,passed,False,0,8,0,79.35316829162781,118.658,,3.8693421208519085,2.808302010821015,0.8688995570404264,0.9935571137217886,0.09092806909325542,0.39622275784186484,0.1621590803590079,0.5373299735373932
+84,mul_sum_keepdim,float16,16,128,7,eager,False,passed,True,0,0,0,5.927235085443156,40.966499999999996,,2.3881084600252875,0.8092465795222927,0.7439107213473152,0.5676101204642818,1.0,1.0,0.6699467854498502,1.3931871163023446
+84,mul_sum_keepdim,float16,16,128,7,inductor,False,passed,True,0,0,0,3.9709320920982107,57.074,,3.564624104318585,0.5808599362231489,1.1104027028770656,0.40741843921925924,1.4926558671798513,0.717778673301328,1.0,1.0
+84,mul_sum_keepdim,float16,16,128,7,cluster,False,passed,True,0,0,0,5.964650815685853,25.4725,,2.373128065582812,1.3014819903817842,0.7392442347859589,0.9128668171557562,0.9937270879052466,1.6082638139169692,0.6657442681565606,2.240612425164393
+84,mul_sum_keepdim,float16,16,128,7,sdnn_single,False,passed,True,0,0,0,14.15488025210551,33.152,,1.0,1.0,0.31150625434300333,0.7014056467181466,0.41874145028966187,1.235717302123552,0.28053448855616725,1.7215854247104245
+84,mul_sum_keepdim,float16,16,128,7,sdnn_old_dual,False,passed,True,0,0,0,4.409333728007134,23.253,,3.210208418155508,1.4257085107297984,1.0,1.0,1.3442473287505188,1.7617726744936135,0.9005741767459581,2.4544789919580268
+84,mul_sum_keepdim,float16,16,128,7,sdnn_parallel,True,passed,True,0,0,0,5.389942830761537,23.923000000000002,,2.626165192573218,1.385779375496384,0.8180668824244552,0.9719934790787108,1.0996842214383387,1.7124315512268526,0.7367299091625362,2.3857375747188896
+85,mul_sum_keepdim,float16,32,256,7,eager,False,passed,True,0,0,0,6.131189695575781,42.916,,6.10380692770184,1.3388829341038309,1.2899903164017965,0.6447012769130395,1.0,1.0,1.0552713827223987,1.3460946966166467
+85,mul_sum_keepdim,float16,32,256,7,inductor,False,passed,True,0,0,0,6.470069027783578,57.769000000000005,,5.7841111088933195,0.994642455296093,1.2224251860918163,0.47894199311049174,0.9476235368196859,0.742889785178902,1.0,1.0
+85,mul_sum_keepdim,float16,32,256,7,cluster,False,passed,True,0,0,0,6.464145946920964,26.7725,,5.789411075524276,2.1462134653095526,1.2235452912511322,1.0334485012606218,0.9484918419108748,1.6029881408161357,1.0009162975142036,2.157773835091979
+85,mul_sum_keepdim,float16,32,256,7,sdnn_single,False,passed,True,0,0,0,37.42359813890959,57.4595,,1.0,1.0,0.21134192671580684,0.48152176750580844,0.16383218077582812,0.746891288646786,0.17288741194173415,1.0053864025966117
+85,mul_sum_keepdim,float16,32,256,7,sdnn_old_dual,False,passed,True,0,0,0,7.909175335315236,27.668,,4.73166879634209,2.076749313286107,1.0,1.0,0.7751996176136624,1.551105970796588,0.8180459723650443,2.0879355211797024
+85,mul_sum_keepdim,float16,32,256,7,sdnn_parallel,True,passed,True,0,0,0,9.470377052039431,29.212,,3.951648169156103,1.9669827468163767,0.8351489377724414,0.9471450089004518,0.6474071372116529,1.4691222785156783,0.6831902248696907,1.9775777077913188
+86,mul_sum_keepdim,float16,64,1024,7,eager,False,passed,True,0,0,0,7.310863697167599,41.105999999999995,,,,,,1.0,1.0,2.0118020037654807,1.3904052936311002
+86,mul_sum_keepdim,float16,64,1024,7,inductor,False,passed,True,0,0,0,14.708010235218087,57.153999999999996,,,,,,0.49706680783114066,0.719214753123141,1.0,1.0
+86,mul_sum_keepdim,float16,64,1024,7,cluster,False,passed,True,0,0,0,15.90647841944839,37.047,,,,,,0.45961547895031357,1.1095635274111264,0.924655341513872,1.5427430021324264
+86,mul_sum_keepdim,float16,64,1024,7,sdnn256_cluster,False,failed,False,,,,,,"aceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 1 / 64 (1.6%)
+Greatest absolute difference: 0.012939453125 at index (22, 0) (up to 0.003 allowed)
+Greatest relative difference: 0.1231689453125 at index (22, 0) (up to 0.003 allowed)",,,,,,,,
+86,mul_sum_keepdim,float16,64,1024,7,sdnn256_cluster_old_dual,False,failed,False,,,,,,"aceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 1 / 64 (1.6%)
+Greatest absolute difference: 0.012939453125 at index (22, 0) (up to 0.003 allowed)
+Greatest relative difference: 0.1231689453125 at index (22, 0) (up to 0.003 allowed)",,,,,,,,
+86,mul_sum_keepdim,float16,64,1024,7,sdnn256_cluster_parallel,True,failed,False,,,,,,"aceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 1 / 64 (1.6%)
+Greatest absolute difference: 0.012939453125 at index (22, 0) (up to 0.003 allowed)
+Greatest relative difference: 0.1231689453125 at index (22, 0) (up to 0.003 allowed)",,,,,,,,
+87,mul_sum_keepdim,bfloat16,16,128,7,eager,False,passed,False,0,16,0,6.159596783774239,34.0015,,3.060217012096105,1.0791141567283795,1.5411299432216614,0.8053468229342824,1.0,1.0,,
+87,mul_sum_keepdim,bfloat16,16,128,7,inductor,False,failed,False,,,,,,"eback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 18, in finite_validate
+    bench.assert_close(fn(*changed),bench._cpu(reference(*changed)),tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 2 / 16 (12.5%)
+Greatest absolute difference: 0.0625 at index (1, 0) (up to 0.03 allowed)
+Greatest relative difference: 0.007293701171875 at index (1, 0) (up to 0.003 allowed)",,,,,,,,
+87,mul_sum_keepdim,bfloat16,16,128,7,cluster,False,passed,False,0,16,0,3.392525513966878,21.978,,5.556244982611033,1.6694649194649192,2.798133426724466,1.245927745927746,1.8156375710117583,1.5470697970697969,,
+87,mul_sum_keepdim,bfloat16,16,128,7,sdnn_single,False,passed,False,0,16,0,18.84970286535838,36.6915,,1.0,1.0,0.5036015214378733,0.746303639807585,0.32677421112532373,0.9266860171974436,,
+87,mul_sum_keepdim,bfloat16,16,128,7,sdnn_old_dual,False,passed,False,0,32,0,9.49273904164632,27.383000000000003,,1.9856969398043505,1.3399371873059926,1.0,1.0,0.648874551038536,1.2417010553993353,,
+87,mul_sum_keepdim,bfloat16,16,128,7,sdnn_parallel,True,passed,False,0,16,0,5.988935818747869,23.8675,,3.147421083784358,1.5372996752906671,1.585046046399443,1.1472923431444435,1.028496041732845,1.4245941133340316,,
+88,mul_sum_keepdim,bfloat16,32,256,7,eager,False,passed,False,0,16,0,6.378646717955734,34.122,,7.865485484635595,2.0165289256198347,3.6478629639398052,1.219037571068519,1.0,1.0,,
+88,mul_sum_keepdim,bfloat16,32,256,7,inductor,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 6 / 32 (18.8%)
+Greatest absolute difference: 0.125 at index (26, 0) (up to 0.03 allowed)
+Greatest relative difference: 0.034423828125 at index (15, 0) (up to 0.003 allowed)",,,,,,,,
+88,mul_sum_keepdim,bfloat16,32,256,7,cluster,False,passed,False,0,16,0,6.957787025316925,25.563000000000002,,7.210791734375345,2.69170285177796,3.344228421741185,1.6271955560771427,0.9167637202383596,1.3348198568243164,,
+88,mul_sum_keepdim,bfloat16,32,256,7,sdnn_single,False,passed,False,0,16,0,50.1711531716993,68.80799999999999,,1.0,1.0,0.4637810305626429,0.6045227299151262,0.1271377338313567,0.49590163934426235,,
+88,mul_sum_keepdim,bfloat16,32,256,7,sdnn_old_dual,False,passed,False,0,32,0,23.268429122486914,41.596000000000004,,2.156189956253353,1.6541975189922105,1.0,1.0,0.27413310474798347,0.8203192614674487,,
+88,mul_sum_keepdim,bfloat16,32,256,7,sdnn_parallel,True,passed,False,0,16,0,11.351254865296893,29.667,,4.419877252961942,2.319344726463747,2.0498552273390724,1.4020966056561164,0.5619331777543434,1.150166852057842,,
+89,mul_sum_keepdim,bfloat16,64,1024,7,eager,False,passed,False,0,16,0,8.078479766845703,40.596000000000004,,51.01315464066033,10.737954478273721,23.246534412450906,5.170090649325056,1.0,1.0,,
+89,mul_sum_keepdim,bfloat16,64,1024,7,inductor,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 25 / 64 (39.1%)
+Greatest absolute difference: 0.25 at index (6, 0) (up to 0.03 allowed)
+Greatest relative difference: 1.609375 at index (22, 0) (up to 0.003 allowed)",,,,,,,,
+89,mul_sum_keepdim,bfloat16,64,1024,7,cluster,False,passed,False,0,16,0,14.494114887865283,32.941500000000005,,28.43283227681394,13.233095032102362,12.956752402831684,6.371446351866186,0.5573627523546913,1.2323664678293338,,
+89,mul_sum_keepdim,bfloat16,64,1024,7,sdnn256_cluster,False,passed,False,0,16,0,412.1087376075455,435.918,,1.0,1.0,0.45569686047061514,0.48147816791231374,0.019602786909456178,0.09312760656820779,,
+89,mul_sum_keepdim,bfloat16,64,1024,7,sdnn256_cluster_old_dual,False,passed,False,0,32,0,187.796657900267,209.885,,2.194441276087052,2.0769373704647784,1.0,1.0,0.04301716472044957,0.1934202063034519,,
+89,mul_sum_keepdim,bfloat16,64,1024,7,sdnn256_cluster_parallel,True,passed,False,0,16,0,90.81434418883505,114.164,,4.537925602927067,3.8183490417294417,2.067918450303088,1.8384517010616306,0.08895598860514474,0.35559370729827267,,
+198,mul_sum,float32,128,1024,7,eager,False,passed,False,0,8,0,8.480803059860015,48.6205,,63.50969360799925,11.644686911899301,11.19242435407128,2.5367489022120298,1.0,1.0,2.6772010500542516,1.3581513970444563
+198,mul_sum,float32,128,1024,7,inductor,False,passed,False,0,8,0,22.704814857160542,66.03399999999999,,23.722422194146485,8.573924039131358,4.180643942988321,1.8677953781385348,0.3735244314130744,0.7362949389708333,1.0,1.0
+198,mul_sum,float32,128,1024,7,cluster,False,passed,False,0,8,0,17.12452660144215,37.042,,31.45273539042724,15.284555369580474,5.542970554366488,3.3296798229037305,0.49524306611464525,1.3125776145996435,1.3258652566342153,1.782679120997786
+198,mul_sum,float32,128,1024,7,sdnn256_cluster,False,passed,False,0,8,0,538.6132038814922,566.1705,,1.0,1.0,0.17623174854462778,0.2178460375452271,0.015745627843401323,0.08587607443340832,0.042154211396117476,0.11663271046442723
+198,mul_sum,float32,128,1024,7,sdnn256_cluster_old_dual,False,passed,False,0,24,0,94.92074670925946,123.338,,5.674346468546594,4.590397930889101,1.0,1.0,0.08934614774825321,0.394205354391996,0.23919760056992578,0.5353905527898944
+198,mul_sum,float32,128,1024,7,sdnn256_cluster_parallel,True,passed,False,0,8,0,122.3249784657653,150.03,,4.403133445326803,3.77371525694861,0.7759719061452738,0.8220889155502232,0.0693301005749493,0.32407185229620744,0.18561061805962112,0.44013863893887883
+199,mul_sum,float32,512,1024,7,eager,False,passed,False,0,8,0,13.128857536009516,54.209500000000006,,157.11377800529098,38.61670002490337,25.00812290320302,6.636945553823591,1.0,1.0,4.069703921263103,1.8714524207011685
+199,mul_sum,float32,512,1024,7,inductor,False,passed,False,0,8,0,53.430562996002564,101.4505,,38.605702293086715,20.634614910720003,6.144948966076461,3.546414261142133,0.24571812086261863,0.5343443354148082,1.0,1.0
+199,mul_sum,float32,512,1024,7,cluster,False,passed,False,0,8,0,53.50222070533109,76.4575,,38.553996099271366,27.37981231403067,6.1367187849541684,4.705692705097603,0.245389020547727,0.7090148121505413,0.9986606591579966,1.3268874865121147
+199,mul_sum,float32,512,1024,7,sdnn256_cluster,False,passed,False,0,8,0,2062.7244083756905,2093.392,,1.0,1.0,0.1591720549318141,0.1718672374786949,0.006364814166497377,0.025895532227122302,0.025902909171505322,0.048462256471793155
+199,mul_sum,float32,512,1024,7,sdnn256_cluster_old_dual,False,passed,False,0,24,0,328.32808283916916,359.7855,,6.282509831442326,5.818444601019218,1.0,1.0,0.03998700757632316,0.1506717196774189,0.16273528153293979,0.2819749545215135
+199,mul_sum,float32,512,1024,7,sdnn256_cluster_parallel,True,passed,False,0,8,0,437.325596330635,468.08000000000004,,4.716678890243121,4.472295334130917,0.750763471413506,0.7686410442659374,0.030020784619438544,0.11581246795419586,0.12217570488512408,0.21673752350025635
+200,mul_sum,float32,2048,2048,7,eager,False,passed,False,0,48,187,34.94865326654343,92.656,,466.1828071603892,176.33280089794508,72.17258512418645,27.693198497668792,1.0,1.0,4.552336900724259,2.508288723881886
+200,mul_sum,float32,2048,2048,7,inductor,False,passed,False,0,8,0,159.0980438959031,232.40800000000002,,102.40516405677737,70.30004130666758,15.853963952602909,11.040674159237202,0.21966739760427306,0.39867818663729304,1.0,1.0
+200,mul_sum,float32,2048,2048,7,cluster,False,passed,False,0,8,0,157.99850282214936,178.6925,,103.11782070879427,91.432444002966,15.96429464711158,14.359533836059152,0.22119610402817108,0.5185220420554865,1.0069591866638852,1.3006029911719854
+200,mul_sum,float32,2048,2048,7,sdnn256_cluster,False,passed,False,0,8,0,16292.461286272322,16338.292000000001,,1.0,1.0,0.15481605931330633,0.1570507492460044,0.0021450812527626143,0.005671094628496051,0.009765132542003072,0.014224742708723776
+200,mul_sum,float32,2048,2048,7,sdnn256_cluster_old_dual,False,passed,False,0,24,0,2522.334652855283,2565.941,,6.459278219814827,6.367368540430198,1.0,1.0,0.01385567661570266,0.03610994952728844,0.06307570794216545,0.09057417921924162
+200,mul_sum,float32,2048,2048,7,sdnn256_cluster_parallel,True,passed,False,0,8,0,3357.1579706101193,3400.6255,,4.853051726759043,4.8044961140237294,0.7513303439804716,0.7545497144569432,0.010410190277758056,0.02724675210487012,0.04739069334499893,0.06834272106705075
+201,mul_sum,float16,128,1024,7,eager,False,passed,True,0,0,0,8.381286332773609,40.486000000000004,,,,,,1.0,1.0,2.8395418453533736,1.5170429284197005
+201,mul_sum,float16,128,1024,7,inductor,False,passed,True,0,0,0,23.799013259798983,61.419,,,,,,0.35216948876326654,0.6591771275989515,1.0,1.0
+201,mul_sum,float16,128,1024,7,cluster,False,passed,True,0,0,0,25.76744833657908,47.769999999999996,,,,,,0.3252664456059338,0.8475193636173333,0.923607683187406,1.2857232572744401
+201,mul_sum,float16,128,1024,7,sdnn256_cluster,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 3 / 128 (2.3%)
+Greatest absolute difference: 0.014404296875 at index (116,) (up to 0.003 allowed)
+Greatest relative difference: 0.1231689453125 at index (22,) (up to 0.003 allowed)",,,,,,,,
+201,mul_sum,float16,128,1024,7,sdnn256_cluster_old_dual,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 3 / 128 (2.3%)
+Greatest absolute difference: 0.014404296875 at index (116,) (up to 0.003 allowed)
+Greatest relative difference: 0.1231689453125 at index (22,) (up to 0.003 allowed)",,,,,,,,
+201,mul_sum,float16,128,1024,7,sdnn256_cluster_parallel,True,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 3 / 128 (2.3%)
+Greatest absolute difference: 0.014404296875 at index (116,) (up to 0.003 allowed)
+Greatest relative difference: 0.1231689453125 at index (22,) (up to 0.003 allowed)",,,,,,,,
+202,mul_sum,float16,512,1024,7,eager,False,passed,True,0,0,0,15.152482049805778,42.076,,,,,,1.0,1.0,3.176029399017513,2.0272126628006464
+202,mul_sum,float16,512,1024,7,inductor,False,passed,True,0,0,0,48.1247284582683,85.297,,,,,,0.3148585464320149,0.4932881578484589,1.0,1.0
+202,mul_sum,float16,512,1024,7,cluster,False,passed,True,0,0,0,45.529388955661226,69.3435,,,,,,0.3328066200177212,0.606776410189852,1.057003609363933,1.230064822225587
+202,mul_sum,float16,512,1024,7,sdnn256_cluster,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 19 / 512 (3.7%)
+Greatest absolute difference: 0.01953125 at index (216,) (up to 0.003 allowed)
+Greatest relative difference: 0.5595703125 at index (226,) (up to 0.003 allowed)",,,,,,,,
+202,mul_sum,float16,512,1024,7,sdnn256_cluster_old_dual,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 19 / 512 (3.7%)
+Greatest absolute difference: 0.01953125 at index (216,) (up to 0.003 allowed)
+Greatest relative difference: 0.5595703125 at index (226,) (up to 0.003 allowed)",,,,,,,,
+202,mul_sum,float16,512,1024,7,sdnn256_cluster_parallel,True,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 19 / 512 (3.7%)
+Greatest absolute difference: 0.01953125 at index (216,) (up to 0.003 allowed)
+Greatest relative difference: 0.5595703125 at index (226,) (up to 0.003 allowed)",,,,,,,,
+203,mul_sum,float16,2048,2048,7,eager,False,passed,False,0,48,69,23.18735199589883,46.96,,,,,,1.0,1.0,6.88004576206519,4.275468483816014
+203,mul_sum,float16,2048,2048,7,inductor,False,passed,True,0,0,0,159.53004283289755,200.776,,,,,,0.1453478704333253,0.2338924971112085,1.0,1.0
+203,mul_sum,float16,2048,2048,7,cluster,False,passed,True,0,0,0,159.70792462748867,184.987,,,,,,0.14518598278690462,0.25385567634482425,0.9988862055843126,1.0853519436500945
+203,mul_sum,float16,2048,2048,7,sdnn256_cluster,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 63 / 2048 (3.1%)
+Greatest absolute difference: 0.03125 at index (307,) (up to 0.003 allowed)
+Greatest relative difference: 0.2320556640625 at index (1246,) (up to 0.003 allowed)",,,,,,,,
+203,mul_sum,float16,2048,2048,7,sdnn256_cluster_old_dual,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 63 / 2048 (3.1%)
+Greatest absolute difference: 0.03125 at index (307,) (up to 0.003 allowed)
+Greatest relative difference: 0.2320556640625 at index (1246,) (up to 0.003 allowed)",,,,,,,,
+203,mul_sum,float16,2048,2048,7,sdnn256_cluster_parallel,True,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 63 / 2048 (3.1%)
+Greatest absolute difference: 0.03125 at index (307,) (up to 0.003 allowed)
+Greatest relative difference: 0.2320556640625 at index (1246,) (up to 0.003 allowed)",,,,,,,,
+204,mul_sum,bfloat16,128,1024,7,eager,False,passed,False,0,16,0,8.678266128828358,42.161,,84.94906649276642,18.065297312682336,37.10312075263104,8.223381798344441,1.0,1.0,,
+204,mul_sum,bfloat16,128,1024,7,inductor,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 45 / 128 (35.2%)
+Greatest absolute difference: 0.5 at index (73,) (up to 0.03 allowed)
+Greatest relative difference: 1.609375 at index (22,) (up to 0.003 allowed)",,,,,,,,
+204,mul_sum,bfloat16,128,1024,7,cluster,False,passed,False,0,16,0,25.02427821935609,44.726,,29.459814982776845,17.029267092966062,12.867134599403913,7.751777489603363,0.34679386365340936,0.9426508071367885,,
+204,mul_sum,bfloat16,128,1024,7,sdnn256_cluster,False,passed,False,0,16,0,737.2106064197628,761.6510000000001,,1.0,1.0,0.4367690227153991,0.4552032361278328,0.011771759729521596,0.055354749091119156,,
+204,mul_sum,bfloat16,128,1024,7,sdnn256_cluster_old_dual,False,passed,False,0,32,0,321.9907561013865,346.706,,2.2895396605349574,2.196820937624385,1.0,1.0,0.026951910775027958,0.12160447180031496,,
+204,mul_sum,bfloat16,128,1024,7,sdnn256_cluster_parallel,True,passed,False,0,16,0,146.83468951735387,171.25799999999998,,5.0206842050947,4.447389319039112,2.1928793336218524,2.0244660103469623,0.05910228814017893,0.2461841198659333,,
+205,mul_sum,bfloat16,512,1024,7,eager,False,passed,False,0,16,0,15.776470371577293,52.03,,178.30028249284453,54.662492792619645,75.44738748029665,23.477935806265616,1.0,1.0,,
+205,mul_sum,bfloat16,512,1024,7,inductor,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 136 / 512 (26.6%)
+Greatest absolute difference: 0.5 at index (73,) (up to 0.03 allowed)
+Greatest relative difference: 1.609375 at index (22,) (up to 0.003 allowed)",,,,,,,,
+205,mul_sum,bfloat16,512,1024,7,cluster,False,passed,False,0,16,0,61.771283955334525,86.021,,45.53813590836489,33.06273468106625,19.26936590886612,14.20068355401588,0.25540136713015255,0.6048523035072831,,
+205,mul_sum,bfloat16,512,1024,7,sdnn256_cluster,False,passed,False,0,16,0,2812.949123992223,2844.0895,,1.0,1.0,0.4231478852722765,0.4295072289391737,0.0056085160719817236,0.018294079704594388,,
+205,mul_sum,bfloat16,512,1024,7,sdnn256_cluster_old_dual,False,passed,False,0,32,0,1190.2934731958119,1221.557,,2.363239980170397,2.328249520898329,1.0,1.0,0.01325426941073544,0.04259318230749773,,
+205,mul_sum,bfloat16,512,1024,7,sdnn256_cluster_parallel,True,passed,False,0,16,0,506.3444163701306,535.2135000000001,,5.55540662254681,5.313934532667804,2.3507585641582827,2.2823732958903316,0.03115758732894749,0.09721354188562134,,
+206,mul_sum,bfloat16,2048,2048,7,eager,False,passed,False,0,56,116,25.13559912958889,106.1745,,887.5689464753198,210.6257010864191,387.0508498269556,92.11141093200345,1.0,1.0,,
+206,mul_sum,bfloat16,2048,2048,7,inductor,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 654 / 2048 (31.9%)
+Greatest absolute difference: 1.0 at index (491,) (up to 0.03 allowed)
+Greatest relative difference: 19.875 at index (703,) (up to 0.003 allowed)",,,,,,,,
+206,mul_sum,bfloat16,2048,2048,7,cluster,False,passed,False,0,16,0,313.82833981344885,355.565,,71.08847228945866,62.8944876464219,31.00024366760566,27.505190330881835,0.08009346493223148,0.2986078494789982,,
+206,mul_sum,bfloat16,2048,2048,7,sdnn256_cluster,False,passed,False,0,16,0,22309.577238475176,22363.078500000003,,1.0,1.0,0.4360797562420331,0.43732275053275865,0.001126673036467941,0.004747758677321639,,
+206,mul_sum,bfloat16,2048,2048,7,sdnn256_cluster_old_dual,False,passed,False,0,32,0,9728.755004017064,9779.883,,2.293158500677981,2.286640699075848,1.0,1.0,0.0025836398510611317,0.010856418220954176,,
+206,mul_sum,bfloat16,2048,2048,7,sdnn256_cluster_parallel,True,passed,False,0,16,0,3983.214682721077,4033.1895,,5.600897520099193,5.5447626500069,2.4424380253014637,2.4248508531523254,0.006310380215915919,0.026325194985259183,,
+207,mul_sum_keepdim,float32,128,1024,7,eager,False,passed,False,0,8,0,8.528886042850118,48.2305,,63.08175766534957,11.752003400337962,11.208777034807289,2.5641036273727207,1.0,1.0,2.249363135341939,1.3708856429023129
+207,mul_sum_keepdim,float32,128,1024,7,inductor,False,passed,False,0,8,0,19.184561850319447,66.1185,,28.04427469900725,8.572562898432361,4.983089150300036,1.870399358727134,0.4445702804887411,0.7294554474163812,1.0,1.0
+207,mul_sum_keepdim,float32,128,1024,7,cluster,False,passed,False,0,8,0,18.9018491288306,40.051,,28.46372959827655,14.152081096601833,5.057620625263196,3.087763102044893,0.45121966558505555,1.2042271104341964,1.0149568817083419,1.6508576564879778
+207,mul_sum_keepdim,float32,128,1024,7,sdnn256_cluster,False,passed,False,0,8,0,538.0171225104534,566.8050000000001,,1.0,1.0,0.17768650477797643,0.21818438440027874,0.015852443511562044,0.08509187463060487,0.03565790203999818,0.11665122925873976
+207,mul_sum_keepdim,float32,128,1024,7,sdnn256_cluster_old_dual,False,passed,False,0,24,0,95.59838200958681,123.668,,5.627889418217349,4.583279425558755,1.0,1.0,0.08921579909160829,0.3899998382766762,0.20067872956673657,0.5346451790277194
+207,mul_sum_keepdim,float32,128,1024,7,sdnn256_cluster_parallel,True,passed,False,0,8,0,121.79914662535762,150.5255,,4.417248703435845,3.7655081697121093,0.7848854828485636,0.8215750819628569,0.07002418554773741,0.3204141490976612,0.15750982155342436,0.4392511567807448
+208,mul_sum_keepdim,float32,512,1024,7,eager,False,passed,False,0,8,0,13.12233531285846,52.870000000000005,,156.83173826612614,39.53438623037639,24.724681258130953,6.75193871760923,1.0,1.0,4.049122686599792,1.9006052581804425
+208,mul_sum_keepdim,float32,512,1024,7,inductor,False,passed,False,0,8,0,53.13394561646477,100.485,,38.73227620026103,20.800945414738518,6.106182294736355,3.552520276658208,0.24696707840180052,0.5261481813205952,1.0,1.0
+208,mul_sum_keepdim,float32,512,1024,7,cluster,False,passed,False,0,8,0,53.37159028128973,76.6175,,38.55981518219867,27.280751786471757,6.078993641800499,4.659183606878324,0.24586742204417145,0.690051228505237,0.9955473564948604,1.3115149933109276
+208,mul_sum_keepdim,float32,512,1024,7,sdnn256_cluster,False,passed,False,0,8,0,2057.9986572265625,2090.183,,1.0,1.0,0.15765100566682427,0.1707864813750758,0.006376260386166928,0.025294435941733334,0.025818260585296057,0.048074737953566746
+208,mul_sum_keepdim,float32,512,1024,7,sdnn256_cluster_old_dual,False,passed,False,0,24,0,324.44555797274154,356.975,,6.343124775958456,5.8552643742559,1.0,1.0,0.040445415233457876,0.14810560963652916,0.1637684483907431,0.2814903004412074
+208,mul_sum_keepdim,float32,512,1024,7,sdnn256_cluster_parallel,True,passed,False,0,8,0,432.7995360843719,463.13,,4.755085173717393,4.513166929371883,0.7496439596679527,0.770787899725779,0.030319661226023895,0.11415801178934641,0.12276802812031343,0.21696931747025675
+209,mul_sum_keepdim,float32,2048,2048,7,eager,False,passed,False,0,48,187,34.85125528191621,91.61099999999999,,467.3806798844239,178.2995273493358,72.24679116034015,27.955180054796916,1.0,1.0,4.5395118529443845,2.480793791138619
+209,mul_sum_keepdim,float32,2048,2048,7,inductor,False,passed,False,0,8,0,158.2076864422492,227.268,,102.95835654251567,71.87196613689565,15.915101337047941,11.268643187778306,0.2202880028502156,0.40309678441311575,1.0,1.0
+209,mul_sum_keepdim,float32,2048,2048,7,cluster,False,passed,False,0,8,0,157.76291433370338,181.1575,,103.24862124461775,90.1657287167244,15.959969886854436,14.136880890937444,0.22090904842311745,0.5056980803996521,1.0028192437394066,1.2545326580461753
+209,mul_sum_keepdim,float32,2048,2048,7,sdnn256_cluster,False,passed,False,0,8,0,16288.803388487617,16334.198,,1.0,1.0,0.15457804370134787,0.1567877406653207,0.0021395835194712902,0.005608539825463116,0.009712664747004383,0.013913630776362573
+209,mul_sum_keepdim,float32,2048,2048,7,sdnn256_cluster_old_dual,False,passed,False,0,24,0,2517.891362028302,2561.002,,6.469224063490205,6.378049685240387,1.0,1.0,0.013841445190010732,0.035771545668453204,0.06283340450193375,0.08874182839373027
+209,mul_sum_keepdim,float32,2048,2048,7,sdnn256_cluster_parallel,True,passed,False,0,8,0,3349.6243458873823,3392.0964999999997,,4.862874670852796,4.815369491994111,0.7516936533852611,0.7549909031184697,0.010404526503011017,0.027007191570169068,0.0472314713846925,0.06699927316336668
+210,mul_sum_keepdim,float16,128,1024,7,eager,False,passed,True,0,0,0,8.408438741115102,40.066,,,,,,1.0,1.0,3.149192660631846,1.5476713422852293
+210,mul_sum_keepdim,float16,128,1024,7,inductor,False,passed,True,0,0,0,26.479793570892156,62.009,,,,,,0.3175417028310242,0.6461320130948733,1.0,1.0
+210,mul_sum_keepdim,float16,128,1024,7,cluster,False,passed,True,0,0,0,26.46681160954704,47.4105,,,,,,0.3176974569192925,0.8450870587739003,1.000490499631638,1.3079170226004788
+210,mul_sum_keepdim,float16,128,1024,7,sdnn256_cluster,False,failed,False,,,,,,"eback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 3 / 128 (2.3%)
+Greatest absolute difference: 0.014404296875 at index (116, 0) (up to 0.003 allowed)
+Greatest relative difference: 0.1231689453125 at index (22, 0) (up to 0.003 allowed)",,,,,,,,
+210,mul_sum_keepdim,float16,128,1024,7,sdnn256_cluster_old_dual,False,failed,False,,,,,,"eback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 3 / 128 (2.3%)
+Greatest absolute difference: 0.014404296875 at index (116, 0) (up to 0.003 allowed)
+Greatest relative difference: 0.1231689453125 at index (22, 0) (up to 0.003 allowed)",,,,,,,,
+210,mul_sum_keepdim,float16,128,1024,7,sdnn256_cluster_parallel,True,failed,False,,,,,,"eback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 3 / 128 (2.3%)
+Greatest absolute difference: 0.014404296875 at index (116, 0) (up to 0.003 allowed)
+Greatest relative difference: 0.1231689453125 at index (22, 0) (up to 0.003 allowed)",,,,,,,,
+211,mul_sum_keepdim,float16,512,1024,7,eager,False,passed,True,0,0,0,15.098963997193746,40.446,,,,,,1.0,1.0,3.0424065461612932,2.107179943628542
+211,mul_sum_keepdim,float16,512,1024,7,inductor,False,passed,True,0,0,0,45.93718690531594,85.227,,,,,,0.3286871707733254,0.47456791861733955,1.0,1.0
+211,mul_sum_keepdim,float16,512,1024,7,cluster,False,passed,True,0,0,0,46.36671074799129,70.18299999999999,,,,,,0.32564233592627373,0.5762934043856774,0.99073637452935,1.2143539033669124
+211,mul_sum_keepdim,float16,512,1024,7,sdnn256_cluster,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 19 / 512 (3.7%)
+Greatest absolute difference: 0.01953125 at index (216, 0) (up to 0.003 allowed)
+Greatest relative difference: 0.5595703125 at index (226, 0) (up to 0.003 allowed)",,,,,,,,
+211,mul_sum_keepdim,float16,512,1024,7,sdnn256_cluster_old_dual,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 19 / 512 (3.7%)
+Greatest absolute difference: 0.01953125 at index (216, 0) (up to 0.003 allowed)
+Greatest relative difference: 0.5595703125 at index (226, 0) (up to 0.003 allowed)",,,,,,,,
+211,mul_sum_keepdim,float16,512,1024,7,sdnn256_cluster_parallel,True,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 19 / 512 (3.7%)
+Greatest absolute difference: 0.01953125 at index (216, 0) (up to 0.003 allowed)
+Greatest relative difference: 0.5595703125 at index (226, 0) (up to 0.003 allowed)",,,,,,,,
+212,mul_sum_keepdim,float16,2048,2048,7,eager,False,passed,False,0,48,69,23.192854850522934,46.5405,,,,,,1.0,1.0,6.855461096087086,4.277994434954501
+212,mul_sum_keepdim,float16,2048,2048,7,inductor,False,passed,True,0,0,0,158.99771413495463,199.1,,,,,,0.14586910872716838,0.23375439477649423,1.0,1.0
+212,mul_sum_keepdim,float16,2048,2048,7,cluster,False,passed,True,0,0,0,159.20418154808783,182.9475,,,,,,0.14567993519389755,0.2543926536301398,0.9987031282022525,1.0882903565230462
+212,mul_sum_keepdim,float16,2048,2048,7,sdnn256_cluster,False,failed,False,,,,,,"raceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 63 / 2048 (3.1%)
+Greatest absolute difference: 0.03125 at index (307, 0) (up to 0.003 allowed)
+Greatest relative difference: 0.2320556640625 at index (1246, 0) (up to 0.003 allowed)",,,,,,,,
+212,mul_sum_keepdim,float16,2048,2048,7,sdnn256_cluster_old_dual,False,failed,False,,,,,,"raceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 63 / 2048 (3.1%)
+Greatest absolute difference: 0.03125 at index (307, 0) (up to 0.003 allowed)
+Greatest relative difference: 0.2320556640625 at index (1246, 0) (up to 0.003 allowed)",,,,,,,,
+212,mul_sum_keepdim,float16,2048,2048,7,sdnn256_cluster_parallel,True,failed,False,,,,,,"raceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 63 / 2048 (3.1%)
+Greatest absolute difference: 0.03125 at index (307, 0) (up to 0.003 allowed)
+Greatest relative difference: 0.2320556640625 at index (1246, 0) (up to 0.003 allowed)",,,,,,,,
+213,mul_sum_keepdim,bfloat16,128,1024,7,eager,False,passed,False,0,16,0,8.975730840920678,46.7905,,82.13583886024081,16.322351759438348,35.8609262372057,7.472702792233466,1.0,1.0,,
+213,mul_sum_keepdim,bfloat16,128,1024,7,inductor,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 45 / 128 (35.2%)
+Greatest absolute difference: 0.5 at index (73, 0) (up to 0.03 allowed)
+Greatest relative difference: 1.609375 at index (22, 0) (up to 0.003 allowed)",,,,,,,,
+213,mul_sum_keepdim,bfloat16,128,1024,7,cluster,False,passed,False,0,16,0,25.09899777119645,46.150999999999996,,29.372853399301743,16.548525492405368,12.824337630750149,7.5762497020649615,0.3576131175732126,1.013856687829083,,
+213,mul_sum_keepdim,bfloat16,128,1024,7,sdnn256_cluster,False,passed,False,0,16,0,737.2291820027546,763.731,,1.0,1.0,0.4366051011937101,0.4578202272789765,0.012174953271026568,0.061265681241169996,,
+213,mul_sum_keepdim,bfloat16,128,1024,7,sdnn256_cluster_old_dual,False,passed,False,0,32,0,321.87802161126876,349.6515,,2.290399258428102,2.1842634737731714,1.0,1.0,0.027885503943356045,0.13382038973091778,,
+213,mul_sum_keepdim,bfloat16,128,1024,7,sdnn256_cluster_parallel,True,passed,False,0,16,0,147.11986993946203,173.28300000000002,,5.0110782609182225,4.407420231644188,2.1878623311978016,2.0178061321653016,0.06100964366413644,0.2700236030077965,,
+214,mul_sum_keepdim,bfloat16,512,1024,7,eager,False,passed,False,0,16,0,15.670956541958464,48.81,,179.48807696776518,58.22946117598853,75.94316742791871,25.00689407908215,1.0,1.0,,
+214,mul_sum_keepdim,bfloat16,512,1024,7,inductor,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 136 / 512 (26.6%)
+Greatest absolute difference: 0.5 at index (73, 0) (up to 0.03 allowed)
+Greatest relative difference: 1.609375 at index (22, 0) (up to 0.003 allowed)",,,,,,,,
+214,mul_sum_keepdim,bfloat16,512,1024,7,cluster,False,passed,False,0,16,0,61.87264560020133,85.0765,,45.46031330446926,33.40734515406723,19.234704850211173,14.346928940424206,0.25327762195944425,0.5737189470652884,,
+214,mul_sum_keepdim,bfloat16,512,1024,7,sdnn256_cluster,False,passed,False,0,16,0,2812.749853961544,2842.1800000000003,,1.0,1.0,0.42310981715825935,0.42945432731213357,0.005571400713037853,0.017173437291093455,,
+214,mul_sum_keepdim,bfloat16,512,1024,7,sdnn256_cluster_old_dual,False,passed,False,0,32,0,1190.1020764215896,1220.5865,,2.3634526060310286,2.3285363224974227,1.0,1.0,0.013167741534472444,0.039988972514442854,,
+214,mul_sum_keepdim,bfloat16,512,1024,7,sdnn256_cluster_parallel,True,passed,False,0,16,0,508.71851672864943,535.4480000000001,,5.529088801502906,5.308041116971209,2.3394117518556734,2.2795612272340167,0.030804769291142897,0.09115731126085072,,
+215,mul_sum_keepdim,bfloat16,2048,2048,7,eager,False,passed,False,0,56,116,25.122200209518958,106.98,,887.9863270830298,209.04191437651897,374.2278495295828,88.37380351467564,1.0,1.0,,
+215,mul_sum_keepdim,bfloat16,2048,2048,7,inductor,False,failed,False,,,,,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/worker.py"", line 46, in <module>
+    save('validate:'+route);v['finite']=finite(fn,gm,inputs,tol)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/finite_checks.py"", line 13, in finite_validate
+    actual=fn(*inputs);bench.assert_close(actual,expected,tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-parallel-mul-20261105/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 654 / 2048 (31.9%)
+Greatest absolute difference: 1.0 at index (491, 0) (up to 0.03 allowed)
+Greatest relative difference: 19.875 at index (703, 0) (up to 0.003 allowed)",,,,,,,,
+215,mul_sum_keepdim,bfloat16,2048,2048,7,cluster,False,passed,False,0,16,0,361.1487816120016,403.9155,,61.77002783374176,55.36629319746333,26.032005197127564,23.406453825119364,0.06956191322973608,0.26485737734748976,,
+215,mul_sum_keepdim,bfloat16,2048,2048,7,sdnn256_cluster,False,passed,False,0,16,0,22308.17029229526,22363.304,,1.0,1.0,0.4214342474831723,0.4227563825094897,0.0011261434658402082,0.004783729631363953,,
+215,mul_sum_keepdim,bfloat16,2048,2048,7,sdnn256_cluster_old_dual,False,passed,False,0,32,0,9401.426959859913,9454.229500000001,,2.3728493969629976,2.365428510065257,1.0,1.0,0.0026721688438127583,0.011315570454472254,,
+215,mul_sum_keepdim,bfloat16,2048,2048,7,sdnn256_cluster_parallel,True,passed,False,0,16,0,3981.025432718211,4034.6245,,5.603624158980423,5.542846428459452,2.361559130618439,2.3432737049011627,0.006310484731660136,0.026515478701921332,,
+73,mul_sum,float32,32,256,7,eager,False,passed,False,0,8,0,6.145281636196634,41.106,,6.245947852174098,1.411095703790201,1.2885472689959354,0.6682236169902204,1.0,1.0,1.2839803122021036,1.3319223471026127
+73,mul_sum,float32,32,256,7,inductor,False,passed,False,0,8,0,7.8904206338136085,54.75,,4.8645199562771495,1.0594429223744293,1.0035568744710728,0.5016986301369863,0.778828141285858,0.7507945205479453,1.0,1.0
+73,mul_sum,float32,32,256,7,cluster,False,passed,False,0,8,0,5.708276966343755,26.647,,6.724114625641983,2.176774120914174,1.387193704198268,1.0308102225391227,1.0765563185580302,1.5426126768491764,1.382277118005287,2.0546402972191995
+73,mul_sum,float32,32,256,7,sdnn_single,False,passed,False,0,8,0,38.38310863660729,58.0045,,1.0,1.0,0.20630131718877803,0.4735494659897077,0.16010380228389495,0.7086691549793551,0.2055701300412193,0.9438922842193278
+73,mul_sum,float32,32,256,7,sdnn_old_dual,False,passed,False,0,24,0,7.918485869532046,27.468,,4.847278794080313,2.1117118101063057,1.0,1.0,0.776067765662351,1.4965050240279598,0.9964557320451345,1.993228484054172
+73,mul_sum,float32,32,256,7,sdnn_parallel,True,passed,False,0,8,0,9.538793045541514,28.822000000000003,,4.023895733281243,2.0125078065366733,0.8301349900062243,0.9530219970855596,0.6442410068922686,1.4262022066476996,0.8271927691629326,1.8995905905211294
+74,mul_sum,float32,64,1024,7,eager,False,passed,False,0,8,0,7.588946852697378,47.575,,41.331810671685105,7.101250656857593,10.038658909035869,2.5244981607987387,1.0,1.0,1.6454793818946472,1.3535260115606937
+74,mul_sum,float32,64,1024,7,inductor,False,passed,False,0,8,0,12.48745557640781,64.394,,25.118400829850934,5.246482591545796,6.100750346368423,1.8651271857626486,0.6077256336378851,0.7388110693542876,1.0,1.0
+74,mul_sum,float32,64,1024,7,cluster,False,passed,False,0,8,0,14.953407586789599,35.787,,20.976149596181138,9.440355436331629,5.094681495897499,3.356051080001118,0.5075061860416176,1.3293933551289576,0.8350909653154707,1.7993684857629868
+74,mul_sum,float32,64,1024,7,sdnn256_cluster,False,passed,False,0,8,0,313.6649145131686,337.842,,1.0,1.0,0.2428797274035948,0.35550050023383717,0.02419443967609827,0.14082026509433404,0.03981145164351351,0.19060389176005355
+74,mul_sum,float32,64,1024,7,sdnn256_cluster_old_dual,False,passed,False,0,24,0,76.18284893303024,120.10300000000001,,4.117264173054236,2.8129355636412074,1.0,1.0,0.09961489966552134,0.3961183317652348,0.16391426352911936,0.536156465700274
+74,mul_sum,float32,64,1024,7,sdnn256_cluster_parallel,True,passed,False,0,8,0,85.36139255812188,121.6985,,3.6745524541389916,2.7760572233840186,0.8924742983914884,0.9868897315907756,0.08890373768832467,0.39092511411397846,0.14628926733950834,0.5291273105256022

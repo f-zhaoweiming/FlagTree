@@ -87,12 +87,19 @@ Requirements, all of them:
 - The rotated buffer must be a loop-external `local_alloc`, **read-only inside the
   loop**, addressed by the loop variable plus invariants. A zero-filling `tl.store`
   inside the body disqualifies it — peel that step out of the loop.
-- At least **64 bytes per core** in the rotated buffer. Below that, lowering fails with
-  `invalid element type in packLLElements. Expected '!llvm.ptr<2>' but got '!llvm.ptr'`.
-  Swept over NBLOCK x KBLOCK x dtype, the boundary is exactly 64 B/core, and every
-  failing tile lowers fine at `num_stages=1` — so gate the depth, not the shape.
 - `fitBudget` counts only `local_alloc` and runs even with the pass off, which is why
   the tile has to come down when you enable it.
+
+Older builds fail below **64 bytes per core** at three stages with
+`invalid element type in packLLElements. Expected '!llvm.ptr<2>' but got '!llvm.ptr'`.
+This is a lowering bug: the pipeline correctly creates an SM slot, but the scalar
+`tle_local_ptr` lowering used a fixed LM pointer type. Preserve the buffer's
+address space in both scalar pointer and vector load lowering. The 64-byte boundary
+selected a vectorized path; it was not a hardware minimum for pipelining.
+`test_tle_pipeline_address_space.py` covers FP32/FP16/BF16, 1–32 columns per core,
+one to three stages, and short/odd iteration counts on P800. On an older native
+build, lowering the stage count remains a workaround; Python source updates alone
+do not update the compiler library.
 
 ## Compiler bug to route around
 

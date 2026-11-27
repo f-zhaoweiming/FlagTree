@@ -1,0 +1,1528 @@
+{
+  "overall": {
+    "n": 36,
+    "status": {
+      "eager": {
+        "passed": 36
+      },
+      "inductor": {
+        "passed": 25,
+        "numerical_failure": 11
+      },
+      "before": {
+        "passed": 36
+      },
+      "f06": {
+        "passed": 36
+      }
+    },
+    "gpu_us": {
+      "before_over_f06": {
+        "n": 36,
+        "geomean": 1.1640889742810547,
+        "wins": 34,
+        "round_geomeans": [
+          1.1660336678432304,
+          1.1621158962021845
+        ]
+      },
+      "eager_over_f06": {
+        "n": 36,
+        "geomean": 1.3847678375418988,
+        "wins": 36,
+        "round_geomeans": [
+          1.386859021475027,
+          1.3826417147039831
+        ]
+      },
+      "inductor_over_before": {
+        "n": 25,
+        "geomean": 0.8305492307492763,
+        "wins": 3,
+        "round_geomeans": [
+          0.8276964149022366,
+          0.8334338593583542
+        ]
+      },
+      "inductor_over_f06": {
+        "n": 25,
+        "geomean": 0.9971078588652001,
+        "wins": 17,
+        "round_geomeans": [
+          0.9955791812410496,
+          0.9986327953868208
+        ]
+      }
+    },
+    "e2e_us": {
+      "before_over_f06": {
+        "n": 36,
+        "geomean": 1.099946216035869,
+        "wins": 24,
+        "round_geomeans": [
+          1.1045550811329683,
+          1.095289899762693
+        ]
+      },
+      "eager_over_f06": {
+        "n": 36,
+        "geomean": 1.031121164016966,
+        "wins": 25,
+        "round_geomeans": [
+          1.040710418889345,
+          1.02182477525425
+        ]
+      },
+      "inductor_over_before": {
+        "n": 25,
+        "geomean": 1.300441754541542,
+        "wins": 25,
+        "round_geomeans": [
+          1.2959324791646794,
+          1.3056018246172834
+        ]
+      },
+      "inductor_over_f06": {
+        "n": 25,
+        "geomean": 1.4219920243806967,
+        "wins": 25,
+        "round_geomeans": [
+          1.4241998186942741,
+          1.420468334816443
+        ]
+      }
+    },
+    "host_batch_us": {
+      "before_over_f06": {
+        "n": 36,
+        "geomean": 1.152560296716537,
+        "wins": 27,
+        "round_geomeans": [
+          1.1524968832968456,
+          1.1526724073152075
+        ]
+      },
+      "eager_over_f06": {
+        "n": 36,
+        "geomean": 1.1520549913717184,
+        "wins": 28,
+        "round_geomeans": [
+          1.1613226741830998,
+          1.142874821882921
+        ]
+      },
+      "inductor_over_before": {
+        "n": 25,
+        "geomean": 1.2790731297369025,
+        "wins": 15,
+        "round_geomeans": [
+          1.2738927117965912,
+          1.2843618815776483
+        ]
+      },
+      "inductor_over_f06": {
+        "n": 25,
+        "geomean": 1.4767643907897656,
+        "wins": 20,
+        "round_geomeans": [
+          1.4686210727021902,
+          1.485233394493783
+        ]
+      }
+    }
+  },
+  "activation": {
+    "matmul_bias_relu": {
+      "n": 9,
+      "status": {
+        "eager": {
+          "passed": 9
+        },
+        "inductor": {
+          "passed": 7,
+          "numerical_failure": 2
+        },
+        "before": {
+          "passed": 9
+        },
+        "f06": {
+          "passed": 9
+        }
+      },
+      "gpu_us": {
+        "before_over_f06": {
+          "n": 9,
+          "geomean": 1.1930684838450611,
+          "wins": 8,
+          "round_geomeans": [
+            1.1979841197988852,
+            1.1880741948364149
+          ]
+        },
+        "eager_over_f06": {
+          "n": 9,
+          "geomean": 1.4182488095038872,
+          "wins": 9,
+          "round_geomeans": [
+            1.4213997102628493,
+            1.4150632065078803
+          ]
+        },
+        "inductor_over_before": {
+          "n": 7,
+          "geomean": 0.8212084087609116,
+          "wins": 1,
+          "round_geomeans": [
+            0.8159104366087837,
+            0.8266256882840873
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 7,
+          "geomean": 0.9829331120424026,
+          "wins": 5,
+          "round_geomeans": [
+            0.9824837911810633,
+            0.9833811895316953
+          ]
+        }
+      },
+      "e2e_us": {
+        "before_over_f06": {
+          "n": 9,
+          "geomean": 1.0872276249179718,
+          "wins": 6,
+          "round_geomeans": [
+            1.0865525125316127,
+            1.0865728245713557
+          ]
+        },
+        "eager_over_f06": {
+          "n": 9,
+          "geomean": 1.0324172922301977,
+          "wins": 6,
+          "round_geomeans": [
+            1.0435289500605067,
+            1.0212730700127821
+          ]
+        },
+        "inductor_over_before": {
+          "n": 7,
+          "geomean": 1.3201339680937452,
+          "wins": 7,
+          "round_geomeans": [
+            1.327053285305868,
+            1.315263338973603
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 7,
+          "geomean": 1.4092171447091622,
+          "wins": 7,
+          "round_geomeans": [
+            1.4115096216919618,
+            1.4069735636184966
+          ]
+        }
+      },
+      "host_batch_us": {
+        "before_over_f06": {
+          "n": 9,
+          "geomean": 1.1543424886416516,
+          "wins": 7,
+          "round_geomeans": [
+            1.153040965206237,
+            1.154322189280695
+          ]
+        },
+        "eager_over_f06": {
+          "n": 9,
+          "geomean": 1.1688884799769976,
+          "wins": 7,
+          "round_geomeans": [
+            1.184182553672315,
+            1.1531978646522658
+          ]
+        },
+        "inductor_over_before": {
+          "n": 7,
+          "geomean": 1.3398104672305295,
+          "wins": 5,
+          "round_geomeans": [
+            1.3586905589503833,
+            1.32089271249058
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 7,
+          "geomean": 1.528266449994985,
+          "wins": 7,
+          "round_geomeans": [
+            1.5425376555399362,
+            1.51162360937719
+          ]
+        }
+      }
+    },
+    "matmul_bias_gelu_exact": {
+      "n": 9,
+      "status": {
+        "eager": {
+          "passed": 9
+        },
+        "inductor": {
+          "passed": 6,
+          "numerical_failure": 3
+        },
+        "before": {
+          "passed": 9
+        },
+        "f06": {
+          "passed": 9
+        }
+      },
+      "gpu_us": {
+        "before_over_f06": {
+          "n": 9,
+          "geomean": 1.1680149746075206,
+          "wins": 9,
+          "round_geomeans": [
+            1.1683834853841504,
+            1.1676416794023212
+          ]
+        },
+        "eager_over_f06": {
+          "n": 9,
+          "geomean": 1.3800493884879996,
+          "wins": 9,
+          "round_geomeans": [
+            1.38196944713902,
+            1.3780956692972461
+          ]
+        },
+        "inductor_over_before": {
+          "n": 6,
+          "geomean": 0.8258200028837921,
+          "wins": 0,
+          "round_geomeans": [
+            0.8236946675178061,
+            0.8279476329441428
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 6,
+          "geomean": 1.00213471470094,
+          "wins": 4,
+          "round_geomeans": [
+            0.9993876904617098,
+            1.0048817262736234
+          ]
+        }
+      },
+      "e2e_us": {
+        "before_over_f06": {
+          "n": 9,
+          "geomean": 1.0987880142215447,
+          "wins": 7,
+          "round_geomeans": [
+            1.0983542232428536,
+            1.0992293345756847
+          ]
+        },
+        "eager_over_f06": {
+          "n": 9,
+          "geomean": 1.0215728470795993,
+          "wins": 6,
+          "round_geomeans": [
+            1.0276994998731528,
+            1.0153806350622958
+          ]
+        },
+        "inductor_over_before": {
+          "n": 6,
+          "geomean": 1.2795732618313977,
+          "wins": 6,
+          "round_geomeans": [
+            1.2750553743732025,
+            1.284181270503607
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 6,
+          "geomean": 1.4072200707434501,
+          "wins": 6,
+          "round_geomeans": [
+            1.4051723746718516,
+            1.4092921763457897
+          ]
+        }
+      },
+      "host_batch_us": {
+        "before_over_f06": {
+          "n": 9,
+          "geomean": 1.1345538800266914,
+          "wins": 6,
+          "round_geomeans": [
+            1.1437354577948349,
+            1.1252394051767327
+          ]
+        },
+        "eager_over_f06": {
+          "n": 9,
+          "geomean": 1.1269303255894347,
+          "wins": 7,
+          "round_geomeans": [
+            1.1427962357219223,
+            1.1107901933394455
+          ]
+        },
+        "inductor_over_before": {
+          "n": 6,
+          "geomean": 1.2535220526940845,
+          "wins": 4,
+          "round_geomeans": [
+            1.239949813336374,
+            1.2674865847334396
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 6,
+          "geomean": 1.4248005207561105,
+          "wins": 5,
+          "round_geomeans": [
+            1.4190895339971699,
+            1.4305240767211174
+          ]
+        }
+      }
+    },
+    "matmul_bias_gelu_tanh": {
+      "n": 9,
+      "status": {
+        "eager": {
+          "passed": 9
+        },
+        "inductor": {
+          "passed": 6,
+          "numerical_failure": 3
+        },
+        "before": {
+          "passed": 9
+        },
+        "f06": {
+          "passed": 9
+        }
+      },
+      "gpu_us": {
+        "before_over_f06": {
+          "n": 9,
+          "geomean": 1.1151972626109714,
+          "wins": 8,
+          "round_geomeans": [
+            1.116897641488759,
+            1.1134884682186332
+          ]
+        },
+        "eager_over_f06": {
+          "n": 9,
+          "geomean": 1.3094491178097276,
+          "wins": 9,
+          "round_geomeans": [
+            1.3114838503937913,
+            1.3073733759966952
+          ]
+        },
+        "inductor_over_before": {
+          "n": 6,
+          "geomean": 0.8560361677458624,
+          "wins": 1,
+          "round_geomeans": [
+            0.8546504084994844,
+            0.8574137655397547
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 6,
+          "geomean": 0.9997254083746031,
+          "wins": 3,
+          "round_geomeans": [
+            0.999243828956184,
+            1.0001931290928454
+          ]
+        }
+      },
+      "e2e_us": {
+        "before_over_f06": {
+          "n": 9,
+          "geomean": 1.099453270383877,
+          "wins": 5,
+          "round_geomeans": [
+            1.104610442559993,
+            1.0942755820048409
+          ]
+        },
+        "eager_over_f06": {
+          "n": 9,
+          "geomean": 1.0200392911605483,
+          "wins": 6,
+          "round_geomeans": [
+            1.0272672648278613,
+            1.012740983564171
+          ]
+        },
+        "inductor_over_before": {
+          "n": 6,
+          "geomean": 1.3002888514759454,
+          "wins": 6,
+          "round_geomeans": [
+            1.2925805360047125,
+            1.3080858285551478
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 6,
+          "geomean": 1.427298033160704,
+          "wins": 6,
+          "round_geomeans": [
+            1.4253810230999218,
+            1.429227030583939
+          ]
+        }
+      },
+      "host_batch_us": {
+        "before_over_f06": {
+          "n": 9,
+          "geomean": 1.1632050962479503,
+          "wins": 7,
+          "round_geomeans": [
+            1.168171254741768,
+            1.1581767331868948
+          ]
+        },
+        "eager_over_f06": {
+          "n": 9,
+          "geomean": 1.1546363138693385,
+          "wins": 7,
+          "round_geomeans": [
+            1.165677625633222,
+            1.143173806601381
+          ]
+        },
+        "inductor_over_before": {
+          "n": 6,
+          "geomean": 1.2611041577988067,
+          "wins": 3,
+          "round_geomeans": [
+            1.243377654657331,
+            1.2792211448403399
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 6,
+          "geomean": 1.4867559818258556,
+          "wins": 5,
+          "round_geomeans": [
+            1.4758152025354312,
+            1.4977683825340362
+          ]
+        }
+      }
+    },
+    "matmul_bias_silu": {
+      "n": 9,
+      "status": {
+        "eager": {
+          "passed": 9
+        },
+        "inductor": {
+          "passed": 6,
+          "numerical_failure": 3
+        },
+        "before": {
+          "passed": 9
+        },
+        "f06": {
+          "passed": 9
+        }
+      },
+      "gpu_us": {
+        "before_over_f06": {
+          "n": 9,
+          "geomean": 1.1816237849098838,
+          "wins": 9,
+          "round_geomeans": [
+            1.1824819401752473,
+            1.1807525484965737
+          ]
+        },
+        "eager_over_f06": {
+          "n": 9,
+          "geomean": 1.4347366367139345,
+          "wins": 9,
+          "round_geomeans": [
+            1.4359907831911256,
+            1.4334540591721467
+          ]
+        },
+        "inductor_over_before": {
+          "n": 6,
+          "geomean": 0.8212006545730947,
+          "wins": 1,
+          "round_geomeans": [
+            0.8190777839738991,
+            0.823334000288394
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 6,
+          "geomean": 1.0061763779889121,
+          "wins": 5,
+          "round_geomeans": [
+            1.0035309305052404,
+            1.008826711798356
+          ]
+        }
+      },
+      "e2e_us": {
+        "before_over_f06": {
+          "n": 9,
+          "geomean": 1.114486039120934,
+          "wins": 6,
+          "round_geomeans": [
+            1.129138516566733,
+            1.101139835649937
+          ]
+        },
+        "eager_over_f06": {
+          "n": 9,
+          "geomean": 1.0507449027863944,
+          "wins": 7,
+          "round_geomeans": [
+            1.0647937998804593,
+            1.0380937390439544
+          ]
+        },
+        "inductor_over_before": {
+          "n": 6,
+          "geomean": 1.2988313719198035,
+          "wins": 6,
+          "round_geomeans": [
+            1.28450800102186,
+            1.3135120010884105
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 6,
+          "geomean": 1.4467291862293754,
+          "wins": 6,
+          "round_geomeans": [
+            1.457428081912651,
+            1.4388945391683101
+          ]
+        }
+      },
+      "host_batch_us": {
+        "before_over_f06": {
+          "n": 9,
+          "geomean": 1.1583465697867323,
+          "wins": 7,
+          "round_geomeans": [
+            1.145202271299205,
+            1.1734829283198993
+          ]
+        },
+        "eager_over_f06": {
+          "n": 9,
+          "geomean": 1.1581837922403597,
+          "wins": 7,
+          "round_geomeans": [
+            1.153043526147574,
+            1.165055270678707
+          ]
+        },
+        "inductor_over_before": {
+          "n": 6,
+          "geomean": 1.253999031451337,
+          "wins": 3,
+          "round_geomeans": [
+            1.2437671176278726,
+            1.2646287858553111
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 6,
+          "geomean": 1.460732515206948,
+          "wins": 3,
+          "round_geomeans": [
+            1.4282595408953063,
+            1.4980299580429384
+          ]
+        }
+      }
+    }
+  },
+  "shape": {
+    "128": {
+      "n": 12,
+      "status": {
+        "eager": {
+          "passed": 12
+        },
+        "inductor": {
+          "passed": 8,
+          "numerical_failure": 4
+        },
+        "before": {
+          "passed": 12
+        },
+        "f06": {
+          "passed": 12
+        }
+      },
+      "gpu_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.4086115106393395,
+          "wins": 12,
+          "round_geomeans": [
+            1.4114573552937935,
+            1.4056899774037475
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 1.9879312795775512,
+          "wins": 12,
+          "round_geomeans": [
+            1.990632364282855,
+            1.9852364475827347
+          ]
+        },
+        "inductor_over_before": {
+          "n": 8,
+          "geomean": 0.6643491251332306,
+          "wins": 0,
+          "round_geomeans": [
+            0.6618829509735298,
+            0.6668592154738215
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 8,
+          "geomean": 1.0010051923359033,
+          "wins": 4,
+          "round_geomeans": [
+            0.999818065928632,
+            1.002160059424114
+          ]
+        }
+      },
+      "e2e_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.2981607389722876,
+          "wins": 12,
+          "round_geomeans": [
+            1.2985242393502754,
+            1.2964665500514962
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 1.1783929140596276,
+          "wins": 12,
+          "round_geomeans": [
+            1.1978985221779452,
+            1.1588218414722709
+          ]
+        },
+        "inductor_over_before": {
+          "n": 8,
+          "geomean": 1.5979255994593835,
+          "wins": 8,
+          "round_geomeans": [
+            1.5949500936378127,
+            1.6032773796829711
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 8,
+          "geomean": 2.0542379759712883,
+          "wins": 8,
+          "round_geomeans": [
+            2.040166440218081,
+            2.068727425550058
+          ]
+        }
+      },
+      "host_batch_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.428504368936132,
+          "wins": 12,
+          "round_geomeans": [
+            1.4330062308502516,
+            1.422684769310868
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 1.3748613949595652,
+          "wins": 12,
+          "round_geomeans": [
+            1.4078356135013337,
+            1.3416421361386375
+          ]
+        },
+        "inductor_over_before": {
+          "n": 8,
+          "geomean": 1.635133323008976,
+          "wins": 8,
+          "round_geomeans": [
+            1.63013631990951,
+            1.6423525814041038
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 8,
+          "geomean": 2.3304112820167697,
+          "wins": 8,
+          "round_geomeans": [
+            2.321880003459519,
+            2.3390121547372598
+          ]
+        }
+      }
+    },
+    "512": {
+      "n": 12,
+      "status": {
+        "eager": {
+          "passed": 12
+        },
+        "inductor": {
+          "passed": 9,
+          "numerical_failure": 3
+        },
+        "before": {
+          "passed": 12
+        },
+        "f06": {
+          "passed": 12
+        }
+      },
+      "gpu_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.0946440917598501,
+          "wins": 12,
+          "round_geomeans": [
+            1.0960685841741815,
+            1.093195664359489
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 1.2421633741870708,
+          "wins": 12,
+          "round_geomeans": [
+            1.2468854752663736,
+            1.237361460785199
+          ]
+        },
+        "inductor_over_before": {
+          "n": 9,
+          "geomean": 0.8813405457280743,
+          "wins": 1,
+          "round_geomeans": [
+            0.8780382574078262,
+            0.8846981082762337
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 9,
+          "geomean": 0.9913652024519455,
+          "wins": 8,
+          "round_geomeans": [
+            0.988607692996144,
+            0.9941614361146849
+          ]
+        }
+      },
+      "e2e_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.0009942782192986,
+          "wins": 3,
+          "round_geomeans": [
+            1.0155710088440613,
+            0.9874875716290697
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 0.8977248691059532,
+          "wins": 1,
+          "round_geomeans": [
+            0.9092250227933599,
+            0.8871915679063388
+          ]
+        },
+        "inductor_over_before": {
+          "n": 9,
+          "geomean": 1.307405877955927,
+          "wins": 9,
+          "round_geomeans": [
+            1.2948239284195664,
+            1.320165738445322
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 9,
+          "geomean": 1.314725484567829,
+          "wins": 9,
+          "round_geomeans": [
+            1.327462486749606,
+            1.3036704071457104
+          ]
+        }
+      },
+      "host_batch_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.0396249368338795,
+          "wins": 4,
+          "round_geomeans": [
+            1.0379989816722144,
+            1.0424132937014392
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 1.0233106993634327,
+          "wins": 4,
+          "round_geomeans": [
+            1.0244718401880146,
+            1.022962192675565
+          ]
+        },
+        "inductor_over_before": {
+          "n": 9,
+          "geomean": 1.3147733855311245,
+          "wins": 5,
+          "round_geomeans": [
+            1.3058153533661323,
+            1.3224627158243176
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 9,
+          "geomean": 1.3884469809635231,
+          "wins": 6,
+          "round_geomeans": [
+            1.3736496553594366,
+            1.4041252825916317
+          ]
+        }
+      }
+    },
+    "2048": {
+      "n": 12,
+      "status": {
+        "eager": {
+          "passed": 12
+        },
+        "inductor": {
+          "passed": 8,
+          "numerical_failure": 4
+        },
+        "before": {
+          "passed": 12
+        },
+        "f06": {
+          "passed": 12
+        }
+      },
+      "gpu_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.0230441048233396,
+          "wins": 10,
+          "round_geomeans": [
+            1.0247732485547265,
+            1.0213177421955442
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 1.0753524213854655,
+          "wins": 12,
+          "round_geomeans": [
+            1.0746803823768678,
+            1.076019498974992
+          ]
+        },
+        "inductor_over_before": {
+          "n": 8,
+          "geomean": 0.9712560279430372,
+          "wins": 2,
+          "round_geomeans": [
+            0.9685304806585918,
+            0.9739657169445549
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 8,
+          "geomean": 0.9997006516358848,
+          "wins": 5,
+          "round_geomeans": [
+            0.9992264725808456,
+            1.000154478600402
+          ]
+        }
+      },
+      "e2e_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.0241281052146416,
+          "wins": 9,
+          "round_geomeans": [
+            1.02188441998814,
+            1.0263471815814726
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 1.0363244013150292,
+          "wins": 12,
+          "round_geomeans": [
+            1.034899789864742,
+            1.037755891329924
+          ]
+        },
+        "inductor_over_before": {
+          "n": 8,
+          "geomean": 1.0520001155959937,
+          "wins": 8,
+          "round_geomeans": [
+            1.0539882409178374,
+            1.0500087268736846
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 8,
+          "geomean": 1.0751360061714825,
+          "wins": 8,
+          "round_geomeans": [
+            1.0760773884592882,
+            1.0741911249796074
+          ]
+        }
+      },
+      "host_batch_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.0309383702723212,
+          "wins": 11,
+          "round_geomeans": [
+            1.0291395596257549,
+            1.032687851540983
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 1.0868089274010277,
+          "wins": 12,
+          "round_geomeans": [
+            1.0859422840449353,
+            1.0876764433353157
+          ]
+        },
+        "inductor_over_before": {
+          "n": 8,
+          "geomean": 0.9700354637502772,
+          "wins": 2,
+          "round_geomeans": [
+            0.9681647130603557,
+            0.9719085109597265
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 8,
+          "geomean": 1.0030428795315887,
+          "wins": 6,
+          "round_geomeans": [
+            1.0014810482700411,
+            1.0046028000648124
+          ]
+        }
+      }
+    }
+  },
+  "dtype": {
+    "float32": {
+      "n": 12,
+      "status": {
+        "eager": {
+          "passed": 12
+        },
+        "inductor": {
+          "passed": 12
+        },
+        "before": {
+          "passed": 12
+        },
+        "f06": {
+          "passed": 12
+        }
+      },
+      "gpu_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.2107149008540388,
+          "wins": 10,
+          "round_geomeans": [
+            1.2117549799570841,
+            1.2096038987827056
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 1.3421547763365527,
+          "wins": 12,
+          "round_geomeans": [
+            1.3397595513713603,
+            1.3445541068066647
+          ]
+        },
+        "inductor_over_before": {
+          "n": 12,
+          "geomean": 0.8268184435227922,
+          "wins": 2,
+          "round_geomeans": [
+            0.8253484605805083,
+            0.8283279112588371
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 12,
+          "geomean": 1.001041409873988,
+          "wins": 8,
+          "round_geomeans": [
+            1.000120107308344,
+            1.0019486709292242
+          ]
+        }
+      },
+      "e2e_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.0786274401885114,
+          "wins": 7,
+          "round_geomeans": [
+            1.0818061841084399,
+            1.0754730942382176
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 1.0271087275645543,
+          "wins": 9,
+          "round_geomeans": [
+            1.0411216925494386,
+            1.014095938000305
+          ]
+        },
+        "inductor_over_before": {
+          "n": 12,
+          "geomean": 1.2139557287390825,
+          "wins": 12,
+          "round_geomeans": [
+            1.2174818404742247,
+            1.2115821501529818
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 12,
+          "geomean": 1.3094059601920156,
+          "wins": 12,
+          "round_geomeans": [
+            1.3170793840647415,
+            1.3030240039488201
+          ]
+        }
+      },
+      "host_batch_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.1677754777390075,
+          "wins": 10,
+          "round_geomeans": [
+            1.1522913428522121,
+            1.1840335235987622
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 1.1897200257069585,
+          "wins": 12,
+          "round_geomeans": [
+            1.1855988716610302,
+            1.1949987705579017
+          ]
+        },
+        "inductor_over_before": {
+          "n": 12,
+          "geomean": 1.1139669471453661,
+          "wins": 6,
+          "round_geomeans": [
+            1.123466682280065,
+            1.1044028790643594
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 12,
+          "geomean": 1.3008632838881435,
+          "wins": 8,
+          "round_geomeans": [
+            1.2945609319742157,
+            1.307650032371191
+          ]
+        }
+      }
+    },
+    "float16": {
+      "n": 12,
+      "status": {
+        "eager": {
+          "passed": 12
+        },
+        "inductor": {
+          "passed": 12
+        },
+        "before": {
+          "passed": 12
+        },
+        "f06": {
+          "passed": 12
+        }
+      },
+      "gpu_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.207607796543178,
+          "wins": 12,
+          "round_geomeans": [
+            1.2111500366084005,
+            1.2040700308931964
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 1.4901871255390262,
+          "wins": 12,
+          "round_geomeans": [
+            1.4961472884414062,
+            1.4841970553403938
+          ]
+        },
+        "inductor_over_before": {
+          "n": 12,
+          "geomean": 0.8216048465454561,
+          "wins": 1,
+          "round_geomeans": [
+            0.8175469925061093,
+            0.8256859356138839
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 12,
+          "geomean": 0.992176418365954,
+          "wins": 8,
+          "round_geomeans": [
+            0.9901720699028619,
+            0.9941836900026869
+          ]
+        }
+      },
+      "e2e_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.1168218005918467,
+          "wins": 9,
+          "round_geomeans": [
+            1.1243749303784267,
+            1.1092915364334326
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 1.0413935313680924,
+          "wins": 8,
+          "round_geomeans": [
+            1.0504941493756645,
+            1.032279631606454
+          ]
+        },
+        "inductor_over_before": {
+          "n": 12,
+          "geomean": 1.3683168900758993,
+          "wins": 12,
+          "round_geomeans": [
+            1.3566229460177799,
+            1.380217564070516
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 12,
+          "geomean": 1.528166132954802,
+          "wins": 12,
+          "round_geomeans": [
+            1.5253528304785173,
+            1.5310636622601925
+          ]
+        }
+      },
+      "host_batch_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.1567435958630135,
+          "wins": 9,
+          "round_geomeans": [
+            1.1665528140391697,
+            1.146806296793538
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 1.1460025390683561,
+          "wins": 8,
+          "round_geomeans": [
+            1.1614867638288258,
+            1.1302126153627527
+          ]
+        },
+        "inductor_over_before": {
+          "n": 12,
+          "geomean": 1.4148868682306133,
+          "wins": 8,
+          "round_geomeans": [
+            1.394664413832686,
+            1.4357410322661837
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 12,
+          "geomean": 1.636661323696437,
+          "wins": 11,
+          "round_geomeans": [
+            1.6269496965968089,
+            1.6465168563677133
+          ]
+        }
+      }
+    },
+    "bfloat16": {
+      "n": 12,
+      "status": {
+        "eager": {
+          "passed": 12
+        },
+        "inductor": {
+          "numerical_failure": 11,
+          "passed": 1
+        },
+        "before": {
+          "passed": 12
+        },
+        "f06": {
+          "passed": 12
+        }
+      },
+      "gpu_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.0789236965676072,
+          "wins": 12,
+          "round_geomeans": [
+            1.0802406380522924,
+            1.077589622649945
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 1.3276619110947208,
+          "wins": 12,
+          "round_geomeans": [
+            1.3307477363695217,
+            1.3245218207400205
+          ]
+        },
+        "inductor_over_before": {
+          "n": 1,
+          "geomean": 0.9982900220710574,
+          "wins": 0,
+          "round_geomeans": [
+            0.9930611736011501,
+            1.0036269513088742
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 1,
+          "geomean": 1.0093973350335699,
+          "wins": 1,
+          "round_geomeans": [
+            1.0063317892504613,
+            1.0125123203682398
+          ]
+        }
+      },
+      "e2e_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.1047372619513685,
+          "wins": 8,
+          "round_geomeans": [
+            1.1079024427594495,
+            1.101392206791097
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 1.0249385015547074,
+          "wins": 8,
+          "round_geomeans": [
+            1.0306105264121792,
+            1.019184673115707
+          ]
+        },
+        "inductor_over_before": {
+          "n": 1,
+          "geomean": 1.6128656534025814,
+          "wins": 1,
+          "round_geomeans": [
+            1.583067940552017,
+            1.6430989382981998
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 1,
+          "geomean": 1.6124654004008778,
+          "wins": 1,
+          "round_geomeans": [
+            1.597665965180792,
+            1.6272
+          ]
+        }
+      },
+      "host_batch_us": {
+        "before_over_f06": {
+          "n": 12,
+          "geomean": 1.1334294947933559,
+          "wins": 8,
+          "round_geomeans": [
+            1.138813414186816,
+            1.1278818909920276
+          ]
+        },
+        "eager_over_f06": {
+          "n": 12,
+          "geomean": 1.1214741769891627,
+          "wins": 8,
+          "round_geomeans": [
+            1.137382846508606,
+            1.1052700101338022
+          ]
+        },
+        "inductor_over_before": {
+          "n": 1,
+          "geomean": 2.001041699838949,
+          "wins": 1,
+          "round_geomeans": [
+            1.9407174850741893,
+            2.064151090214576
+          ]
+        },
+        "inductor_over_f06": {
+          "n": 1,
+          "geomean": 1.9701286304815133,
+          "wins": 1,
+          "round_geomeans": [
+            1.9533696030598282,
+            1.9868959115871374
+          ]
+        }
+      }
+    }
+  },
+  "round_relative_differences": {
+    "eager": {
+      "gpu_us": {
+        "median": 0.00548958539703867,
+        "max": 0.0284822809273629,
+        "over_10_percent": 0
+      },
+      "e2e_us": {
+        "median": 0.006795051613596789,
+        "max": 0.06516607859836956,
+        "over_10_percent": 0
+      },
+      "host_batch_us": {
+        "median": 0.05047516099089351,
+        "max": 0.07198426561183835,
+        "over_10_percent": 0
+      }
+    },
+    "inductor": {
+      "gpu_us": {
+        "median": 0.006759660518291279,
+        "max": 0.019890760780715028,
+        "over_10_percent": 0
+      },
+      "e2e_us": {
+        "median": 0.008336725098595224,
+        "max": 0.023895694135115098,
+        "over_10_percent": 0
+      },
+      "host_batch_us": {
+        "median": 0.0075696675922510585,
+        "max": 0.2147392645625437,
+        "over_10_percent": 1
+      }
+    },
+    "before": {
+      "gpu_us": {
+        "median": 0.005215310155579469,
+        "max": 0.05254147613383807,
+        "over_10_percent": 0
+      },
+      "e2e_us": {
+        "median": 0.00644326558360243,
+        "max": 0.20042409879007111,
+        "over_10_percent": 1
+      },
+      "host_batch_us": {
+        "median": 0.03053861183629149,
+        "max": 0.18332211627555461,
+        "over_10_percent": 1
+      }
+    },
+    "f06": {
+      "gpu_us": {
+        "median": 0.0044225366225958875,
+        "max": 0.017945214101687375,
+        "over_10_percent": 0
+      },
+      "e2e_us": {
+        "median": 0.007404260935085654,
+        "max": 0.2094258353197007,
+        "over_10_percent": 1
+      },
+      "host_batch_us": {
+        "median": 0.0035429120290477807,
+        "max": 0.24976015067694923,
+        "over_10_percent": 1
+      }
+    }
+  }
+}

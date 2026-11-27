@@ -54,7 +54,7 @@ class GraphOnlyRuntimeTests(unittest.TestCase):
             self.assertTrue(hasattr(graph_fusion, name), name)
         for name in ("CompiledGraph", "TuningPlan", "finite_configs", "select_configs"):
             self.assertFalse(hasattr(graph_fusion, name), name)
-        for name in ("_kernels", "_kernels_fusion", "_xpu_lowp", "_xpu_matmul", "_reuse", "_backend", "_tuning"):
+        for name in ("_kernels", "_kernels_f06", "_xpu_lowp", "_xpu_matmul", "_reuse", "_backend", "_tuning"):
             self.assertFalse(hasattr(graph_fusion, name), name)
 
     def test_unsupported_static_contract_retains_native_callable(self):
@@ -65,7 +65,7 @@ class GraphOnlyRuntimeTests(unittest.TestCase):
         with mock.patch("triton.experimental.fusion.compile", return_value=native):
             result = graph_compile(object(), (), static_inference=True)
         self.assertIs(result, native)
-        self.assertIn("not_fx_graph_module", result._fusion_static_rejection)
+        self.assertIn("not_fx_graph_module", result._f06_static_rejection)
 
     def test_output_reuse_requires_explicit_static_inference(self):
         with mock.patch("triton.experimental.fusion.compile") as native:

@@ -33,6 +33,8 @@ public:
 
     SetVector<Operation *> visitedOps;
     m.walk([&](triton::xpu::LoadOp loadOp) {
+      if (loadOp->hasAttr("xpu.shared_column"))
+        return; // StageSM owns the cluster-shared allocation.
       auto loc = loadOp.getLoc();
       OpBuilder builder(loadOp);
       auto resType = loadOp.getResult().getType();

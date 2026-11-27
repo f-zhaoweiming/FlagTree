@@ -1160,9 +1160,13 @@ def log2(arg0, _semantic=None):
 
 @core.extern
 def exp(arg0, _semantic=None):
+    value = _semantic.to_tensor(arg0)
+    if value.dtype == core.float32:
+        # KL3 has a native FP32 exponential. Emitting an external call here
+        # leaves the placeholder symbol unresolved in default Inductor kernels.
+        return core.tensor(_semantic.builder.create_exp(value.handle), value.type)
     return core.extern_elementwise(
         "", "", [arg0], {
-            (core.dtype("fp32"), ): ("Unsupported", core.dtype("fp32")),
             (core.dtype("fp64"), ): ("Unsupported", core.dtype("fp64")),
         }, is_pure=True, _semantic=_semantic)
 

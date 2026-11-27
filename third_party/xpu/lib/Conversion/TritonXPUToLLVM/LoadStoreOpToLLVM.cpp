@@ -199,6 +199,454 @@ struct LoadStoreConversionBase {
     rewriter.create<mlir::LLVM::XPU::SetHaddrOp>(loc, ptrIntS32);
   }
 
+  // Preserve the prefilled destination without relying on zero-length DMA.
+  // An invalid lane must not issue a transfer from its safe substitute address.
+  void createGuardedGM2LMOp(ConversionPatternRewriter &rewriter,
+                           MLIRContext *ctx, Location loc, Value src,
+                           Value dst, Value offset, Value size,
+                           Value valid) const {
+    if (!valid) {
+      createGM2LMOp(rewriter, ctx, loc, src, dst, offset, size);
+      return;
+    }
+    Block *current = rewriter.getInsertionBlock();
+    Block *continuation =
+        rewriter.splitBlock(current, rewriter.getInsertionPoint());
+    Block *copy = rewriter.createBlock(continuation);
+    rewriter.setInsertionPointToEnd(current);
+    rewriter.create<LLVM::CondBrOp>(loc, valid, copy, continuation);
+    rewriter.setInsertionPointToEnd(copy);
+    createGM2LMOp(rewriter, ctx, loc, src, dst, offset, size);
+    rewriter.create<LLVM::BrOp>(loc, ValueRange{}, continuation);
+    rewriter.setInsertionPointToStart(continuation);
+  }
+
+  void createGuardedLM2GMOp(ConversionPatternRewriter &rewriter,
+                           MLIRContext *ctx, Location loc, Value src,
+                           Value dst, Value offset, Value size,
+                           Value valid) const {
+    Block *current = rewriter.getInsertionBlock();
+    Block *continuation =
+        rewriter.splitBlock(current, rewriter.getInsertionPoint());
+    Block *copy = rewriter.createBlock(continuation);
+    rewriter.setInsertionPointToEnd(current);
+    rewriter.create<LLVM::CondBrOp>(loc, valid, copy, continuation);
+    rewriter.setInsertionPointToEnd(copy);
+    createLM2GMOp(rewriter, ctx, loc, src, dst, offset, size);
+    rewriter.create<LLVM::BrOp>(loc, ValueRange{}, continuation);
+    rewriter.setInsertionPointToStart(continuation);
+  }
+
+  // Represent integer additions modulo their original width. Extensions stay
+  // outside this proof: the endpoint pointer check below detects signed and
+  // unsigned wrap instead of assuming that an index addition cannot overflow.
+  struct DMAIndexForm {
+    llvm::DenseMap<Value, uint64_t> terms;
+    uint64_t constant = 0;
+  };
+
+  // Conversion constructs aggregate insert/extract chains before the LLVM
+  // canonicalizer runs. Look through exact scalar projections for analysis
+  // without changing the values used by the actual memory operations.
+  static Value resolveDMAValue(Value value) {
+    for (unsigned depth = 0; depth < 32; ++depth) {
+      if (auto cast = value.getDefiningOp<LLVM::BitcastOp>()) {
+        if (cast.getArg().getType() == value.getType()) {
+          value = cast.getArg();
+          continue;
+        }
+      }
+      auto extract = value.getDefiningOp<LLVM::ExtractValueOp>();
+      if (!extract || extract.getPosition().size() != 1)
+        break;
+      Value aggregate = extract.getContainer();
+      bool found = false;
+      for (unsigned entry = 0; entry < 4096; ++entry) {
+        auto insert = aggregate.getDefiningOp<LLVM::InsertValueOp>();
+        if (!insert || insert.getPosition().size() != 1)
+          break;
+        if (insert.getPosition() == extract.getPosition()) {
+          value = insert.getValue();
+          found = true;
+          break;
+        }
+        aggregate = insert.getContainer();
+      }
+      if (!found)
+        break;
+    }
+    return value;
+  }
+
+  // Lane arithmetic has not necessarily been canonicalized when memory ops
+  // are lowered. Fold only fully constant integer expressions for the proof;
+  // never evaluate dynamic division or change the actual address expression.
+  static std::optional<APInt> constantDMAIndex(Value value, unsigned depth = 0) {
+    value = resolveDMAValue(value);
+    if (depth > 24)
+      return std::nullopt;
+    if (auto op = value.getDefiningOp<LLVM::ConstantOp>())
+      if (auto attr = dyn_cast<IntegerAttr>(op.getValue()))
+        if (auto type = dyn_cast<IntegerType>(value.getType()))
+          return attr.getValue().sextOrTrunc(type.getWidth());
+    auto *op = value.getDefiningOp();
+    if (!op || op->getNumOperands() != 2 ||
+        !isa<LLVM::AddOp, LLVM::SubOp, LLVM::MulOp,
+             LLVM::SDivOp, LLVM::SRemOp, LLVM::UDivOp, LLVM::URemOp>(op))
+      return std::nullopt;
+    auto rhs = constantDMAIndex(op->getOperand(1), depth + 1);
+    // Core tiling leaves expressions such as thread_id % 1 in the lane
+    // offset until a later canonicalization. Their value is already exact.
+    if (rhs && isa<LLVM::SRemOp, LLVM::URemOp>(op) && rhs->isOne())
+      return APInt(rhs->getBitWidth(), 0);
+    if (rhs && isa<LLVM::MulOp>(op) && rhs->isZero())
+      return *rhs;
+    auto lhs = constantDMAIndex(op->getOperand(0), depth + 1);
+    if (!lhs || !rhs || lhs->getBitWidth() != rhs->getBitWidth())
+      return std::nullopt;
+    if (isa<LLVM::AddOp>(op)) return *lhs + *rhs;
+    if (isa<LLVM::SubOp>(op)) return *lhs - *rhs;
+    if (isa<LLVM::MulOp>(op)) return *lhs * *rhs;
+    if (rhs->isZero()) return std::nullopt;
+    if (isa<LLVM::SDivOp, LLVM::SRemOp>(op) &&
+        lhs->isMinSignedValue() && rhs->isAllOnes())
+      return std::nullopt;
+    if (isa<LLVM::SDivOp>(op)) return (lhs->sdiv)(*rhs);
+    if (isa<LLVM::SRemOp>(op)) return (lhs->srem)(*rhs);
+    if (isa<LLVM::UDivOp>(op)) return (lhs->udiv)(*rhs);
+    return (lhs->urem)(*rhs);
+  }
+
+  static void collectDMAIndex(Value value, uint64_t scale, DMAIndexForm &form,
+                              unsigned &budget) {
+    value = resolveDMAValue(value);
+    if (budget) {
+      --budget;
+      if (auto constant = constantDMAIndex(value)) {
+        form.constant += scale * constant->getZExtValue();
+        return;
+      }
+      if (auto op = value.getDefiningOp<LLVM::AddOp>()) {
+        collectDMAIndex(op.getLhs(), scale, form, budget);
+        collectDMAIndex(op.getRhs(), scale, form, budget);
+        return;
+      }
+      if (auto op = value.getDefiningOp<LLVM::SubOp>()) {
+        collectDMAIndex(op.getLhs(), scale, form, budget);
+        collectDMAIndex(op.getRhs(), -scale, form, budget);
+        return;
+      }
+    }
+    form.terms[value] += scale;
+  }
+
+  // A common scalar GEP base plus indices b, b+1, ... modulo the same width.
+  // This is deliberately narrower than offsetState: gathers, modulo, different
+  // extensions and layouts without this proof retain the full dynamic checks.
+  static bool unitDMAIndexSequence(ArrayRef<Value> ptrs, unsigned byteWidth,
+                                    SmallVectorImpl<Value> &indices) {
+    if (ptrs.empty())
+      return false;
+    Value base;
+    Type elementType, indexType;
+    unsigned extension = 0;
+    DMAIndexForm first;
+    uint64_t mask = 0;
+    for (auto [i, ptr] : llvm::enumerate(ptrs)) {
+      auto gep = resolveDMAValue(ptr).getDefiningOp<LLVM::GEPOp>();
+      if (!gep || gep.getRawConstantIndices().size() != 1 ||
+          gep.getDynamicIndices().size() != 1 ||
+          !gep.getElemType().isIntOrFloat() ||
+          (gep.getElemType().getIntOrFloatBitWidth() + 7) / 8 != byteWidth)
+        return false;
+      Value index = resolveDMAValue(gep.getDynamicIndices()[0]);
+      unsigned ext = 0;
+      if (auto op = index.getDefiningOp<LLVM::SExtOp>()) {
+        index = resolveDMAValue(op.getArg());
+        ext = 1;
+      } else if (auto op = index.getDefiningOp<LLVM::ZExtOp>()) {
+        index = resolveDMAValue(op.getArg());
+        ext = 2;
+      }
+      auto type = dyn_cast<IntegerType>(index.getType());
+      if (!type || type.getWidth() > 64 || type.getWidth() < 2 ||
+          ptrs.size() >= (uint64_t(1) << (type.getWidth() - 1)))
+        return false;
+      if (!i) {
+        base = resolveDMAValue(gep.getBase());
+        elementType = gep.getElemType();
+        indexType = type;
+        extension = ext;
+        mask = type.getWidth() == 64 ? ~uint64_t(0) : (uint64_t(1) << type.getWidth()) - 1;
+      } else if (resolveDMAValue(gep.getBase()) != base || gep.getElemType() != elementType ||
+                 type != indexType || ext != extension) {
+        return false;
+      }
+      DMAIndexForm form;
+      unsigned budget = 256;
+      collectDMAIndex(index, 1, form, budget);
+      for (auto &term : form.terms)
+        term.second &= mask;
+      SmallVector<Value> zeros;
+      for (const auto &term : form.terms)
+        if (term.second == 0)
+          zeros.push_back(term.first);
+      for (Value value : zeros)
+        form.terms.erase(value);
+      if (!i)
+        first = form;
+      else if (form.terms != first.terms || ((form.constant - first.constant) & mask) != i)
+        return false;
+      indices.push_back(index);
+    }
+    return true;
+  }
+
+  static bool intervalDMAPredicate(ArrayRef<Value> predicates,
+                                    ArrayRef<Value> indices, bool &isSigned) {
+    if (predicates.size() != indices.size() || predicates.empty())
+      return false;
+    auto first = resolveDMAValue(predicates[0]).getDefiningOp<LLVM::ICmpOp>();
+    if (!first)
+      return false;
+    auto kind = first.getPredicate();
+    isSigned = kind == LLVM::ICmpPredicate::slt || kind == LLVM::ICmpPredicate::sle ||
+               kind == LLVM::ICmpPredicate::sgt || kind == LLVM::ICmpPredicate::sge;
+    if (!isSigned && kind != LLVM::ICmpPredicate::ult && kind != LLVM::ICmpPredicate::ule &&
+        kind != LLVM::ICmpPredicate::ugt && kind != LLVM::ICmpPredicate::uge)
+      return false;
+    for (auto [predicate, index] : llvm::zip(predicates, indices)) {
+      auto cmp = resolveDMAValue(predicate).getDefiningOp<LLVM::ICmpOp>();
+      if (!cmp || resolveDMAValue(cmp.getLhs()) != index ||
+          resolveDMAValue(cmp.getRhs()) != resolveDMAValue(first.getRhs()) ||
+          cmp.getPredicate() != kind)
+        return false;
+    }
+    return true;
+  }
+
+  // Low zero bits survive modular integer arithmetic. This proof deliberately
+  // does not infer ranges from signed comparisons or from arbitrary divisions.
+  static unsigned dmaKnownLowZeros(Value value, unsigned depth = 0) {
+    value = resolveDMAValue(value);
+    auto type = dyn_cast<IntegerType>(value.getType());
+    if (!type || depth > 32)
+      return 0;
+    unsigned width = type.getWidth();
+    if (auto constant = constantDMAIndex(value))
+      return std::min(width, constant->countTrailingZeros());
+    Operation *op = value.getDefiningOp();
+    if (!op)
+      return 0;
+    if (isa<LLVM::BitcastOp>(op) && op->getOperand(0).getType() == type)
+      return dmaKnownLowZeros(op->getOperand(0), depth + 1);
+    if (isa<LLVM::SExtOp, LLVM::ZExtOp, LLVM::TruncOp>(op))
+      return std::min(width, dmaKnownLowZeros(op->getOperand(0), depth + 1));
+    if (op->getNumOperands() != 2)
+      return 0;
+    unsigned a = dmaKnownLowZeros(op->getOperand(0), depth + 1);
+    unsigned b = dmaKnownLowZeros(op->getOperand(1), depth + 1);
+    if (isa<LLVM::MulOp>(op))
+      return std::min(width, a + b);
+    if (isa<LLVM::AndOp>(op))
+      return std::max(a, b);
+    if (isa<LLVM::AddOp, LLVM::SubOp, LLVM::OrOp, LLVM::XOrOp>(op))
+      return std::min(a, b);
+    if (isa<LLVM::ShlOp>(op)) {
+      auto shift = resolveDMAValue(op->getOperand(1)).getDefiningOp<LLVM::ConstantOp>();
+      if (shift)
+        if (auto attr = dyn_cast<IntegerAttr>(shift.getValue())) {
+          uint64_t amount = attr.getValue().getLimitedValue();
+          if (amount < width)
+            return std::min(width, a + unsigned(amount));
+        }
+    }
+    return 0;
+  }
+
+  // A power-of-two packet starting at a multiple of its length cannot cross
+  // either the signed or unsigned boundary of its original index type. With
+  // a uniform predicate and independently proved LM continuity, there is no
+  // partial-lane case to emit. Avoid retaining N cold addresses across DMA.
+  static bool exactUniformDMAPacket(ArrayRef<Value> gmPtrs,
+                                     ArrayRef<Value> lmPtrs,
+                                     ArrayRef<Value> predicates,
+                                     unsigned byteWidth) {
+    size_t count = gmPtrs.size();
+    if (count < 2 || (count & (count - 1)) || lmPtrs.size() < count ||
+        predicates.empty())
+      return false;
+    Value valid = resolveDMAValue(predicates.front());
+    if (!llvm::all_of(predicates, [&](Value value) {
+          return resolveDMAValue(value) == valid;
+        }))
+      return false;
+    SmallVector<Value> gmIndices, lmIndices;
+    if (!unitDMAIndexSequence(gmPtrs, byteWidth, gmIndices) ||
+        !unitDMAIndexSequence(lmPtrs.take_front(count), byteWidth, lmIndices))
+      return false;
+    unsigned bits = 0;
+    for (size_t n = count; n > 1; n >>= 1)
+      ++bits;
+    return dmaKnownLowZeros(gmIndices.front()) >= bits &&
+           dmaKnownLowZeros(lmIndices.front()) >= bits;
+  }
+
+  // Keep addresses needed only by the exceptional lane path inside that path.
+  // Otherwise they stay live across the bulk DMA and spill hundreds of global
+  // pointers even when every packet takes the fast branch. Clone only pure
+  // arithmetic; loads, calls and block arguments retain their original values.
+  static Value slowDMAValue(Value value, ConversionPatternRewriter &rewriter,
+                            llvm::DenseMap<Value, Value> &cache,
+                            unsigned depth = 0) {
+    value = resolveDMAValue(value);
+    if (auto it = cache.find(value); it != cache.end())
+      return it->second;
+    Operation *op = value.getDefiningOp();
+    if (!op || depth >= 32 || op->getNumResults() != 1 ||
+        !isa<LLVM::GEPOp, LLVM::AddOp, LLVM::SubOp, LLVM::MulOp,
+             LLVM::AndOp, LLVM::OrOp, LLVM::XOrOp, LLVM::ShlOp,
+             LLVM::SExtOp, LLVM::ZExtOp, LLVM::TruncOp, LLVM::BitcastOp,
+             LLVM::PtrToIntOp, LLVM::IntToPtrOp, LLVM::ICmpOp>(op))
+      return value;
+    IRMapping mapping;
+    for (Value operand : op->getOperands())
+      mapping.map(operand, slowDMAValue(operand, rewriter, cache, depth + 1));
+    Value result = rewriter.clone(*op, mapping)->getResult(0);
+    cache[value] = result;
+    return result;
+  }
+
+  static unsigned segmentedDMARun(ArrayRef<Value> ptrs, unsigned byteWidth) {
+    if (ptrs.size() <= 2)
+      return 0;
+    SmallVector<Value> indices;
+    if (unitDMAIndexSequence(ptrs, byteWidth, indices))
+      return 0;
+    for (size_t count = ptrs.size() / 2; count > 1; count /= 2) {
+      if (ptrs.size() % count)
+        continue;
+      bool runs = true;
+      for (size_t first = 0; first < ptrs.size(); first += count) {
+        indices.clear();
+        if (!unitDMAIndexSequence(ptrs.slice(first, count), byteWidth, indices)) {
+          runs = false;
+          break;
+        }
+      }
+      if (runs)
+        return count;
+    }
+    return 0;
+  }
+
+  // Coalesce only after checking the actual predicate and both pointer views.
+  // This does not infer a prefix from an arbitrary comparison or assume that
+  // a fixed stride survives a modulo wrap. Partial/non-contiguous tiles retain
+  // the exact guarded element transfers.
+  void emitExactMaskedTransfer(ConversionPatternRewriter &rewriter,
+                               MLIRContext *ctx, Location loc,
+                               ArrayRef<Value> gmPtrs, ArrayRef<Value> lmPtrs,
+                               ArrayRef<Value> predicates, unsigned byteWidth,
+                               bool toLocal, unsigned contiguousRun = 0) const {
+    // Recognize periodic gaps even when axis analysis lost continuity through
+    // layout operations. Every chosen run retains its dynamic checks below.
+    if (contiguousRun <= 1)
+      contiguousRun = segmentedDMARun(gmPtrs, byteWidth);
+    // A vector can contain several contiguous address runs. Checking only the
+    // whole vector makes its bulk branch permanently false at every gap. Use
+    // axis continuity to propose smaller runs, but keep the exact pointer and
+    // predicate checks below for each run; this hint is not a bounds proof.
+    if (contiguousRun > 1 && contiguousRun < gmPtrs.size()) {
+      for (size_t first = 0; first < gmPtrs.size(); first += contiguousRun) {
+        size_t count = std::min<size_t>(contiguousRun, gmPtrs.size() - first);
+        auto mask = predicates.size() == 1 ? predicates
+                                          : predicates.slice(first, count);
+        emitExactMaskedTransfer(rewriter, ctx, loc, gmPtrs.slice(first, count),
+                                lmPtrs.slice(first, count), mask, byteWidth,
+                                toLocal);
+      }
+      return;
+    }
+    Value zero = i32_val(0);
+    Value bytes = i32_val(byteWidth);
+    if (exactUniformDMAPacket(gmPtrs, lmPtrs, predicates, byteWidth)) {
+      Value size = i32_val(gmPtrs.size() * byteWidth);
+      if (toLocal)
+        createGuardedGM2LMOp(rewriter, ctx, loc, gmPtrs.front(), lmPtrs.front(),
+                            zero, size, predicates.front());
+      else
+        createGuardedLM2GMOp(rewriter, ctx, loc, lmPtrs.front(), gmPtrs.front(),
+                            zero, size, predicates.front());
+      return;
+    }
+    Block *merge = nullptr;
+    bool unitStride = false;
+    if (gmPtrs.size() > 1) {
+      Value complete = int_val(1, 1);
+      Value gmBase = ptrtoint(i64_ty, gmPtrs[0]);
+      Value lmBase = ptrtoint(i32_ty, lmPtrs[0]);
+      SmallVector<Value> indices;
+      unitStride = unitDMAIndexSequence(gmPtrs, byteWidth, indices);
+      bool signedPredicate = false;
+      bool interval = unitStride && intervalDMAPredicate(predicates, indices, signedPredicate);
+      if (interval) {
+        // In addition to pointer continuity, check monotonicity in the mask's
+        // comparison domain (signed and unsigned wraps are different).
+        Value ordered = rewriter.create<LLVM::ICmpOp>(loc,
+            signedPredicate ? LLVM::ICmpPredicate::sle : LLVM::ICmpPredicate::ule,
+            indices.front(), indices.back());
+        complete = and_(complete, ordered);
+      }
+      for (size_t i = 0; i < gmPtrs.size(); ++i) {
+        if (!interval || i == 0 || i + 1 == gmPtrs.size())
+          complete = and_(complete, predicates[predicates.size() == 1 ? 0 : i]);
+        if (i) {
+          if (!unitStride || i + 1 == gmPtrs.size())
+            complete = and_(complete,
+                icmp_eq(ptrtoint(i64_ty, gmPtrs[i]),
+                        add(gmBase, i64_val(i * byteWidth))));
+          complete = and_(complete,
+              icmp_eq(ptrtoint(i32_ty, lmPtrs[i]),
+                      add(lmBase, i32_val(i * byteWidth))));
+        }
+      }
+      Block *current = rewriter.getInsertionBlock();
+      merge = rewriter.splitBlock(current, rewriter.getInsertionPoint());
+      Block *bulk = rewriter.createBlock(merge);
+      Block *individual = rewriter.createBlock(merge);
+      rewriter.setInsertionPointToEnd(current);
+      rewriter.create<LLVM::CondBrOp>(loc, complete, bulk, individual);
+      rewriter.setInsertionPointToEnd(bulk);
+      Value gm = bitcast(gmPtrs[0], ptr_ty(ctx, 1));
+      Value lm = bitcast(lmPtrs[0], ptr_ty(ctx, 0));
+      Value totalBytes = i32_val(gmPtrs.size() * byteWidth);
+      if (toLocal)
+        createGM2LMOp(rewriter, ctx, loc, gm, lm, zero, totalBytes);
+      else
+        createLM2GMOp(rewriter, ctx, loc, lm, gm, zero, totalBytes);
+      rewriter.create<LLVM::BrOp>(loc, ValueRange{}, merge);
+      rewriter.setInsertionPointToEnd(individual);
+    }
+    llvm::DenseMap<Value, Value> slowValues;
+    for (size_t i = 0; i < gmPtrs.size(); ++i) {
+      Value gmPtr = unitStride ? slowDMAValue(gmPtrs[i], rewriter, slowValues) : gmPtrs[i];
+      Value gm = bitcast(gmPtr, ptr_ty(ctx, 1));
+      Value lm = bitcast(lmPtrs[i], ptr_ty(ctx, 0));
+      Value valid = predicates[predicates.size() == 1 ? 0 : i];
+      if (unitStride)
+        valid = slowDMAValue(valid, rewriter, slowValues);
+      if (toLocal)
+        createGuardedGM2LMOp(rewriter, ctx, loc, gm, lm, zero, bytes, valid);
+      else
+        createGuardedLM2GMOp(rewriter, ctx, loc, lm, gm, zero, bytes, valid);
+    }
+    if (merge) {
+      rewriter.create<LLVM::BrOp>(loc, ValueRange{}, merge);
+      rewriter.setInsertionPointToStart(merge);
+    }
+  }
+
   void createGM2LMOp(ConversionPatternRewriter &rewriter,
                      mlir::MLIRContext *ctx, mlir::Location &loc, Value src,
                      Value dst, Value offset, Value size) const {
@@ -1535,9 +1983,9 @@ struct LoadStoreConversionBase {
       newLoadedVals.emplace_back(vh);
     }
     if (numElems % 2 == 1) {
-      int remainedIdx = numElems - 1;
+      // The preceding BF16 loads each supplied two FP32 registers.
       Value ext = rewriter.create<LLVM::FPExtOp>(loc, resElemTy,
-                                                 loadedVals[remainedIdx]);
+                                                 loadedVals.back());
       newLoadedVals.emplace_back(ext);
     }
     loadedVals = newLoadedVals;
@@ -1554,26 +2002,40 @@ struct LoadStoreConversionBase {
   // `lmBasePtr`, register i covering elements [i*valueVecSize,
   // (i+1)*valueVecSize).
 
-  // Round an f32 register for bf16 truncation (round-to-nearest-even):
-  // x += 0x7fff + (x & 1).
-  Value roundF32ForBf16(mlir::MLIRContext *ctx, Location &loc,
-                        ConversionPatternRewriter &rewriter, Value vI32,
-                        VectorType veci32Ty) const {
-    uint32_t one = 0x0001;
-    uint32_t magic = 0x7fff;
-    SmallVector<Value, 4> andOperands({i32_val(one), vI32});
-    auto vAnd = rewriter.create<LLVM::InlineAsmOp>(
-        loc, veci32Ty, andOperands, "vand.u.mz $0{mr1}, $1, $2", "=&v,r,v",
-        /*has_side_effects=*/false,
-        /*is_align_stack=*/false, LLVM::tailcallkind::TailCallKind::None,
-        LLVM::AsmDialectAttr::get(ctx, LLVM::AsmDialect::AD_ATT), ArrayAttr());
-    SmallVector<Value, 4> addOperands({i32_val(magic), vAnd.getRes()});
-    auto vSvAdd = rewriter.create<LLVM::InlineAsmOp>(
-        loc, veci32Ty, addOperands, "vadd.u.mz $0{mr1}, $1, $2", "=&v,r,v",
-        /*has_side_effects=*/false,
-        /*is_align_stack=*/false, LLVM::tailcallkind::TailCallKind::None,
-        LLVM::AsmDialectAttr::get(ctx, LLVM::AsmDialect::AD_ATT), ArrayAttr());
-    return add(vI32, vSvAdd.getRes());
+  static Value wordConstant(Location loc, ConversionPatternRewriter &rewriter,
+                            Type type, uint32_t word) {
+    auto attr = rewriter.getI32IntegerAttr(word);
+    if (auto vt = dyn_cast<VectorType>(type))
+      return rewriter.create<LLVM::ConstantOp>(loc, vt,
+                                               DenseElementsAttr::get(vt, attr));
+    return rewriter.create<LLVM::ConstantOp>(loc, type, attr);
+  }
+
+  // The retained BF16 low bit breaks ties. Quiet NaNs before their low
+  // payload bits are discarded, including payloads that would round to Inf.
+  static Value roundF32ForBf16(Location loc, ConversionPatternRewriter &rewriter,
+                               Value bits) {
+    auto word = [&](uint32_t v) {
+      return wordConstant(loc, rewriter, bits.getType(), v);
+    };
+    Value tie = and_(lshr(bits, word(16)), word(1));
+    Value rounded = add(bits, add(word(0x7fff), tie));
+    Value isNan = icmp_ugt(and_(bits, word(0x7fffffff)), word(0x7f800000));
+    return select(isNan, or_(bits, word(0x00400000)), rounded);
+  }
+
+  // Store the high halves explicitly. Otherwise LLVM can narrow
+  // fptrunc(fadd(fpext(a), fpext(b))) to a BF16 add, which the KL3
+  // backend implements with different rounding.
+  static Value bf16Words(Location loc, ConversionPatternRewriter &rewriter,
+                         Value fp) {
+    Type i32 = rewriter.getI32Type(), i16 = rewriter.getI16Type();
+    if (auto vt = dyn_cast<VectorType>(fp.getType())) {
+      i32 = VectorType::get(vt.getShape(), i32);
+      i16 = VectorType::get(vt.getShape(), i16);
+    }
+    Value bits = roundF32ForBf16(loc, rewriter, bitcast(fp, i32));
+    return trunc(i16, lshr(bits, wordConstant(loc, rewriter, i32, 16)));
   }
 
   // Ordered f32 -> bf16 store: each source register's 16 rounded high halves
@@ -1604,12 +2066,12 @@ struct LoadStoreConversionBase {
       Value dstPtr1 =
           gep(ptr_ty(ctx, 0), halfVecBf16Ty, lmBasePtr, i16_val(2 * i));
       Value vl = bitcast(valueElems[2 * i], veci32Ty);
-      vl = roundF32ForBf16(ctx, loc, rewriter, vl, veci32Ty);
+      vl = roundF32ForBf16(loc, rewriter, vl);
       vl = bitcast(vl, vecI16Ty);
       rewriter.create<mlir::LLVM::XPU::SCATTER_MHOp>(loc, vl, maskVal, dstPtr1,
                                                      offsetVec);
       Value vh = bitcast(valueElems[2 * i + 1], veci32Ty);
-      vh = roundF32ForBf16(ctx, loc, rewriter, vh, veci32Ty);
+      vh = roundF32ForBf16(loc, rewriter, vh);
       vh = bitcast(vh, vecI16Ty);
       Value dstPtr2 =
           gep(ptr_ty(ctx, 0), halfVecBf16Ty, lmBasePtr, i16_val(2 * i + 1));
@@ -1621,8 +2083,7 @@ struct LoadStoreConversionBase {
       Value elemPtr =
           gep(ptr_ty(ctx, 0), halfVecBf16Ty, lmBasePtr, i32_val(remainedIdx));
       Value elem = valueElems[remainedIdx];
-      Value trunc = rewriter.create<LLVM::FPTruncOp>(loc, halfVecBf16Ty, elem);
-      store(trunc, elemPtr);
+      store(bf16Words(loc, rewriter, elem), elemPtr);
     }
     return;
   }
@@ -1646,13 +2107,13 @@ struct LoadStoreConversionBase {
     Value poseVal = i32_val(16);
     for (int i = 0; i < numElems / 2; ++i) {
       Value veven = bitcast(valueElems[2 * i], veci32Ty);
-      veven = roundF32ForBf16(ctx, loc, rewriter, veven, veci32Ty);
+      veven = roundF32ForBf16(loc, rewriter, veven);
       veven = bitcast(veven, veci16Ty);
       Value elemPtr = gep(ptr_ty(ctx, 0), vecBf16Ty, lmBasePtr, i32_val(i));
       rewriter.create<mlir::LLVM::XPU::VSTORE_MHOp>(loc, veven, elemPtr,
                                                     maskVal);
       Value vodd = bitcast(valueElems[2 * i + 1], veci32Ty);
-      vodd = roundF32ForBf16(ctx, loc, rewriter, vodd, veci32Ty);
+      vodd = roundF32ForBf16(loc, rewriter, vodd);
       Value voddSr = rewriter.create<mlir::LLVM::XPU::SVSRLPOp>(loc, veci32Ty,
                                                                 poseVal, vodd);
       voddSr = bitcast(voddSr, veci16Ty);
@@ -1665,15 +2126,13 @@ struct LoadStoreConversionBase {
       Value elemPtr =
           gep(ptr_ty(ctx, 0), halfVecBf16Ty, lmBasePtr, i32_val(remainedIdx));
       Value elem = valueElems[remainedIdx];
-      Value trunc = rewriter.create<LLVM::FPTruncOp>(loc, halfVecBf16Ty, elem);
-      store(trunc, elemPtr);
+      store(bf16Words(loc, rewriter, elem), elemPtr);
     }
     return;
   }
 
   // TRITONXPU_BF16_FAST: let the device library convert+store a register pair
-  // (32 bf16 = 64B) in one call. An odd trailing register falls back to fptrunc
-  // + plain store.
+  // (32 bf16 = 64B) in one call. An odd trailing register stores its rounded BF16 words directly.
   void VecFP32ToBF16(Operation *op, mlir::MLIRContext *ctx, Location &loc,
                      ConversionPatternRewriter &rewriter, int numElems,
                      int valueVecSize, int ptrDataVecSize,
@@ -1692,8 +2151,7 @@ struct LoadStoreConversionBase {
       Value elemPtr =
           gep(ptr_ty(ctx, 0), halfVecBf16Ty, lmBasePtr, i32_val(remainedIdx));
       Value elem = valueElems[remainedIdx];
-      Value trunc = rewriter.create<LLVM::FPTruncOp>(loc, halfVecBf16Ty, elem);
-      store(trunc, elemPtr);
+      store(bf16Words(loc, rewriter, elem), elemPtr);
     }
     return;
   }
@@ -1778,6 +2236,32 @@ struct XPULoadOpConversion : public ConvertOpToLLVMPattern<triton::xpu::LoadOp>,
     Value llPtr = adaptor.getPtr();
     Value llIndex = adaptor.getIndex();
 
+    // A proven read-only column staged by Vectorize. It keeps its global
+    // column index in SM; unlike LM it must never cast the base to addrspace 0.
+    if (op->hasAttr("xpu.shared_column")) {
+      auto ty = cast<RankedTensorType>(res.getType());
+      auto vec = dyn_cast<VectorType>(ty.getElementType());
+      if (!vec || op.getStride() != 1 || op.getMask() || op.getOther() ||
+          op.getIsDiscrete() || op.getBf16Tofp32Unordered())
+        return rewriter.notifyMatchFailure(op, "invalid shared column vector load");
+      auto ptrs = unpackLLElements(loc, llPtr, rewriter);
+      auto llVec = typeConverter->convertType(vec);
+      auto llElem = typeConverter->convertType(vec.getElementType());
+      unsigned count = getTotalElemsPerThread(ty);
+      unsigned lanes = vec.getNumElements();
+      Value base = ptrs.front();
+      if (llIndex) {
+        Value offset = mul(llIndex, i32_val(count * lanes));
+        base = gep(ptr_ty(ctx, 2), llElem, base, offset);
+      }
+      SmallVector<Value> values;
+      for (unsigned i = 0; i < count; ++i)
+        values.push_back(load(llVec, gep(ptr_ty(ctx, 2), llElem, base, i32_val(i * lanes))));
+      auto llvmTy = typeConverter->convertType(ty);
+      rewriter.replaceOp(op, {packLLElements(loc, typeConverter, values, rewriter, llvmTy)});
+      return success();
+    }
+
     // Determine Type
     Type ptrTy = ptr.getType();
     Type resTy = res.getType();
@@ -1861,13 +2345,17 @@ struct XPULoadOpConversion : public ConvertOpToLLVMPattern<triton::xpu::LoadOp>,
     }
     if (index && !op.getIsDiscrete()) {
       ptrNumElems = resNumElems;
-      unsigned _stride =
-          (bf16Tofp32 && isVectorized)
-              ? std::ceil(static_cast<double>(ptrNumElems * stride) / 2)
-              : ptrNumElems * stride;
-      _stride = coreDealMultiRows ? stride : _stride;
-      Value idx = mul(llIndex, i32_val(_stride));
-      lmBasePtr = gep(ptr_ty(ctx, 0), ptrDataVecTy, lmBasePtr, idx);
+      // An indexed slice can contain an odd number of FP32 registers.
+      // Packing two registers per BF16 memory vector must not round up
+      // the distance between slices (one FP32 register is 16 BF16 words).
+      if (bf16Tofp32 && isVectorized && !coreDealMultiRows) {
+        Value idx = mul(llIndex, i32_val(resNumElems * vecSize * stride));
+        lmBasePtr = gep(ptr_ty(ctx, 0), ptrElemScalarTy, lmBasePtr, idx);
+      } else {
+        unsigned step = coreDealMultiRows ? stride : resNumElems * stride;
+        Value idx = mul(llIndex, i32_val(step));
+        lmBasePtr = gep(ptr_ty(ctx, 0), ptrDataVecTy, lmBasePtr, idx);
+      }
       stride = coreDealMultiRows
                    ? std::ceil(static_cast<double>(colSize) / vecSize)
                    : stride;
@@ -2259,11 +2747,9 @@ struct XPUStoreOpConversion
     unsigned stride = 1;
     if (index) {
       ptrNumElems = valueNumElems;
-      unsigned _stride = (fp32Tobf16 && isVectorized)
-                             ? std::ceil(static_cast<double>(ptrNumElems) / 2)
-                             : ptrNumElems;
-      _stride = coreDealMultiRows ? 1 : _stride;
-      if (valueElemScalarTy.isInteger(32) && ptrElemScalarTy.isInteger(8)) {
+      unsigned _stride = coreDealMultiRows ? 1 : valueNumElems;
+      if ((fp32Tobf16 && isVectorized && !coreDealMultiRows) ||
+          (valueElemScalarTy.isInteger(32) && ptrElemScalarTy.isInteger(8))) {
         Value idx = mul(llIndex, i32_val(valueNumElems * valueVecSize));
         lmBasePtr = gep(ptr_ty(ctx, 0), ptrElemScalarTy, lmBasePtr, idx);
       } else {
@@ -2336,7 +2822,7 @@ struct XPUStoreOpConversion
         for (size_t elemIdx = 0; elemIdx < ptrNumElems; elemIdx++) {
           Value elem = llVals[elemIdx];
           if (fp32Tobf16) {
-            elem = rewriter.create<LLVM::FPTruncOp>(loc, ptrElemScalarTy, elem);
+            elem = bf16Words(loc, rewriter, elem);
           }
           Value elemPtr = gep(ptr_ty(ctx, 0), ptrElemScalarTy, lmBasePtr,
                               i32_val(elemIdx * stride));
@@ -2492,6 +2978,36 @@ struct XPUGM2LMOpConversion
     auto llGMPtrs = unpackLLElements(loc, llGMPtr, rewriter);
     auto llLMPtrs = unpackLLElements(loc, llLMPtr, rewriter);
 
+    // A tiled DMA can reuse a larger LM allocation. The transfer below starts
+    // at that allocation's base, while its result describes only the copied
+    // prefix. Return that pointer view, not the full allocation's LLVM type.
+    if (llLMPtr.getType() != llvmResultStructTy) {
+      auto resultTy = dyn_cast<LLVM::LLVMStructType>(llvmResultStructTy);
+      if (!resultTy || resultTy.getBody().size() > llLMPtrs.size())
+        return rewriter.notifyMatchFailure(op, "DMA result exceeds LM pointer view");
+      llLMPtrs.resize(resultTy.getBody().size());
+      llLMPtr = packLLElements(loc, typeConverter, llLMPtrs, rewriter,
+                              llvmResultStructTy);
+      resultStruct = llLMPtr;
+    }
+
+    // Boolean len is an exact element predicate, not a transfer count. Do not
+    // replace invalid addresses with lane zero: false lanes issue no DMA and
+    // keep the value initialized by OtherSim.
+    if (len && getElementTypeOrSelf(len.getType()).isInteger(1)) {
+      auto predicates = unpackLLElements(loc, llLen, rewriter);
+      if ((predicates.size() != 1 && predicates.size() != llGMPtrs.size()) ||
+          llLMPtrs.size() < llGMPtrs.size())
+        return rewriter.notifyMatchFailure(op, "DMA predicate/pointer arity mismatch");
+      emitExactMaskedTransfer(rewriter, ctx, loc, llGMPtrs, llLMPtrs,
+                              predicates, (elemNbits + 7u) / 8u, true,
+                              getContiguity(ptr));
+      if (!async)
+        createMfenceLMOp(rewriter, loc);
+      rewriter.replaceOp(op, {resultStruct});
+      return success();
+    }
+
     Value elemBytes = i32_val(elemNbits / 8u);
     Value offsetBytes = i32_val(0);
 
@@ -2520,6 +3036,24 @@ struct XPUGM2LMOpConversion
 
     OffsetState offsetState = static_cast<OffsetState>(op.getOffsetState());
     int32_t fixedStride = op.getFixedStride();
+    // Unmasked parameter loads can be continuous or have periodic gaps.
+    // Reuse the exact transfer proof rather than one DMA per element.
+    if (!len && offsetState == OffsetState::Unknown && fixedStride == INT32_MIN) {
+      SmallVector<Value> indices;
+      unsigned run = unitDMAIndexSequence(llGMPtrs, (elemNbits + 7u) / 8u, indices)
+                         ? llGMPtrs.size()
+                         : segmentedDMARun(llGMPtrs, (elemNbits + 7u) / 8u);
+      if (run > 1) {
+        Value valid = int_val(1, 1);
+        emitExactMaskedTransfer(rewriter, ctx, loc, llGMPtrs, llLMPtrs,
+                                ArrayRef<Value>(valid), (elemNbits + 7u) / 8u,
+                                true, run);
+        if (!async)
+          createMfenceLMOp(rewriter, loc);
+        rewriter.replaceOp(op, {resultStruct});
+        return success();
+      }
+    }
     if (offsetState == OffsetState::Unknown) {
       /*  Small Col Size Opt Mask(14 < 16)
 
@@ -2568,30 +3102,20 @@ struct XPUGM2LMOpConversion
         readBytes = elemBytes;
         for (size_t i = 0; i < llGMPtrs.size(); ++i) {
           //  Protect Ptr Boundary Condition
-          Value base;
-          if (coreDealMultiRows) {
-            base = mask ? select(int_val(1, maskLists[i]), llGMPtrs[i],
-                                 llGMPtrs[0])
-                        : llGMPtrs[i];
-          } else {
-            if (mask) { // Has Mask
-              if (llLens[0].getType().isInteger(32)) {
-                base = select(icmp_slt(i32_val(i), llLens[0]), llGMPtrs[i],
-                              llGMPtrs[0]);
-              } else if (llLens[0].getType().isInteger(64)) {
-                base = select(icmp_slt(i64_val(i), llLens[0]), llGMPtrs[i],
-                              llGMPtrs[0]);
-              } else {
-                llvm_unreachable("Unsupported Mask Int Type");
-              }
-            } else {
-              base = llGMPtrs[i];
-            }
+          Value valid;
+          if (mask) {
+            valid = coreDealMultiRows
+                        ? int_val(1, maskLists[i])
+                        : icmp_slt(int_val(lenElemBit, i), llLens[0]);
           }
+          Value base = valid ? select(valid, llGMPtrs[i], llGMPtrs[0])
+                             : llGMPtrs[i];
           Value dstPtr = bitcast(llLMPtrs[i], ptr_ty(ctx, 0));
           Value srcPtr = bitcast(base, ptr_ty(ctx, 1));
-          createGM2LMOp(rewriter, ctx, loc, srcPtr, dstPtr, offsetBytes,
-                        readBytes);
+          // A safe address alone does not implement a masked load: copying
+          // from it would overwrite OtherSim's fill in an invalid lane.
+          createGuardedGM2LMOp(rewriter, ctx, loc, srcPtr, dstPtr,
+                               offsetBytes, elemBytes, valid);
         }
         // Fence once after issuing all per-element DMAs. A per-iteration fence
         // would serialize every element's DMA; a single trailing fence still
@@ -2857,6 +3381,22 @@ struct XPULM2GMOpConversion
     Value readBytes = mul(readLen, elemBytes);
     auto lmBufPtrs = unpackLLElements(loc, llBufPtr, rewriter);
     Value lmBuf = lmBufPtrs[0];
+
+    // Preserve the full write predicate, including holes and false first
+    // lanes. Repeating a write to a safe substitute pointer is not equivalent.
+    if (len && getElementTypeOrSelf(len.getType()).isInteger(1)) {
+      auto predicates = unpackLLElements(loc, llLen, rewriter);
+      if ((predicates.size() != 1 && predicates.size() != llPtrs.size()) ||
+          lmBufPtrs.size() < llPtrs.size())
+        return rewriter.notifyMatchFailure(op, "DMA predicate/pointer arity mismatch");
+      emitExactMaskedTransfer(rewriter, ctx, loc, llPtrs, lmBufPtrs,
+                              predicates, (elemNbits + 7u) / 8u, false,
+                              getContiguity(ptr));
+      if (!async)
+        createMfenceLMOp(rewriter, loc);
+      rewriter.eraseOp(op);
+      return success();
+    }
 
     // Create LM2GM and mfence
     switch (offsetState) {
@@ -3133,18 +3673,19 @@ struct XPUGM2LMMaskOpConversion
         // Unknown
         for (size_t i = 0; i < llGMPtrs.size(); ++i) {
           //  Protect Ptr Boundary Condition
-          Value base = llGMPtrs[i];
-          if (coreDealMultiRows) {
-            base =
-                len ? select(int_val(1, maskLists[i]), llGMPtrs[i], llGMPtrs[0])
-                    : llGMPtrs[i];
+          Value valid = mask ? llMasks[i] : Value();
+          if (len) {
+            Value inRange = coreDealMultiRows
+                                ? int_val(1, maskLists[i])
+                                : icmp_slt(int_val(lenElemBit, i), llLens[0]);
+            valid = valid ? and_(valid, inRange) : inRange;
           }
+          Value base = valid ? select(valid, llGMPtrs[i], llGMPtrs[0])
+                             : llGMPtrs[i];
           Value dstPtr = bitcast(llLMPtrs[i], ptr_ty(ctx, 0));
-          Value srcPtr = bitcast(llGMPtrs[i], ptr_ty(ctx, 1));
-          Value _readBytes =
-              mask ? select(llMasks[i], elemBytes, i32_val(0)) : elemBytes;
-          createGM2LMOp(rewriter, ctx, loc, srcPtr, dstPtr, offsetBytes,
-                        _readBytes);
+          Value srcPtr = bitcast(base, ptr_ty(ctx, 1));
+          createGuardedGM2LMOp(rewriter, ctx, loc, srcPtr, dstPtr,
+                               offsetBytes, elemBytes, valid);
         }
       }
       resultStruct = packLLElements(loc, typeConverter, llLMPtrs, rewriter,
@@ -3664,7 +4205,10 @@ struct XPUTLELocalAllocOpConversion
     }
 
     auto lmPtrTy = LLVM::LLVMPointerType::get(ctx, 0);
-    auto lmBuf = allocate(lmPtrTy, llvmElemTy, i32_val(allocNumElems));
+    // Rounding the extent does not align the base. TLE vector loads/stores
+    // require a 64-byte aligned LM address even when the element type is scalar.
+    auto lmBuf = allocate(lmPtrTy, llvmElemTy, i32_val(allocNumElems),
+                          /*alignment=*/64);
 
     // For TLE, we store the base pointer as the lowered result.
     // The memdesc type will be converted to a struct containing the base ptr.
@@ -4099,6 +4643,21 @@ planTileSegmentsLegacy(ConversionPatternRewriter &rewriter, Location loc,
 /// mask 6 (SM|GM) needlessly drains the LM channel too.
 static int32_t tleFenceMask(bool isSM) { return isSM ? 2 : 1; }
 
+// KL3 TLE DMA uses a GM base pointer. The descriptor extents and strides
+// are separate operands of each copy, including for in-kernel descriptors.
+struct XPUMakeTensorDescOpConversion
+    : public ConvertOpToLLVMPattern<triton::MakeTensorDescOp> {
+  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
+
+  LogicalResult matchAndRewrite(triton::MakeTensorDescOp op, OpAdaptor adaptor,
+                                ConversionPatternRewriter &rewriter) const override {
+    if (adaptor.getBase().getType() != getTypeConverter()->convertType(op.getType()))
+      return rewriter.notifyMatchFailure(op, "expected a global memory base");
+    rewriter.replaceOp(op, adaptor.getBase());
+    return success();
+  }
+};
+
 /// Lower triton_xpu.tle_copy_g2l to GM2LM DMA instruction.
 struct XPUTLECopyG2LOpConversion
     : public ConvertOpToLLVMPattern<triton::xpu::TLECopyGlobalToLocalOp>,
@@ -4123,14 +4682,22 @@ struct XPUTLECopyG2LOpConversion
     // across all cores, see emitPartitionedGM2SM) and shared by every core.
     // This skips the per-core tile-segment planning used for LM entirely.
     //
-    // LIMITATION -- no tail clamp: exactly product(buffer_shape) elements are
-    // read from GM, so `adaptor.getShapes()` (the descriptor's REAL extent,
-    // used by the LM path below to clamp row/col tails) is deliberately unused
-    // here. The caller must therefore pad the GM weight array up to the smem
-    // buffer width (see test_layernorm_sm_stageonce.py's R_PAD), otherwise the
-    // staging DMA reads past the tensor. Acceptable because scope=smem targets
-    // loop-invariant weight vectors whose padding is free; a real clamp would
-    // need per-dimension segment planning like planTileSegmentsFromLayout.
+    // TAIL CLAMP (2026-10-14): for a RANK-1 smem buffer (the loop-invariant
+    // weight vectors this scope targets) the staging read is clamped to the
+    // descriptor's real extent `adaptor.getShapes()[0]`, so `N < W` no longer
+    // requires the caller to pad the GM array. The SM slots in `[N, W)` are
+    // left untouched (whatever was there before), which is safe for the
+    // layernorm data flow: `bias` feeds the reduce but only through a
+    // `tl.where(r0_mask,
+    // ...)` that zeroes padding columns, and `gamma`/`beta` are applied after
+    // the reduce, on columns the output descriptor clamps away at the tensor
+    // edge. Callers that need the padding region ZEROED must still pre-pad.
+    //
+    // Rank >= 2 keeps the old behaviour (exactly product(buffer_shape)
+    // elements, caller pads): the staging DMA is one contiguous block cut
+    // across cores, so clamping an inner dimension would leave holes rather
+    // than a tail -- that needs per-dimension segment planning like
+    // planTileSegmentsFromLayout.
     if (Operation *allocOp = getTLESmemAlloc(op.getDstBuffer())) {
       auto memDescTy =
           cast<triton::gpu::MemDescType>(op.getDstBuffer().getType());
@@ -4154,10 +4721,16 @@ struct XPUTLECopyG2LOpConversion
       Value gmByteOff = mul(tileOriginElem64, i64_val(elemBytes));
       Value srcPtr = gep(ptr_ty(ctx, 1), i8_ty, gmBasePtr, gmByteOff);
 
+      // Rank-1: clamp the staged element count to the descriptor's real extent
+      // (see the TAIL CLAMP note above). Rank >= 2 stages the whole buffer.
+      Value readElems = i32_val((int32_t)tileElems);
+      auto shapesSM = adaptor.getShapes();
+      if (bufShape.size() == 1 && shapesSM.size() == 1)
+        readElems = smax(smin(readElems, shapesSM[0]), i32_val(0));
+
       emitPartitionedGM2SM(loc, rewriter, ctx, op, srcPtr,
                            getTLESmemBase(loc, rewriter, op, allocOp),
-                           i32_val((int32_t)tileElems),
-                           i32_val((int32_t)elemBytes));
+                           readElems, i32_val((int32_t)elemBytes));
 
       rewriter.eraseOp(op);
       return success();
@@ -4614,9 +5187,31 @@ struct XPUTLEWaitOpConversion
 /// sliceCols) * rowStride + loopIndex * sliceCols + i % sliceCols`. Both
 /// constants come from `stampSliceGeometry`; their absence selects the
 /// contiguous form.
+///
+/// `bcastCols` != 0 marks a BROADCAST-COLLAPSED read: a 1-D buffer (a weight
+/// row such as layernorm's bias / gamma / beta) read through a 2-D result
+/// layout, where every tile row holds a replica of the SAME columns. The slot
+/// enumeration then counts rows * cols while the buffer only holds `bcastCols`
+/// column slots, so the ROW component has to be dropped -- keeping it walks
+/// row k > 0 past the end of the buffer and reads whatever follows it in LM.
+///
+/// This is the LM twin of the fix `tleSmemSlotIndex` already carries for
+/// cluster-shared buffers ("the ROW component of the LM form must be
+/// dropped"). Without it every rows-per-core > 1 config (XBLOCK > core_num,
+/// i.e. the tle-core-tiling RowTiled rpc=2/4 path) silently reads garbage for
+/// all but the first row of each core: measured on `[XBLOCK, R0_BLOCK]` + 1-D
+/// bias add, rpc=2 corrupts exactly the odd rows (64/128) and rpc=4 corrupts
+/// 3 of every 4 (384/512), while rpc=1 is exact.
 static Value tleSlotIndex(Location loc, Operation *op, Value loopIndex,
                           unsigned perSlice, unsigned i,
-                          ConversionPatternRewriter &rewriter) {
+                          ConversionPatternRewriter &rewriter,
+                          unsigned bcastCols = 0) {
+  if (bcastCols) {
+    // Replica rows read the same column slots, and the tile loop advances by
+    // one row's worth of columns -- not by the row-multiplied slot count.
+    i %= bcastCols;
+    perSlice = bcastCols;
+  }
   auto sliceColsAttr = op->getAttrOfType<IntegerAttr>("xpu.slice_cols");
   auto rowStrideAttr = op->getAttrOfType<IntegerAttr>("xpu.row_stride");
   if (sliceColsAttr && rowStrideAttr) {
@@ -4631,6 +5226,34 @@ static Value tleSlotIndex(Location loc, Operation *op, Value loopIndex,
   if (!loopIndex)
     return i32_val(i);
   return add(mul(loopIndex, i32_val(perSlice)), i32_val(i));
+}
+
+/// Column-slot count of a BROADCAST-COLLAPSED TLE read: non-zero only when a
+/// 1-D LM buffer is accessed through a 2-D result layout whose per-core tile
+/// spans MORE THAN ONE ROW (rows-per-core > 1). See `tleSlotIndex`'s
+/// `bcastCols` parameter.
+///
+/// Deliberately returns 0 for rows-per-core == 1 so that path keeps the exact
+/// pre-existing slot arithmetic (zero regression risk for every shipping
+/// kernel); and the count comes from the layout's `sizePerCore`, NOT from the
+/// result SHAPE -- the shape is the whole tile's extent, which only coincides
+/// with the per-core column count while the column axis is un-split
+/// (coresPerGroup[1] == groupsPerCluster[1] == 1).
+static unsigned tleBroadcastCols(Value buffer, Type resultTy) {
+  auto memTy = dyn_cast<triton::gpu::MemDescType>(buffer.getType());
+  auto resTy = dyn_cast<RankedTensorType>(resultTy);
+  if (!memTy || !resTy)
+    return 0;
+  if (memTy.getShape().size() != 1 || resTy.getRank() != 2)
+    return 0;
+  auto clusterLayout =
+      dyn_cast_if_present<triton::xpu::ClusterLayoutAttr>(resTy.getEncoding());
+  if (!clusterLayout)
+    return 0;
+  auto sizePerCore = clusterLayout.getSizePerCore();
+  if (sizePerCore.size() != 2 || sizePerCore[0] <= 1)
+    return 0; // one row per core: keep the original arithmetic verbatim
+  return static_cast<unsigned>(sizePerCore[1]);
 }
 
 /// Buffer slot that element `i` of a sliced TLE access touches in a
@@ -4792,7 +5415,8 @@ struct XPUTLELocalPtrOpConversion
     // cannot stand in for -- it arrives through $loopIndex.
     (void)indices;
     (void)rank;
-    auto basePtrTy = LLVM::LLVMPointerType::get(ctx, 0);
+    // Pipeline slots can reside in SM; keep the buffer address space.
+    auto basePtrTy = lmPtrTy;
     // One pointer per VECTOR slot once tritonxpu-vectorize retyped this op (see
     // makeVectorTLELocalPtr): a slot is W buffer elements wide, which is not
     // the register width when the registers are f32 over a bf16 buffer.
@@ -4802,12 +5426,16 @@ struct XPUTLELocalPtrOpConversion
       if (auto vecETy = dyn_cast<VectorType>(ptrETy.getPointeeType()))
         slotTy = VectorType::get(vecETy.getNumElements(), llvmElemTy);
     SmallVector<Value> resultPtrs;
+    // 1-D buffer under a 2-D result layout == broadcast-collapsed weight row:
+    // drop the row component so replica rows point at the same columns (see
+    // tleSlotIndex / tleBroadcastCols).
+    unsigned ptrBcastCols = tleBroadcastCols(op.getBuffer(), resTy);
     for (unsigned i = 0; i < numElems; ++i) {
       // `slotTy` fixes the width of one step, `tleSlotIndex` which step this
       // core and tile iteration takes; both are in slot units.
-      Value ptr = gep(
-          basePtrTy, slotTy, lmBase,
-          tleSlotIndex(loc, op, adaptor.getLoopIndex(), numElems, i, rewriter));
+      Value ptr = gep(basePtrTy, slotTy, lmBase,
+                      tleSlotIndex(loc, op, adaptor.getLoopIndex(), numElems, i,
+                                   rewriter, ptrBcastCols));
       resultPtrs.push_back(ptr);
     }
 
@@ -5342,12 +5970,19 @@ struct XPUTLEVLoadOpConversion
     // loop's index arrives through $loopIndex and the base advances by a whole
     // slice (numVecs vectors, already the sliced count because the result type
     // was sliced with it). Absent index == whole-buffer load.
-    auto basePtrTy = LLVM::LLVMPointerType::get(ctx, 0);
+    //
+    // A 1-D buffer read through a 2-D layout (a broadcast-collapsed weight row)
+    // has `numVecs` == rows * cols while the buffer holds only `cols`; drop the
+    // row component so replica rows re-read the same columns instead of walking
+    // off the buffer (see tleSlotIndex / tleBroadcastCols).
+    unsigned bcastCols = tleBroadcastCols(op.getBuffer(), resTy);
+    auto basePtrTy = LLVM::LLVMPointerType::get(
+        ctx, triton::xpu::getMemDescAddrSpace(op.getBuffer().getType()));
     SmallVector<Value> loadedVals;
     for (unsigned i = 0; i < numVecs; ++i) {
-      Value ptr = gep(
-          basePtrTy, llvmVecTy, lmBase,
-          tleSlotIndex(loc, op, adaptor.getLoopIndex(), numVecs, i, rewriter));
+      Value ptr = gep(basePtrTy, llvmVecTy, lmBase,
+                      tleSlotIndex(loc, op, adaptor.getLoopIndex(), numVecs, i,
+                                   rewriter, bcastCols));
       Value v = load(llvmVecTy, ptr);
       loadedVals.push_back(v);
     }
@@ -5557,6 +6192,7 @@ void mlir::triton::xpu::populateLoadStoreOpToLLVMPatterns(
     LLVMTypeConverter &typeConverter, const TargetInfo &targetInfo,
     RewritePatternSet &patterns, ModuleAxisInfoAnalysis &axisInfoAnalysis,
     PatternBenefit benefit) {
+  patterns.add<XPUMakeTensorDescOpConversion>(typeConverter, benefit);
   patterns
       .add<XPULoadOpConversion, XPUStoreOpConversion, XPUAllocaOpConversion,
            XPULoadScalarIndexedOpConversion, XPUStageSMOpConversion,

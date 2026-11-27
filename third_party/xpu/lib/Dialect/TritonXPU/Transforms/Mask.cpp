@@ -541,6 +541,12 @@ public:
           cmpiOp.getPredicate() == arith::CmpIPredicate::ult) {
         getOpChain(cmpiOpUsers, cmpiOp);
         for (auto user : cmpiOpUsers) {
+          // Keep the original predicate for ordinary DMA. A comparison found
+          // through an AND branch is not proof of a per-core prefix length.
+          // LLVM lowering consumes every lane of this predicate directly.
+          if (!this->isUseMaskZero &&
+              isa<triton::xpu::GM2LMOp, triton::xpu::LM2GMOp>(user))
+            continue;
           Value mask;
           if (this->isUseMaskZero) {
             if (auto loadOp = dyn_cast<triton::xpu::GM2LMMaskOp>(user)) {

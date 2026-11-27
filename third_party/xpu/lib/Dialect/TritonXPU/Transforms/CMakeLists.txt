@@ -21,6 +21,7 @@ add_triton_library(TritonXPUTransforms
   VectorizabilityAnalysisPass.cpp
   Normalize.cpp
   Rank1Wrap.cpp
+  SDNNKExtent.cpp
   Vectorize.cpp
   MemoryAsync.cpp
   UnrollControl.cpp

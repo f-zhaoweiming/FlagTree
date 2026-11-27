@@ -227,6 +227,13 @@ def test_wrapped_dma_addresses(tmp_path, monkeypatch, period, block, tail):
     assert_addresses(text, period, length, block)
 
 
+def test_maskless_periodic_tile_is_captured(tmp_path, monkeypatch):
+    text = module_text(7, 19, 16).replace("tt.load %ptr, %mask", "tt.load %ptr")
+    ctx, mod = parse(tmp_path, text)
+    run(ctx, mod, (lib.xpu.passes.ttsdnnir.add_capture_rank1_wrap_pass, ()))
+    assert "unmasked_width = 16" in dump(ctx, mod, monkeypatch, tmp_path, "full_tile")
+
+
 @pytest.mark.parametrize("change", [
     lambda t: t.replace("dense<7>", "dense<0>"),
     lambda t: t.replace("dense<7>", "dense<-7>"),
@@ -236,7 +243,6 @@ def test_wrapped_dma_addresses(tmp_path, monkeypatch, period, block, tail):
     lambda t: t.replace("dense<19>", "dense<-1>"),
     lambda t: t.replace("dense<19>", "dense<2147483647>"),
     lambda t: t.replace("end = 16 : i32, start = 0", "end = 17 : i32, start = 1"),
-    lambda t: t.replace("%ptr, %mask", "%ptr"),
     lambda t: t.replace("    %dst =", "    %extra = tt.load %ptr, %mask : tensor<16x!tt.ptr<f32>>\n    %dst ="),
 ])
 def test_unsupported_modulo_is_rejected(tmp_path, capfd, change):

@@ -1,4 +1,4 @@
-"""Explicit GPU acceptance: FUSION_RUN_CUDA_TESTS=1 python -m unittest ... .
+"""Explicit GPU acceptance: F06_RUN_CUDA_TESTS=1 python -m unittest ... .
 
 Ordinary CPU discovery skips this suite. Run on an otherwise idle NVIDIA GPU;
 the report benchmark and its occupancy monitor provide that isolation locally.
@@ -32,7 +32,7 @@ class Matrix(torch.nn.Module):
         return value
 
 
-@unittest.skipUnless(os.environ.get("FUSION_RUN_CUDA_TESTS") == "1", "explicit idle-GPU acceptance only")
+@unittest.skipUnless(os.environ.get("F06_RUN_CUDA_TESTS") == "1", "explicit idle-GPU acceptance only")
 class SmallMatmulCUDA(unittest.TestCase):
 
     @classmethod

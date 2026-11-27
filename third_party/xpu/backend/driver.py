@@ -14,6 +14,27 @@ from triton.backends.driver import GPUDriver
 
 from .launch_config import DEFAULT_LAUNCH, get_xpu_spec, resolve_launch_config
 
+# Imported once here, not per launch. A `from ... import` inside the hot
+# XPULauncher.__call__ still calls builtins.__import__ every launch; in envs
+# that wrap __import__ (vllm/xpytorch import hooks) that costs ~11us/launch and
+# shows up as a big fixed per-call overhead on descriptor kernels (e.g.
+# block_diag's tle.gpu copy). Resolve the symbol at module load instead.
+try:
+    from triton.tools.tensor_descriptor import TensorDescriptor as _TensorDescriptor
+except Exception:
+    _TensorDescriptor = None
+
+# torch resolved once at module load, not per launch. `_get_current_xpu_device`
+# runs on every kernel launch; a per-call `import torch` there still calls
+# builtins.__import__ each time, which in envs that wrap __import__
+# (vllm/xpytorch import hooks) costs several us per launch and dominates small
+# multi-kernel ops (e.g. block_diag). Cache the module; fall back to a lazy
+# import only if torch was not importable at load (compile-only/smoke paths).
+try:
+    import torch as _torch
+except Exception:
+    _torch = None
+
 dirname = os.path.dirname(os.path.realpath(__file__))
 
 
@@ -685,6 +706,32 @@ def make_launcher(constants, signature, ids, metadata):
                 hex_lines.append(hex_string)
         return ",\n    ".join(hex_lines)
 
+    # Expose the existing typed _launch to a bound dense launcher. Only
+    # integer scalars and live tensor addresses have a fixed packet ABI.
+    packet_code, packet_export = "", ""
+    word_types = {"i1": "b", "i32": "i", "i64": "l"}
+    if (xpu_arch == 3 and 1 <= len(signature) <= 23
+            and all(ty.startswith("*") or ty in word_types for ty in signature.values())):
+        types = "".join("p" if ty.startswith("*") else word_types[ty] for ty in signature.values())
+        args = ", ".join(f"(void *)(uintptr_t)v[{i}], sizes[{i}]" if ty.startswith("*")
+                         else f"({ty_to_cpp(ty)})v[{i}]" for i, ty in signature.items())
+        packet_code = f"""
+struct DenseLaunchABI {{
+  const char *types;
+  void (*issue)(const int *, uintptr_t, uintptr_t, const int64_t *, const int64_t *);
+}};
+static void issue_dense(const int *g, uintptr_t stream, uintptr_t fn, const int64_t *v, const int64_t *sizes) {{
+  _launch(g[0], g[1], g[2], g[3], g[4], g[5], (XPUStream)stream, (XPUFunc)fn, {args});
+}}
+static DenseLaunchABI dense_abi = {{"{types}", issue_dense}};
+"""
+        packet_export = """
+  PyObject *capsule = PyCapsule_New(&dense_abi, "triton.xpu.dense_launch.v1", NULL);
+  if (!capsule || PyModule_AddObject(m, "_dense_launch_abi", capsule) < 0) {
+    Py_XDECREF(capsule); Py_DECREF(m); return NULL;
+  }
+"""
+
     # generate glue code
     src = f"""
 #include <xpu/runtime.h>
@@ -776,6 +823,34 @@ static inline DevicePtrInfo getPointer(PyObject *obj, int idx) {{
   // than leaving the field indeterminate for them.
   ptr_info.numel = 0;
   ptr_info.valid = true;
+  // A bound descriptor already knows its dense element count. Keep the
+  // complete launch ABI while avoiding two Python tensor calls per pointer.
+  if ({int(xpu_arch == 3 and not is_sdnn)} && PyTuple_CheckExact(obj)) {{
+    PyObject *address, *count;
+    if (!PyArg_UnpackTuple(obj, "XPU pointer and numel", 2, 2, &address, &count)) {{
+      ptr_info.valid = false;
+      return ptr_info;
+    }}
+    if (!PyLong_CheckExact(address) || !PyLong_CheckExact(count)) {{
+      PyErr_SetString(PyExc_TypeError, "XPU pointer and numel must be integers");
+      ptr_info.valid = false;
+      return ptr_info;
+    }}
+    ptr_info.dev_ptr = (void *)(uintptr_t)PyLong_AsUnsignedLongLong(address);
+    if (PyErr_Occurred()) {{
+      ptr_info.valid = false;
+      return ptr_info;
+    }}
+    ptr_info.numel = PyLong_AsLongLong(count);
+    if (PyErr_Occurred()) {{
+      ptr_info.valid = false;
+    }} else if (ptr_info.numel < 0 || (!ptr_info.dev_ptr && ptr_info.numel != 0) ||
+               xpu{xpu_arch}PointerCheck(ptr_info.dev_ptr) == kINVALID) {{
+      PyErr_Format(PyExc_ValueError, "Invalid XPU pointer or element count at argument %d", idx);
+      ptr_info.valid = false;
+    }}
+    return ptr_info;
+  }}
   if (PyLong_Check(obj)) {{
     ptr_info.dev_ptr = PyLong_AsVoidPtr(obj);
     return ptr_info;
@@ -824,6 +899,7 @@ static inline DevicePtrInfo getPointer(PyObject *obj, int idx) {{
   return ptr_info;
 }}
 
+{packet_code}
 static PyObject* launch(PyObject* self, PyObject* args) {{
   int gridX, gridY, gridZ;
   uint64_t _stream;
@@ -897,6 +973,7 @@ PyMODINIT_FUNC PyInit___triton_launcher_xpu(void) {{
   if(m == NULL) {{
     return NULL;
   }}
+  {packet_export}
   PyModule_AddFunctions(m, ModuleMethods);
   return m;
 }}
@@ -949,6 +1026,7 @@ def _print_triton_launcher_info(fn_name, signature, constants, args):
 class XPULauncher(object):
 
     def __init__(self, src, metadata):
+        self.supports_sized_pointers = metadata.xpu_arch == 3 and not metadata.is_sdnn
         self._fn_name = _get_launcher_fn_name(src)
         self._signature = dict(src.signature) if hasattr(src, 'signature') else {}
         self._constants = dict(src.constants) if hasattr(src, 'constants') else {}
@@ -973,6 +1051,17 @@ class XPULauncher(object):
         src = make_launcher(constants, signature, ids, metadata)
         mod = compile_module_from_src(src, "__triton_launcher_xpu", metadata.xpu_arch)
         self.launch = mod.launch
+        # Everything the launch path can know up front is resolved here: which
+        # operands survive to the kernel ABI, and whether any of them can be a
+        # descriptor that needs expanding. Recomputing this per call (the old
+        # zip list-comp + import + expand loop) costs about as much as a small
+        # kernel's whole device time, so it is lifted out of __call__.
+        sig_types = list(self._signature.values())
+        self._num_operands = len(sig_types)
+        self._keep = tuple(i for i, ty in enumerate(sig_types) if ty != "constexpr")
+        self._all_kept = len(self._keep) == self._num_operands
+        # Same test make_launcher uses to decide the descriptor expansion.
+        self._maybe_desc = any(str(ty).startswith(("tensordesc", "*tensordesc")) for ty in sig_types)
 
     def get_flat_runner(self):
         """Bind constexpr filtering for a fixed pointer/scalar kernel ABI.
@@ -985,11 +1074,10 @@ class XPULauncher(object):
         scalar_types = {"i1", "i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64",
                         "fp16", "bf16", "fp32", "fp64", "constexpr"}
         types = tuple(self._signature.values())
-        if not all(isinstance(ty, str) and (ty.startswith("*") or ty in scalar_types)
+        if self._maybe_desc or not all(isinstance(ty, str) and (ty.startswith("*") or ty in scalar_types)
                    for ty in types):
             return None
-        select = itemgetter(*(tuple(range(9)) + tuple(9 + i for i, ty in enumerate(types)
-                                                      if ty != "constexpr")))
+        select = itemgetter(*(tuple(range(9)) + tuple(9 + i for i in self._keep)))
         def run(*args):
             if _PRINT_TRITON_FUNC:
                 return self(*args)
@@ -1004,15 +1092,33 @@ class XPULauncher(object):
         # Drop constexpr entries from bound_args: kernel ABI only takes
         # non-constexpr runtime params; gridX/Y/Z are injected by
         # xpuLaunchKernel itself (LoopGrid pass appended them as kernel args).
-        fixed = args[:9]
         kernel_args = args[9:]
-        filtered = [arg for arg, ty in zip(kernel_args, self._signature.values()) if ty != "constexpr"]
+        aligned = len(kernel_args) == self._num_operands
+        if self._all_kept and aligned and not self._maybe_desc:
+            # Nothing to drop and nothing to expand: hand the operands over as
+            # they arrived. This is the common case, so it stays allocation-free.
+            self.launch(*args)
+            return
+
+        if self._all_kept and aligned:
+            filtered = kernel_args
+        else:
+            # zip() semantics of the original loop: operands past the signature
+            # are dropped, which is what the kernel ABI expects.
+            filtered = [kernel_args[i] for i in self._keep if i < len(kernel_args)]
+        if not self._maybe_desc:
+            self.launch(*args[:9], *filtered)
+            return
+
+        fixed = args[:9]
         # A TensorDescriptor expands to (4*rank + 2) flat arguments, matching
         # tensor_descriptor_type._flatten_ir: the handle group (base pointer,
         # shape and strides as i64, padding flag) followed by the Python-visible
         # `.shape` (i32) and `.strides` (i64) tuples.  Shape and strides are
         # therefore passed twice, with the same values.
-        from triton.tools.tensor_descriptor import TensorDescriptor
+        TensorDescriptor = _TensorDescriptor
+        if TensorDescriptor is None:
+            from triton.tools.tensor_descriptor import TensorDescriptor
         expanded = []
         for arg in filtered:
             if isinstance(arg, TensorDescriptor):
@@ -1036,7 +1142,45 @@ def _xpu_utils_singleton():
     return XPUUtils()
 
 
+def make_flat_launcher(kernel, grid):
+    """Bind a compiled kernel to a grid; the result takes the kernel ABI directly,
+    skipping per-launch specialization/keying so a hot-loop caller pays almost no
+    Python overhead (ported from internal triton for FlagGems flat fast paths)."""
+    launch = kernel.run.launch  # C entry of the generated launcher
+    fn, packed_metadata = kernel.function, kernel.packed_metadata
+    grid_size = len(grid)
+    grid_0 = grid[0]
+    grid_1 = grid[1] if grid_size > 1 else 1
+    grid_2 = grid[2] if grid_size > 2 else 1
+
+    def flat_launch(stream, *operands):
+        launch(grid_0, grid_1, grid_2, stream, fn, packed_metadata, None, None, None, *operands)
+
+    return flat_launch
+
+
+class FlatLauncherCache:
+    """Bind compiled kernels once, launch them flat many times (per-device split).
+    `key` must cover everything the compiled kernel depends on (dtypes, constexprs,
+    grid). Mirrors internal triton's cache so FlagGems' `driver.active.flat_launchers`
+    fast path is available on FlagTree too."""
+
+    def __init__(self, drv):
+        self._driver = drv
+        self._entries = {}
+
+    def acquire(self, kernel_fn, key):
+        device = self._driver.get_current_device()
+        return self._entries.get((device, kernel_fn, key)), self._driver.get_current_stream(device)
+
+    def bind(self, kernel_fn, key, kernel, grid):
+        device = self._driver.get_current_device()
+        self._entries[(device, kernel_fn, key)] = make_flat_launcher(kernel, grid)
+
+
 class XPUDriver(GPUDriver):
+
+    make_flat_launcher = staticmethod(make_flat_launcher)
 
     def __init__(self):
         self.utils = _xpu_utils_singleton()
@@ -1051,6 +1195,7 @@ class XPUDriver(GPUDriver):
         # ==================== FLAGTREE XPU SYNC MARK ====================
         self.get_current_device = self._get_current_xpu_device
         self.set_current_device = self._set_current_xpu_device
+        self.flat_launchers = FlatLauncherCache(self)
 
     @staticmethod
     def _get_current_xpu_device():
@@ -1065,8 +1210,8 @@ class XPUDriver(GPUDriver):
         # of truth; keep the env var as a fallback for compile-only/smoke paths
         # with no usable torch device (the original reason for this override).
         try:
-            import torch
-            return int(torch.cuda.current_device())
+            t = _torch if _torch is not None else __import__("torch")
+            return int(t.cuda.current_device())
         except Exception:
             return int(os.environ.get("TRITON_XPU_DEVICE", os.environ.get("XPU_VISIBLE_DEVICE", "0")))
 

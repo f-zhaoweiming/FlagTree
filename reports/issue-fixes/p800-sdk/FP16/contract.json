@@ -1,0 +1,68 @@
+{
+  "receipt": "review-local/p800-interface-benchmark-20261126/replica-ops_contract-43.138.5.189-0-20261125T181311941173Z.json",
+  "receipt_sha256": "8df15ae576e7a20756b2dadfb387789f15124c04b42127f652ec03eb188004d6",
+  "source_sha256": {
+    "benchmark.py": "1e54e3d1628c8eb8f00fc43176cf80b0326ee7d1ae1cac78082558ef9ac0ca7a",
+    "verify_wrappers.py": "2ac1ec8c7240fc3489cb71d004987dc3a0a1ee4bbab6bf364f0e107763530bbe"
+  },
+  "image": "sha256:63580d62f783f62be7c6b3e2ad55ab59992653792024270389f5cbd6f92eaa55",
+  "device": "P800",
+  "physical_card": 0,
+  "checks": {
+    "pci": true,
+    "memory_empty": true,
+    "utilization_zero": true,
+    "no_processes": true,
+    "device_node_pci": true,
+    "no_compute_openers": true,
+    "owned_running_container": true
+  },
+  "occupancy_samples": 3,
+  "foreign_samples": 0,
+  "public_contract": {
+    "gelu": {
+      "status": 0,
+      "inputs": 65536,
+      "finite_inputs": 63488,
+      "different_non_nan_bits": 0,
+      "different_nan_mask": 0,
+      "strided_inplace_equal": true,
+      "passed": true
+    },
+    "add_layernorm": [
+      {
+        "bias": false,
+        "residual": false,
+        "strided": false,
+        "output_alias": false,
+        "eps": 1e-05,
+        "passed": true
+      },
+      {
+        "bias": true,
+        "residual": false,
+        "strided": false,
+        "output_alias": true,
+        "eps": 0.001,
+        "passed": true
+      },
+      {
+        "bias": false,
+        "residual": true,
+        "strided": true,
+        "output_alias": false,
+        "eps": 0.002,
+        "passed": true
+      },
+      {
+        "bias": true,
+        "residual": true,
+        "strided": false,
+        "output_alias": false,
+        "eps": 1e-05,
+        "passed": true
+      }
+    ],
+    "passed": true
+  }
+}

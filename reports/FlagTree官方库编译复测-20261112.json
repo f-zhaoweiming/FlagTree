@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-12",
+  "tested_native_build_source": "d65b6d70511e4d9aaeb3bf52ae762a96212def0a",
+  "libtriton_sha256": "f95a9cff9aa856fb24daa2347530d9df0bf52551705a705073d5de33691a1468",
+  "python_compiler_sha256": "a11cc16a42b26a0c51aa8001d4efd1bca2e83c1321cf23967debf3be956b632b",
+  "scope": "Host-side XPU compiler-stage replay, no P800 runtime or device timing. For make_ttxir only, the unavailable optional LLVM19 locator raised at import-time detection. No LLVM19 code generation was used.",
+  "inputs": [
+    {
+      "name": "repro.make_ttxir.repro.mlir",
+      "sha256": "aab9355e2b686ac7c8b27e459043e334ce3b51edeec71345c037911f8da13eeb",
+      "input_verified": true,
+      "stage": "TritonXPUCoreTiling",
+      "observed": "arith.maxnumf requires the same encoding for all operands and results"
+    },
+    {
+      "name": "generic0.ttir",
+      "sha256": "eccb89f98c0546c142f25308584eda0af8ed1b1fa08be7daa3f509995080aa51",
+      "input_verified": true,
+      "stage": "TritonXPULegalize",
+      "observed": "scf.if branch shape mismatch; outer OutOfResources: uni_sram",
+      "historical_fixed_v13_same_input": "ok"
+    },
+    {
+      "name": "generic1.ttir",
+      "sha256": "a88f94e660d559978e063b27a08814ac3022ef5d34532cdb70abaca8d49b3ebe",
+      "input_verified": true,
+      "stage": "TritonXPULegalize",
+      "observed": "scf.if branch shape mismatch; outer OutOfResources: uni_sram",
+      "historical_fixed_v13_same_input": "ok"
+    },
+    {
+      "name": "generic2.ttir",
+      "sha256": "301810f3baf1a4de0dbe6f1c9dbbf922e0904e5c30aac20d8a207a2ec990dac7",
+      "input_verified": true,
+      "stage": "TritonXPULegalize",
+      "observed": "scf.if branch shape mismatch; outer OutOfResources: uni_sram",
+      "historical_fixed_v13_same_input": "ok"
+    },
+    {
+      "name": "repro/mixed-output.ttir",
+      "sha256": "7ff32526fcc18f7c62d3a9fae5fc16255377ede544665ec4428d56c948646090",
+      "input_verified": true,
+      "stage": "make_ttxir",
+      "observed": "out of resource: uni_sram PassManager::run failed: loc(\"mixed-output.ttir\":64:5): 'tt.store' op failed to verify that value type matches ptr ty",
+      "module_text_length": 0
+    },
+    {
+      "name": "stock-ir/v23-actual/MRVD6SGMGKJJJNG6AI7SJUJMH2HNOCF4NMCOJPBLHOJZHGOSAT2A/triton_poi_fused_add_gelu_0.ttir",
+      "sha256": "621992edfd5abfbb21be016295cd0853d64774dbd2d0dfa0eacdd9c878fa7e96",
+      "input_verified": true,
+      "stage": "make_ttxir",
+      "observed": "PASS",
+      "module_text_length": 0
+    },
+    {
+      "name": "stock-ir/v23-actual/XQVSRCDTPKC2QLZZ56V3UWBEUEL5NJEJUTLLA2H3M6LKRQTW6B3Q/triton_poi_fused_add_gelu_0.ttir",
+      "sha256": "924d9fff45b5d207634058ef608b56c22736da62a50e9f95976e725b96aa4164",
+      "input_verified": true,
+      "stage": "make_ttxir",
+      "observed": "PASS",
+      "module_text_length": 0
+    }
+  ]
+}

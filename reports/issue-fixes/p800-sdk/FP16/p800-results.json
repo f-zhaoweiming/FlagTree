@@ -1,0 +1,3234 @@
+{
+  "reference": "original FP32 eager; all elements per output; RMSE, max_abs and max_normalized each <= FP16 eager error. Eager and operator receive the same FP16 inputs. Speedup = median eager synchronized wall time / median operator synchronized wall time.",
+  "before": "../XFA/p800-results.json",
+  "runs": [
+    {
+      "receipt": "review-local/p800-interface-benchmark-20261126/ops-43.138.5.189-0-20261125T180849774359Z.json",
+      "receipt_sha256": "72c29c5a4aefa15bee55d8b154348264067bda6fccc27e1bdd7a3808b38e9a44",
+      "source_sha256": {
+        "benchmark.py": "d1f9c7855693d0f693c2fead0a84a4162f7b01fd100f2c1014eff751c61c3a6a"
+      },
+      "image": "sha256:63580d62f783f62be7c6b3e2ad55ab59992653792024270389f5cbd6f92eaa55",
+      "device": "P800",
+      "physical_card": 0,
+      "checks": {
+        "pci": true,
+        "memory_empty": true,
+        "utilization_zero": true,
+        "no_processes": true,
+        "device_node_pci": true,
+        "no_compute_openers": true,
+        "owned_running_container": true
+      },
+      "occupancy_samples": 9,
+      "foreign_samples": 0,
+      "torch": "2.9.0+cu129",
+      "wrapper_sha256": {
+        "kunlun_ops/_activation.py": "b4d635572014468cb523b6e6de58694beedde2537fc7c8dfb83de2d2a9d3eed1",
+        "kunlun_ops/_xflashinfer_norm.py": "cd84095205d73cf67e55301504e46b032a22310ad594828ada2206bedce61a79"
+      },
+      "passed": 32,
+      "faster": 20,
+      "cases": [
+        {
+          "api": "gelu",
+          "group": "ops",
+          "shape": [
+            16,
+            64
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "route": "kunlun_ops.gelu / aten.gelu.out exact on XPyTorch",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0016815662384033203,
+                "rmse": 0.0001949183556240272,
+                "max_normalized": 1.5762298503629815,
+                "outside_fp32_band": 13
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0016815662384033203,
+                "rmse": 0.0001949183556240272,
+                "max_normalized": 1.5762298503629815,
+                "outside_fp32_band": 13
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.9342047330764995,
+          "synchronized_wall_us": {
+            "sdk": 18.17,
+            "eager": 16.9745
+          },
+          "stream_event_us": {
+            "sdk": 11.164541666706402,
+            "eager": 10.495375220974287
+          }
+        },
+        {
+          "api": "add_layernorm",
+          "group": "ops",
+          "shape": [
+            16,
+            64
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "route": "kunlun_ops.add_layernorm / xpu_flash_ops FP32 fused / FP16 outputs",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0020639896392822266,
+                "rmse": 0.0003536964639988338,
+                "max_normalized": 2.1281150681346217,
+                "outside_fp32_band": 81
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0020639896392822266,
+                "rmse": 0.0004144855674404457,
+                "max_normalized": 2.175627194568727,
+                "outside_fp32_band": 119
+              },
+              "not_worse": true
+            },
+            {
+              "name": "residual",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.001817941665649414,
+                "rmse": 0.0004374572196919928,
+                "max_normalized": 2.9809865113372678,
+                "outside_fp32_band": 100
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.001817941665649414,
+                "rmse": 0.0004374572196919928,
+                "max_normalized": 2.9809865113372678,
+                "outside_fp32_band": 100
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.4577559171201115,
+          "synchronized_wall_us": {
+            "sdk": 74.614,
+            "eager": 34.155
+          },
+          "stream_event_us": {
+            "sdk": 67.12620705366135,
+            "eager": 27.938958257436752
+          }
+        },
+        {
+          "api": "add_layernorm",
+          "group": "ops",
+          "shape": [
+            16,
+            64
+          ],
+          "pattern": "high_bias",
+          "status": "measured",
+          "route": "kunlun_ops.add_layernorm / xpu_flash_ops FP32 fused / FP16 outputs",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.03071880340576172,
+                "rmse": 0.010775101761280426,
+                "max_normalized": 76.25043307366546,
+                "outside_fp32_band": 989
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.05419206619262695,
+                "rmse": 0.017427255908277577,
+                "max_normalized": 134.3818163307801,
+                "outside_fp32_band": 998
+              },
+              "not_worse": true
+            },
+            {
+              "name": "residual",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0659027099609375,
+                "rmse": 0.02410948836095171,
+                "max_normalized": 2.7015096991954333,
+                "outside_fp32_band": 356
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0659027099609375,
+                "rmse": 0.02410948836095171,
+                "max_normalized": 2.7015096991954333,
+                "outside_fp32_band": 356
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.46362487070451674,
+          "synchronized_wall_us": {
+            "sdk": 73.9585,
+            "eager": 34.289
+          },
+          "stream_event_us": {
+            "sdk": 65.97541769345602,
+            "eager": 27.68158291776975
+          }
+        },
+        {
+          "api": "matmul",
+          "group": "ops",
+          "shape": [
+            16,
+            64
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            64,
+            64
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0017383098602294922,
+                "rmse": 0.000376727033063544,
+                "max_normalized": 2.6089819236014007,
+                "outside_fp32_band": 163
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0017383098602294922,
+                "rmse": 0.000376727033063544,
+                "max_normalized": 2.6089819236014007,
+                "outside_fp32_band": 163
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.5292930629527937,
+          "synchronized_wall_us": {
+            "sdk": 15.1145,
+            "eager": 23.1145
+          },
+          "stream_event_us": {
+            "sdk": 8.819208480417728,
+            "eager": 15.752708539366722
+          }
+        },
+        {
+          "api": "matmul_v2",
+          "group": "ops",
+          "shape": [
+            16,
+            64
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            64,
+            64
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0017383098602294922,
+                "rmse": 0.000376727033063544,
+                "max_normalized": 2.6089819236014007,
+                "outside_fp32_band": 163
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0017383098602294922,
+                "rmse": 0.000376727033063544,
+                "max_normalized": 2.6089819236014007,
+                "outside_fp32_band": 163
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.5127957669140404,
+          "synchronized_wall_us": {
+            "sdk": 15.0245,
+            "eager": 22.729
+          },
+          "stream_event_us": {
+            "sdk": 8.916208520531654,
+            "eager": 15.722124526898066
+          }
+        },
+        {
+          "api": "bmm",
+          "group": "ops",
+          "shape": [
+            2,
+            16,
+            64
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            2,
+            64,
+            64
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 2048,
+                "nonfinite": 0,
+                "max_abs": 0.0015997886657714844,
+                "rmse": 0.0003678340293069825,
+                "max_normalized": 3.151351214413003,
+                "outside_fp32_band": 277
+              },
+              "fp16_eager": {
+                "elements": 2048,
+                "nonfinite": 0,
+                "max_abs": 0.0015997886657714844,
+                "rmse": 0.0003678340293069825,
+                "max_normalized": 3.151351214413003,
+                "outside_fp32_band": 277
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.7336279784780937,
+          "synchronized_wall_us": {
+            "sdk": 13.01,
+            "eager": 22.554499999999997
+          },
+          "stream_event_us": {
+            "sdk": 7.304166754086813,
+            "eager": 14.918167144060135
+          }
+        },
+        {
+          "api": "relu",
+          "group": "ops",
+          "shape": [
+            16,
+            64
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0008935928344726562,
+                "rmse": 0.0001549681799226312,
+                "max_normalized": 0.9463597333890954,
+                "outside_fp32_band": 0
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0008935928344726562,
+                "rmse": 0.0001549681799226312,
+                "max_normalized": 0.9463597333890954,
+                "outside_fp32_band": 0
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.2772687101725664,
+          "synchronized_wall_us": {
+            "sdk": 10.7495,
+            "eager": 13.73
+          },
+          "stream_event_us": {
+            "sdk": 5.2980417385697365,
+            "eager": 8.527166830996673
+          }
+        },
+        {
+          "api": "silu",
+          "group": "ops",
+          "shape": [
+            16,
+            64
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.001333475112915039,
+                "rmse": 0.00019123654445691077,
+                "max_normalized": 1.508824060611025,
+                "outside_fp32_band": 18
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.001333475112915039,
+                "rmse": 0.00019123654445691077,
+                "max_normalized": 1.508824060611025,
+                "outside_fp32_band": 18
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.2410518109008433,
+          "synchronized_wall_us": {
+            "sdk": 14.109,
+            "eager": 17.509999999999998
+          },
+          "stream_event_us": {
+            "sdk": 5.725583372016748,
+            "eager": 10.301666644712288
+          }
+        },
+        {
+          "api": "gelu",
+          "group": "ops",
+          "shape": [
+            64,
+            1024
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "route": "kunlun_ops.gelu / aten.gelu.out exact on XPyTorch",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.0019233226776123047,
+                "rmse": 0.00020558543306404257,
+                "max_normalized": 2.0038852836918526,
+                "outside_fp32_band": 1213
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.0019233226776123047,
+                "rmse": 0.00020558543306404257,
+                "max_normalized": 2.0038852836918526,
+                "outside_fp32_band": 1213
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.9536669185210461,
+          "synchronized_wall_us": {
+            "sdk": 20.514499999999998,
+            "eager": 19.564
+          },
+          "stream_event_us": {
+            "sdk": 10.792041197419167,
+            "eager": 10.615707995990913
+          }
+        },
+        {
+          "api": "add_layernorm",
+          "group": "ops",
+          "shape": [
+            64,
+            1024
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "route": "kunlun_ops.add_layernorm / xpu_flash_ops FP32 fused / FP16 outputs",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.003376483917236328,
+                "rmse": 0.00036994027454635025,
+                "max_normalized": 3.8691876196628545,
+                "outside_fp32_band": 5760
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.0036954879760742188,
+                "rmse": 0.0004315864416784451,
+                "max_normalized": 3.8691876196628545,
+                "outside_fp32_band": 8311
+              },
+              "not_worse": true
+            },
+            {
+              "name": "residual",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.0033698081970214844,
+                "rmse": 0.0004329049305923644,
+                "max_normalized": 5.228982021142929,
+                "outside_fp32_band": 6038
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.0033698081970214844,
+                "rmse": 0.0004329049305923644,
+                "max_normalized": 5.228982021142929,
+                "outside_fp32_band": 6038
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.45758465505014007,
+          "synchronized_wall_us": {
+            "sdk": 75.4385,
+            "eager": 34.519499999999994
+          },
+          "stream_event_us": {
+            "sdk": 65.80258160829544,
+            "eager": 27.813750008742012
+          }
+        },
+        {
+          "api": "add_layernorm",
+          "group": "ops",
+          "shape": [
+            64,
+            1024
+          ],
+          "pattern": "high_bias",
+          "status": "measured",
+          "route": "kunlun_ops.add_layernorm / xpu_flash_ops FP32 fused / FP16 outputs",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.02999359369277954,
+                "rmse": 0.010422485467536198,
+                "max_normalized": 87.50929269635847,
+                "outside_fp32_band": 63159
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.05343818664550781,
+                "rmse": 0.016801381131382697,
+                "max_normalized": 147.8481578549375,
+                "outside_fp32_band": 64016
+              },
+              "not_worse": true
+            },
+            {
+              "name": "residual",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.06995391845703125,
+                "rmse": 0.023822662457988756,
+                "max_normalized": 2.8412313770979645,
+                "outside_fp32_band": 21696
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.06995391845703125,
+                "rmse": 0.023822662457988756,
+                "max_normalized": 2.8412313770979645,
+                "outside_fp32_band": 21696
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.45735336549752736,
+          "synchronized_wall_us": {
+            "sdk": 74.5135,
+            "eager": 34.079
+          },
+          "stream_event_us": {
+            "sdk": 66.80820882320404,
+            "eager": 27.55008265376091
+          }
+        },
+        {
+          "api": "matmul",
+          "group": "ops",
+          "shape": [
+            64,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            512,
+            1024
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.001708984375,
+                "rmse": 0.0003574082088057856,
+                "max_normalized": 4.170064944602181,
+                "outside_fp32_band": 9121
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.001708984375,
+                "rmse": 0.0003574082088057856,
+                "max_normalized": 4.170064944602181,
+                "outside_fp32_band": 9121
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.308366647629926,
+          "synchronized_wall_us": {
+            "sdk": 17.509999999999998,
+            "eager": 22.9095
+          },
+          "stream_event_us": {
+            "sdk": 8.730583203335604,
+            "eager": 16.212541610002518
+          }
+        },
+        {
+          "api": "matmul_v2",
+          "group": "ops",
+          "shape": [
+            64,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            512,
+            1024
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.001708984375,
+                "rmse": 0.0003574082088057856,
+                "max_normalized": 4.170064944602181,
+                "outside_fp32_band": 9121
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.001708984375,
+                "rmse": 0.0003574082088057856,
+                "max_normalized": 4.170064944602181,
+                "outside_fp32_band": 9121
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.3354167255861307,
+          "synchronized_wall_us": {
+            "sdk": 17.6795,
+            "eager": 23.609499999999997
+          },
+          "stream_event_us": {
+            "sdk": 8.967208365599316,
+            "eager": 16.278874749938645
+          }
+        },
+        {
+          "api": "bmm",
+          "group": "ops",
+          "shape": [
+            2,
+            64,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            2,
+            512,
+            1024
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 131072,
+                "nonfinite": 0,
+                "max_abs": 0.00196075439453125,
+                "rmse": 0.00035884396120026225,
+                "max_normalized": 3.8582975406923388,
+                "outside_fp32_band": 18580
+              },
+              "fp16_eager": {
+                "elements": 131072,
+                "nonfinite": 0,
+                "max_abs": 0.00196075439453125,
+                "rmse": 0.00035884396120026225,
+                "max_normalized": 3.8582975406923388,
+                "outside_fp32_band": 18580
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.339359471969115,
+          "synchronized_wall_us": {
+            "sdk": 24.0895,
+            "eager": 32.2645
+          },
+          "stream_event_us": {
+            "sdk": 13.771708433826763,
+            "eager": 16.184416289130844
+          }
+        },
+        {
+          "api": "relu",
+          "group": "ops",
+          "shape": [
+            64,
+            1024
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.0017390251159667969,
+                "rmse": 0.00014746983068291393,
+                "max_normalized": 1.1490755550102674,
+                "outside_fp32_band": 29
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.0017390251159667969,
+                "rmse": 0.00014746983068291393,
+                "max_normalized": 1.1490755550102674,
+                "outside_fp32_band": 29
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.213144449605202,
+          "synchronized_wall_us": {
+            "sdk": 10.765,
+            "eager": 13.0595
+          },
+          "stream_event_us": {
+            "sdk": 5.2726250141859055,
+            "eager": 8.50937484453122
+          }
+        },
+        {
+          "api": "silu",
+          "group": "ops",
+          "shape": [
+            64,
+            1024
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.002655506134033203,
+                "rmse": 0.00019468229198013186,
+                "max_normalized": 2.124600262590704,
+                "outside_fp32_band": 1040
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.002655506134033203,
+                "rmse": 0.00019468229198013186,
+                "max_normalized": 2.124600262590704,
+                "outside_fp32_band": 1040
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.2497976705725045,
+          "synchronized_wall_us": {
+            "sdk": 14.209499999999998,
+            "eager": 17.759
+          },
+          "stream_event_us": {
+            "sdk": 6.046208242575327,
+            "eager": 10.099708413084347
+          }
+        },
+        {
+          "api": "gelu",
+          "group": "ops",
+          "shape": [
+            577,
+            1024
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "route": "kunlun_ops.gelu / aten.gelu.out exact on XPyTorch",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.002003908157348633,
+                "rmse": 0.0002075349533664036,
+                "max_normalized": 2.172837017141314,
+                "outside_fp32_band": 11122
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.002003908157348633,
+                "rmse": 0.0002075349533664036,
+                "max_normalized": 2.172837017141314,
+                "outside_fp32_band": 11122
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.9851836885880729,
+          "synchronized_wall_us": {
+            "sdk": 59.394,
+            "eager": 58.514
+          },
+          "stream_event_us": {
+            "sdk": 46.21437440315882,
+            "eager": 46.07312629620235
+          }
+        },
+        {
+          "api": "add_layernorm",
+          "group": "ops",
+          "shape": [
+            577,
+            1024
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "route": "kunlun_ops.add_layernorm / xpu_flash_ops FP32 fused / FP16 outputs",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.003940105438232422,
+                "rmse": 0.0003718783144096701,
+                "max_normalized": 4.222706866986134,
+                "outside_fp32_band": 52255
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.0043468475341796875,
+                "rmse": 0.00043500277971975716,
+                "max_normalized": 4.222706866986134,
+                "outside_fp32_band": 75470
+              },
+              "not_worse": true
+            },
+            {
+              "name": "residual",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.0036497116088867188,
+                "rmse": 0.0004322202414278964,
+                "max_normalized": 5.792447515595301,
+                "outside_fp32_band": 54161
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.0036497116088867188,
+                "rmse": 0.0004322202414278964,
+                "max_normalized": 5.792447515595301,
+                "outside_fp32_band": 54161
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.4641075965532539,
+          "synchronized_wall_us": {
+            "sdk": 74.389,
+            "eager": 34.5245
+          },
+          "stream_event_us": {
+            "sdk": 66.4106657107671,
+            "eager": 28.19362531105677
+          }
+        },
+        {
+          "api": "add_layernorm",
+          "group": "ops",
+          "shape": [
+            577,
+            1024
+          ],
+          "pattern": "high_bias",
+          "status": "measured",
+          "route": "kunlun_ops.add_layernorm / xpu_flash_ops FP32 fused / FP16 outputs",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.03127419948577881,
+                "rmse": 0.010462587973955379,
+                "max_normalized": 89.61650770931263,
+                "outside_fp32_band": 569305
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.05483520030975342,
+                "rmse": 0.01693721210175646,
+                "max_normalized": 165.98674400183694,
+                "outside_fp32_band": 577040
+              },
+              "not_worse": true
+            },
+            {
+              "name": "residual",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.06998443603515625,
+                "rmse": 0.02381781940648723,
+                "max_normalized": 2.848561899679746,
+                "outside_fp32_band": 196374
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.06998443603515625,
+                "rmse": 0.02381781940648723,
+                "max_normalized": 2.848561899679746,
+                "outside_fp32_band": 196374
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.44939880097378737,
+          "synchronized_wall_us": {
+            "sdk": 74.14349999999999,
+            "eager": 33.32
+          },
+          "stream_event_us": {
+            "sdk": 66.17575138807297,
+            "eager": 27.9507910211881
+          }
+        },
+        {
+          "api": "matmul",
+          "group": "ops",
+          "shape": [
+            577,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            512,
+            1024
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.002483844757080078,
+                "rmse": 0.0003590067620377896,
+                "max_normalized": 4.033675221264458,
+                "outside_fp32_band": 83734
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.002483844757080078,
+                "rmse": 0.0003590067620377896,
+                "max_normalized": 4.033675221264458,
+                "outside_fp32_band": 83734
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.2665589271069517,
+          "synchronized_wall_us": {
+            "sdk": 20.729,
+            "eager": 26.2545
+          },
+          "stream_event_us": {
+            "sdk": 9.289166890084743,
+            "eager": 16.008625427881874
+          }
+        },
+        {
+          "api": "matmul_v2",
+          "group": "ops",
+          "shape": [
+            577,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            512,
+            1024
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.002483844757080078,
+                "rmse": 0.0003590067620377896,
+                "max_normalized": 4.033675221264458,
+                "outside_fp32_band": 83734
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.002483844757080078,
+                "rmse": 0.0003590067620377896,
+                "max_normalized": 4.033675221264458,
+                "outside_fp32_band": 83734
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.2595535649786898,
+          "synchronized_wall_us": {
+            "sdk": 20.764499999999998,
+            "eager": 26.154
+          },
+          "stream_event_us": {
+            "sdk": 9.262250115474066,
+            "eager": 15.860166400671005
+          }
+        },
+        {
+          "api": "bmm",
+          "group": "ops",
+          "shape": [
+            2,
+            577,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            2,
+            512,
+            1024
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 1181696,
+                "nonfinite": 0,
+                "max_abs": 0.0026025772094726562,
+                "rmse": 0.000358671490221043,
+                "max_normalized": 4.307938529727517,
+                "outside_fp32_band": 167212
+              },
+              "fp16_eager": {
+                "elements": 1181696,
+                "nonfinite": 0,
+                "max_abs": 0.0026025772094726562,
+                "rmse": 0.000358671490221043,
+                "max_normalized": 4.307938529727517,
+                "outside_fp32_band": 167212
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.1928950530743039,
+          "synchronized_wall_us": {
+            "sdk": 39.944,
+            "eager": 47.649
+          },
+          "stream_event_us": {
+            "sdk": 28.78808230161667,
+            "eager": 29.59524964292844
+          }
+        },
+        {
+          "api": "relu",
+          "group": "ops",
+          "shape": [
+            577,
+            1024
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.0018143653869628906,
+                "rmse": 0.0001469072034869861,
+                "max_normalized": 1.1321522827834927,
+                "outside_fp32_band": 304
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.0018143653869628906,
+                "rmse": 0.0001469072034869861,
+                "max_normalized": 1.1321522827834927,
+                "outside_fp32_band": 304
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.1667356226727348,
+          "synchronized_wall_us": {
+            "sdk": 12.085,
+            "eager": 14.1
+          },
+          "stream_event_us": {
+            "sdk": 5.320416763424873,
+            "eager": 8.5657499730587
+          }
+        },
+        {
+          "api": "silu",
+          "group": "ops",
+          "shape": [
+            577,
+            1024
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.002895832061767578,
+                "rmse": 0.00019332524956682876,
+                "max_normalized": 2.1326279984491894,
+                "outside_fp32_band": 9012
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.002895832061767578,
+                "rmse": 0.00019332524956682876,
+                "max_normalized": 2.1326279984491894,
+                "outside_fp32_band": 9012
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.1737423312883435,
+          "synchronized_wall_us": {
+            "sdk": 20.375,
+            "eager": 23.915
+          },
+          "stream_event_us": {
+            "sdk": 12.01658385495345,
+            "eager": 12.322458749016125
+          }
+        },
+        {
+          "api": "gelu",
+          "group": "ops",
+          "shape": [
+            2048,
+            2048
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "route": "kunlun_ops.gelu / aten.gelu.out exact on XPyTorch",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.0020079612731933594,
+                "rmse": 0.0002077763188883131,
+                "max_normalized": 2.196647299506661,
+                "outside_fp32_band": 78944
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.0020079612731933594,
+                "rmse": 0.0002077763188883131,
+                "max_normalized": 2.196647299506661,
+                "outside_fp32_band": 78944
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.9949834749763928,
+          "synchronized_wall_us": {
+            "sdk": 237.216,
+            "eager": 236.026
+          },
+          "stream_event_us": {
+            "sdk": 223.01678856213886,
+            "eager": 222.88004557291669
+          }
+        },
+        {
+          "api": "add_layernorm",
+          "group": "ops",
+          "shape": [
+            2048,
+            2048
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "route": "kunlun_ops.add_layernorm / xpu_flash_ops FP32 fused / FP16 outputs",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.004788398742675781,
+                "rmse": 0.00036800498751127464,
+                "max_normalized": 4.529667519596646,
+                "outside_fp32_band": 362328
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.00530242919921875,
+                "rmse": 0.0004311674741065677,
+                "max_normalized": 4.529667519596646,
+                "outside_fp32_band": 526371
+              },
+              "not_worse": true
+            },
+            {
+              "name": "residual",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.0038423538208007812,
+                "rmse": 0.0004327062740759267,
+                "max_normalized": 6.107561122601616,
+                "outside_fp32_band": 385812
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.0038423538208007812,
+                "rmse": 0.0004327062740759267,
+                "max_normalized": 6.107561122601616,
+                "outside_fp32_band": 385812
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.35196988429813064,
+          "synchronized_wall_us": {
+            "sdk": 135.47750000000002,
+            "eager": 47.684
+          },
+          "stream_event_us": {
+            "sdk": 111.0566258430481,
+            "eager": 34.34533253312111
+          }
+        },
+        {
+          "api": "add_layernorm",
+          "group": "ops",
+          "shape": [
+            2048,
+            2048
+          ],
+          "pattern": "high_bias",
+          "status": "measured",
+          "route": "kunlun_ops.add_layernorm / xpu_flash_ops FP32 fused / FP16 outputs",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.03337740898132324,
+                "rmse": 0.010403110730812152,
+                "max_normalized": 99.89475138903488,
+                "outside_fp32_band": 4040603
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.05666637420654297,
+                "rmse": 0.016859022786331796,
+                "max_normalized": 167.3743211520747,
+                "outside_fp32_band": 4096320
+              },
+              "not_worse": true
+            },
+            {
+              "name": "residual",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.0702362060546875,
+                "rmse": 0.02382927744437478,
+                "max_normalized": 2.8809253238973787,
+                "outside_fp32_band": 1396984
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.0702362060546875,
+                "rmse": 0.02382927744437478,
+                "max_normalized": 2.8809253238973787,
+                "outside_fp32_band": 1396984
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.3527171622311122,
+          "synchronized_wall_us": {
+            "sdk": 135.233,
+            "eager": 47.699
+          },
+          "stream_event_us": {
+            "sdk": 110.91099679470062,
+            "eager": 34.31462496519089
+          }
+        },
+        {
+          "api": "matmul",
+          "group": "ops",
+          "shape": [
+            2048,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            512,
+            2048
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.002506256103515625,
+                "rmse": 0.0003589853412816009,
+                "max_normalized": 4.786701537893557,
+                "outside_fp32_band": 596022
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.002506256103515625,
+                "rmse": 0.0003589853412816009,
+                "max_normalized": 4.786701537893557,
+                "outside_fp32_band": 596022
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.1827904643889773,
+          "synchronized_wall_us": {
+            "sdk": 33.894000000000005,
+            "eager": 40.0895
+          },
+          "stream_event_us": {
+            "sdk": 22.67108236749967,
+            "eager": 23.180541892846424
+          }
+        },
+        {
+          "api": "matmul_v2",
+          "group": "ops",
+          "shape": [
+            2048,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            512,
+            2048
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.002506256103515625,
+                "rmse": 0.0003589853412816009,
+                "max_normalized": 4.786701537893557,
+                "outside_fp32_band": 596022
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.002506256103515625,
+                "rmse": 0.0003589853412816009,
+                "max_normalized": 4.786701537893557,
+                "outside_fp32_band": 596022
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.1682274542038515,
+          "synchronized_wall_us": {
+            "sdk": 34.064,
+            "eager": 39.7945
+          },
+          "stream_event_us": {
+            "sdk": 22.64425034324328,
+            "eager": 23.12220881382624
+          }
+        },
+        {
+          "api": "bmm",
+          "group": "ops",
+          "shape": [
+            2,
+            2048,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            2,
+            512,
+            2048
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 8388608,
+                "nonfinite": 0,
+                "max_abs": 0.002772808074951172,
+                "rmse": 0.0003597652099317223,
+                "max_normalized": 4.855770037010137,
+                "outside_fp32_band": 1198579
+              },
+              "fp16_eager": {
+                "elements": 8388608,
+                "nonfinite": 0,
+                "max_abs": 0.002772808074951172,
+                "rmse": 0.0003597652099317223,
+                "max_normalized": 4.855770037010137,
+                "outside_fp32_band": 1198579
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.0498033225804548,
+          "synchronized_wall_us": {
+            "sdk": 169.567,
+            "eager": 178.012
+          },
+          "stream_event_us": {
+            "sdk": 155.8456669251124,
+            "eager": 156.6130816936493
+          }
+        },
+        {
+          "api": "relu",
+          "group": "ops",
+          "shape": [
+            2048,
+            2048
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.00191497802734375,
+                "rmse": 0.00014687456356139063,
+                "max_normalized": 1.2177482908951347,
+                "outside_fp32_band": 1933
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.00191497802734375,
+                "rmse": 0.00014687456356139063,
+                "max_normalized": 1.2177482908951347,
+                "outside_fp32_band": 1933
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.1112313240597629,
+          "synchronized_wall_us": {
+            "sdk": 19.41,
+            "eager": 21.569
+          },
+          "stream_event_us": {
+            "sdk": 11.030125121275583,
+            "eager": 11.21175040801366
+          }
+        },
+        {
+          "api": "silu",
+          "group": "ops",
+          "shape": [
+            2048,
+            2048
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.0037059783935546875,
+                "rmse": 0.00019336209351252017,
+                "max_normalized": 2.300905934446712,
+                "outside_fp32_band": 64499
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.0037059783935546875,
+                "rmse": 0.00019336209351252017,
+                "max_normalized": 2.300905934446712,
+                "outside_fp32_band": 64499
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.0573030401585903,
+          "synchronized_wall_us": {
+            "sdk": 64.56899999999999,
+            "eager": 68.269
+          },
+          "stream_event_us": {
+            "sdk": 55.51550040642421,
+            "eager": 55.78595896561941
+          }
+        }
+      ]
+    },
+    {
+      "receipt": "review-local/p800-interface-benchmark-20261126/replica-ops-43.138.5.189-0-20261125T181246829888Z.json",
+      "receipt_sha256": "ddbdc383c8d4871d276b5b792ffe70dcc9667223b30817e4c152659b522eb0b5",
+      "source_sha256": {
+        "benchmark.py": "1e54e3d1628c8eb8f00fc43176cf80b0326ee7d1ae1cac78082558ef9ac0ca7a"
+      },
+      "image": "sha256:63580d62f783f62be7c6b3e2ad55ab59992653792024270389f5cbd6f92eaa55",
+      "device": "P800",
+      "physical_card": 0,
+      "checks": {
+        "pci": true,
+        "memory_empty": true,
+        "utilization_zero": true,
+        "no_processes": true,
+        "device_node_pci": true,
+        "no_compute_openers": true,
+        "owned_running_container": true
+      },
+      "occupancy_samples": 9,
+      "foreign_samples": 0,
+      "torch": "2.9.0+cu129",
+      "wrapper_sha256": {
+        "kunlun_ops/_activation.py": "b4d635572014468cb523b6e6de58694beedde2537fc7c8dfb83de2d2a9d3eed1",
+        "kunlun_ops/_xflashinfer_norm.py": "cd84095205d73cf67e55301504e46b032a22310ad594828ada2206bedce61a79"
+      },
+      "passed": 32,
+      "faster": 20,
+      "cases": [
+        {
+          "api": "gelu",
+          "group": "ops",
+          "shape": [
+            16,
+            64
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "route": "kunlun_ops.gelu / aten.gelu.out exact on XPyTorch",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0016815662384033203,
+                "rmse": 0.0001949183556240272,
+                "max_normalized": 1.5762298503629815,
+                "outside_fp32_band": 13
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0016815662384033203,
+                "rmse": 0.0001949183556240272,
+                "max_normalized": 1.5762298503629815,
+                "outside_fp32_band": 13
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.933405816798043,
+          "synchronized_wall_us": {
+            "sdk": 18.395,
+            "eager": 17.17
+          },
+          "stream_event_us": {
+            "sdk": 11.98970836897691,
+            "eager": 10.397333341340225
+          }
+        },
+        {
+          "api": "add_layernorm",
+          "group": "ops",
+          "shape": [
+            16,
+            64
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "route": "kunlun_ops.add_layernorm / xpu_flash_ops FP32 fused / FP16 outputs",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0020639896392822266,
+                "rmse": 0.0003536964639988338,
+                "max_normalized": 2.1281150681346217,
+                "outside_fp32_band": 81
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0020639896392822266,
+                "rmse": 0.0004144855674404457,
+                "max_normalized": 2.175627194568727,
+                "outside_fp32_band": 119
+              },
+              "not_worse": true
+            },
+            {
+              "name": "residual",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.001817941665649414,
+                "rmse": 0.0004374572196919928,
+                "max_normalized": 2.9809865113372678,
+                "outside_fp32_band": 100
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.001817941665649414,
+                "rmse": 0.0004374572196919928,
+                "max_normalized": 2.9809865113372678,
+                "outside_fp32_band": 100
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.4624124648691229,
+          "synchronized_wall_us": {
+            "sdk": 74.8985,
+            "eager": 34.634
+          },
+          "stream_event_us": {
+            "sdk": 66.22600058714548,
+            "eager": 27.527499943971634
+          }
+        },
+        {
+          "api": "add_layernorm",
+          "group": "ops",
+          "shape": [
+            16,
+            64
+          ],
+          "pattern": "high_bias",
+          "status": "measured",
+          "route": "kunlun_ops.add_layernorm / xpu_flash_ops FP32 fused / FP16 outputs",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.03071880340576172,
+                "rmse": 0.010775101761280426,
+                "max_normalized": 76.25043307366546,
+                "outside_fp32_band": 989
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.05419206619262695,
+                "rmse": 0.017427255908277577,
+                "max_normalized": 134.3818163307801,
+                "outside_fp32_band": 998
+              },
+              "not_worse": true
+            },
+            {
+              "name": "residual",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0659027099609375,
+                "rmse": 0.02410948836095171,
+                "max_normalized": 2.7015096991954333,
+                "outside_fp32_band": 356
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0659027099609375,
+                "rmse": 0.02410948836095171,
+                "max_normalized": 2.7015096991954333,
+                "outside_fp32_band": 356
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.4594108174670835,
+          "synchronized_wall_us": {
+            "sdk": 73.899,
+            "eager": 33.95
+          },
+          "stream_event_us": {
+            "sdk": 65.49775103727977,
+            "eager": 27.25058297316233
+          }
+        },
+        {
+          "api": "matmul",
+          "group": "ops",
+          "shape": [
+            16,
+            64
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            64,
+            64
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0017383098602294922,
+                "rmse": 0.000376727033063544,
+                "max_normalized": 2.6089819236014007,
+                "outside_fp32_band": 163
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0017383098602294922,
+                "rmse": 0.000376727033063544,
+                "max_normalized": 2.6089819236014007,
+                "outside_fp32_band": 163
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.577746306607873,
+          "synchronized_wall_us": {
+            "sdk": 15.5345,
+            "eager": 24.509500000000003
+          },
+          "stream_event_us": {
+            "sdk": 9.033000096678734,
+            "eager": 15.880916888515156
+          }
+        },
+        {
+          "api": "matmul_v2",
+          "group": "ops",
+          "shape": [
+            16,
+            64
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            64,
+            64
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0017383098602294922,
+                "rmse": 0.000376727033063544,
+                "max_normalized": 2.6089819236014007,
+                "outside_fp32_band": 163
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0017383098602294922,
+                "rmse": 0.000376727033063544,
+                "max_normalized": 2.6089819236014007,
+                "outside_fp32_band": 163
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.5556637455371631,
+          "synchronized_wall_us": {
+            "sdk": 15.405000000000001,
+            "eager": 23.965
+          },
+          "stream_event_us": {
+            "sdk": 9.120750240981579,
+            "eager": 15.657208239038784
+          }
+        },
+        {
+          "api": "bmm",
+          "group": "ops",
+          "shape": [
+            2,
+            16,
+            64
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            2,
+            64,
+            64
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 2048,
+                "nonfinite": 0,
+                "max_abs": 0.0015997886657714844,
+                "rmse": 0.0003678340293069825,
+                "max_normalized": 3.151351214413003,
+                "outside_fp32_band": 277
+              },
+              "fp16_eager": {
+                "elements": 2048,
+                "nonfinite": 0,
+                "max_abs": 0.0015997886657714844,
+                "rmse": 0.0003678340293069825,
+                "max_normalized": 3.151351214413003,
+                "outside_fp32_band": 277
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.720847651775487,
+          "synchronized_wall_us": {
+            "sdk": 13.095,
+            "eager": 22.5345
+          },
+          "stream_event_us": {
+            "sdk": 7.493041766186556,
+            "eager": 14.944832772016525
+          }
+        },
+        {
+          "api": "relu",
+          "group": "ops",
+          "shape": [
+            16,
+            64
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0008935928344726562,
+                "rmse": 0.0001549681799226312,
+                "max_normalized": 0.9463597333890954,
+                "outside_fp32_band": 0
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.0008935928344726562,
+                "rmse": 0.0001549681799226312,
+                "max_normalized": 0.9463597333890954,
+                "outside_fp32_band": 0
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.2493212669683258,
+          "synchronized_wall_us": {
+            "sdk": 11.05,
+            "eager": 13.805
+          },
+          "stream_event_us": {
+            "sdk": 5.525208388765653,
+            "eager": 8.581375082333881
+          }
+        },
+        {
+          "api": "silu",
+          "group": "ops",
+          "shape": [
+            16,
+            64
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.001333475112915039,
+                "rmse": 0.00019123654445691077,
+                "max_normalized": 1.508824060611025,
+                "outside_fp32_band": 18
+              },
+              "fp16_eager": {
+                "elements": 1024,
+                "nonfinite": 0,
+                "max_abs": 0.001333475112915039,
+                "rmse": 0.00019123654445691077,
+                "max_normalized": 1.508824060611025,
+                "outside_fp32_band": 18
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.218163904430135,
+          "synchronized_wall_us": {
+            "sdk": 14.209499999999998,
+            "eager": 17.3095
+          },
+          "stream_event_us": {
+            "sdk": 5.688666676481565,
+            "eager": 10.197916689018408
+          }
+        },
+        {
+          "api": "gelu",
+          "group": "ops",
+          "shape": [
+            64,
+            1024
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "route": "kunlun_ops.gelu / aten.gelu.out exact on XPyTorch",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.0019233226776123047,
+                "rmse": 0.00020558543306404257,
+                "max_normalized": 2.0038852836918526,
+                "outside_fp32_band": 1213
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.0019233226776123047,
+                "rmse": 0.00020558543306404257,
+                "max_normalized": 2.0038852836918526,
+                "outside_fp32_band": 1213
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.9452277131782947,
+          "synchronized_wall_us": {
+            "sdk": 20.64,
+            "eager": 19.509500000000003
+          },
+          "stream_event_us": {
+            "sdk": 10.953124612569809,
+            "eager": 10.67500002682209
+          }
+        },
+        {
+          "api": "add_layernorm",
+          "group": "ops",
+          "shape": [
+            64,
+            1024
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "route": "kunlun_ops.add_layernorm / xpu_flash_ops FP32 fused / FP16 outputs",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.003376483917236328,
+                "rmse": 0.00036994027454635025,
+                "max_normalized": 3.8691876196628545,
+                "outside_fp32_band": 5760
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.0036954879760742188,
+                "rmse": 0.0004315864416784451,
+                "max_normalized": 3.8691876196628545,
+                "outside_fp32_band": 8311
+              },
+              "not_worse": true
+            },
+            {
+              "name": "residual",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.0033698081970214844,
+                "rmse": 0.0004329049305923644,
+                "max_normalized": 5.228982021142929,
+                "outside_fp32_band": 6038
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.0033698081970214844,
+                "rmse": 0.0004329049305923644,
+                "max_normalized": 5.228982021142929,
+                "outside_fp32_band": 6038
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.4720782693082118,
+          "synchronized_wall_us": {
+            "sdk": 75.7385,
+            "eager": 35.7545
+          },
+          "stream_event_us": {
+            "sdk": 65.75062374273935,
+            "eager": 27.70516648888588
+          }
+        },
+        {
+          "api": "add_layernorm",
+          "group": "ops",
+          "shape": [
+            64,
+            1024
+          ],
+          "pattern": "high_bias",
+          "status": "measured",
+          "route": "kunlun_ops.add_layernorm / xpu_flash_ops FP32 fused / FP16 outputs",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.02999359369277954,
+                "rmse": 0.010422485467536198,
+                "max_normalized": 87.50929269635847,
+                "outside_fp32_band": 63159
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.05343818664550781,
+                "rmse": 0.016801381131382697,
+                "max_normalized": 147.8481578549375,
+                "outside_fp32_band": 64016
+              },
+              "not_worse": true
+            },
+            {
+              "name": "residual",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.06995391845703125,
+                "rmse": 0.023822662457988756,
+                "max_normalized": 2.8412313770979645,
+                "outside_fp32_band": 21696
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.06995391845703125,
+                "rmse": 0.023822662457988756,
+                "max_normalized": 2.8412313770979645,
+                "outside_fp32_band": 21696
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.4599501459630226,
+          "synchronized_wall_us": {
+            "sdk": 75.019,
+            "eager": 34.504999999999995
+          },
+          "stream_event_us": {
+            "sdk": 66.59979373216629,
+            "eager": 27.175708363453545
+          }
+        },
+        {
+          "api": "matmul",
+          "group": "ops",
+          "shape": [
+            64,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            512,
+            1024
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.001708984375,
+                "rmse": 0.0003574082088057856,
+                "max_normalized": 4.170064944602181,
+                "outside_fp32_band": 9121
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.001708984375,
+                "rmse": 0.0003574082088057856,
+                "max_normalized": 4.170064944602181,
+                "outside_fp32_band": 9121
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.2810332062847902,
+          "synchronized_wall_us": {
+            "sdk": 18.234499999999997,
+            "eager": 23.359
+          },
+          "stream_event_us": {
+            "sdk": 9.128541685640812,
+            "eager": 15.64350041250388
+          }
+        },
+        {
+          "api": "matmul_v2",
+          "group": "ops",
+          "shape": [
+            64,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            512,
+            1024
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.001708984375,
+                "rmse": 0.0003574082088057856,
+                "max_normalized": 4.170064944602181,
+                "outside_fp32_band": 9121
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.001708984375,
+                "rmse": 0.0003574082088057856,
+                "max_normalized": 4.170064944602181,
+                "outside_fp32_band": 9121
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.3092355011222254,
+          "synchronized_wall_us": {
+            "sdk": 18.0445,
+            "eager": 23.624499999999998
+          },
+          "stream_event_us": {
+            "sdk": 9.083750036855538,
+            "eager": 15.777833759784698
+          }
+        },
+        {
+          "api": "bmm",
+          "group": "ops",
+          "shape": [
+            2,
+            64,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            2,
+            512,
+            1024
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 131072,
+                "nonfinite": 0,
+                "max_abs": 0.00196075439453125,
+                "rmse": 0.00035884396120026225,
+                "max_normalized": 3.8582975406923388,
+                "outside_fp32_band": 18580
+              },
+              "fp16_eager": {
+                "elements": 131072,
+                "nonfinite": 0,
+                "max_abs": 0.00196075439453125,
+                "rmse": 0.00035884396120026225,
+                "max_normalized": 3.8582975406923388,
+                "outside_fp32_band": 18580
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.3070985099337749,
+          "synchronized_wall_us": {
+            "sdk": 24.16,
+            "eager": 31.5795
+          },
+          "stream_event_us": {
+            "sdk": 13.808249806364376,
+            "eager": 15.630957980950672
+          }
+        },
+        {
+          "api": "relu",
+          "group": "ops",
+          "shape": [
+            64,
+            1024
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.0017390251159667969,
+                "rmse": 0.00014746983068291393,
+                "max_normalized": 1.1490755550102674,
+                "outside_fp32_band": 29
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.0017390251159667969,
+                "rmse": 0.00014746983068291393,
+                "max_normalized": 1.1490755550102674,
+                "outside_fp32_band": 29
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.1959726064674137,
+          "synchronized_wall_us": {
+            "sdk": 11.0245,
+            "eager": 13.185
+          },
+          "stream_event_us": {
+            "sdk": 5.478958288828532,
+            "eager": 8.578041568398476
+          }
+        },
+        {
+          "api": "silu",
+          "group": "ops",
+          "shape": [
+            64,
+            1024
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.002655506134033203,
+                "rmse": 0.00019468229198013186,
+                "max_normalized": 2.124600262590704,
+                "outside_fp32_band": 1040
+              },
+              "fp16_eager": {
+                "elements": 65536,
+                "nonfinite": 0,
+                "max_abs": 0.002655506134033203,
+                "rmse": 0.00019468229198013186,
+                "max_normalized": 2.124600262590704,
+                "outside_fp32_band": 1040
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.2363873716032843,
+          "synchronized_wall_us": {
+            "sdk": 14.5545,
+            "eager": 17.995
+          },
+          "stream_event_us": {
+            "sdk": 6.075666906932989,
+            "eager": 10.261000134050846
+          }
+        },
+        {
+          "api": "gelu",
+          "group": "ops",
+          "shape": [
+            577,
+            1024
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "route": "kunlun_ops.gelu / aten.gelu.out exact on XPyTorch",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.002003908157348633,
+                "rmse": 0.0002075349533664036,
+                "max_normalized": 2.172837017141314,
+                "outside_fp32_band": 11122
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.002003908157348633,
+                "rmse": 0.0002075349533664036,
+                "max_normalized": 2.172837017141314,
+                "outside_fp32_band": 11122
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.9784029983697206,
+          "synchronized_wall_us": {
+            "sdk": 59.498999999999995,
+            "eager": 58.214
+          },
+          "stream_event_us": {
+            "sdk": 46.11712445815404,
+            "eager": 46.023085713386536
+          }
+        },
+        {
+          "api": "add_layernorm",
+          "group": "ops",
+          "shape": [
+            577,
+            1024
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "route": "kunlun_ops.add_layernorm / xpu_flash_ops FP32 fused / FP16 outputs",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.003940105438232422,
+                "rmse": 0.0003718783144096701,
+                "max_normalized": 4.222706866986134,
+                "outside_fp32_band": 52255
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.0043468475341796875,
+                "rmse": 0.00043500277971975716,
+                "max_normalized": 4.222706866986134,
+                "outside_fp32_band": 75470
+              },
+              "not_worse": true
+            },
+            {
+              "name": "residual",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.0036497116088867188,
+                "rmse": 0.0004322202414278964,
+                "max_normalized": 5.792447515595301,
+                "outside_fp32_band": 54161
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.0036497116088867188,
+                "rmse": 0.0004322202414278964,
+                "max_normalized": 5.792447515595301,
+                "outside_fp32_band": 54161
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.46995373304169474,
+          "synchronized_wall_us": {
+            "sdk": 73.3785,
+            "eager": 34.4845
+          },
+          "stream_event_us": {
+            "sdk": 66.24679267406464,
+            "eager": 27.81533325711886
+          }
+        },
+        {
+          "api": "add_layernorm",
+          "group": "ops",
+          "shape": [
+            577,
+            1024
+          ],
+          "pattern": "high_bias",
+          "status": "measured",
+          "route": "kunlun_ops.add_layernorm / xpu_flash_ops FP32 fused / FP16 outputs",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.03127419948577881,
+                "rmse": 0.010462587973955379,
+                "max_normalized": 89.61650770931263,
+                "outside_fp32_band": 569305
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.05483520030975342,
+                "rmse": 0.01693721210175646,
+                "max_normalized": 165.98674400183694,
+                "outside_fp32_band": 577040
+              },
+              "not_worse": true
+            },
+            {
+              "name": "residual",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.06998443603515625,
+                "rmse": 0.02381781940648723,
+                "max_normalized": 2.848561899679746,
+                "outside_fp32_band": 196374
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.06998443603515625,
+                "rmse": 0.02381781940648723,
+                "max_normalized": 2.848561899679746,
+                "outside_fp32_band": 196374
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.459693130365852,
+          "synchronized_wall_us": {
+            "sdk": 74.429,
+            "eager": 34.2145
+          },
+          "stream_event_us": {
+            "sdk": 65.70375214020412,
+            "eager": 27.46995911002159
+          }
+        },
+        {
+          "api": "matmul",
+          "group": "ops",
+          "shape": [
+            577,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            512,
+            1024
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.002483844757080078,
+                "rmse": 0.0003590067620377896,
+                "max_normalized": 4.033675221264458,
+                "outside_fp32_band": 83734
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.002483844757080078,
+                "rmse": 0.0003590067620377896,
+                "max_normalized": 4.033675221264458,
+                "outside_fp32_band": 83734
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.318838122002035,
+          "synchronized_wall_us": {
+            "sdk": 20.639,
+            "eager": 27.2195
+          },
+          "stream_event_us": {
+            "sdk": 9.294541863103708,
+            "eager": 15.809291352828343
+          }
+        },
+        {
+          "api": "matmul_v2",
+          "group": "ops",
+          "shape": [
+            577,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            512,
+            1024
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.002483844757080078,
+                "rmse": 0.0003590067620377896,
+                "max_normalized": 4.033675221264458,
+                "outside_fp32_band": 83734
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.002483844757080078,
+                "rmse": 0.0003590067620377896,
+                "max_normalized": 4.033675221264458,
+                "outside_fp32_band": 83734
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.2459460095554142,
+          "synchronized_wall_us": {
+            "sdk": 21.244500000000002,
+            "eager": 26.4695
+          },
+          "stream_event_us": {
+            "sdk": 9.317124883333841,
+            "eager": 15.74341704448064
+          }
+        },
+        {
+          "api": "bmm",
+          "group": "ops",
+          "shape": [
+            2,
+            577,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            2,
+            512,
+            1024
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 1181696,
+                "nonfinite": 0,
+                "max_abs": 0.0026025772094726562,
+                "rmse": 0.000358671490221043,
+                "max_normalized": 4.307938529727517,
+                "outside_fp32_band": 167212
+              },
+              "fp16_eager": {
+                "elements": 1181696,
+                "nonfinite": 0,
+                "max_abs": 0.0026025772094726562,
+                "rmse": 0.000358671490221043,
+                "max_normalized": 4.307938529727517,
+                "outside_fp32_band": 167212
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.1913180683074707,
+          "synchronized_wall_us": {
+            "sdk": 40.2445,
+            "eager": 47.944
+          },
+          "stream_event_us": {
+            "sdk": 28.812708954016365,
+            "eager": 29.52174966533979
+          }
+        },
+        {
+          "api": "relu",
+          "group": "ops",
+          "shape": [
+            577,
+            1024
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.0018143653869628906,
+                "rmse": 0.0001469072034869861,
+                "max_normalized": 1.1321522827834927,
+                "outside_fp32_band": 304
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.0018143653869628906,
+                "rmse": 0.0001469072034869861,
+                "max_normalized": 1.1321522827834927,
+                "outside_fp32_band": 304
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.1394365624618887,
+          "synchronized_wall_us": {
+            "sdk": 12.299499999999998,
+            "eager": 14.0145
+          },
+          "stream_event_us": {
+            "sdk": 5.645125173032284,
+            "eager": 8.527541533112526
+          }
+        },
+        {
+          "api": "silu",
+          "group": "ops",
+          "shape": [
+            577,
+            1024
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.002895832061767578,
+                "rmse": 0.00019332524956682876,
+                "max_normalized": 2.1326279984491894,
+                "outside_fp32_band": 9012
+              },
+              "fp16_eager": {
+                "elements": 590848,
+                "nonfinite": 0,
+                "max_abs": 0.002895832061767578,
+                "rmse": 0.00019332524956682876,
+                "max_normalized": 2.1326279984491894,
+                "outside_fp32_band": 9012
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.1727178932887885,
+          "synchronized_wall_us": {
+            "sdk": 20.354,
+            "eager": 23.869500000000002
+          },
+          "stream_event_us": {
+            "sdk": 11.881124849120777,
+            "eager": 12.140500048796337
+          }
+        },
+        {
+          "api": "gelu",
+          "group": "ops",
+          "shape": [
+            2048,
+            2048
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "route": "kunlun_ops.gelu / aten.gelu.out exact on XPyTorch",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.0020079612731933594,
+                "rmse": 0.0002077763188883131,
+                "max_normalized": 2.196647299506661,
+                "outside_fp32_band": 78944
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.0020079612731933594,
+                "rmse": 0.0002077763188883131,
+                "max_normalized": 2.196647299506661,
+                "outside_fp32_band": 78944
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.9956295359323586,
+          "synchronized_wall_us": {
+            "sdk": 237.961,
+            "eager": 236.921
+          },
+          "stream_event_us": {
+            "sdk": 223.129540681839,
+            "eager": 223.11583161354065
+          }
+        },
+        {
+          "api": "add_layernorm",
+          "group": "ops",
+          "shape": [
+            2048,
+            2048
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "route": "kunlun_ops.add_layernorm / xpu_flash_ops FP32 fused / FP16 outputs",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.004788398742675781,
+                "rmse": 0.00036800498751127464,
+                "max_normalized": 4.529667519596646,
+                "outside_fp32_band": 362328
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.00530242919921875,
+                "rmse": 0.0004311674741065677,
+                "max_normalized": 4.529667519596646,
+                "outside_fp32_band": 526371
+              },
+              "not_worse": true
+            },
+            {
+              "name": "residual",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.0038423538208007812,
+                "rmse": 0.0004327062740759267,
+                "max_normalized": 6.107561122601616,
+                "outside_fp32_band": 385812
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.0038423538208007812,
+                "rmse": 0.0004327062740759267,
+                "max_normalized": 6.107561122601616,
+                "outside_fp32_band": 385812
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.35501739212183886,
+          "synchronized_wall_us": {
+            "sdk": 132.9625,
+            "eager": 47.204
+          },
+          "stream_event_us": {
+            "sdk": 110.18608510494232,
+            "eager": 34.5102921128273
+          }
+        },
+        {
+          "api": "add_layernorm",
+          "group": "ops",
+          "shape": [
+            2048,
+            2048
+          ],
+          "pattern": "high_bias",
+          "status": "measured",
+          "route": "kunlun_ops.add_layernorm / xpu_flash_ops FP32 fused / FP16 outputs",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.03337740898132324,
+                "rmse": 0.010403110730812152,
+                "max_normalized": 99.89475138903488,
+                "outside_fp32_band": 4040603
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.05666637420654297,
+                "rmse": 0.016859022786331796,
+                "max_normalized": 167.3743211520747,
+                "outside_fp32_band": 4096320
+              },
+              "not_worse": true
+            },
+            {
+              "name": "residual",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.0702362060546875,
+                "rmse": 0.02382927744437478,
+                "max_normalized": 2.8809253238973787,
+                "outside_fp32_band": 1396984
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.0702362060546875,
+                "rmse": 0.02382927744437478,
+                "max_normalized": 2.8809253238973787,
+                "outside_fp32_band": 1396984
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 0.34696422953792627,
+          "synchronized_wall_us": {
+            "sdk": 135.0975,
+            "eager": 46.873999999999995
+          },
+          "stream_event_us": {
+            "sdk": 111.95320387681325,
+            "eager": 34.45875023802121
+          }
+        },
+        {
+          "api": "matmul",
+          "group": "ops",
+          "shape": [
+            2048,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            512,
+            2048
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.002506256103515625,
+                "rmse": 0.0003589853412816009,
+                "max_normalized": 4.786701537893557,
+                "outside_fp32_band": 596022
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.002506256103515625,
+                "rmse": 0.0003589853412816009,
+                "max_normalized": 4.786701537893557,
+                "outside_fp32_band": 596022
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.1640822480746205,
+          "synchronized_wall_us": {
+            "sdk": 33.8245,
+            "eager": 39.3745
+          },
+          "stream_event_us": {
+            "sdk": 22.567875683307648,
+            "eager": 23.205457876125973
+          }
+        },
+        {
+          "api": "matmul_v2",
+          "group": "ops",
+          "shape": [
+            2048,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            512,
+            2048
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.002506256103515625,
+                "rmse": 0.0003589853412816009,
+                "max_normalized": 4.786701537893557,
+                "outside_fp32_band": 596022
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.002506256103515625,
+                "rmse": 0.0003589853412816009,
+                "max_normalized": 4.786701537893557,
+                "outside_fp32_band": 596022
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.1653669119587204,
+          "synchronized_wall_us": {
+            "sdk": 34.109,
+            "eager": 39.7495
+          },
+          "stream_event_us": {
+            "sdk": 22.568376113971077,
+            "eager": 23.16137527426084
+          }
+        },
+        {
+          "api": "bmm",
+          "group": "ops",
+          "shape": [
+            2,
+            2048,
+            512
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "rhs_shape": [
+            2,
+            512,
+            2048
+          ],
+          "output_dtype": "float16",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 8388608,
+                "nonfinite": 0,
+                "max_abs": 0.002772808074951172,
+                "rmse": 0.0003597652099317223,
+                "max_normalized": 4.855770037010137,
+                "outside_fp32_band": 1198579
+              },
+              "fp16_eager": {
+                "elements": 8388608,
+                "nonfinite": 0,
+                "max_abs": 0.002772808074951172,
+                "rmse": 0.0003597652099317223,
+                "max_normalized": 4.855770037010137,
+                "outside_fp32_band": 1198579
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.0549719908888184,
+          "synchronized_wall_us": {
+            "sdk": 167.267,
+            "eager": 176.462
+          },
+          "stream_event_us": {
+            "sdk": 155.7705005009969,
+            "eager": 156.58912559350333
+          }
+        },
+        {
+          "api": "relu",
+          "group": "ops",
+          "shape": [
+            2048,
+            2048
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.00191497802734375,
+                "rmse": 0.00014687456356139063,
+                "max_normalized": 1.2177482908951347,
+                "outside_fp32_band": 1933
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.00191497802734375,
+                "rmse": 0.00014687456356139063,
+                "max_normalized": 1.2177482908951347,
+                "outside_fp32_band": 1933
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.1023607903515527,
+          "synchronized_wall_us": {
+            "sdk": 19.485,
+            "eager": 21.4795
+          },
+          "stream_event_us": {
+            "sdk": 11.106541380286217,
+            "eager": 11.211750408013662
+          }
+        },
+        {
+          "api": "silu",
+          "group": "ops",
+          "shape": [
+            2048,
+            2048
+          ],
+          "pattern": "random",
+          "status": "measured",
+          "outputs": [
+            {
+              "name": "out",
+              "sdk": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.0037059783935546875,
+                "rmse": 0.00019336209351252017,
+                "max_normalized": 2.300905934446712,
+                "outside_fp32_band": 64499
+              },
+              "fp16_eager": {
+                "elements": 4194304,
+                "nonfinite": 0,
+                "max_abs": 0.0037059783935546875,
+                "rmse": 0.00019336209351252017,
+                "max_normalized": 2.300905934446712,
+                "outside_fp32_band": 64499
+              },
+              "not_worse": true
+            }
+          ],
+          "not_worse": true,
+          "speedup": 1.0504690838158344,
+          "synchronized_wall_us": {
+            "sdk": 64.594,
+            "eager": 67.854
+          },
+          "stream_event_us": {
+            "sdk": 55.54708341757457,
+            "eager": 55.76791614294052
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "stamp": "2026-11-26 14:21",
+  "week_start": "11 月 23 日",
+  "week_active": 122,
+  "week_new": 120,
+  "week_base": 154,
+  "counts": {
+    "models": 749,
+    "rows": 1507,
+    "model_attempts_finished": 165,
+    "p800_attempted_models": 274,
+    "p800_attempted_cases": 420,
+    "current_setup_attempted_models": 122,
+    "current_setup_attempted_cases": 122,
+    "checkpoint_models_verified": 723,
+    "checkpoint_models_with_local_manifest": 558,
+    "checkpoint_models_remote_only": 165,
+    "resolved_required_cases": 53,
+    "unresolved_required_cases": 1439,
+    "measured_models": 138,
+    "measured_cases": 225,
+    "fully_measured_models": 90,
+    "current_setup_measured_models": 5,
+    "current_setup_measured_cases": 5,
+    "partially_measured_models": 48,
+    "measured_cases_with_both_binary_catalogs": 225,
+    "measured_cases_with_local_artifacts": 225,
+    "original_only_measured_cases": 39,
+    "non_original_route_measured_cases": 186,
+    "states": {
+      "passed": 225,
+      "checkpoint_ready": 1009,
+      "timeout": 39,
+      "checkpoint_access_required": 38,
+      "failed": 120,
+      "excluded": 24,
+      "process_failed": 3,
+      "upstream_fp16_disabled": 15,
+      "unsupported": 8,
+      "checkpoint_unavailable": 10,
+      "queued": 12,
+      "checkpoint_dependency_failed": 4
+    }
+  },
+  "setup": {
+    "f06_package_version": "0.3.81+v51e.inductor64",
+    "wheel_sha256": "3516888cf0799e2922094ae9178ed5e03f0242278cbdd92ae9d6e65a3b7c2b09",
+    "xpu_sdk": {
+      "release": "5.41.0.0",
+      "tree_sha256": "d1f4836145f04d62c148a035ac1246c5f70ff147c9ee27d69f878c7468f821fc",
+      "archive_sha256": "42396f4b932d79e4b74bb68fb07103b0e2d2e51325bfb568fd4f59973061d913"
+    }
+  },
+  "passed": [
+    {
+      "model": "sentence-transformers/LaBSE",
+      "dtype": "float32",
+      "eager_ms": 15.796256065368652,
+      "f06_ms": 7.012772560119629,
+      "f06_speedup": 2.2524979856325453,
+      "label": "0b5f90df7a849ec30fac-float32-1795640108567771011"
+    },
+    {
+      "model": "ibm-granite/granite-embedding-107m-multilingual",
+      "dtype": "float32",
+      "eager_ms": 9.438347816467285,
+      "f06_ms": 5.169963836669922,
+      "f06_speedup": 1.8256119606721883,
+      "label": "3be5266b4c705f434e45-float32-1795639016323154836"
+    },
+    {
+      "model": "DMetaSoul/sbert-chinese-general-v2-distill",
+      "dtype": "float32",
+      "eager_ms": 6.566381454467773,
+      "f06_ms": 3.6730527877807617,
+      "f06_speedup": 1.7877176925723262,
+      "label": "b44dd60309e95f6a21cc-float32-1795652475328123622"
+    },
+    {
+      "model": "nlpai-lab/KURE-v1",
+      "dtype": "float32",
+      "eager_ms": 29.36246395111084,
+      "f06_ms": 17.614436149597168,
+      "f06_speedup": 1.6669545196757458,
+      "label": "ff6aaea2ba91cae7a44d-float32-1795653532701847574"
+    },
+    {
+      "model": "cl-nagoya/ruri-reranker-large",
+      "dtype": "float32",
+      "eager_ms": 27.115607261657715,
+      "f06_ms": 17.650270462036133,
+      "f06_speedup": 1.5362714877361523,
+      "label": "507d49885abd7405d52f-float32-1795672172002231138"
+    }
+  ],
+  "audit": {
+    "total": 374,
+    "cache_verified": 373,
+    "upstream_precision_before_f06": 7,
+    "withdrawn_before_f06": 2
+  },
+  "gems": {
+    "models": 67,
+    "flaggems_faster": 0,
+    "flaggems_slower": 67,
+    "equal": 0,
+    "median": 0.4295824672726943,
+    "minimum": 0.09117523931231886,
+    "maximum": 0.65679211532391
+  },
+  "g_stamp": "2026-11-26 01:03:04 +0800"
+}

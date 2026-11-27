@@ -1,0 +1,1723 @@
+﻿case_id,kind,dtype,M,N,K,tolerance,ordinal,size,selected,fallback,status,fallback_category,physical_device,eager_gpu_us,eager_e2e_us,inductor_gpu_us,inductor_e2e_us,auto_gpu_us,auto_e2e_us,gpu_vs_eager,gpu_vs_inductor,e2e_vs_eager,e2e_vs_inductor,inductor_failure
+report117:matmul_bias:float32:16x128:64,matmul_bias,float32,16,128,64,"{""atol"": 0.0003, ""rtol"": 0.0003}",0,small,sdnn,False,passed,selected,0,5.985669381487233,58.284,2.677543520469519,63.089,2.8460909554045575,29.432499999999997,2.1031194980331893,0.940779322384277,1.9802599167586852,2.1435148220504545,
+report117:matmul_bias:float32:32x256:64,matmul_bias,float32,32,256,64,"{""atol"": 0.0003, ""rtol"": 0.0003}",1,small,sdnn,False,passed,selected,3,6.574742168142871,84.47149999999999,3.0185348709002247,94.101,2.7376638558638113,47.31,2.401588549324786,1.10259514309429,1.7854893257239481,1.989029803424223,
+report117:matmul_bias:float32:64x1024:64,matmul_bias,float32,64,1024,64,"{""atol"": 0.0003, ""rtol"": 0.0003}",2,small,sdnn,False,passed,selected,4,7.72433247715754,66.589,3.5545740808759416,74.128,3.5967656544276645,37.686499999999995,2.1475773567979854,0.988269579504079,1.766919188568851,1.9669642975601345,
+report117:matmul_bias:float16:16x128:64,matmul_bias,float16,16,128,64,"{""atol"": 0.003, ""rtol"": 0.003}",3,small,sdnn,False,passed,selected,5,6.137655369906247,58.974000000000004,2.7025460033070923,63.783500000000004,2.8364108031098647,31.067,2.1638809735095035,0.9528048618147971,1.8982843531721765,2.0530949238742076,
+report117:matmul_bias:float16:32x256:64,matmul_bias,float16,32,256,64,"{""atol"": 0.003, ""rtol"": 0.003}",4,small,sdnn,False,passed,selected,7,6.139590114843649,45.1505,,,2.539842262294123,30.287,2.417311581112931,,1.4907551094529006,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 268, in measure_candidates
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 4050 / 8192 (49.4%)
+Greatest absolute difference: 5.5390625 at index (30, 107) (up to 0.003 allowed)
+Greatest relative difference: 594.5 at index (4, 237) (up to 0.003 allowed)
+"
+report117:matmul_bias:float16:64x1024:64,matmul_bias,float16,64,1024,64,"{""atol"": 0.003, ""rtol"": 0.003}",5,small,sdnn,False,passed,selected,0,7.370572123262617,68.2885,,,3.72973270714283,43.561,1.9761663105635419,,1.567652257753495,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 268, in measure_candidates
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 32627 / 65536 (49.8%)
+Greatest absolute difference: nan at index (0, 77) (up to 0.003 allowed)
+Greatest relative difference: nan at index (0, 77) (up to 0.003 allowed)
+"
+report117:matmul_bias:bfloat16:16x128:64,matmul_bias,bfloat16,16,128,64,"{""atol"": 0.03, ""rtol"": 0.003}",6,small,eager,True,passed,gpu_only,3,6.831403381081038,55.5445,,,6.835256532956196,55.524,0.9994362827705763,,1.0003692097111159,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/utils.py"", line 2222, in preserve_rng_state
+    yield
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 1505, in codegen_and_compile
+    compiled_module = graph.compile_to_module()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/graph.py"", line 2319, in compile_to_module
+    return self._compile_to_module()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/graph.py"", line 2329, in _compile_to_module
+    mod = self._compile_to_module_lines(wrapper_code)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/graph.py"", line 2397, in _compile_to_module_lines
+    mod = PyCodeCache.load_by_key_path(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/codecache.py"", line 3548, in load_by_key_path
+    mod = _reload_python_module(key, path, set_sys_modules=in_toplevel)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/runtime/compile_tasks.py"", line 33, in _reload_python_module
+    exec(code, mod.__dict__, mod.__dict__)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/cache/inductor/e5/ce5bmu7jnb7jswldbl73doetws5qzbyedhms5pg2wwomyyf6pmpf.py"", line 47, in <module>
+    triton_tem_fused_addmm_0 = async_compile.triton('triton_tem_fused_addmm_0', '''
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/async_compile.py"", line 500, in triton
+    kernel.precompile(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/runtime/triton_heuristics.py"", line 451, in precompile
+    self._make_launchers()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/runtime/triton_heuristics.py"", line 608, in _make_launchers
+    device_interface.synchronize(device_interface.current_device())
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/__init__.py"", line 1083, in synchronize
+    return torch._C._cuda_synchronize()
+torch.AcceleratorError: CUDA error: an illegal memory access was encountered
+Search for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/utils.py"", line 2222, in preserve_rng_state
+    yield
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/aot_autograd.py"", line 1106, in aot_module_simplified
+    compiled_fn, _ = aot_stage2_compile(aot_state, aot_graph_capture)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/graph_compile.py"", line 242, in aot_stage2_compile
+    return aot_stage2_inference(aot_state, aot_graph_capture)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/graph_compile.py"", line 315, in aot_stage2_inference
+    compiled_fw = compiler(fw_module, updated_flat_args)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/schemas.py"", line 1251, in __call__
+    return self.compiler_fn(gm, example_inputs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2558, in fw_compiler_base
+    return compile_fx_forward(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2275, in compile_fx_forward
+    return inner_compile(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 782, in compile_fx_inner
+    return wrap_compiler_debug(_compile_fx_inner, compiler_name=""inductor"")(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/repro/after_aot.py"", line 144, in debug_wrapper
+    inner_compiled_fn = compiler_fn(gm, example_inputs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 963, in _compile_fx_inner
+    mb_compiled_graph = fx_codegen_and_compile(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 1695, in fx_codegen_and_compile
+    return scheme.codegen_and_compile(gm, example_inputs, inputs_to_check, graph_kwargs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 1182, in codegen_and_compile
+    with (
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/utils.py"", line 2227, in preserve_rng_state
+    torch.cuda.set_rng_state(cuda_rng_state)  # type: ignore[possibly-undefined]
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/random.py"", line 79, in set_rng_state
+    _lazy_call(cb)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/__init__.py"", line 341, in _lazy_call
+    callable()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/random.py"", line 77, in cb
+    default_generator.set_state(new_state)
+torch.AcceleratorError: CUDA error: an illegal memory access was encountered
+Search for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 92, in main
+    fn, proof = auto.compile_candidate(gm, inputs, selected)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_autotune.py"", line 142, in compile_candidate
+    fn = compile_fx(native_gm, list(inputs))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2494, in compile_fx
+    return make_graph_return_tuple(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2733, in make_graph_return_tuple
+    compiled_fn = compile_gm(gm, inputs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2681, in compile_fx
+    return aot_autograd(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/backends/common.py"", line 117, in __call__
+    cg = aot_module_simplified(gm, example_inputs, **self.kwargs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/aot_autograd.py"", line 1049, in aot_module_simplified
+    with contextlib.ExitStack() as stack:
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 576, in __exit__
+    raise exc_details[1]
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/compiled_autograd.py"", line 1558, in _disable
+    yield
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 561, in __exit__
+    if cb(*exc_details):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/utils.py"", line 2227, in preserve_rng_state
+    torch.cuda.set_rng_state(cuda_rng_state)  # type: ignore[possibly-undefined]
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/random.py"", line 79, in set_rng_state
+    _lazy_call(cb)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/__init__.py"", line 341, in _lazy_call
+    callable()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/random.py"", line 77, in cb
+    default_generator.set_state(new_state)
+torch.AcceleratorError: CUDA error: an illegal memory access was encountered
+Search for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+"
+report117:matmul_bias:bfloat16:32x256:64,matmul_bias,bfloat16,32,256,64,"{""atol"": 0.03, ""rtol"": 0.003}",7,small,eager,True,passed,gpu_only,4,7.029003798961639,53.3545,,,7.034067511558533,53.13,0.9992801160084727,,1.0042254846602672,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/utils.py"", line 2222, in preserve_rng_state
+    yield
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 1505, in codegen_and_compile
+    compiled_module = graph.compile_to_module()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/graph.py"", line 2319, in compile_to_module
+    return self._compile_to_module()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/graph.py"", line 2329, in _compile_to_module
+    mod = self._compile_to_module_lines(wrapper_code)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/graph.py"", line 2397, in _compile_to_module_lines
+    mod = PyCodeCache.load_by_key_path(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/codecache.py"", line 3548, in load_by_key_path
+    mod = _reload_python_module(key, path, set_sys_modules=in_toplevel)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/runtime/compile_tasks.py"", line 33, in _reload_python_module
+    exec(code, mod.__dict__, mod.__dict__)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/cache/inductor/gf/cgfye32uhiplokneu3xz64r7zyhlc6tj577dac4l5lw23w6ss3c3.py"", line 47, in <module>
+    triton_tem_fused_addmm_0 = async_compile.triton('triton_tem_fused_addmm_0', '''
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/async_compile.py"", line 500, in triton
+    kernel.precompile(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/runtime/triton_heuristics.py"", line 451, in precompile
+    self._make_launchers()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/runtime/triton_heuristics.py"", line 608, in _make_launchers
+    device_interface.synchronize(device_interface.current_device())
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/__init__.py"", line 1083, in synchronize
+    return torch._C._cuda_synchronize()
+torch.AcceleratorError: CUDA error: an illegal memory access was encountered
+Search for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/utils.py"", line 2222, in preserve_rng_state
+    yield
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/aot_autograd.py"", line 1106, in aot_module_simplified
+    compiled_fn, _ = aot_stage2_compile(aot_state, aot_graph_capture)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/graph_compile.py"", line 242, in aot_stage2_compile
+    return aot_stage2_inference(aot_state, aot_graph_capture)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/graph_compile.py"", line 315, in aot_stage2_inference
+    compiled_fw = compiler(fw_module, updated_flat_args)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/schemas.py"", line 1251, in __call__
+    return self.compiler_fn(gm, example_inputs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2558, in fw_compiler_base
+    return compile_fx_forward(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2275, in compile_fx_forward
+    return inner_compile(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 782, in compile_fx_inner
+    return wrap_compiler_debug(_compile_fx_inner, compiler_name=""inductor"")(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/repro/after_aot.py"", line 144, in debug_wrapper
+    inner_compiled_fn = compiler_fn(gm, example_inputs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 963, in _compile_fx_inner
+    mb_compiled_graph = fx_codegen_and_compile(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 1695, in fx_codegen_and_compile
+    return scheme.codegen_and_compile(gm, example_inputs, inputs_to_check, graph_kwargs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 1182, in codegen_and_compile
+    with (
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/utils.py"", line 2227, in preserve_rng_state
+    torch.cuda.set_rng_state(cuda_rng_state)  # type: ignore[possibly-undefined]
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/random.py"", line 79, in set_rng_state
+    _lazy_call(cb)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/__init__.py"", line 341, in _lazy_call
+    callable()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/random.py"", line 77, in cb
+    default_generator.set_state(new_state)
+torch.AcceleratorError: CUDA error: an illegal memory access was encountered
+Search for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 92, in main
+    fn, proof = auto.compile_candidate(gm, inputs, selected)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_autotune.py"", line 142, in compile_candidate
+    fn = compile_fx(native_gm, list(inputs))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2494, in compile_fx
+    return make_graph_return_tuple(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2733, in make_graph_return_tuple
+    compiled_fn = compile_gm(gm, inputs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2681, in compile_fx
+    return aot_autograd(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/backends/common.py"", line 117, in __call__
+    cg = aot_module_simplified(gm, example_inputs, **self.kwargs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/aot_autograd.py"", line 1049, in aot_module_simplified
+    with contextlib.ExitStack() as stack:
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 576, in __exit__
+    raise exc_details[1]
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/compiled_autograd.py"", line 1558, in _disable
+    yield
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 561, in __exit__
+    if cb(*exc_details):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/utils.py"", line 2227, in preserve_rng_state
+    torch.cuda.set_rng_state(cuda_rng_state)  # type: ignore[possibly-undefined]
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/random.py"", line 79, in set_rng_state
+    _lazy_call(cb)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/__init__.py"", line 341, in _lazy_call
+    callable()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/random.py"", line 77, in cb
+    default_generator.set_state(new_state)
+torch.AcceleratorError: CUDA error: an illegal memory access was encountered
+Search for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+"
+report117:matmul_bias:bfloat16:64x1024:64,matmul_bias,bfloat16,64,1024,64,"{""atol"": 0.03, ""rtol"": 0.003}",8,small,eager,True,passed,gpu_and_e2e,5,8.495067187717982,36.506,,,8.491623061043876,36.525999999999996,1.000405591092462,,0.9994524448338171,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/utils.py"", line 2222, in preserve_rng_state
+    yield
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 1505, in codegen_and_compile
+    compiled_module = graph.compile_to_module()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/graph.py"", line 2319, in compile_to_module
+    return self._compile_to_module()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/graph.py"", line 2329, in _compile_to_module
+    mod = self._compile_to_module_lines(wrapper_code)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/graph.py"", line 2397, in _compile_to_module_lines
+    mod = PyCodeCache.load_by_key_path(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/codecache.py"", line 3548, in load_by_key_path
+    mod = _reload_python_module(key, path, set_sys_modules=in_toplevel)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/runtime/compile_tasks.py"", line 33, in _reload_python_module
+    exec(code, mod.__dict__, mod.__dict__)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/cache/inductor/xq/cxqsj4olm63vpdq3vb4eh3h3q5hfdaoggrrlyrtow4japqlk3nzs.py"", line 47, in <module>
+    triton_tem_fused_addmm_0 = async_compile.triton('triton_tem_fused_addmm_0', '''
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/async_compile.py"", line 500, in triton
+    kernel.precompile(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/runtime/triton_heuristics.py"", line 451, in precompile
+    self._make_launchers()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/runtime/triton_heuristics.py"", line 608, in _make_launchers
+    device_interface.synchronize(device_interface.current_device())
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/__init__.py"", line 1083, in synchronize
+    return torch._C._cuda_synchronize()
+torch.AcceleratorError: CUDA error: an illegal memory access was encountered
+Search for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/utils.py"", line 2222, in preserve_rng_state
+    yield
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/aot_autograd.py"", line 1106, in aot_module_simplified
+    compiled_fn, _ = aot_stage2_compile(aot_state, aot_graph_capture)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/graph_compile.py"", line 242, in aot_stage2_compile
+    return aot_stage2_inference(aot_state, aot_graph_capture)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/graph_compile.py"", line 315, in aot_stage2_inference
+    compiled_fw = compiler(fw_module, updated_flat_args)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/schemas.py"", line 1251, in __call__
+    return self.compiler_fn(gm, example_inputs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2558, in fw_compiler_base
+    return compile_fx_forward(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2275, in compile_fx_forward
+    return inner_compile(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 782, in compile_fx_inner
+    return wrap_compiler_debug(_compile_fx_inner, compiler_name=""inductor"")(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/repro/after_aot.py"", line 144, in debug_wrapper
+    inner_compiled_fn = compiler_fn(gm, example_inputs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 963, in _compile_fx_inner
+    mb_compiled_graph = fx_codegen_and_compile(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 1695, in fx_codegen_and_compile
+    return scheme.codegen_and_compile(gm, example_inputs, inputs_to_check, graph_kwargs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 1182, in codegen_and_compile
+    with (
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/utils.py"", line 2227, in preserve_rng_state
+    torch.cuda.set_rng_state(cuda_rng_state)  # type: ignore[possibly-undefined]
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/random.py"", line 79, in set_rng_state
+    _lazy_call(cb)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/__init__.py"", line 341, in _lazy_call
+    callable()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/random.py"", line 77, in cb
+    default_generator.set_state(new_state)
+torch.AcceleratorError: CUDA error: an illegal memory access was encountered
+Search for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 92, in main
+    fn, proof = auto.compile_candidate(gm, inputs, selected)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_autotune.py"", line 142, in compile_candidate
+    fn = compile_fx(native_gm, list(inputs))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2494, in compile_fx
+    return make_graph_return_tuple(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2733, in make_graph_return_tuple
+    compiled_fn = compile_gm(gm, inputs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2681, in compile_fx
+    return aot_autograd(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/backends/common.py"", line 117, in __call__
+    cg = aot_module_simplified(gm, example_inputs, **self.kwargs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/aot_autograd.py"", line 1049, in aot_module_simplified
+    with contextlib.ExitStack() as stack:
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 576, in __exit__
+    raise exc_details[1]
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/compiled_autograd.py"", line 1558, in _disable
+    yield
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 561, in __exit__
+    if cb(*exc_details):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/utils.py"", line 2227, in preserve_rng_state
+    torch.cuda.set_rng_state(cuda_rng_state)  # type: ignore[possibly-undefined]
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/random.py"", line 79, in set_rng_state
+    _lazy_call(cb)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/__init__.py"", line 341, in _lazy_call
+    callable()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/random.py"", line 77, in cb
+    default_generator.set_state(new_state)
+torch.AcceleratorError: CUDA error: an illegal memory access was encountered
+Search for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+"
+report117:matmul_bias_relu:float32:16x128:64,matmul_bias_relu,float32,16,128,64,"{""atol"": 0.0003, ""rtol"": 0.0003}",9,small,eager,True,passed,single_kernel,7,8.10094674428304,87.81649999999999,7.320580586709611,119.00899999999999,8.138133854162497,88.88149999999999,0.9954305113990676,0.8995404496775729,0.9880177539757993,1.3389625512620738,
+report117:matmul_bias_relu:float32:32x256:64,matmul_bias_relu,float32,32,256,64,"{""atol"": 0.0003, ""rtol"": 0.0003}",10,small,sdnn,False,passed,selected,0,8.83572040128255,87.0915,,,2.644638355260303,47.225,3.340993820084289,,1.844182106934886,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 268, in measure_candidates
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 84, in _validate
+    assert_close(fn(*special), _cpu(reference(*special)), tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 256 / 8192 (3.1%)
+Greatest absolute difference: nan at index (0, 0) (up to 0.0003 allowed)
+Greatest relative difference: nan at index (0, 0) (up to 0.0003 allowed)
+"
+report117:matmul_bias_relu:float32:64x1024:64,matmul_bias_relu,float32,64,1024,64,"{""atol"": 0.0003, ""rtol"": 0.0003}",11,small,sdnn,False,passed,selected,3,10.23028174895701,86.2465,14.221939518257923,95.12100000000001,3.580785471643239,40.775999999999996,2.856993760160194,3.97173738300815,2.1151289974494802,2.3327692760447327,
+report117:matmul_bias_relu:float16:16x128:64,matmul_bias_relu,float16,16,128,64,"{""atol"": 0.003, ""rtol"": 0.003}",12,small,eager,True,passed,single_kernel,4,8.229461209527377,65.503,,,8.223584671130126,65.25399999999999,1.0007145957185655,,1.0038158580316916,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 84, in _validate
+    assert_close(fn(*special), _cpu(reference(*special)), tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 128 / 2048 (6.2%)
+Greatest absolute difference: nan at index (0, 0) (up to 0.003 allowed)
+Greatest relative difference: nan at index (0, 0) (up to 0.003 allowed)
+"
+report117:matmul_bias_relu:float16:32x256:64,matmul_bias_relu,float16,32,256,64,"{""atol"": 0.003, ""rtol"": 0.003}",13,small,sdnn,False,passed,selected,5,8.481076214371658,70.138,9.974715913214336,78.16749999999999,3.027822368028687,31.432000000000002,2.80104814071157,3.2943530698957537,2.231420208704505,2.486876431662,
+report117:matmul_bias_relu:float16:64x1024:64,matmul_bias_relu,float16,64,1024,64,"{""atol"": 0.003, ""rtol"": 0.003}",14,small,sdnn,False,passed,selected,7,9.81946036857206,96.5755,36.380187456279096,108.8095,3.359527671015962,46.296,2.9228693227588556,10.828959014133462,2.0860441506825644,2.3503002419215484,
+report117:matmul_bias_relu:bfloat16:16x128:64,matmul_bias_relu,bfloat16,16,128,64,"{""atol"": 0.03, ""rtol"": 0.003}",15,small,sdnn,False,passed,selected,0,9.132266354251218,88.106,,,7.6435389456810885,45.2205,1.1947693887804838,,1.948364126889353,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 101 / 2048 (4.9%)
+Greatest absolute difference: 0.25 at index (10, 110) (up to 0.03 allowed)
+Greatest relative difference: 0.01348876953125 at index (12, 15) (up to 0.003 allowed)
+"
+report117:matmul_bias_relu:bfloat16:32x256:64,matmul_bias_relu,bfloat16,32,256,64,"{""atol"": 0.03, ""rtol"": 0.003}",16,small,eager,True,passed,gpu_only,3,9.329922672875401,66.67850000000001,,,9.322754461757263,67.24350000000001,1.0007688941232489,,0.9915977008930231,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 412 / 8192 (5.0%)
+Greatest absolute difference: 0.25 at index (13, 124) (up to 0.03 allowed)
+Greatest relative difference: 0.015380859375 at index (13, 45) (up to 0.003 allowed)
+"
+report117:matmul_bias_relu:bfloat16:64x1024:64,matmul_bias_relu,bfloat16,64,1024,64,"{""atol"": 0.03, ""rtol"": 0.003}",17,small,eager,True,passed,gpu_and_e2e,4,10.967108702744454,45.8905,,,10.971903800964355,45.906,0.9995629657070563,,0.9996623535049886,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 3768 / 65536 (5.7%)
+Greatest absolute difference: 0.25 at index (5, 640) (up to 0.03 allowed)
+Greatest relative difference: 0.0208740234375 at index (22, 976) (up to 0.003 allowed)
+"
+report117:add_softmax:float32:16x128,add_softmax,float32,16,128,,"{""atol"": 0.0003, ""rtol"": 0.0003}",18,small,eager,True,passed,gpu_only,5,6.314856742359446,34.4365,15.4076063875151,58.0545,6.3138444052323806,26.583,1.0001603360903581,2.4402892118701214,1.2954331715758194,2.18389572283038,
+report117:add_softmax:float32:32x256,add_softmax,float32,32,256,,"{""atol"": 0.0003, ""rtol"": 0.0003}",19,small,eager,True,passed,gpu_and_e2e,7,7.518067955970764,46.7705,37.36684804267072,94.5505,7.495296762344685,47.974999999999994,1.0030380643152754,4.985372724719387,0.9748931735278792,1.9708285565398647,
+report117:add_softmax:float32:64x1024,add_softmax,float32,64,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",20,small,eager,True,passed,gpu_and_e2e,6,13.829792892583743,31.381999999999998,71.29504790365945,112.81899999999999,13.824328717826301,31.447,1.0003952578724777,5.1572159024058335,0.9979330301777594,3.587591821159411,
+report117:add_softmax:float16:16x128,add_softmax,float16,16,128,,"{""atol"": 0.003, ""rtol"": 0.003}",21,small,eager,True,passed,gpu_and_e2e,3,6.426485223324938,61.409,27.56362465148476,105.355,6.449873675878276,61.6995,0.9963738123056877,4.273513875871597,0.9952916960429177,1.7075503042974416,
+report117:add_softmax:float16:32x256,add_softmax,float16,32,256,,"{""atol"": 0.003, ""rtol"": 0.003}",22,small,eager,True,passed,gpu_and_e2e,4,7.511208947582594,33.462,29.17143943726861,75.2475,7.5242939568063925,28.252,0.998260965175083,3.8769670090946473,1.184411723063854,2.663439756477418,
+report117:add_softmax:float16:64x1024,add_softmax,float16,64,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",23,small,eager,True,passed,gpu_and_e2e,5,13.961006613338695,37.531,71.15745544433594,117.604,13.88246672494071,32.832,1.005657487963352,5.125706897355437,1.1431225633528264,3.5819931773879143,
+report117:add_softmax:bfloat16:16x128,add_softmax,bfloat16,16,128,,"{""atol"": 0.03, ""rtol"": 0.003}",24,small,eager,True,passed,gpu_and_e2e,7,6.722057895895875,35.1615,28.243447527473357,72.10300000000001,6.767909909472053,35.611000000000004,0.9932250851164545,4.173141768324241,0.9873774957176151,2.024739546769257,
+report117:add_softmax:bfloat16:32x256,add_softmax,bfloat16,32,256,,"{""atol"": 0.03, ""rtol"": 0.003}",25,small,eager,True,passed,gpu_and_e2e,6,8.006727599069436,26.2575,29.19455165811626,73.00800000000001,7.9864986501935356,26.342,1.002532893294286,3.655488210394776,0.9967921949738061,2.7715435426315396,
+report117:add_softmax:bfloat16:64x1024,add_softmax,bfloat16,64,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",26,small,eager,True,passed,precision,3,15.323073775679976,51.549499999999995,72.15774721569485,142.3665,15.326020894227204,50.96,0.999807704911303,4.708185360942203,1.0115678963893249,2.793691130298273,
+report117:matmul_bias_gelu_exact:float32:16x128:64,matmul_bias_gelu_exact,float32,16,128,64,"{""atol"": 0.0003, ""rtol"": 0.0003}",27,small,sdnn,False,passed,selected,4,10.997899683006914,73.648,13.27483117322385,77.2775,5.291953489377901,31.2815,2.0782306014370846,2.5084935458842024,2.3543628022952863,2.4703898470341894,
+report117:matmul_bias_gelu_exact:float32:32x256:64,matmul_bias_gelu_exact,float32,32,256,64,"{""atol"": 0.0003, ""rtol"": 0.0003}",28,small,sdnn,False,passed,selected,5,11.484982768289912,73.493,5.401026449960993,74.488,5.674051898560068,30.597,2.0241236727504224,0.9518817498535109,2.4019675131548843,2.434487041213191,
+report117:matmul_bias_gelu_exact:float32:64x1024:64,matmul_bias_gelu_exact,float32,64,1024,64,"{""atol"": 0.0003, ""rtol"": 0.0003}",29,small,sdnn,False,passed,selected,7,15.660367434537864,90.386,10.948002489307259,94.9555,7.026867323283907,41.6555,2.2286414007912723,1.5580203788721692,2.1698455185989842,2.27954291750189,
+report117:matmul_bias_gelu_exact:float16:16x128:64,matmul_bias_gelu_exact,float16,16,128,64,"{""atol"": 0.003, ""rtol"": 0.003}",30,small,sdnn,False,passed,selected,6,11.1323789435426,72.97800000000001,11.884826105563722,74.338,5.228290623438147,29.972,2.1292578675019977,2.273176256171507,2.434872547711197,2.4802482316829035,
+report117:matmul_bias_gelu_exact:float16:32x256:64,matmul_bias_gelu_exact,float16,32,256,64,"{""atol"": 0.003, ""rtol"": 0.003}",31,small,sdnn,False,passed,selected,3,11.260450587553137,85.69149999999999,14.79264315436868,95.816,5.689305978662828,43.071,1.979230969433588,2.6000786756498955,1.989540526108054,2.2246058833089553,
+report117:matmul_bias_gelu_exact:float16:64x1024:64,matmul_bias_gelu_exact,float16,64,1024,64,"{""atol"": 0.003, ""rtol"": 0.003}",32,small,sdnn,False,passed,selected,4,15.21760658512737,73.173,9.054742958910184,76.087,6.7994923221138786,33.917,2.238050410857204,1.331679268092059,2.157413686351977,2.2433293038889053,
+report117:matmul_bias_gelu_exact:bfloat16:16x128:64,matmul_bias_gelu_exact,bfloat16,16,128,64,"{""atol"": 0.03, ""rtol"": 0.003}",33,small,sdnn,False,passed,selected,5,12.006146507663328,63.539,,,11.320821471981237,39.356,1.0605366878524014,,1.614467933733103,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 102 / 2048 (5.0%)
+Greatest absolute difference: 0.25 at index (10, 110) (up to 0.03 allowed)
+Greatest relative difference: 0.01458740234375 at index (1, 9) (up to 0.003 allowed)
+"
+report117:matmul_bias_gelu_exact:bfloat16:32x256:64,matmul_bias_gelu_exact,bfloat16,32,256,64,"{""atol"": 0.03, ""rtol"": 0.003}",34,small,eager,True,passed,gpu_only,7,12.048137792642567,92.701,,,12.083637973536616,91.65100000000001,0.9970621280634363,,1.0114565034751393,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 422 / 8192 (5.2%)
+Greatest absolute difference: 0.25 at index (13, 124) (up to 0.03 allowed)
+Greatest relative difference: 0.01611328125 at index (20, 128) (up to 0.003 allowed)
+"
+report117:matmul_bias_gelu_exact:bfloat16:64x1024:64,matmul_bias_gelu_exact,bfloat16,64,1024,64,"{""atol"": 0.03, ""rtol"": 0.003}",35,small,eager,True,passed,gpu_and_e2e,6,16.559538932947014,50.900000000000006,,,16.520814826855293,51.31,1.002343958606011,,0.9920093549015787,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 3571 / 65536 (5.4%)
+Greatest absolute difference: 0.25 at index (5, 640) (up to 0.03 allowed)
+Greatest relative difference: 0.0245361328125 at index (20, 318) (up to 0.003 allowed)
+"
+report117:matmul_bias_gelu_tanh:float32:16x128:64,matmul_bias_gelu_tanh,float32,16,128,64,"{""atol"": 0.0003, ""rtol"": 0.0003}",36,small,eager,True,passed,gpu_only,3,10.389907576821066,90.59649999999999,,,10.386131026528098,89.596,1.0003636147361634,,1.011166793160409,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 243 / 2048 (11.9%)
+Greatest absolute difference: nan at index (0, 10) (up to 0.0003 allowed)
+Greatest relative difference: nan at index (0, 10) (up to 0.0003 allowed)
+"
+report117:matmul_bias_gelu_tanh:float32:32x256:64,matmul_bias_gelu_tanh,float32,32,256,64,"{""atol"": 0.0003, ""rtol"": 0.0003}",37,small,eager,True,passed,single_kernel,4,10.807279497385025,46.5005,,,10.802079819970661,46.5655,1.0004813589143038,,0.9986041167817375,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 868 / 8192 (10.6%)
+Greatest absolute difference: nan at index (0, 10) (up to 0.0003 allowed)
+Greatest relative difference: nan at index (0, 10) (up to 0.0003 allowed)
+"
+report117:matmul_bias_gelu_tanh:float32:64x1024:64,matmul_bias_gelu_tanh,float32,64,1024,64,"{""atol"": 0.0003, ""rtol"": 0.0003}",38,small,eager,True,passed,gpu_and_e2e,5,14.638256072998047,54.66,7.8231306076049805,83.8715,14.71577517191569,54.555,0.9947322449540013,0.5316152575186817,1.0019246631839427,1.5373751260196131,
+report117:matmul_bias_gelu_tanh:float16:16x128:64,matmul_bias_gelu_tanh,float16,16,128,64,"{""atol"": 0.003, ""rtol"": 0.003}",39,small,eager,True,passed,gpu_only,7,10.449456757512586,91.3965,,,10.47128438949585,92.39099999999999,0.9979154771113694,,0.989235964542001,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 243 / 2048 (11.9%)
+Greatest absolute difference: nan at index (0, 10) (up to 0.003 allowed)
+Greatest relative difference: nan at index (0, 10) (up to 0.003 allowed)
+"
+report117:matmul_bias_gelu_tanh:float16:32x256:64,matmul_bias_gelu_tanh,float16,32,256,64,"{""atol"": 0.003, ""rtol"": 0.003}",40,small,eager,True,passed,gpu_only,6,10.528332678998103,46.9855,,,10.50168881650831,47.305499999999995,1.0025371026465677,,0.9932354588789889,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 869 / 8192 (10.6%)
+Greatest absolute difference: nan at index (0, 10) (up to 0.003 allowed)
+Greatest relative difference: nan at index (0, 10) (up to 0.003 allowed)
+"
+report117:matmul_bias_gelu_tanh:float16:64x1024:64,matmul_bias_gelu_tanh,float16,64,1024,64,"{""atol"": 0.003, ""rtol"": 0.003}",41,small,eager,True,passed,gpu_and_e2e,3,14.311437759924372,61.989000000000004,,,14.333940427237694,62.244,0.9984301129596882,,0.9959032195874302,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 7192 / 65536 (11.0%)
+Greatest absolute difference: nan at index (0, 5) (up to 0.003 allowed)
+Greatest relative difference: nan at index (0, 5) (up to 0.003 allowed)
+"
+report117:matmul_bias_gelu_tanh:bfloat16:16x128:64,matmul_bias_gelu_tanh,bfloat16,16,128,64,"{""atol"": 0.03, ""rtol"": 0.003}",42,small,eager,True,passed,gpu_only,4,11.287353959754917,48.605000000000004,,,11.278890100196811,48.825,1.000750415996868,,0.9954941116231439,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 102 / 2048 (5.0%)
+Greatest absolute difference: 0.25 at index (10, 110) (up to 0.03 allowed)
+Greatest relative difference: 0.01458740234375 at index (1, 9) (up to 0.003 allowed)
+"
+report117:matmul_bias_gelu_tanh:bfloat16:32x256:64,matmul_bias_gelu_tanh,bfloat16,32,256,64,"{""atol"": 0.03, ""rtol"": 0.003}",43,small,eager,True,passed,gpu_only,5,11.541943550109863,47.945499999999996,,,11.556001576510342,48.31,0.9987834869779653,,0.9924549782653693,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 1177 / 8192 (14.4%)
+Greatest absolute difference: nan at index (0, 10) (up to 0.03 allowed)
+Greatest relative difference: nan at index (0, 10) (up to 0.003 allowed)
+"
+report117:matmul_bias_gelu_tanh:bfloat16:64x1024:64,matmul_bias_gelu_tanh,bfloat16,64,1024,64,"{""atol"": 0.03, ""rtol"": 0.003}",44,small,eager,True,passed,gpu_and_e2e,7,15.883304695091626,79.562,,,15.884195814038268,80.157,0.9999438990203171,,0.9925770675050214,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 3573 / 65536 (5.5%)
+Greatest absolute difference: 0.25 at index (5, 640) (up to 0.03 allowed)
+Greatest relative difference: 0.0245361328125 at index (20, 318) (up to 0.003 allowed)
+"
+report117:matmul_bias_silu:float32:16x128:64,matmul_bias_silu,float32,16,128,64,"{""atol"": 0.0003, ""rtol"": 0.0003}",45,small,eager,True,passed,gpu_only,6,10.8628212803542,53.195,11.46638232850868,83.437,10.809996714094272,53.605000000000004,1.0048866403623467,1.06072024180716,0.9923514597518888,1.5565152504430555,
+report117:matmul_bias_silu:float32:32x256:64,matmul_bias_silu,float32,32,256,64,"{""atol"": 0.0003, ""rtol"": 0.0003}",46,small,eager,True,passed,gpu_only,3,11.454008493322366,87.9265,12.521924062668223,113.26400000000001,11.416496320663828,85.666,1.0032857867777385,1.0968272323623118,1.026387364882217,1.3221581490906547,
+report117:matmul_bias_silu:float32:64x1024:64,matmul_bias_silu,float32,64,1024,64,"{""atol"": 0.0003, ""rtol"": 0.0003}",47,small,eager,True,passed,gpu_and_e2e,4,12.817403329232327,63.8985,9.12687226643548,82.582,12.812414933382934,62.724000000000004,1.0003893407976037,0.7123459795744892,1.0187248899942605,1.3165933295070467,
+report117:matmul_bias_silu:float16:16x128:64,matmul_bias_silu,float16,16,128,64,"{""atol"": 0.003, ""rtol"": 0.003}",48,small,sdnn,False,passed,selected,5,11.684016028851694,74.69800000000001,6.914178907023787,74.8625,11.518863705097218,36.296,1.0143375534239019,0.6002483477570961,2.0580229226361033,2.0625551024906326,
+report117:matmul_bias_silu:float16:32x256:64,matmul_bias_silu,float16,32,256,64,"{""atol"": 0.003, ""rtol"": 0.003}",49,small,eager,True,passed,gpu_only,7,11.711173731347788,96.8905,17.617248106693875,126.24799999999999,11.712148569632268,97.14099999999999,0.9999167669126904,1.5041858461710935,0.9974212742302427,1.2996366106999104,
+report117:matmul_bias_silu:float16:64x1024:64,matmul_bias_silu,float16,64,1024,64,"{""atol"": 0.003, ""rtol"": 0.003}",50,small,eager,True,passed,gpu_and_e2e,6,12.9136944133974,51.745,10.937245581237185,83.012,13.002592859870175,52.485,0.9931630216041646,0.8411588134081119,0.985900733542917,1.5816328474802324,
+report117:matmul_bias_silu:bfloat16:16x128:64,matmul_bias_silu,bfloat16,16,128,64,"{""atol"": 0.03, ""rtol"": 0.003}",51,small,sdnn,False,passed,selected,3,13.12845155417201,61.104,,,12.715859106745587,40.186,1.0324470760459707,,1.5205295376499277,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 130 / 2048 (6.3%)
+Greatest absolute difference: 0.25 at index (10, 110) (up to 0.03 allowed)
+Greatest relative difference: 0.01513671875 at index (1, 9) (up to 0.003 allowed)
+"
+report117:matmul_bias_silu:bfloat16:32x256:64,matmul_bias_silu,bfloat16,32,256,64,"{""atol"": 0.03, ""rtol"": 0.003}",52,small,eager,True,passed,gpu_only,4,13.364827632904053,49.5205,,,13.349095821380615,49.745,1.0011784926660157,,0.9954869836164438,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 498 / 8192 (6.1%)
+Greatest absolute difference: 0.25 at index (13, 124) (up to 0.03 allowed)
+Greatest relative difference: 0.0186767578125 at index (0, 67) (up to 0.003 allowed)
+"
+report117:matmul_bias_silu:bfloat16:64x1024:64,matmul_bias_silu,bfloat16,64,1024,64,"{""atol"": 0.03, ""rtol"": 0.003}",53,small,eager,True,passed,gpu_and_e2e,5,14.918425009639252,49.460499999999996,,,14.9208370284362,49.635,0.9998383456107489,,0.9964843356502467,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 4227 / 65536 (6.4%)
+Greatest absolute difference: 0.25 at index (5, 640) (up to 0.03 allowed)
+Greatest relative difference: 0.0245361328125 at index (59, 833) (up to 0.003 allowed)
+"
+report117:add_layernorm:float32:16x128,add_layernorm,float32,16,128,,"{""atol"": 0.0003, ""rtol"": 0.0003}",54,small,eager,True,passed,gpu_only,7,6.312360366185507,65.684,13.974824856067526,97.86,6.259692468862424,66.6435,1.0084138154685822,2.2325098118769366,0.9856024968676614,1.468410272569718,
+report117:add_layernorm:float32:32x256,add_layernorm,float32,32,256,,"{""atol"": 0.0003, ""rtol"": 0.0003}",55,small,eager,True,passed,gpu_only,6,6.582977127854841,33.497,19.475766342051706,59.8945,6.54622006010255,33.442,1.0056150064334555,2.9751163516104904,1.0016446384785598,1.7909963518928294,
+report117:add_layernorm:float32:64x1024,add_layernorm,float32,64,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",56,small,eager,True,passed,gpu_and_e2e,3,9.569562153575681,48.311,63.55632872539034,112.37899999999999,9.57402525033017,47.801,0.9995338327779808,6.6384124820642745,1.0106692328612372,2.3509759210058365,
+report117:add_layernorm:float16:16x128,add_layernorm,float16,16,128,,"{""atol"": 0.003, ""rtol"": 0.003}",57,small,eager,True,passed,gpu_and_e2e,4,6.089241851663365,38.046499999999995,27.179272521829382,65.94399999999999,6.057894565689732,34.657,1.005174617292149,4.48658725025777,1.0978013099806676,1.9027613469140432,
+report117:add_layernorm:float16:32x256,add_layernorm,float16,32,256,,"{""atol"": 0.003, ""rtol"": 0.003}",58,small,eager,True,passed,gpu_and_e2e,5,7.838724932192644,33.501999999999995,26.475302822939998,73.803,7.831931392073909,33.8515,1.0008674156831365,3.3804308921466806,0.9896754944389464,2.1801988095062255,
+report117:add_layernorm:float16:64x1024,add_layernorm,float16,64,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",59,small,eager,True,passed,gpu_and_e2e,7,8.471040419360113,75.088,63.14311213999487,139.82150000000001,8.380641151406913,74.578,1.0107866768568208,7.5344011274596365,1.0068384778352863,1.8748357424441526,
+report117:add_layernorm:bfloat16:16x128,add_layernorm,bfloat16,16,128,,"{""atol"": 0.03, ""rtol"": 0.003}",60,small,eager,True,passed,gpu_and_e2e,6,7.3529462879502425,40.586,25.872073032318323,63.914,7.35945120487778,40.57599999999999,0.9991161138587038,3.5154894450785323,1.0002464511041012,1.5751675867507888,
+report117:add_layernorm:bfloat16:32x256,add_layernorm,bfloat16,32,256,,"{""atol"": 0.03, ""rtol"": 0.003}",61,small,eager,True,passed,gpu_and_e2e,3,7.953080764183632,59.364000000000004,26.78660735105857,95.061,7.98655901199732,60.5645,0.9958081762416834,3.353960987556722,0.9801781571712802,1.5695828414335131,
+report117:add_layernorm:bfloat16:64x1024,add_layernorm,bfloat16,64,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",62,small,eager,True,passed,precision,4,10.47012692406064,39.441500000000005,80.85451882983011,121.65299999999999,10.491725376674108,35.1665,0.9979413821999681,7.70650354703252,1.1215645571779962,3.45934340921047,
+report117:add_layernorm_affine:float32:16x128,add_layernorm_affine,float32,16,128,,"{""atol"": 0.0003, ""rtol"": 0.0003}",63,small,eager,True,passed,gpu_only,5,6.415298962406328,35.6815,14.577054479414738,63.5485,6.467682885750156,36.457,0.9919006660856483,2.253829499206193,0.97872836492306,1.7431083193899661,
+report117:add_layernorm_affine:float32:32x256,add_layernorm_affine,float32,32,256,,"{""atol"": 0.0003, ""rtol"": 0.0003}",64,small,eager,True,passed,gpu_and_e2e,7,7.972404576730037,65.024,41.231673696766734,102.66499999999999,7.974931295367254,65.3785,0.9996831673473244,5.170160364982552,0.9945777281522212,1.5703174591035278,
+report117:add_layernorm_affine:float32:64x1024,add_layernorm_affine,float32,64,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",65,small,eager,True,passed,gpu_and_e2e,6,11.809710945401873,36.951,71.44790717533655,115.159,11.802342534065247,36.9765,1.00062431769925,6.053705607095844,0.9993103728043486,3.1143834597649858,
+report117:add_layernorm_affine:float16:16x128,add_layernorm_affine,float16,16,128,,"{""atol"": 0.003, ""rtol"": 0.003}",66,small,eager,True,passed,gpu_and_e2e,3,7.328651685418833,48.216,27.25758131477884,72.803,7.348765905830911,47.8505,0.997262911804536,3.7091372434589585,1.0076383736847057,1.5214679052465492,
+report117:add_layernorm_affine:float16:32x256,add_layernorm_affine,float16,32,256,,"{""atol"": 0.003, ""rtol"": 0.003}",67,small,eager,True,passed,gpu_and_e2e,4,6.754052223532833,45.9905,27.133524897271123,79.99199999999999,6.739233198498273,37.7065,1.002198918571012,4.026203589945126,1.2196968692400514,2.12143794836434,
+report117:add_layernorm_affine:float16:64x1024,add_layernorm_affine,float16,64,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",68,small,eager,True,passed,gpu_and_e2e,5,8.39407665951474,36.025999999999996,71.22075879896009,117.15350000000001,8.39551039286204,35.921,0.9998292261839711,8.483195835182672,1.0029230812059797,3.261420895854793,
+report117:add_layernorm_affine:bfloat16:16x128,add_layernorm_affine,bfloat16,16,128,,"{""atol"": 0.03, ""rtol"": 0.003}",69,small,eager,True,passed,gpu_and_e2e,7,6.472072972879781,44.6105,,,6.453741680492055,44.67,1.0028404130960396,,0.9986680098500113,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 2 / 2048 (0.1%)
+Greatest absolute difference: 0.0625 at index (2, 107) (up to 0.03 allowed)
+Greatest relative difference: 0.007293701171875 at index (2, 107) (up to 0.003 allowed)
+"
+report117:add_layernorm_affine:bfloat16:32x256,add_layernorm_affine,bfloat16,32,256,,"{""atol"": 0.03, ""rtol"": 0.003}",70,small,eager,True,passed,precision,6,7.067943539039318,33.567,,,7.054209001693952,33.7215,1.001946998925332,,0.9954183532760998,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 4 / 8192 (0.0%)
+Greatest absolute difference: 0.0625 at index (2, 107) (up to 0.03 allowed)
+Greatest relative difference: 0.00775146484375 at index (21, 209) (up to 0.003 allowed)
+"
+report117:add_layernorm_affine:bfloat16:64x1024,add_layernorm_affine,bfloat16,64,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",71,small,eager,True,passed,precision,3,9.350461439347603,60.3595,,,9.33359164587209,60.789,1.0018074278493825,,0.9929345769793877,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 13 / 65536 (0.0%)
+Greatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)
+Greatest relative difference: 0.0078125 at index (7, 318) (up to 0.003 allowed)
+"
+report117:mul_sum:float32:16x128,mul_sum,float32,16,128,,"{""atol"": 0.0003, ""rtol"": 0.0003}",72,small,cluster,False,passed,selected,4,5.761154831679888,51.735,3.028195145382512,75.422,3.0061603534089825,37.3215,1.9164496082674847,1.007329879109257,1.386198303926691,2.0208726873250002,
+report117:mul_sum:float32:32x256,mul_sum,float32,32,256,,"{""atol"": 0.0003, ""rtol"": 0.0003}",73,small,eager,True,passed,gpu_only,5,6.031796270530129,26.337,5.185212595347266,58.269499999999994,6.0792830547047085,26.432000000000002,0.9921887525638685,0.8529315955003067,0.996405871670702,2.2045059019370457,
+report117:mul_sum:float32:64x1024,mul_sum,float32,64,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",74,small,eager,True,passed,gpu_only,7,7.420570995059052,36.7765,12.854100531827177,73.048,7.418972206618981,36.241,1.0002154999905033,1.7325985559508015,1.014776082337684,2.0156176705940787,
+report117:mul_sum:float16:16x128,mul_sum,float16,16,128,,"{""atol"": 0.003, ""rtol"": 0.003}",75,small,cluster,False,passed,selected,6,5.898431925514025,36.802,3.96338540708438,52.165,2.9770911252259524,25.673000000000002,1.9812735577807856,1.331294622963068,1.4334904374245314,2.031901219179683,
+report117:mul_sum:float16:32x256,mul_sum,float16,32,256,,"{""atol"": 0.003, ""rtol"": 0.003}",76,small,cluster,False,passed,selected,3,6.236953394753593,52.9745,6.694917640988789,79.613,5.014076592430236,39.6015,1.2438887359976785,1.3352244461315417,1.337689228943348,2.0103531431890205,
+report117:mul_sum:float16:64x1024,mul_sum,float16,64,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",77,small,eager,True,passed,gpu_only,4,7.2702089945475254,26.783,13.391697101103954,56.6695,7.27306543252407,27.432499999999997,0.9996072580395371,1.8412727377947504,0.976323703636198,2.065779640936845,
+report117:mul_sum:bfloat16:16x128,mul_sum,bfloat16,16,128,,"{""atol"": 0.03, ""rtol"": 0.003}",78,small,cluster,False,passed,selected,5,5.959124565124512,29.307,,,4.254477457566695,25.442500000000003,1.400671322050622,,1.1518915200943303,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 73, in _validate
+    assert_close(fn(*changed), _cpu(reference(*changed)), tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 2 / 16 (12.5%)
+Greatest absolute difference: 0.0625 at index (1,) (up to 0.03 allowed)
+Greatest relative difference: 0.007293701171875 at index (1,) (up to 0.003 allowed)
+"
+report117:mul_sum:bfloat16:32x256,mul_sum,bfloat16,32,256,,"{""atol"": 0.03, ""rtol"": 0.003}",79,small,cluster,False,passed,selected,7,7.446329658095902,46.1255,,,6.842506898416055,38.586,1.0882458386442582,,1.1953947027419272,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 6 / 32 (18.8%)
+Greatest absolute difference: 0.125 at index (26,) (up to 0.03 allowed)
+Greatest relative difference: 0.034423828125 at index (15,) (up to 0.003 allowed)
+"
+report117:mul_sum:bfloat16:64x1024,mul_sum,bfloat16,64,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",80,small,eager,True,passed,gpu_and_e2e,6,7.618809726979862,24.728,,,7.626794604225453,24.6875,0.9989530493923139,,1.001640506329114,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 25 / 64 (39.1%)
+Greatest absolute difference: 0.25 at index (6,) (up to 0.03 allowed)
+Greatest relative difference: 1.609375 at index (22,) (up to 0.003 allowed)
+"
+report117:mul_sum_keepdim:float32:16x128,mul_sum_keepdim,float32,16,128,,"{""atol"": 0.0003, ""rtol"": 0.0003}",81,small,cluster,False,passed,selected,3,5.882007814080122,55.7795,3.0417843985225907,84.352,3.0236398971062357,40.4815,1.9453400584208054,1.0060008804069955,1.3779010165137162,2.0837172535602684,
+report117:mul_sum_keepdim:float32:32x256,mul_sum_keepdim,float32,32,256,,"{""atol"": 0.0003, ""rtol"": 0.0003}",82,small,eager,True,passed,gpu_only,4,6.106422793480657,30.982,5.268518386348601,56.769499999999994,6.053560010848507,26.3975,1.008732511536586,0.8703173631560532,1.173671749218676,2.1505635003314705,
+report117:mul_sum_keepdim:float32:64x1024,mul_sum_keepdim,float32,64,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",83,small,eager,True,passed,gpu_only,5,8.684137486553437,26.491999999999997,12.804281435772815,57.21,8.68136502783219,26.602,1.000319357464219,1.4749156837343762,0.9958649725584542,2.150590181189384,
+report117:mul_sum_keepdim:float16:16x128,mul_sum_keepdim,float16,16,128,,"{""atol"": 0.003, ""rtol"": 0.003}",84,small,cluster,False,passed,selected,7,5.948025944553666,64.709,3.984271610575325,96.366,3.005014632857213,47.22,1.9793667157281671,1.3258742792832992,1.370372723422279,2.040787801778907,
+report117:mul_sum_keepdim:float16:32x256,mul_sum_keepdim,float16,32,256,,"{""atol"": 0.003, ""rtol"": 0.003}",85,small,cluster,False,passed,selected,6,6.164174593851238,36.6165,6.630696698339161,51.230000000000004,5.1694810985329145,26.0325,1.1924165068715726,1.2826619484537696,1.4065687121866899,1.9679247094977435,
+report117:mul_sum_keepdim:float16:64x1024,mul_sum_keepdim,float16,64,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",86,small,eager,True,passed,gpu_only,3,7.352411251649301,46.641000000000005,13.45747923917057,85.707,7.36702214978078,45.870999999999995,0.9980167158677657,1.8267189870701046,1.0167862047916987,1.868435394911818,
+report117:mul_sum_keepdim:bfloat16:16x128,mul_sum_keepdim,bfloat16,16,128,,"{""atol"": 0.03, ""rtol"": 0.003}",87,small,cluster,False,passed,selected,4,6.024316241326357,29.1525,,,4.256521042285779,25.4575,1.415314568277398,,1.1451438672296965,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 73, in _validate
+    assert_close(fn(*changed), _cpu(reference(*changed)), tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 2 / 16 (12.5%)
+Greatest absolute difference: 0.0625 at index (1, 0) (up to 0.03 allowed)
+Greatest relative difference: 0.007293701171875 at index (1, 0) (up to 0.003 allowed)
+"
+report117:mul_sum_keepdim:bfloat16:32x256,mul_sum_keepdim,bfloat16,32,256,,"{""atol"": 0.03, ""rtol"": 0.003}",88,small,cluster,False,passed,selected,5,7.339580153091324,29.207,,,6.739993106461457,27.2075,1.0889595934534502,,1.0734907654139485,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 6 / 32 (18.8%)
+Greatest absolute difference: 0.125 at index (26, 0) (up to 0.03 allowed)
+Greatest relative difference: 0.034423828125 at index (15, 0) (up to 0.003 allowed)
+"
+report117:mul_sum_keepdim:bfloat16:64x1024,mul_sum_keepdim,bfloat16,64,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",89,small,eager,True,passed,gpu_only,7,7.577703080394052,36.400999999999996,,,7.5416205958886575,36.422,1.0047844470623548,,0.9994234254022294,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 25 / 64 (39.1%)
+Greatest absolute difference: 0.25 at index (6, 0) (up to 0.03 allowed)
+Greatest relative difference: 1.609375 at index (22, 0) (up to 0.003 allowed)
+"
+supplement:add_layernorm_weight:float32:16x128,add_layernorm_weight,float32,16,128,,"{""atol"": 0.0003, ""rtol"": 0.0003}",90,small,eager,True,passed,gpu_only,6,6.286791392735072,35.7115,13.766590970443762,60.3295,6.306395779391265,36.077,0.9968913485068194,2.1829570252206096,0.9898688915375448,1.672242703107243,
+supplement:add_layernorm_weight:float32:32x256,add_layernorm_weight,float32,32,256,,"{""atol"": 0.0003, ""rtol"": 0.0003}",91,small,eager,True,passed,gpu_only,3,6.882552693529827,60.778999999999996,23.554939176978134,92.721,6.830213418821009,61.424,1.0076629047292425,3.4486388246773187,0.9894992185464965,1.5095239645741079,
+supplement:add_layernorm_weight:float32:64x1024,add_layernorm_weight,float32,64,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",92,small,eager,True,passed,gpu_and_e2e,4,11.523074480333094,41.201,67.86170191141404,111.3295,11.494874532989394,39.201499999999996,1.002453262735732,5.903648771168076,1.0510057013124499,2.8399295945308216,
+supplement:add_layernorm_weight:float16:16x128,add_layernorm_weight,float16,16,128,,"{""atol"": 0.003, ""rtol"": 0.003}",93,small,eager,True,passed,gpu_and_e2e,5,6.302109066869171,35.936499999999995,26.205456872501284,65.369,6.260330968059844,35.7065,1.0066734648731,4.185953906622718,1.0064414042261212,1.8307310993796648,
+supplement:add_layernorm_weight:float16:32x256,add_layernorm_weight,float16,32,256,,"{""atol"": 0.003, ""rtol"": 0.003}",94,small,eager,True,passed,gpu_only,7,6.764139083617511,55.11,27.21763549641492,82.28200000000001,6.780054798738204,55.43,0.9976525683651325,4.014368069927729,0.9942269529135846,1.484430813638824,
+supplement:add_layernorm_weight:float16:64x1024,add_layernorm_weight,float16,64,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",95,small,eager,True,passed,gpu_and_e2e,6,8.22704085886804,35.6515,67.98699123611867,117.269,8.151401587522745,35.7265,1.0092792963925463,8.340527761530675,0.9979007179544594,3.282409415979735,
+supplement:add_layernorm_weight:bfloat16:16x128,add_layernorm_weight,bfloat16,16,128,,"{""atol"": 0.03, ""rtol"": 0.003}",96,small,eager,True,passed,gpu_and_e2e,3,6.486397523146409,64.6385,,,6.489370530579752,65.5385,0.9995418650515743,,0.9862676136927149,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 1 / 2048 (0.0%)
+Greatest absolute difference: 0.0625 at index (4, 107) (up to 0.03 allowed)
+Greatest relative difference: 0.007476806640625 at index (4, 107) (up to 0.003 allowed)
+"
+supplement:add_layernorm_weight:bfloat16:32x256,add_layernorm_weight,bfloat16,32,256,,"{""atol"": 0.03, ""rtol"": 0.003}",97,small,eager,True,passed,gpu_and_e2e,4,6.972394430434327,32.2315,,,6.97989417398643,32.217,0.9989255218825445,,1.0004500729428563,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 3 / 8192 (0.0%)
+Greatest absolute difference: 0.0625 at index (3, 209) (up to 0.03 allowed)
+Greatest relative difference: 0.0069580078125 at index (5, 209) (up to 0.003 allowed)
+"
+supplement:add_layernorm_weight:bfloat16:64x1024,add_layernorm_weight,bfloat16,64,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",98,small,eager,True,passed,precision,5,9.0018239247023,32.186499999999995,,,9.00696438445142,32.242000000000004,0.9994292794409186,,0.9982786427640963,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 15 / 65536 (0.0%)
+Greatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)
+Greatest relative difference: 0.00775146484375 at index (4, 992) (up to 0.003 allowed)
+"
+supplement:add_layernorm_bias:float32:16x128,add_layernorm_bias,float32,16,128,,"{""atol"": 0.0003, ""rtol"": 0.0003}",99,small,eager,True,passed,gpu_only,7,6.493931895055953,76.328,14.170399153914698,108.6695,6.502347356292143,74.9175,0.9987057810395124,2.1792744031434115,1.0188273767811258,1.4505222411319116,
+supplement:add_layernorm_bias:float32:32x256,add_layernorm_bias,float32,32,256,,"{""atol"": 0.0003, ""rtol"": 0.0003}",100,small,eager,True,passed,gpu_only,6,6.64537349406115,36.141,23.380773128893672,64.66900000000001,6.68163461484172,36.150999999999996,0.9945730165040717,3.4992594591985986,0.9997233824790462,1.7888578462559823,
+supplement:add_layernorm_bias:float32:64x1024,add_layernorm_bias,float32,64,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",101,small,eager,True,passed,gpu_and_e2e,3,11.672185601366593,60.763999999999996,67.99473923243833,129.05200000000002,11.747608470559566,61.644000000000005,0.9935797256622921,5.7879643676275485,0.9857244825124909,2.0935046395431836,
+supplement:add_layernorm_bias:float16:16x128,add_layernorm_bias,float16,16,128,,"{""atol"": 0.003, ""rtol"": 0.003}",102,small,eager,True,passed,gpu_and_e2e,4,6.336760739167167,47.0405,26.222358852011116,66.3835,6.295364017617512,43.6305,1.006575747078931,4.165344335709279,1.0781563355909285,1.5214929922875053,
+supplement:add_layernorm_bias:float16:32x256,add_layernorm_bias,float16,32,256,,"{""atol"": 0.003, ""rtol"": 0.003}",103,small,eager,True,passed,gpu_and_e2e,5,6.713891776361291,35.692,27.036232363150575,66.0735,6.710523724867221,35.737,1.000501905906627,4.028930299875444,0.998740800850659,1.848882110977418,
+supplement:add_layernorm_bias:float16:64x1024,add_layernorm_bias,float16,64,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",104,small,eager,True,passed,gpu_and_e2e,7,8.222431621768258,69.1185,67.71469658071345,135.447,8.136305619369853,69.408,1.010585394210533,8.322536019235455,0.9958290110650069,1.9514609266943292,
+supplement:add_layernorm_bias:bfloat16:16x128,add_layernorm_bias,bfloat16,16,128,,"{""atol"": 0.03, ""rtol"": 0.003}",105,small,eager,True,passed,gpu_and_e2e,6,7.4555402118447835,36.206500000000005,25.971465766147414,65.829,7.46446452434594,36.3065,0.9988044269656517,3.4793474711333183,0.9972456722625427,1.8131464062908844,
+supplement:add_layernorm_bias:bfloat16:32x256,add_layernorm_bias,bfloat16,32,256,,"{""atol"": 0.03, ""rtol"": 0.003}",106,small,eager,True,passed,gpu_only,3,7.984012986222902,71.813,26.838899900515877,103.22,7.984274687866369,72.35300000000001,0.9999672228657333,3.361470008202838,0.9925365914336655,1.4266167263278646,
+supplement:add_layernorm_bias:bfloat16:64x1024,add_layernorm_bias,bfloat16,64,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",107,small,eager,True,passed,precision,4,10.581965971147358,42.376000000000005,79.5528695807102,128.21699999999998,10.580869168525375,44.051,1.0001036590288108,7.518557153825696,0.9619758915802139,2.910649020453565,
+large:matmul_bias:float32:128x1024x128,matmul_bias,float32,128,1024,128,"{""atol"": 0.0003, ""rtol"": 0.0003}",108,large,sdnn,False,passed,selected,5,9.769464924127728,59.039,5.376518514641093,61.319,5.28449784670628,29.552500000000002,1.8487026028815277,1.0174133230070606,1.9977666864055494,2.0749175196683867,
+large:matmul_bias:float32:512x1024x1024,matmul_bias,float32,512,1024,1024,"{""atol"": 0.0003, ""rtol"": 0.0003}",109,large,sdnn,False,passed,selected,7,30.02574689248029,92.98599999999999,24.92488570073072,105.9845,24.93019139065462,65.453,1.2043929555926232,0.9997871781310957,1.4206529876399858,1.619245871083067,
+large:matmul_bias:float32:2048x2048x2048,matmul_bias,float32,2048,2048,2048,"{""atol"": 0.0003, ""rtol"": 0.0003}",110,large,eager,True,passed,gpu_and_e2e,6,192.00219426836287,213.864,208.0005691165016,279.548,192.03088397071474,213.064,0.9998505984987486,1.0831620665154167,1.0037547403597042,1.3120376975932115,
+large:matmul_bias:float16:128x1024x128,matmul_bias,float16,128,1024,128,"{""atol"": 0.003, ""rtol"": 0.003}",111,large,sdnn,False,passed,selected,3,8.976853284679475,73.07300000000001,4.800635283110571,86.25649999999999,5.355297053446535,42.8605,1.6762568341381168,0.8964274502795325,1.7049031159225863,2.012494021301664,
+large:matmul_bias:float16:512x1024x1024,matmul_bias,float16,512,1024,1024,"{""atol"": 0.003, ""rtol"": 0.003}",112,large,sdnn,False,passed,selected,4,24.47059784812489,61.819,21.433738456375295,64.884,19.89454853123632,46.796,1.2300152380791018,1.0773674216694236,1.3210317121121464,1.386528763142149,
+large:matmul_bias:float16:2048x2048x2048,matmul_bias,float16,2048,2048,2048,"{""atol"": 0.003, ""rtol"": 0.003}",113,large,eager,True,passed,gpu_and_e2e,5,93.01789317812239,114.294,101.16338162195115,168.04399999999998,93.02028587886265,113.849,0.9999742776458097,1.0875410741447622,1.003908686066632,1.4760252615306237,
+large:matmul_bias:bfloat16:128x1024x128,matmul_bias,bfloat16,128,1024,128,"{""atol"": 0.003, ""rtol"": 0.003}",114,large,eager,True,passed,precision,7,10.385887664661073,60.4345,,,10.411515988801655,60.844,0.997538463738792,,0.9932696732627704,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/utils.py"", line 2222, in preserve_rng_state
+    yield
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 1505, in codegen_and_compile
+    compiled_module = graph.compile_to_module()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/graph.py"", line 2319, in compile_to_module
+    return self._compile_to_module()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/graph.py"", line 2329, in _compile_to_module
+    mod = self._compile_to_module_lines(wrapper_code)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/graph.py"", line 2397, in _compile_to_module_lines
+    mod = PyCodeCache.load_by_key_path(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/codecache.py"", line 3548, in load_by_key_path
+    mod = _reload_python_module(key, path, set_sys_modules=in_toplevel)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/runtime/compile_tasks.py"", line 33, in _reload_python_module
+    exec(code, mod.__dict__, mod.__dict__)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/cache/inductor/yu/cyuttdkhy5kql424y5tv7xd3zmgm5veuhep5uyfsubtzr7ncujsb.py"", line 47, in <module>
+    triton_tem_fused_addmm_0 = async_compile.triton('triton_tem_fused_addmm_0', '''
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/async_compile.py"", line 500, in triton
+    kernel.precompile(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/runtime/triton_heuristics.py"", line 451, in precompile
+    self._make_launchers()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/runtime/triton_heuristics.py"", line 608, in _make_launchers
+    device_interface.synchronize(device_interface.current_device())
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/__init__.py"", line 1083, in synchronize
+    return torch._C._cuda_synchronize()
+torch.AcceleratorError: CUDA error: an illegal memory access was encountered
+Search for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/utils.py"", line 2222, in preserve_rng_state
+    yield
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/aot_autograd.py"", line 1106, in aot_module_simplified
+    compiled_fn, _ = aot_stage2_compile(aot_state, aot_graph_capture)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/graph_compile.py"", line 242, in aot_stage2_compile
+    return aot_stage2_inference(aot_state, aot_graph_capture)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/graph_compile.py"", line 315, in aot_stage2_inference
+    compiled_fw = compiler(fw_module, updated_flat_args)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/_aot_autograd/schemas.py"", line 1251, in __call__
+    return self.compiler_fn(gm, example_inputs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2558, in fw_compiler_base
+    return compile_fx_forward(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2275, in compile_fx_forward
+    return inner_compile(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 782, in compile_fx_inner
+    return wrap_compiler_debug(_compile_fx_inner, compiler_name=""inductor"")(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/repro/after_aot.py"", line 144, in debug_wrapper
+    inner_compiled_fn = compiler_fn(gm, example_inputs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 963, in _compile_fx_inner
+    mb_compiled_graph = fx_codegen_and_compile(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 1695, in fx_codegen_and_compile
+    return scheme.codegen_and_compile(gm, example_inputs, inputs_to_check, graph_kwargs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 1182, in codegen_and_compile
+    with (
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/utils.py"", line 2227, in preserve_rng_state
+    torch.cuda.set_rng_state(cuda_rng_state)  # type: ignore[possibly-undefined]
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/random.py"", line 79, in set_rng_state
+    _lazy_call(cb)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/__init__.py"", line 341, in _lazy_call
+    callable()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/random.py"", line 77, in cb
+    default_generator.set_state(new_state)
+torch.AcceleratorError: CUDA error: an illegal memory access was encountered
+Search for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 92, in main
+    fn, proof = auto.compile_candidate(gm, inputs, selected)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_autotune.py"", line 142, in compile_candidate
+    fn = compile_fx(native_gm, list(inputs))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2494, in compile_fx
+    return make_graph_return_tuple(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2733, in make_graph_return_tuple
+    compiled_fn = compile_gm(gm, inputs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_inductor/compile_fx.py"", line 2681, in compile_fx
+    return aot_autograd(
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/backends/common.py"", line 117, in __call__
+    cg = aot_module_simplified(gm, example_inputs, **self.kwargs)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_functorch/aot_autograd.py"", line 1049, in aot_module_simplified
+    with contextlib.ExitStack() as stack:
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 576, in __exit__
+    raise exc_details[1]
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/compiled_autograd.py"", line 1558, in _disable
+    yield
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 561, in __exit__
+    if cb(*exc_details):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/contextlib.py"", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/_dynamo/utils.py"", line 2227, in preserve_rng_state
+    torch.cuda.set_rng_state(cuda_rng_state)  # type: ignore[possibly-undefined]
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/random.py"", line 79, in set_rng_state
+    _lazy_call(cb)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/__init__.py"", line 341, in _lazy_call
+    callable()
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/cuda/random.py"", line 77, in cb
+    default_generator.set_state(new_state)
+torch.AcceleratorError: CUDA error: an illegal memory access was encountered
+Search for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+"
+large:matmul_bias:bfloat16:512x1024x1024,matmul_bias,bfloat16,512,1024,1024,"{""atol"": 0.003, ""rtol"": 0.003}",115,large,eager,True,passed,precision,6,33.32984766789845,51.635,,,33.320777118206024,51.595,1.0002722190319946,,1.0007752689214071,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 254399 / 524288 (48.5%)
+Greatest absolute difference: 1.0 at index (1, 74) (up to 0.003 allowed)
+Greatest relative difference: inf at index (11, 432) (up to 0.003 allowed)
+"
+large:matmul_bias:bfloat16:2048x2048x2048,matmul_bias,bfloat16,2048,2048,2048,"{""atol"": 0.003, ""rtol"": 0.003}",116,large,eager,True,passed,precision,3,177.28189800096595,216.589,184.67574534208876,291.922,177.46413272360098,217.469,0.9989731180050965,1.0406370149720328,0.9959534462383145,1.3423614400213366,
+large:matmul_bias_relu:float32:128x1024x128,matmul_bias_relu,float32,128,1024,128,"{""atol"": 0.0003, ""rtol"": 0.0003}",117,large,sdnn,False,passed,selected,4,12.107347912258572,72.643,9.10158528221978,81.1625,5.34210205078125,36.311499999999995,2.2664014646608903,1.7037460527150972,2.000550789694725,2.2351734299051267,
+large:matmul_bias_relu:float32:512x1024x1024,matmul_bias_relu,float32,512,1024,1024,"{""atol"": 0.0003, ""rtol"": 0.0003}",118,large,sdnn,False,passed,selected,5,34.000376997322874,71.113,36.54952378108584,79.25200000000001,24.75950964565935,49.3405,1.3732249743194556,1.4761812452733056,1.4412703559955817,1.6062261225565206,
+large:matmul_bias_relu:float32:2048x2048x2048,matmul_bias_relu,float32,2048,2048,2048,"{""atol"": 0.0003, ""rtol"": 0.0003}",119,large,eager,True,passed,gpu_and_e2e,7,211.00839815641706,241.10649999999998,239.9577592548571,306.91049999999996,210.87283837167843,241.29649999999998,1.0006428508563996,1.1379263498692727,0.9992125870039558,1.2719227174865777,
+large:matmul_bias_relu:float16:128x1024x128,matmul_bias_relu,float16,128,1024,128,"{""atol"": 0.003, ""rtol"": 0.003}",120,large,sdnn,False,passed,selected,6,11.391173259845907,70.238,9.224839230296029,72.083,5.541628574434652,30.326999999999998,2.055564191435911,1.6646440854685272,2.3160220265769778,2.3768589046064563,
+large:matmul_bias_relu:float16:512x1024x1024,matmul_bias_relu,float16,512,1024,1024,"{""atol"": 0.003, ""rtol"": 0.003}",121,large,eager,True,passed,gpu_only,3,27.85724685305641,85.55199999999999,37.67336171770853,119.039,27.867373019929914,86.8315,0.9996366300165336,1.3518806272398072,0.9852645641270735,1.3709195395680138,
+large:matmul_bias_relu:float16:2048x2048x2048,matmul_bias_relu,float16,2048,2048,2048,"{""atol"": 0.003, ""rtol"": 0.003}",122,large,eager,True,passed,gpu_and_e2e,4,104.37621254669992,132.392,151.66994772459333,213.8095,104.42806545056794,131.518,0.9995034581590275,1.4523868374865931,1.0066454781854954,1.6257052266609895,
+large:matmul_bias_relu:bfloat16:128x1024x128,matmul_bias_relu,bfloat16,128,1024,128,"{""atol"": 0.003, ""rtol"": 0.003}",123,large,eager,True,passed,precision,5,12.928745838312002,47.3155,,,12.89200415978065,47.566,1.002849958631411,,0.9947336332674599,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 27948 / 131072 (21.3%)
+Greatest absolute difference: 0.5 at index (52, 575) (up to 0.003 allowed)
+Greatest relative difference: inf at index (110, 536) (up to 0.003 allowed)
+"
+large:matmul_bias_relu:bfloat16:512x1024x1024,matmul_bias_relu,bfloat16,512,1024,1024,"{""atol"": 0.003, ""rtol"": 0.003}",124,large,eager,True,passed,precision,7,37.422974486100046,61.403999999999996,,,37.395494862606654,61.599000000000004,1.0007348378085208,,0.9968343641942238,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 129448 / 524288 (24.7%)
+Greatest absolute difference: 1.0 at index (1, 74) (up to 0.003 allowed)
+Greatest relative difference: inf at index (75, 245) (up to 0.003 allowed)
+"
+large:matmul_bias_relu:bfloat16:2048x2048x2048,matmul_bias_relu,bfloat16,2048,2048,2048,"{""atol"": 0.003, ""rtol"": 0.003}",125,large,eager,True,passed,precision,6,189.20714514596122,209.20499999999998,,,189.20021397726876,209.32,1.0000366340425666,,0.9994506019491687,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 48123 / 4194304 (1.1%)
+Greatest absolute difference: 1.0 at index (37, 1576) (up to 0.003 allowed)
+Greatest relative difference: 0.0076904296875 at index (5, 833) (up to 0.003 allowed)
+"
+large:matmul_bias_gelu_exact:float32:128x1024x128,matmul_bias_gelu_exact,float32,128,1024,128,"{""atol"": 0.0003, ""rtol"": 0.0003}",126,large,sdnn,False,passed,selected,3,20.65078611974116,99.575,18.3667894843575,105.24449999999999,11.076487861313186,46.980000000000004,1.864380332313467,1.6581780898715313,2.119518944231588,2.2401979565772665,
+large:matmul_bias_gelu_exact:float32:512x1024x1024,matmul_bias_gelu_exact,float32,512,1024,1024,"{""atol"": 0.0003, ""rtol"": 0.0003}",127,large,sdnn,False,passed,selected,4,65.11032290574981,101.77,51.062211757752955,95.37100000000001,29.398487835395628,57.079499999999996,2.2147507473958346,1.7368992597052668,1.7829518478613162,1.6708450494485765,
+large:matmul_bias_gelu_exact:float32:2048x2048x2048,matmul_bias_gelu_exact,float32,2048,2048,2048,"{""atol"": 0.0003, ""rtol"": 0.0003}",128,large,sdnn,False,passed,selected,5,436.30892889840266,463.995,366.7810474123273,422.72400000000005,296.9657523291452,325.70349999999996,1.4692230517370062,1.2350954429445509,1.4245932266616725,1.2978798201431674,
+large:matmul_bias_gelu_exact:float16:128x1024x128,matmul_bias_gelu_exact,float16,128,1024,128,"{""atol"": 0.003, ""rtol"": 0.003}",129,large,sdnn,False,passed,selected,7,19.82022242413627,122.1635,15.54985758331087,126.9525,10.773401293489668,56.2945,1.8397367631811474,1.443356388544405,2.1700787821190346,2.2551492596967733,
+large:matmul_bias_gelu_exact:float16:512x1024x1024,matmul_bias_gelu_exact,float16,512,1024,1024,"{""atol"": 0.003, ""rtol"": 0.003}",130,large,sdnn,False,passed,selected,6,60.12030153085065,101.66,53.35597486685444,96.2055,23.43519160289638,48.915499999999994,2.5653855342672047,2.2767458346813823,2.0782778464903764,1.9667692244789485,
+large:matmul_bias_gelu_exact:float16:2048x2048x2048,matmul_bias_gelu_exact,float16,2048,2048,2048,"{""atol"": 0.003, ""rtol"": 0.003}",131,large,sdnn,False,passed,selected,3,342.96554989284937,379.808,279.5792023340861,353.486,231.06192217932806,273.60900000000004,1.4843014662825857,1.2099752295711605,1.3881414719545042,1.2919384961751987,
+large:matmul_bias_gelu_exact:bfloat16:128x1024x128,matmul_bias_gelu_exact,bfloat16,128,1024,128,"{""atol"": 0.003, ""rtol"": 0.003}",132,large,eager,True,passed,precision,4,21.34437429392996,56.099500000000006,,,21.38595420158714,56.2595,0.9980557375525431,,0.9971560358694976,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 31302 / 131072 (23.9%)
+Greatest absolute difference: 0.5 at index (52, 575) (up to 0.003 allowed)
+Greatest relative difference: inf at index (7, 452) (up to 0.003 allowed)
+"
+large:matmul_bias_gelu_exact:bfloat16:512x1024x1024,matmul_bias_gelu_exact,bfloat16,512,1024,1024,"{""atol"": 0.003, ""rtol"": 0.003}",133,large,eager,True,passed,precision,5,69.73281289849962,89.956,,,69.7519906929561,89.99600000000001,0.9997250573888149,,0.9995555358015911,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 129820 / 524288 (24.8%)
+Greatest absolute difference: 1.0 at index (1, 74) (up to 0.003 allowed)
+Greatest relative difference: inf at index (75, 245) (up to 0.003 allowed)
+"
+large:matmul_bias_gelu_exact:bfloat16:2048x2048x2048,matmul_bias_gelu_exact,bfloat16,2048,2048,2048,"{""atol"": 0.003, ""rtol"": 0.003}",134,large,eager,True,passed,precision,7,436.40685081481934,482.5685,,,436.5462064743042,482.608,0.9996807768400731,,0.9999181530351755,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 57205 / 4194304 (1.4%)
+Greatest absolute difference: 1.0 at index (37, 1576) (up to 0.003 allowed)
+Greatest relative difference: 0.0087890625 at index (3, 810) (up to 0.003 allowed)
+"
+large:matmul_bias_gelu_tanh:float32:128x1024x128,matmul_bias_gelu_tanh,float32,128,1024,128,"{""atol"": 0.0003, ""rtol"": 0.0003}",135,large,eager,True,passed,gpu_only,6,19.252645876980566,55.8245,12.282418650250102,83.52199999999999,19.25418081209641,56.638999999999996,0.9999202804247647,0.6379091777580945,0.9856194494959305,1.474637617189569,
+large:matmul_bias_gelu_tanh:float32:512x1024x1024,matmul_bias_gelu_tanh,float32,512,1024,1024,"{""atol"": 0.0003, ""rtol"": 0.0003}",136,large,inductor,True,passed,gpu_and_e2e,3,70.63784201939902,135.4015,62.50045895576477,116.124,62.48697439829508,115.654,1.1304410671118417,1.0002157978938737,1.1707463641551525,1.0040638456084527,
+large:matmul_bias_gelu_tanh:float32:2048x2048x2048,matmul_bias_gelu_tanh,float32,2048,2048,2048,"{""atol"": 0.0003, ""rtol"": 0.0003}",137,large,inductor,True,passed,gpu_and_e2e,4,409.42926066262385,437.163,287.9117727279663,342.092,287.9944869450161,341.082,1.421656591436044,0.9997127923595789,1.2816947244357662,1.0029611647638983,
+large:matmul_bias_gelu_tanh:float16:128x1024x128,matmul_bias_gelu_tanh,float16,128,1024,128,"{""atol"": 0.003, ""rtol"": 0.003}",138,large,eager,True,passed,gpu_only,5,18.518077508183836,56.8545,12.26578049987327,83.392,18.505984590253757,56.799499999999995,1.0006534598508445,0.6628007518353326,1.0009683183830844,1.4681819382212873,
+large:matmul_bias_gelu_tanh:float16:512x1024x1024,matmul_bias_gelu_tanh,float16,512,1024,1024,"{""atol"": 0.003, ""rtol"": 0.003}",139,large,eager,True,passed,gpu_and_e2e,7,53.59213526655988,100.67,43.82888427594813,111.65899999999999,53.64402910558189,100.0855,0.999032625999813,0.817031923342006,1.005840006794191,1.1156361311079026,
+large:matmul_bias_gelu_tanh:float16:2048x2048x2048,matmul_bias_gelu_tanh,float16,2048,2048,2048,"{""atol"": 0.003, ""rtol"": 0.003}",140,large,inductor,True,passed,gpu_and_e2e,6,325.5076766014099,352.161,198.26114773750305,249.411,198.32090139389038,249.641,1.6413180573181771,0.9996987021742673,1.4106697217203905,0.9990786769801435,
+large:matmul_bias_gelu_tanh:bfloat16:128x1024x128,matmul_bias_gelu_tanh,bfloat16,128,1024,128,"{""atol"": 0.003, ""rtol"": 0.003}",141,large,eager,True,passed,precision,3,20.300447940826416,79.287,,,20.336808160293934,78.9425,0.9982120980253671,,1.0043639357760397,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 29573 / 131072 (22.6%)
+Greatest absolute difference: 0.5 at index (52, 575) (up to 0.003 allowed)
+Greatest relative difference: inf at index (7, 452) (up to 0.003 allowed)
+"
+large:matmul_bias_gelu_tanh:bfloat16:512x1024x1024,matmul_bias_gelu_tanh,bfloat16,512,1024,1024,"{""atol"": 0.003, ""rtol"": 0.003}",142,large,eager,True,passed,precision,4,63.875408967336014,84.342,,,63.888901472091675,84.307,0.999788813010636,,1.0004151493944748,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 129863 / 524288 (24.8%)
+Greatest absolute difference: 1.0 at index (1, 74) (up to 0.003 allowed)
+Greatest relative difference: inf at index (75, 245) (up to 0.003 allowed)
+"
+large:matmul_bias_gelu_tanh:bfloat16:2048x2048x2048,matmul_bias_gelu_tanh,bfloat16,2048,2048,2048,"{""atol"": 0.003, ""rtol"": 0.003}",143,large,eager,True,passed,precision,5,420.96805572509766,440.897,,,420.9355592727661,441.11199999999997,1.0000772005396448,,0.9995125954406138,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 56646 / 4194304 (1.4%)
+Greatest absolute difference: 1.0 at index (37, 1576) (up to 0.003 allowed)
+Greatest relative difference: 0.0091552734375 at index (1726, 511) (up to 0.003 allowed)
+"
+large:matmul_bias_silu:float32:128x1024x128,matmul_bias_silu,float32,128,1024,128,"{""atol"": 0.0003, ""rtol"": 0.0003}",144,large,sdnn_cluster_at_1,False,passed,selected,7,15.21181543811564,74.783,14.774418910057536,73.0975,11.682498325940074,47.9405,1.3021029418287176,1.2646626173489017,1.5599128085856426,1.524754643777182,
+large:matmul_bias_silu:float32:512x1024x1024,matmul_bias_silu,float32,512,1024,1024,"{""atol"": 0.0003, ""rtol"": 0.0003}",145,large,sdnn_cluster_at_2,False,passed,selected,6,39.78580912363898,77.56200000000001,39.40746341783976,82.287,38.845428486460264,63.7335,1.0242082704147926,1.0144684961211174,1.2169738049848198,1.291110640401045,
+large:matmul_bias_silu:float32:2048x2048x2048,matmul_bias_silu,float32,2048,2048,2048,"{""atol"": 0.0003, ""rtol"": 0.0003}",146,large,eager,True,passed,gpu_and_e2e,3,240.9365878385656,266.604,270.20037875455967,332.97249999999997,240.65814298741958,266.6995,1.001157014043612,1.1227560198064206,0.9996419190887121,1.2484931542803792,
+large:matmul_bias_silu:float16:128x1024x128,matmul_bias_silu,float16,128,1024,128,"{""atol"": 0.003, ""rtol"": 0.003}",147,large,sdnn_cluster_at_2,False,passed,selected,4,14.783561427727886,74.5925,11.61528742590616,79.457,10.658969910833923,52.995000000000005,1.3869596735329623,1.0897195060190783,1.4075384470233039,1.4993301254835358,
+large:matmul_bias_silu:float16:512x1024x1024,matmul_bias_silu,float16,512,1024,1024,"{""atol"": 0.003, ""rtol"": 0.003}",148,large,sdnn_cluster_at_2,False,passed,selected,5,35.2062654057774,77.32300000000001,35.123981467080775,76.5625,33.945794499248535,58.8195,1.0371318723017888,1.0347078919557566,1.314581048801843,1.301651663138925,
+large:matmul_bias_silu:float16:2048x2048x2048,matmul_bias_silu,float16,2048,2048,2048,"{""atol"": 0.003, ""rtol"": 0.003}",149,large,eager,True,passed,gpu_and_e2e,7,149.90344753971806,190.037,185.12329348811397,266.969,149.61563216315375,189.897,1.0019236985627975,1.2373258783964474,1.000737241767906,1.4058621252573764,
+large:matmul_bias_silu:bfloat16:128x1024x128,matmul_bias_silu,bfloat16,128,1024,128,"{""atol"": 0.003, ""rtol"": 0.003}",150,large,eager,True,passed,precision,6,16.868931405684528,51.845,,,16.86847502110051,52.1945,1.0000270554738022,,0.9933038921725469,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 32228 / 131072 (24.6%)
+Greatest absolute difference: 0.5 at index (52, 575) (up to 0.003 allowed)
+Greatest relative difference: inf at index (7, 452) (up to 0.003 allowed)
+"
+large:matmul_bias_silu:bfloat16:512x1024x1024,matmul_bias_silu,bfloat16,512,1024,1024,"{""atol"": 0.003, ""rtol"": 0.003}",151,large,eager,True,passed,precision,3,46.51520428834138,84.14699999999999,,,46.63503022841465,84.85149999999999,0.997430559399525,,0.9916972593295346,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 131214 / 524288 (25.0%)
+Greatest absolute difference: 1.0 at index (1, 74) (up to 0.003 allowed)
+Greatest relative difference: inf at index (75, 245) (up to 0.003 allowed)
+"
+large:matmul_bias_silu:bfloat16:2048x2048x2048,matmul_bias_silu,bfloat16,2048,2048,2048,"{""atol"": 0.003, ""rtol"": 0.003}",152,large,eager,True,passed,precision,4,243.8173574559829,265.47900000000004,,,243.7426763422349,266.254,1.0003063932622251,,0.9970892456075778,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 86210 / 4194304 (2.1%)
+Greatest absolute difference: 1.0 at index (37, 1576) (up to 0.003 allowed)
+Greatest relative difference: 0.0089111328125 at index (26, 1830) (up to 0.003 allowed)
+"
+large:add_softmax:float32:128x1024,add_softmax,float32,128,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",153,large,eager,True,passed,gpu_and_e2e,5,14.973609208019539,31.617,137.62083844847035,180.4025,14.949807954146873,31.6515,1.0015920775668603,9.20552550712173,0.9989100042652008,5.699650885424072,
+large:add_softmax:float32:512x1024,add_softmax,float32,512,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",154,large,eager,True,passed,gpu_and_e2e,7,21.280584128006645,42.311,520.5672364797651,577.049,21.25022648284154,42.341,1.0014285798407663,24.49702062705526,0.9992914668996953,13.628610566590302,
+large:add_softmax:float32:2048x2048,add_softmax,float32,2048,2048,,"{""atol"": 0.0003, ""rtol"": 0.0003}",155,large,eager,True,passed,gpu_and_e2e,6,74.50333696145277,96.646,847.1685923062838,895.038,74.47873170559222,97.146,1.000330366203842,11.374637737590184,0.9948531076935746,9.213328392316718,
+large:add_softmax:float16:128x1024,add_softmax,float16,128,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",156,large,eager,True,passed,gpu_and_e2e,3,15.081407787563563,46.555,142.9774181262867,206.88,15.004988726194913,45.1605,1.0050929102822477,9.52865881709623,1.0308787546639209,4.580994453117215,
+large:add_softmax:float16:512x1024,add_softmax,float16,512,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",157,large,eager,True,passed,gpu_and_e2e,4,24.436472213431582,41.186,513.7495276046126,562.721,24.44609632230785,41.396,0.999606313059174,21.015605961422953,0.9949270460914098,13.593608078075176,
+large:add_softmax:float16:2048x2048,add_softmax,float16,2048,2048,,"{""atol"": 0.003, ""rtol"": 0.003}",158,large,eager,True,passed,gpu_and_e2e,5,67.99269349951493,82.75200000000001,896.1844862553112,941.9435000000001,67.98416689822548,82.902,1.000125420398285,13.18225297365089,0.9981906347253384,11.362132397288365,
+large:add_softmax:bfloat16:128x1024,add_softmax,bfloat16,128,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",159,large,eager,True,passed,precision,7,16.659985084344846,45.1655,143.18950577537612,203.981,16.58137127904609,43.775999999999996,1.0047410919142798,8.635564777222315,1.0317411366959066,4.659653691520468,
+large:add_softmax:bfloat16:512x1024,add_softmax,bfloat16,512,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",160,large,eager,True,passed,precision,6,25.582010018910076,38.9915,515.3941161243629,559.871,25.65063145143766,39.010999999999996,0.9973247663451287,20.09284321519017,0.9995001409858759,14.351618774191897,
+large:add_softmax:bfloat16:2048x2048,add_softmax,bfloat16,2048,2048,,"{""atol"": 0.03, ""rtol"": 0.003}",161,large,eager,True,passed,compiler,5,83.10163781998006,97.1905,899.7596984213972,946.534,83.11888258507912,97.3255,0.9997925289108475,10.824973464969503,0.9986129020657484,9.725447082213808,
+large:add_layernorm:float32:128x1024,add_layernorm,float32,128,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",162,large,eager,True,passed,gpu_and_e2e,4,9.7140000238047,47.456,120.05936015735973,168.10399999999998,9.77970137224569,47.645,0.9932818655764433,12.276383049699481,0.99603316192675,3.528261097701752,
+large:add_layernorm:float32:512x1024,add_layernorm,float32,512,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",163,large,eager,True,passed,gpu_and_e2e,5,14.834086791328762,34.312,465.81828905188524,510.02049999999997,14.844425864841627,34.542,0.9993035046550804,31.380013837729855,0.9933414394070985,14.76522783857333,
+large:add_layernorm:float32:2048x2048,add_layernorm,float32,2048,2048,,"{""atol"": 0.0003, ""rtol"": 0.0003}",164,large,eager,True,passed,gpu_and_e2e,7,49.66006085679338,75.6925,316.53731578105203,383.238,49.58767021024549,75.678,1.0014598517381632,6.383387532404196,1.0001916012579612,5.064060889558393,
+large:add_layernorm:float16:128x1024,add_layernorm,float16,128,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",165,large,eager,True,passed,gpu_and_e2e,6,8.978664528491885,34.372,135.5806395064953,177.27249999999998,9.045369056768196,34.501000000000005,0.9926255603438978,14.988956078585549,0.9962609779426682,5.138184400452159,
+large:add_layernorm:float16:512x1024,add_layernorm,float16,512,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",166,large,eager,True,passed,gpu_and_e2e,5,15.965196504547265,34.1665,469.8139172421688,513.8,15.96005966788844,34.057,1.0003218557302238,29.436852180912084,1.0032151980503272,15.086472678157206,
+large:add_layernorm:float16:2048x2048,add_layernorm,float16,2048,2048,,"{""atol"": 0.003, ""rtol"": 0.003}",167,large,eager,True,passed,gpu_and_e2e,4,31.92823861552551,55.355000000000004,291.2282859329629,336.832,31.972097084585542,55.025,0.9986282267020521,9.108826523405327,1.005997273966379,6.121435711040436,
+large:add_layernorm:bfloat16:128x1024,add_layernorm,bfloat16,128,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",168,large,eager,True,passed,precision,5,9.897352437504003,33.837,163.35175310979122,200.2705,9.912003454614858,34.287,0.9985218914442534,16.48019533666904,0.9868754921690438,5.841003879021203,
+large:add_layernorm:bfloat16:512x1024,add_layernorm,bfloat16,512,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",169,large,eager,True,passed,precision,7,17.40343131517109,53.135000000000005,541.2538227282073,605.4459999999999,17.376653144234105,52.5045,1.0015410430716845,31.14833554169235,1.0120084945099945,11.531316363359329,
+large:add_layernorm:bfloat16:2048x2048,add_layernorm,bfloat16,2048,2048,,"{""atol"": 0.03, ""rtol"": 0.003}",170,large,eager,True,passed,compiler,6,35.711619967506046,49.614999999999995,380.4536546979632,424.80899999999997,35.771010035560245,49.555,0.9983397150934469,10.635809677158996,1.0012107759055593,8.572475027746947,
+large:add_layernorm_weight:float32:128x1024,add_layernorm_weight,float32,128,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",171,large,eager,True,passed,gpu_and_e2e,5,11.630323942234455,37.5415,122.04553125502912,165.289,11.697163296103032,37.736000000000004,0.9942858492972527,10.433771690242983,0.9948457706169174,4.3801409794360815,
+large:add_layernorm_weight:float32:512x1024,add_layernorm_weight,float32,512,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",172,large,eager,True,passed,gpu_and_e2e,4,16.27776471737823,52.925,468.9488648289469,522.4390000000001,16.128859368924104,52.400000000000006,1.009232230565605,29.075141279518064,1.0100190839694654,9.970209923664122,
+large:add_layernorm_weight:float32:2048x2048,add_layernorm_weight,float32,2048,2048,,"{""atol"": 0.0003, ""rtol"": 0.0003}",173,large,eager,True,passed,gpu_and_e2e,5,50.50545389002019,66.2235,395.47050773323355,443.497,50.4403965813773,66.378,1.0012897858274752,7.840352862714051,0.9976724215854651,6.681385398776703,
+large:add_layernorm_weight:float16:128x1024,add_layernorm_weight,float16,128,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",174,large,eager,True,passed,gpu_and_e2e,7,9.41276476019268,56.019999999999996,136.88174809250876,193.4615,9.444775611069343,55.5295,0.996610734633108,14.49285337515932,1.0088331427439468,3.4839409683141396,
+large:add_layernorm_weight:float16:512x1024,add_layernorm_weight,float16,512,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",175,large,eager,True,passed,gpu_and_e2e,6,16.348433720557047,36.312,473.65128937490744,517.0450000000001,16.316924049955972,36.451499999999996,1.0019311035894145,29.028221736203122,0.9961729969960085,14.184464288163728,
+large:add_layernorm_weight:float16:2048x2048,add_layernorm_weight,float16,2048,2048,,"{""atol"": 0.003, ""rtol"": 0.003}",176,large,eager,True,passed,gpu_and_e2e,5,33.01152191330901,49.095,349.6789172687362,396.477,33.01626496610388,49.1255,0.9998563419332943,10.591110703398272,0.9993791411792246,8.070696481460748,
+large:add_layernorm_weight:bfloat16:128x1024,add_layernorm_weight,bfloat16,128,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",177,large,eager,True,passed,precision,4,10.143014429446541,45.7655,,,10.13590730362684,45.785,1.0007011829929777,,0.9995740963197555,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 32 / 131072 (0.0%)
+Greatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)
+Greatest relative difference: 0.00775146484375 at index (4, 992) (up to 0.003 allowed)
+"
+large:add_layernorm_weight:bfloat16:512x1024,add_layernorm_weight,bfloat16,512,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",178,large,eager,True,passed,precision,5,17.51483317038313,33.037,,,17.46731314493056,32.992000000000004,1.00272051145235,,1.0013639670223082,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 107 / 524288 (0.0%)
+Greatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)
+Greatest relative difference: 0.0078125 at index (170, 696) (up to 0.003 allowed)
+"
+large:add_layernorm_weight:bfloat16:2048x2048,add_layernorm_weight,bfloat16,2048,2048,,"{""atol"": 0.03, ""rtol"": 0.003}",179,large,eager,True,passed,compiler,7,37.8029990196228,50.625,,,37.843180894851685,50.599999999999994,0.998938200376429,,1.0004940711462451,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 1310 / 4194304 (0.0%)
+Greatest absolute difference: 0.0625 at index (1, 1217) (up to 0.03 allowed)
+Greatest relative difference: 0.0078125 at index (113, 209) (up to 0.003 allowed)
+"
+large:add_layernorm_bias:float32:128x1024,add_layernorm_bias,float32,128,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",180,large,eager,True,passed,gpu_and_e2e,6,11.68719542923794,35.906499999999994,122.26301623928931,167.8585,11.743356677366414,35.8915,0.9952176153998017,10.411249491802733,1.0004179262499475,4.6768315617903955,
+large:add_layernorm_bias:float32:512x1024,add_layernorm_bias,float32,512,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",181,large,eager,True,passed,gpu_and_e2e,5,15.768950093876231,36.707,463.0630146373402,507.42600000000004,15.773706544529308,36.531,0.9996984570088426,29.356639375159503,1.0048178259560374,13.890284963455697,
+large:add_layernorm_bias:float32:2048x2048,add_layernorm_bias,float32,2048,2048,,"{""atol"": 0.0003, ""rtol"": 0.0003}",182,large,eager,True,passed,gpu_and_e2e,4,50.713769699397844,70.928,394.18637125115646,445.6915,50.76567122810765,71.22800000000001,0.9989776254808768,7.764821417999997,0.9957881731903182,6.257251361824001,
+large:add_layernorm_bias:float16:128x1024,add_layernorm_bias,float16,128,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",183,large,eager,True,passed,gpu_and_e2e,5,9.34845151253117,35.837,136.58911819211102,179.59300000000002,9.380865637152713,36.091499999999996,0.9965446552721993,14.560395967207207,0.9929484781735314,4.9760469916739405,
+large:add_layernorm_bias:float16:512x1024,add_layernorm_bias,float16,512,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",184,large,eager,True,passed,gpu_and_e2e,7,16.05915966488066,37.2065,478.3429827008929,522.7695,16.064209597451345,37.051,0.9996856407693108,29.776938591288303,1.0041969177620036,14.109457234622546,
+large:add_layernorm_bias:float16:2048x2048,add_layernorm_bias,float16,2048,2048,,"{""atol"": 0.003, ""rtol"": 0.003}",185,large,eager,True,passed,gpu_and_e2e,6,32.88962355757182,53.1295,351.56125093983337,398.0615,32.902645853768405,53.16,0.9996042173552101,10.684893017488694,0.999426260346125,7.487989089541009,
+large:add_layernorm_bias:bfloat16:128x1024,add_layernorm_bias,bfloat16,128,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",186,large,eager,True,passed,precision,5,10.036528490151568,35.757000000000005,157.0193418271982,204.00549999999998,10.044391747492893,35.682,0.9992171494761454,15.632538612045934,1.0021019001177065,5.71732245950339,
+large:add_layernorm_bias:bfloat16:512x1024,add_layernorm_bias,bfloat16,512,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",187,large,eager,True,passed,precision,4,17.674126408316873,48.165499999999994,536.6512838036124,586.9580000000001,17.691838018821947,47.5305,0.9989988823950213,30.333269117243848,1.0133598426273653,12.349081116335828,
+large:add_layernorm_bias:bfloat16:2048x2048,add_layernorm_bias,bfloat16,2048,2048,,"{""atol"": 0.03, ""rtol"": 0.003}",188,large,eager,True,passed,compiler,5,37.14548597241392,51.82,471.1075773333559,518.97,37.168638540966676,51.615,0.9993770939840254,12.67486773329372,1.003971713649133,10.054635280441731,
+large:add_layernorm_affine:float32:128x1024,add_layernorm_affine,float32,128,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",189,large,eager,True,passed,gpu_and_e2e,7,11.938747370018149,37.5065,129.8982080423607,176.198,11.990092385489985,37.166,0.9957177131067003,10.83379542592676,1.0091615993111986,4.740838400688802,
+large:add_layernorm_affine:float32:512x1024,add_layernorm_affine,float32,512,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",190,large,eager,True,passed,gpu_and_e2e,6,16.64860281988839,37.717,485.1394368109302,529.419,16.649757033196565,37.456,0.999930676867784,29.137928910533113,1.0069681759931652,14.134424391285775,
+large:add_layernorm_affine:float32:2048x2048,add_layernorm_affine,float32,2048,2048,,"{""atol"": 0.0003, ""rtol"": 0.0003}",191,large,eager,True,passed,gpu_and_e2e,5,51.22324353770206,65.9935,502.6783692209344,550.3865,51.225684191051286,66.02850000000001,0.9999523548901734,9.813014255625077,0.9994699258653459,8.33558993464943,
+large:add_layernorm_affine:float16:128x1024,add_layernorm_affine,float16,128,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",192,large,eager,True,passed,gpu_and_e2e,4,9.881028160452843,51.67,144.9164628982544,200.801,9.91818755865097,51.480000000000004,0.9962534083996308,14.61118395284363,1.0036907536907536,3.900563325563325,
+large:add_layernorm_affine:float16:512x1024,add_layernorm_affine,float16,512,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",193,large,eager,True,passed,gpu_and_e2e,5,16.392959738677405,38.6115,493.7794523419074,541.2674999999999,16.417178905235147,38.566,0.9985247668495578,30.07699771027347,1.0011797956749469,14.034836384380021,
+large:add_layernorm_affine:float16:2048x2048,add_layernorm_affine,float16,2048,2048,,"{""atol"": 0.003, ""rtol"": 0.003}",194,large,eager,True,passed,gpu_and_e2e,7,33.83055383508855,52.959500000000006,397.6807680996982,444.547,33.810505000027746,50.445,1.0005929765042192,11.762047567741796,1.0498463673307563,8.812508672811974,
+large:add_layernorm_affine:bfloat16:128x1024,add_layernorm_affine,bfloat16,128,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",195,large,eager,True,passed,precision,6,10.166013045389143,32.987,,,10.16284442338787,33.077,1.0003117849559893,,0.997279076095172,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 28 / 131072 (0.0%)
+Greatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)
+Greatest relative difference: 0.0078125 at index (7, 318) (up to 0.003 allowed)
+"
+large:add_layernorm_affine:bfloat16:512x1024,add_layernorm_affine,bfloat16,512,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",196,large,eager,True,passed,precision,5,17.700961657932826,33.487,,,17.716433320726665,33.557,0.999126705555585,,0.9979139970795959,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 111 / 524288 (0.0%)
+Greatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)
+Greatest relative difference: 0.0078125 at index (7, 318) (up to 0.003 allowed)
+"
+large:add_layernorm_affine:bfloat16:2048x2048,add_layernorm_affine,bfloat16,2048,2048,,"{""atol"": 0.03, ""rtol"": 0.003}",197,large,eager,True,passed,compiler,5,39.33270604986893,52.505,,,39.34602611943295,52.5595,0.9996614634086912,,0.9989630799379751,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 1320 / 4194304 (0.0%)
+Greatest absolute difference: 0.125 at index (48, 1094) (up to 0.03 allowed)
+Greatest relative difference: 0.0078125 at index (64, 1088) (up to 0.003 allowed)
+"
+large:mul_sum:float32:128x1024,mul_sum,float32,128,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",198,large,eager,True,passed,gpu_and_e2e,5,8.28000160206355,26.707500000000003,14.12708711487516,57.284499999999994,8.273212137741481,26.9625,1.0008206563797748,1.7075697902667026,0.9905424200278166,2.124598980064905,
+large:mul_sum:float32:512x1024,mul_sum,float32,512,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",199,large,eager,True,passed,gpu_and_e2e,7,13.066236019134521,27.1425,51.88105583190918,92.646,13.05539608001709,26.877000000000002,1.0008303033512729,3.973916648252411,1.0098783346355618,3.447036499609331,
+large:mul_sum:float32:2048x2048,mul_sum,float32,2048,2048,,"{""atol"": 0.0003, ""rtol"": 0.0003}",200,large,eager,True,passed,gpu_and_e2e,6,35.171333948771164,48.621,159.48261987595333,188.6515,35.17345700945173,48.555,0.9999396402611208,4.534175296818209,1.0013592832869942,3.8853156214601996,
+large:mul_sum:float16:128x1024,mul_sum,float16,128,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",201,large,eager,True,passed,gpu_and_e2e,5,8.247833765909345,26.067500000000003,24.427431072303634,60.959,8.293097247620542,26.1575,0.9945420293094737,2.945513641397653,0.9965593042148525,2.330459715186849,
+large:mul_sum:float16:512x1024,mul_sum,float16,512,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",202,large,eager,True,passed,gpu_and_e2e,5,15.104098899944407,30.022,45.34079577471759,86.387,15.110150650814848,28.662,0.9995994910302158,3.000684561161042,1.047449584816133,3.0139906496406392,
+large:mul_sum:float16:2048x2048,mul_sum,float16,2048,2048,,"{""atol"": 0.003, ""rtol"": 0.003}",203,large,eager,True,passed,gpu_and_e2e,5,23.178143438950084,36.431,159.554606169657,199.821,23.140803661221774,36.5965,1.001613590360774,6.894946627849006,0.9954777096170399,5.460112305821595,
+large:mul_sum:bfloat16:128x1024,mul_sum,bfloat16,128,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",204,large,eager,True,passed,gpu_and_e2e,7,8.480287698599009,24.348,,,8.487347822922926,24.418,0.9991681589500964,,0.9971332623474486,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 45 / 128 (35.2%)
+Greatest absolute difference: 0.5 at index (73,) (up to 0.03 allowed)
+Greatest relative difference: 1.609375 at index (22,) (up to 0.003 allowed)
+"
+large:mul_sum:bfloat16:512x1024,mul_sum,bfloat16,512,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",205,large,eager,True,passed,gpu_and_e2e,6,15.400269452263327,27.867,,,15.394282556766838,27.897,1.0003889038332519,,0.9989246155500592,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 136 / 512 (26.6%)
+Greatest absolute difference: 0.5 at index (73,) (up to 0.03 allowed)
+Greatest relative difference: 1.609375 at index (22,) (up to 0.003 allowed)
+"
+large:mul_sum:bfloat16:2048x2048,mul_sum,bfloat16,2048,2048,,"{""atol"": 0.03, ""rtol"": 0.003}",206,large,eager,True,passed,gpu_and_e2e,5,24.926034335432384,37.260999999999996,,,24.921451765915442,37.296499999999995,1.0001838805202836,,0.999048168058665,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 654 / 2048 (31.9%)
+Greatest absolute difference: 1.0 at index (491,) (up to 0.03 allowed)
+Greatest relative difference: 19.875 at index (703,) (up to 0.003 allowed)
+"
+large:mul_sum_keepdim:float32:128x1024,mul_sum_keepdim,float32,128,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",207,large,eager,True,passed,gpu_and_e2e,5,8.356768744332449,26.3175,14.164774077279226,57.8545,8.36620398930141,25.958,0.9988722191114362,1.6930945139985771,1.0138492950150242,2.228773403189768,
+large:mul_sum_keepdim:float32:512x1024,mul_sum_keepdim,float32,512,1024,,"{""atol"": 0.0003, ""rtol"": 0.0003}",208,large,eager,True,passed,gpu_and_e2e,5,13.031295434696467,26.543,52.188617976631704,92.27600000000001,13.062744159398116,26.637500000000003,0.9975924871284397,3.9952262204480293,0.9964523697794462,3.464138901923979,
+large:mul_sum_keepdim:float32:2048x2048,mul_sum_keepdim,float32,2048,2048,,"{""atol"": 0.0003, ""rtol"": 0.0003}",209,large,eager,True,passed,gpu_and_e2e,7,35.18626122247605,50.980500000000006,158.10716719854446,187.50150000000002,35.1823091506958,50.82,1.0001123312220161,4.493939454665316,1.003158205430933,3.6895218417945697,
+large:mul_sum_keepdim:float16:128x1024,mul_sum_keepdim,float16,128,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",210,large,eager,True,passed,gpu_and_e2e,6,8.227726851386585,25.9325,24.39424909394363,61.904,8.294311748153863,26.3275,0.9919722215912492,2.9410817720196336,0.9849966764789668,2.351305668977305,
+large:mul_sum_keepdim:float16:512x1024,mul_sum_keepdim,float16,512,1024,,"{""atol"": 0.003, ""rtol"": 0.003}",211,large,eager,True,passed,gpu_and_e2e,5,15.014191823346273,28.402,44.79309065001351,82.027,15.023904187338694,28.217,0.999353539275057,2.9814547597929053,1.0065563312896482,2.9070064145727756,
+large:mul_sum_keepdim:float16:2048x2048,mul_sum_keepdim,float16,2048,2048,,"{""atol"": 0.003, ""rtol"": 0.003}",212,large,eager,True,passed,gpu_and_e2e,5,23.096654492039836,36.5565,159.35057363202495,200.4255,23.097048267241448,36.7465,0.9999829512759788,6.899174811788913,0.9948294395384595,5.454274556760508,
+large:mul_sum_keepdim:bfloat16:128x1024,mul_sum_keepdim,bfloat16,128,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",213,large,eager,True,passed,gpu_and_e2e,5,8.56245793402195,24.7975,,,8.563073351979256,24.797,0.9999281311823442,,1.0000201637294834,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 45 / 128 (35.2%)
+Greatest absolute difference: 0.5 at index (73, 0) (up to 0.03 allowed)
+Greatest relative difference: 1.609375 at index (22, 0) (up to 0.003 allowed)
+"
+large:mul_sum_keepdim:bfloat16:512x1024,mul_sum_keepdim,bfloat16,512,1024,,"{""atol"": 0.03, ""rtol"": 0.003}",214,large,eager,True,passed,gpu_and_e2e,7,15.549227803252464,27.838,,,15.551737297412961,27.7875,0.9998386357670204,,1.001817363922627,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 136 / 512 (26.6%)
+Greatest absolute difference: 0.5 at index (73, 0) (up to 0.03 allowed)
+Greatest relative difference: 1.609375 at index (22, 0) (up to 0.003 allowed)
+"
+large:mul_sum_keepdim:bfloat16:2048x2048,mul_sum_keepdim,bfloat16,2048,2048,,"{""atol"": 0.03, ""rtol"": 0.003}",215,large,eager,True,passed,gpu_and_e2e,6,24.987814309713723,37.451,,,24.99046859207687,37.556,0.9998937882115589,,0.9972041750985197,,"Traceback (most recent call last):
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/worker.py"", line 95, in main
+    report.update(bench.evaluate(fn, gm, inputs, spec['tolerance']))
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 230, in evaluate
+    checks = validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 99, in validate
+    return _validate(fn, reference, inputs, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 67, in _validate
+    assert_close(actual, expected, tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/source/python/triton/experimental/graph_fusion/_resource_benchmark.py"", line 30, in assert_close
+    torch.testing.assert_close(x, y, equal_nan=True, **tolerance)
+  File ""/data2/zhaoweiming/f06-e2e-opt-20261103/env/lib/python3.10/site-packages/torch/testing/_comparison.py"", line 1589, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not close!
+
+Mismatched elements: 654 / 2048 (31.9%)
+Greatest absolute difference: 1.0 at index (491, 0) (up to 0.03 allowed)
+Greatest relative difference: 19.875 at index (703, 0) (up to 0.003 allowed)
+"

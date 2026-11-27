@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "f06-p800"
+version = "0.3.81+v51e.inductor64"
+description = "Explicit P800 inference fusion and resource autotuning"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+
+[project.scripts]
+f06-doctor = "f06.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["f06*"]
+
+[tool.setuptools.package-data]
+f06 = ["manifest.json"]
+"f06._vendor.graph_fusion" = ["*.c", "*.xpu"]

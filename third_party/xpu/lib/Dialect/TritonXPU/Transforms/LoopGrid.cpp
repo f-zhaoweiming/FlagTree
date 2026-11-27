@@ -115,6 +115,19 @@ struct TritonXPULoopGrid
         return true;
       };
       for (Operation *op : operations) {
+        if (auto stage = dyn_cast<triton::xpu::StageSMOp>(op)) {
+          if (!stage->hasAttr("xpu.readonly_column"))
+            continue;
+          llvm::SetVector<Operation *> cone;
+          bool hoistable = true;
+          for (Value operand : stage->getOperands())
+            hoistable &= collectCone(operand, cone);
+          if (hoistable) {
+            hoistSet.insert(cone.begin(), cone.end());
+            hoistSet.insert(stage);
+          }
+          continue;
+        }
         auto copy = dyn_cast<triton::xpu::TLECopyGlobalToLocalOp>(op);
         if (!copy)
           continue;

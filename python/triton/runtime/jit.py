@@ -898,7 +898,7 @@ class JITFunction(JITCallable, KernelInterface[T]):
                 # Load the optional raw runtime only when this kernel requests it.
                 if getattr(kernel.metadata, "kernel_init_hooks", ()):
                     try:
-                        from triton.experimental.tle.raw.cuda.runtime import run_kernel_init_hooks
+                        from triton.experimental.tle.raw.kernel_hooks import run_kernel_init_hooks
                     except ImportError:
                         pass
                     else:
@@ -913,7 +913,7 @@ class JITFunction(JITCallable, KernelInterface[T]):
             # Load the optional raw runtime only when this kernel requests it.
             if getattr(kernel.metadata, "kernel_init_hooks", ()):
                 try:
-                    from triton.experimental.tle.raw.cuda.runtime import run_kernel_init_hooks
+                    from triton.experimental.tle.raw.kernel_hooks import run_kernel_init_hooks
                 except ImportError:
                     pass
                 else:

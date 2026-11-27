@@ -117,6 +117,27 @@ extern "C" __device__ void my_scale(_global_ptr_ float* out,
 '''
 
 
+def test_global_lookup_accepts_relocated_raw_handle(ctx, monkeypatch):
+    from triton import knobs
+    from triton.compiler.code_generator import CodeGenerator
+    from triton.experimental.tle import raw
+
+    @raw.dialect("xpu3", source=CXX_PAYLOAD, arch=XPU_ARCH)
+    def my_scale(out, inp, n):
+        ...
+
+    class Unrelated:
+        __module__ = "runtime"
+
+    monkeypatch.setattr(my_scale, "__module__", "runtime")
+    monkeypatch.setattr(knobs.compilation, "allow_non_constexpr_globals", False)
+    generator = CodeGenerator(ctx, None, {"payload": my_scale, "other": Unrelated()}, "kernel", None,
+                              options=None, codegen_fns={}, module_map={}, is_gluon=False, file_name=__file__)
+    assert generator.dereference_name("payload") is my_scale
+    with pytest.raises(NameError, match="Cannot access global variable other"):
+        generator.dereference_name("other")
+
+
 def test_cxx_payload_lowers_to_a_declared_call(ctx, tmp_path):
     """The C++ path: .xpu source -> LLVM IR -> a call the backend binds later."""
     import triton.experimental.tle as tle

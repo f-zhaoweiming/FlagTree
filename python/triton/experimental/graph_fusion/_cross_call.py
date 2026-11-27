@@ -112,7 +112,7 @@ def cross_call_candidate(stages, example_inputs):
     prefixes = []
     previous = None
     for index, (stage, output) in enumerate(zip(stages, outputs)):
-        prefix = f"_fusion_stage{index}"
+        prefix = f"_f06_stage{index}"
         prefixes.append(prefix)
         setattr(root, prefix, stage)
         placeholders = [n for n in stage.graph.nodes if n.op == "placeholder"]

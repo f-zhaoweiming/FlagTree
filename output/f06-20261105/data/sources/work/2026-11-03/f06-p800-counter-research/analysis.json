@@ -1,0 +1,956 @@
+{
+  "status": "research_and_instrumentation_validation_complete; original_F06_pure_arithmetic_unresolved",
+  "successful_probe_launches": 252,
+  "retained_probe_launches": 224,
+  "logical_unit_rows": 2688,
+  "full_F06_rerun": false,
+  "production_source_changed": false,
+  "precision_thresholds_changed": false,
+  "BF16_policy": "FP32 promotion retained",
+  "pure_arithmetic_us": null,
+  "pure_arithmetic_pct": null,
+  "hardware_counters": {
+    "device_name": "P800 OAM",
+    "physical_device": 3,
+    "calls": [
+      {
+        "name": "cuInit",
+        "rc": 0
+      },
+      {
+        "name": "cuDeviceGet",
+        "rc": 0
+      },
+      {
+        "name": "cuDeviceGetName",
+        "rc": 0
+      },
+      {
+        "name": "cuGetExportTable",
+        "rc": 0
+      },
+      {
+        "name": "cuDevicePrimaryCtxRetain",
+        "rc": 0
+      },
+      {
+        "name": "cuDevicePrimaryCtxRelease",
+        "rc": 0
+      }
+    ],
+    "export_table_nonnull": true,
+    "counter_names": null,
+    "operations": "enumerate only; no ReservePmHw, UsePmStructure, ResetCounters or register writes",
+    "table_size": 80,
+    "query_function_nonnull": true,
+    "query_count_rc": 999,
+    "counter_count": 0,
+    "query_context_rc": 999,
+    "context_counter_count": 0
+  },
+  "get_pc_probe": "get_pc(0/1) emits load_param_i 0/1, identical to cluster_id/cluster_num; no automatic +16; do not treat as PMU",
+  "cluster_probe": [
+    {
+      "tile": 1024,
+      "repeats": 0,
+      "samples": 16,
+      "clock_pair": {
+        "median": 8.0,
+        "min": 8,
+        "max": 8
+      },
+      "read_issue": {
+        "median": 4.0,
+        "min": 4,
+        "max": 4
+      },
+      "read_residual_wait": {
+        "median": 507.0,
+        "min": 505,
+        "max": 883
+      },
+      "lm_vector_load": {
+        "median": 4.0,
+        "min": 4,
+        "max": 4
+      },
+      "vector_arithmetic_loop": {
+        "median": 14.0,
+        "min": 9,
+        "max": 14
+      },
+      "lm_vector_store_and_fence": {
+        "median": 16.0,
+        "min": 16,
+        "max": 16
+      },
+      "write_issue": {
+        "median": 4.0,
+        "min": 4,
+        "max": 4
+      },
+      "write_residual_wait": {
+        "median": 310.5,
+        "min": 309,
+        "max": 312
+      }
+    },
+    {
+      "tile": 1024,
+      "repeats": 32,
+      "samples": 16,
+      "clock_pair": {
+        "median": 8.0,
+        "min": 8,
+        "max": 8
+      },
+      "read_issue": {
+        "median": 4.0,
+        "min": 4,
+        "max": 4
+      },
+      "read_residual_wait": {
+        "median": 533.5,
+        "min": 505,
+        "max": 782
+      },
+      "lm_vector_load": {
+        "median": 4.0,
+        "min": 4,
+        "max": 4
+      },
+      "vector_arithmetic_loop": {
+        "median": 213.0,
+        "min": 213,
+        "max": 217
+      },
+      "lm_vector_store_and_fence": {
+        "median": 33.0,
+        "min": 32,
+        "max": 33
+      },
+      "write_issue": {
+        "median": 4.0,
+        "min": 4,
+        "max": 4
+      },
+      "write_residual_wait": {
+        "median": 311.0,
+        "min": 309,
+        "max": 312
+      }
+    },
+    {
+      "tile": 1024,
+      "repeats": 256,
+      "samples": 16,
+      "clock_pair": {
+        "median": 8.0,
+        "min": 8,
+        "max": 8
+      },
+      "read_issue": {
+        "median": 4.0,
+        "min": 4,
+        "max": 4
+      },
+      "read_residual_wait": {
+        "median": 508.0,
+        "min": 505,
+        "max": 865
+      },
+      "lm_vector_load": {
+        "median": 4.0,
+        "min": 4,
+        "max": 4
+      },
+      "vector_arithmetic_loop": {
+        "median": 1656.0,
+        "min": 1656,
+        "max": 1659
+      },
+      "lm_vector_store_and_fence": {
+        "median": 158.0,
+        "min": 158,
+        "max": 158
+      },
+      "write_issue": {
+        "median": 4.0,
+        "min": 4,
+        "max": 4
+      },
+      "write_residual_wait": {
+        "median": 311.0,
+        "min": 309,
+        "max": 312
+      }
+    },
+    {
+      "tile": 4096,
+      "repeats": 0,
+      "samples": 16,
+      "clock_pair": {
+        "median": 8.0,
+        "min": 8,
+        "max": 8
+      },
+      "read_issue": {
+        "median": 4.0,
+        "min": 4,
+        "max": 4
+      },
+      "read_residual_wait": {
+        "median": 689.5,
+        "min": 590,
+        "max": 942
+      },
+      "lm_vector_load": {
+        "median": 4.0,
+        "min": 4,
+        "max": 4
+      },
+      "vector_arithmetic_loop": {
+        "median": 14.0,
+        "min": 9,
+        "max": 14
+      },
+      "lm_vector_store_and_fence": {
+        "median": 16.0,
+        "min": 16,
+        "max": 16
+      },
+      "write_issue": {
+        "median": 5.0,
+        "min": 5,
+        "max": 5
+      },
+      "write_residual_wait": {
+        "median": 356.0,
+        "min": 355,
+        "max": 440
+      }
+    },
+    {
+      "tile": 4096,
+      "repeats": 32,
+      "samples": 16,
+      "clock_pair": {
+        "median": 8.0,
+        "min": 8,
+        "max": 8
+      },
+      "read_issue": {
+        "median": 4.0,
+        "min": 4,
+        "max": 4
+      },
+      "read_residual_wait": {
+        "median": 598.5,
+        "min": 581,
+        "max": 940
+      },
+      "lm_vector_load": {
+        "median": 4.0,
+        "min": 4,
+        "max": 4
+      },
+      "vector_arithmetic_loop": {
+        "median": 213.0,
+        "min": 213,
+        "max": 217
+      },
+      "lm_vector_store_and_fence": {
+        "median": 33.0,
+        "min": 32,
+        "max": 33
+      },
+      "write_issue": {
+        "median": 5.0,
+        "min": 5,
+        "max": 5
+      },
+      "write_residual_wait": {
+        "median": 355.5,
+        "min": 355,
+        "max": 461
+      }
+    },
+    {
+      "tile": 4096,
+      "repeats": 256,
+      "samples": 16,
+      "clock_pair": {
+        "median": 8.0,
+        "min": 8,
+        "max": 8
+      },
+      "read_issue": {
+        "median": 4.0,
+        "min": 4,
+        "max": 4
+      },
+      "read_residual_wait": {
+        "median": 663.0,
+        "min": 576,
+        "max": 902
+      },
+      "lm_vector_load": {
+        "median": 4.0,
+        "min": 4,
+        "max": 4
+      },
+      "vector_arithmetic_loop": {
+        "median": 1657.5,
+        "min": 1656,
+        "max": 1659
+      },
+      "lm_vector_store_and_fence": {
+        "median": 158.0,
+        "min": 158,
+        "max": 158
+      },
+      "write_issue": {
+        "median": 5.0,
+        "min": 5,
+        "max": 5
+      },
+      "write_residual_wait": {
+        "median": 356.0,
+        "min": 355,
+        "max": 463
+      }
+    }
+  ],
+  "sdnn_issue_probe": [
+    {
+      "tile": 1024,
+      "repeats": 1,
+      "samples": 16,
+      "read_config_issue": {
+        "median": 8.0,
+        "min": 8.0,
+        "max": 8.0
+      },
+      "read_xwait": {
+        "median": 3.0,
+        "min": 3.0,
+        "max": 3.0
+      },
+      "write_config_issue": {
+        "median": 16.0,
+        "min": 16.0,
+        "max": 16.0
+      },
+      "write_xwait": {
+        "median": 3.0,
+        "min": 3.0,
+        "max": 3.0
+      }
+    },
+    {
+      "tile": 1024,
+      "repeats": 8,
+      "samples": 16,
+      "read_config_issue": {
+        "median": 7.8125,
+        "min": 7.125,
+        "max": 8.0
+      },
+      "read_xwait": {
+        "median": 3.0,
+        "min": 3.0,
+        "max": 3.0
+      },
+      "write_config_issue": {
+        "median": 15.8125,
+        "min": 15.125,
+        "max": 16.0
+      },
+      "write_xwait": {
+        "median": 3.0,
+        "min": 3.0,
+        "max": 3.0
+      }
+    },
+    {
+      "tile": 4096,
+      "repeats": 1,
+      "samples": 16,
+      "read_config_issue": {
+        "median": 8.0,
+        "min": 8.0,
+        "max": 8.0
+      },
+      "read_xwait": {
+        "median": 3.0,
+        "min": 3.0,
+        "max": 3.0
+      },
+      "write_config_issue": {
+        "median": 16.0,
+        "min": 16.0,
+        "max": 16.0
+      },
+      "write_xwait": {
+        "median": 3.0,
+        "min": 3.0,
+        "max": 3.0
+      }
+    },
+    {
+      "tile": 4096,
+      "repeats": 8,
+      "samples": 16,
+      "read_config_issue": {
+        "median": 7.125,
+        "min": 7.125,
+        "max": 8.0
+      },
+      "read_xwait": {
+        "median": 3.0,
+        "min": 3.0,
+        "max": 3.0
+      },
+      "write_config_issue": {
+        "median": 15.125,
+        "min": 15.125,
+        "max": 16.0
+      },
+      "write_xwait": {
+        "median": 3.0,
+        "min": 3.0,
+        "max": 3.0
+      }
+    }
+  ],
+  "sdnn_serial_control": [
+    {
+      "tile": 1024,
+      "repeats": 1,
+      "samples": 16,
+      "read_config_issue": {
+        "median": 8.0,
+        "min": 8.0,
+        "max": 8.0
+      },
+      "read_xwait_xfence": {
+        "median": 544.0,
+        "min": 542.0,
+        "max": 546.0
+      },
+      "write_config_issue": {
+        "median": 15.0,
+        "min": 15.0,
+        "max": 15.0
+      },
+      "write_xwait_xfence": {
+        "median": 319.0,
+        "min": 318.0,
+        "max": 319.0
+      }
+    },
+    {
+      "tile": 1024,
+      "repeats": 8,
+      "samples": 16,
+      "read_config_issue": {
+        "median": 8.0,
+        "min": 7.125,
+        "max": 8.0
+      },
+      "read_xwait_xfence": {
+        "median": 575.4375,
+        "min": 544.25,
+        "max": 613.25
+      },
+      "write_config_issue": {
+        "median": 15.0,
+        "min": 15.0,
+        "max": 15.875
+      },
+      "write_xwait_xfence": {
+        "median": 318.5,
+        "min": 317.375,
+        "max": 319.125
+      }
+    },
+    {
+      "tile": 4096,
+      "repeats": 1,
+      "samples": 16,
+      "read_config_issue": {
+        "median": 8.0,
+        "min": 8.0,
+        "max": 8.0
+      },
+      "read_xwait_xfence": {
+        "median": 559.5,
+        "min": 555.0,
+        "max": 838.0
+      },
+      "write_config_issue": {
+        "median": 15.0,
+        "min": 15.0,
+        "max": 15.0
+      },
+      "write_xwait_xfence": {
+        "median": 339.0,
+        "min": 338.0,
+        "max": 347.0
+      }
+    },
+    {
+      "tile": 4096,
+      "repeats": 8,
+      "samples": 16,
+      "read_config_issue": {
+        "median": 7.125,
+        "min": 7.125,
+        "max": 8.0
+      },
+      "read_xwait_xfence": {
+        "median": 673.5,
+        "min": 644.75,
+        "max": 705.75
+      },
+      "write_config_issue": {
+        "median": 15.875,
+        "min": 15.0,
+        "max": 15.875
+      },
+      "write_xwait_xfence": {
+        "median": 338.6875,
+        "min": 337.375,
+        "max": 340.125
+      }
+    }
+  ],
+  "key_limitations": [
+    "Clock ticks are not calibrated to nanoseconds and are not pure arithmetic-issued cycles.",
+    "Clock-pair control contains scheduled address setup: not a calibrated empty clock-read cost.",
+    "Cluster arithmetic loop includes control/dependency time and can leave completion work in the following vector-store/fence window.",
+    "SDNN xwait bracketing returned 3 ticks for both tile sizes and repeat counts; cannot interpret as DMA completion latency.",
+    "Added xfence controls expose engine completion costs but change scheduling and destroy overlap; not original F06 fractions.",
+    "Instrumented-vs-uninstrumented overhead has not been quantified on actual F06 kernels.",
+    "Previous XProfiler MAC/EW Duration and SIMD Working events are activity evidence, not arithmetic issue counts.",
+    "Observed SDNN groups come from separate executions and are not simultaneous full-device coverage."
+  ],
+  "probe_failure_record": {
+    "attempts": 2,
+    "symptoms": "kernel exception 700; xpu_wait -714",
+    "cause_evidence": "first shuffled case used 16KB tile; generated local stack exceeds documented 8KB physical limit",
+    "remedy": "1KB/4KB tiles; local stack budget guard; retained normal FlagTree vendor launch library",
+    "results_excluded": true,
+    "card_after_success": "0 MiB, 0% utilization, no processes; final-card-status.txt"
+  },
+  "F06_previous_evidence": [
+    {
+      "name": "targeted-sdnn-small-100ns",
+      "case": {
+        "ordinal": 0,
+        "case_id": "report117:matmul_bias:float32:16x128:64",
+        "kind": "matmul_bias",
+        "dtype": "float32",
+        "M": 16,
+        "N": 128,
+        "K": 64,
+        "inputs": [
+          {
+            "shape": [
+              16,
+              64
+            ],
+            "sha256": "993b3cda21f199d51ebbd24cd8b58bc0c602c03468423d68809af52ee5cb3124"
+          },
+          {
+            "shape": [
+              64,
+              128
+            ],
+            "sha256": "9431265d85bde9151a7bdadf7768a9d436629695da51fe8ff2e2b31b9b9fc276"
+          },
+          {
+            "shape": [
+              128
+            ],
+            "sha256": "a0a30d50f4e1603eef1acbf0494b153f38f7974271527b403aa46700f41f3951"
+          }
+        ],
+        "parameters": {},
+        "tolerance": {
+          "atol": 0.0003,
+          "rtol": 0.0003
+        },
+        "seed": 61,
+        "status": "not_started",
+        "candidate_us": null,
+        "separate_calls_us": null,
+        "inductor_original_us": null,
+        "speedup_vs_separate_calls": null,
+        "speedup_vs_inductor_original": null,
+        "original_ordinal": 0,
+        "input_builder": "historical_small"
+      },
+      "route": "sdnn",
+      "evidence_origin": "previous F06 traces; not rerun this turn",
+      "pure_arithmetic_us": null,
+      "pure_arithmetic_pct": null,
+      "regions": [
+        {
+          "resource": "sdnn",
+          "tile": {
+            "M": 16,
+            "N": 32,
+            "K": 32
+          },
+          "calls": [
+            ".run(arg0_1, arg1_1, arg2_1, buf1, 4, 1, 1, stream=stream0)"
+          ],
+          "bf16_cast_sites": 0,
+          "fp32_cast_sites": 0,
+          "source_sha256": "fda25355752225a71388e6ea2345121ee477b97bd411211734df26cff2aa0c22"
+        }
+      ],
+      "clean_e2e_us": [
+        23.043,
+        23.052500000000002
+      ],
+      "kernel_us_range": [
+        2.8179931640625,
+        2.8179931640625
+      ],
+      "observed_compute_transport_overlap_us_range": [
+        0.001007080078125,
+        0.100006103515625
+      ],
+      "sse_resource_medians_each_pass_us": [
+        {
+          "sdnn": 2.818,
+          "cluster": 0.0
+        },
+        {
+          "sdnn": 2.818,
+          "cluster": 0.0
+        },
+        {
+          "sdnn": 2.818,
+          "cluster": 0.0
+        }
+      ]
+    },
+    {
+      "name": "targeted-cluster-small",
+      "case": {
+        "ordinal": 72,
+        "case_id": "report117:mul_sum:float32:16x128",
+        "kind": "mul_sum",
+        "dtype": "float32",
+        "M": 16,
+        "N": 128,
+        "K": null,
+        "inputs": [
+          {
+            "shape": [
+              16,
+              128
+            ],
+            "sha256": "fc46f28d682a814a7abf3669907fb3d002a0c5d2652d10bbb6fab59a9f2b4780"
+          },
+          {
+            "shape": [
+              128
+            ],
+            "sha256": "a0a30d50f4e1603eef1acbf0494b153f38f7974271527b403aa46700f41f3951"
+          }
+        ],
+        "parameters": {},
+        "tolerance": {
+          "atol": 0.0003,
+          "rtol": 0.0003
+        },
+        "seed": 61,
+        "status": "not_started",
+        "candidate_us": null,
+        "separate_calls_us": null,
+        "inductor_original_us": null,
+        "speedup_vs_separate_calls": null,
+        "speedup_vs_inductor_original": null,
+        "original_ordinal": 99,
+        "input_builder": "historical_small"
+      },
+      "route": "cluster",
+      "evidence_origin": "previous F06 traces; not rerun this turn",
+      "pure_arithmetic_us": null,
+      "pure_arithmetic_pct": null,
+      "regions": [
+        {
+          "resource": "cluster",
+          "tile": {},
+          "calls": [
+            ".run(arg0_1, arg1_1, buf0, 16, 128, stream=stream0)"
+          ],
+          "bf16_cast_sites": 0,
+          "fp32_cast_sites": 1,
+          "source_sha256": "ff93fb5f7b3506b72460b0567869d1c4245a8125f728343c6ae9d4c88d6f7b9d"
+        }
+      ],
+      "clean_e2e_us": [
+        21.508000000000003,
+        20.988
+      ],
+      "kernel_us_range": [
+        2.5159912109375,
+        2.5159912109375
+      ],
+      "observed_compute_transport_overlap_us_range": [
+        0.0,
+        0.0
+      ],
+      "sse_resource_medians_each_pass_us": [
+        {
+          "sdnn": 0.0,
+          "cluster": 2.516
+        },
+        {
+          "sdnn": 0.0,
+          "cluster": 2.516
+        },
+        {
+          "sdnn": 0.0,
+          "cluster": 2.516
+        }
+      ]
+    },
+    {
+      "name": "targeted-bf16-small",
+      "case": {
+        "ordinal": 33,
+        "case_id": "report117:matmul_bias_gelu_exact:bfloat16:16x128:64",
+        "kind": "matmul_bias_gelu_exact",
+        "dtype": "bfloat16",
+        "M": 16,
+        "N": 128,
+        "K": 64,
+        "inputs": [
+          {
+            "shape": [
+              16,
+              64
+            ],
+            "sha256": "9e807a9dc433720094accd311eedd2895e293d77565189e9d4dc5ebae62716fd"
+          },
+          {
+            "shape": [
+              64,
+              128
+            ],
+            "sha256": "24f3da9f383d797cf84adbea6a0061d200f7186592d73ec92ebe43366efdaaaf"
+          },
+          {
+            "shape": [
+              128
+            ],
+            "sha256": "65fec6cac32816b5bb81d73ef8b8365761d9f6d05cb866e42360d3a3c0ba272b"
+          }
+        ],
+        "parameters": {},
+        "tolerance": {
+          "atol": 0.03,
+          "rtol": 0.003
+        },
+        "seed": 61,
+        "status": "not_started",
+        "candidate_us": null,
+        "separate_calls_us": null,
+        "inductor_original_us": null,
+        "speedup_vs_separate_calls": null,
+        "speedup_vs_inductor_original": null,
+        "original_ordinal": 33,
+        "input_builder": "historical_small"
+      },
+      "route": "sdnn",
+      "evidence_origin": "previous F06 traces; not rerun this turn",
+      "pure_arithmetic_us": null,
+      "pure_arithmetic_pct": null,
+      "regions": [
+        {
+          "resource": "sdnn",
+          "tile": {
+            "M": 16,
+            "N": 64,
+            "K": 64
+          },
+          "calls": [
+            ".run(arg0_1, arg1_1, arg2_1, buf1, 2, 1, 1, stream=stream0)"
+          ],
+          "bf16_cast_sites": 4,
+          "fp32_cast_sites": 7,
+          "source_sha256": "3a933992895dc2ed1afdacc4cfffc755cda729380a3d7977016fba4d33a466b6"
+        }
+      ],
+      "clean_e2e_us": [
+        35.4715,
+        35.611000000000004
+      ],
+      "kernel_us_range": [
+        17.41802978515625,
+        17.51898193359375
+      ],
+      "observed_compute_transport_overlap_us_range": [
+        0.00048828125,
+        0.001007080078125
+      ],
+      "sse_resource_medians_each_pass_us": [
+        {
+          "sdnn": 17.519,
+          "cluster": 0.0
+        },
+        {
+          "sdnn": 17.418,
+          "cluster": 0.0
+        },
+        {
+          "sdnn": 17.418,
+          "cluster": 0.0
+        }
+      ]
+    },
+    {
+      "name": "targeted-sdnn-large",
+      "case": {
+        "ordinal": 128,
+        "case_id": "large:matmul_bias_gelu_exact:float32:2048x2048x2048",
+        "kind": "matmul_bias_gelu_exact",
+        "dtype": "float32",
+        "M": 2048,
+        "N": 2048,
+        "K": 2048,
+        "tolerance": {
+          "atol": 0.0003,
+          "rtol": 0.0003
+        },
+        "input_builder": "historical_large_matmul"
+      },
+      "route": "sdnn",
+      "evidence_origin": "previous F06 traces; not rerun this turn",
+      "pure_arithmetic_us": null,
+      "pure_arithmetic_pct": null,
+      "regions": [
+        {
+          "resource": "sdnn",
+          "tile": {
+            "M": 128,
+            "N": 128,
+            "K": 64
+          },
+          "calls": [
+            ".run(arg0_1, arg1_1, arg2_1, buf1, 256, 1, 1, stream=stream0)"
+          ],
+          "bf16_cast_sites": 0,
+          "fp32_cast_sites": 0,
+          "source_sha256": "11ce62edec7641bc166190c8da8406b53b9adea19ebb6c6832a099206ba2dc82"
+        }
+      ],
+      "clean_e2e_us": [
+        316.929,
+        317.0245
+      ],
+      "kernel_us_range": [
+        295.07000732421875,
+        295.3215026855469
+      ],
+      "observed_compute_transport_overlap_us_range": [
+        281.0804443359375,
+        283.9975280761719
+      ],
+      "sse_resource_medians_each_pass_us": [
+        {
+          "sdnn": 295.07,
+          "cluster": 0.0
+        },
+        {
+          "sdnn": 295.07,
+          "cluster": 0.0
+        },
+        {
+          "sdnn": 295.3215,
+          "cluster": 0.0
+        }
+      ]
+    },
+    {
+      "name": "targeted-split-large",
+      "case": {
+        "ordinal": 145,
+        "case_id": "large:matmul_bias_silu:float32:512x1024x1024",
+        "kind": "matmul_bias_silu",
+        "dtype": "float32",
+        "M": 512,
+        "N": 1024,
+        "K": 1024,
+        "tolerance": {
+          "atol": 0.0003,
+          "rtol": 0.0003
+        },
+        "input_builder": "historical_large_matmul"
+      },
+      "route": "sdnn_cluster_at_2",
+      "evidence_origin": "previous F06 traces; not rerun this turn",
+      "pure_arithmetic_us": null,
+      "pure_arithmetic_pct": null,
+      "regions": [
+        {
+          "resource": "sdnn",
+          "tile": {
+            "M": 128,
+            "N": 128,
+            "K": 64
+          },
+          "calls": [
+            ".run(arg0_1, arg1_1, arg2_1, buf1, 32, 1, 1, stream=stream0)"
+          ],
+          "bf16_cast_sites": 0,
+          "fp32_cast_sites": 0,
+          "source_sha256": "09ef8cd631a4f82840005ba5d1bd786a0e5f3de5a43a611dd0bbba77e343d9f1"
+        },
+        {
+          "resource": "cluster",
+          "tile": {},
+          "calls": [
+            ".run(arg0_1, buf0, 524288, stream=stream0)"
+          ],
+          "bf16_cast_sites": 0,
+          "fp32_cast_sites": 0,
+          "source_sha256": "142d1746558da5010db41b67e87d9f3947e2cd7f8e7599146cc8d126693838f4"
+        }
+      ],
+      "clean_e2e_us": [
+        57.839,
+        57.855
+      ],
+      "kernel_us_range": [
+        38.209014892578125,
+        38.260009765625
+      ],
+      "observed_compute_transport_overlap_us_range": [
+        18.429473876953125,
+        18.98095703125
+      ],
+      "sse_resource_medians_each_pass_us": [
+        {
+          "sdnn": 24.366,
+          "cluster": 13.894
+        },
+        {
+          "sdnn": 24.3155,
+          "cluster": 13.793
+        },
+        {
+          "sdnn": 24.3155,
+          "cluster": 13.894
+        }
+      ]
+    }
+  ],
+  "remote_cleaned": true
+}

@@ -1,0 +1,16 @@
+diff --git a/kunlun_ops/_activation.py b/kunlun_ops/_activation.py
+index d2a065f..f78a614 100644
+--- a/kunlun_ops/_activation.py
++++ b/kunlun_ops/_activation.py
+@@ -39,6 +39,11 @@ def gelu(x: torch.Tensor,
+     Returns:
+         y (Tensor, required): 输出张量，形状与x相同。类型同x。
+     """
++    if (x.is_cuda and y.device == x.device and x.dtype == y.dtype == torch.float16
++            and x.shape == y.shape):
++        with torch.no_grad():
++            torch.ops.aten.gelu.out(x, approximate="none", out=y)
++        return 0
+     return xpu_kunlun_ops.gelu(x, y)
+ 
+ @_torch_custom_op_wrapper(

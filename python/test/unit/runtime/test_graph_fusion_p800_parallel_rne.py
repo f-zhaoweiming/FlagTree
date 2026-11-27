@@ -32,8 +32,8 @@ class ParallelRneSafetyTests(unittest.TestCase):
     def test_ready_requires_event_completion_before_cross_core_barrier(self):
         changed, records = rne.rewrite(self.source)
         for i, record in enumerate(records):
-            begin = changed.index(f'%fusion_rne_sync_mask_{i} =')
-            barrier = f'llvm.call @llvm.xpu.sync_core(%fusion_rne_sync_mask_{i})'
+            begin = changed.index(f'%f06_rne_sync_mask_{i} =')
+            barrier = f'llvm.call @llvm.xpu.sync_core(%f06_rne_sync_mask_{i})'
             ready = changed.index(barrier, begin)
             done = changed.index(barrier, ready + len(barrier))
             handoff = changed[begin:ready]
@@ -41,7 +41,7 @@ class ParallelRneSafetyTests(unittest.TestCase):
             self.assertEqual(waits, record['original_waits'])
             self.assertLess(handoff.rindex('sdnn.core_wait'), handoff.index('llvm.call @llvm.xpu.xfence'))
             self.assertLess(handoff.index('llvm.call @llvm.xpu.xfence'), handoff.index('llvm.call @llvm.xpu.mfence.v2'))
-            self.assertIn(f'%fusion_rne_mem_mask_{i} = arith.constant 7', handoff)
+            self.assertIn(f'%f06_rne_mem_mask_{i} = arith.constant 7', handoff)
             self.assertEqual(changed[ready:done].count('attributes {little_core, core_id ='), 8)
             for event in record['original_signals']:
                 self.assertIn(f'sdnn.core_arrive(3, {event})', changed[done:done + 300])
@@ -56,9 +56,9 @@ class ParallelRneSafetyTests(unittest.TestCase):
             outer = re.search(r'scf.for (%\w+) = (%\w+) to (%\w+) step (%\w+) \{', body)
             for worker in workers[8 * i:8 * i + 8]:
                 restored = re.sub(
-                    r'%fusion_row_begin = arith.constant \d+ : index\n        %fusion_row_end = arith.constant \d+ : index\n        ',
+                    r'%f06_row_begin = arith.constant \d+ : index\n        %f06_row_end = arith.constant \d+ : index\n        ',
                     '', worker)
-                restored = restored.replace(f'scf.for {outer[1]} = %fusion_row_begin to %fusion_row_end step {outer[4]} {{',
+                restored = restored.replace(f'scf.for {outer[1]} = %f06_row_begin to %f06_row_end step {outer[4]} {{',
                                             outer[0])
                 self.assertEqual(restored, body)
 

@@ -9,7 +9,7 @@ Precision settings and live tensor metadata remain guarded.
 _ALLOWED_KWARGS = frozenset({"fullgraph", "dynamic", "mode", "options", "disable"})
 
 
-def compile(graph_module, example_inputs=None, *, static_inference=False, avoid_bias_materialization=False, **kwargs):
+def compile(graph_module, example_inputs=None, *, static_inference=False, avoid_bias_materialization=False, backend=None, **kwargs):
     unknown = sorted(set(kwargs) - _ALLOWED_KWARGS)
     if unknown:
         raise TypeError("unexpected graph-fusion compile keyword(s): " + ", ".join(unknown))
@@ -17,6 +17,13 @@ def compile(graph_module, example_inputs=None, *, static_inference=False, avoid_
         raise TypeError("static_inference and avoid_bias_materialization must be bools")
     if avoid_bias_materialization and not static_inference:
         raise ValueError("avoid_bias_materialization requires static_inference=True")
+    if backend is not None:
+        if static_inference or not callable(getattr(backend, '_flagtree_wrap_module', None)):
+            raise ValueError("backend must be an F06 resource autotuning backend for ordinary inference")
+        import torch
+        options = {'fullgraph': True, 'dynamic': False, **kwargs}
+        compiled = torch.compile(graph_module, backend=backend, **options)
+        return backend._flagtree_wrap_module(compiled)
     from triton.experimental import fusion as _fusion
     fallback = _fusion.compile(graph_module, **kwargs)
     if not static_inference or kwargs.get("disable", False):
@@ -30,7 +37,7 @@ def compile(graph_module, example_inputs=None, *, static_inference=False, avoid_
     except UnsupportedStaticInference as exc:
         # Unsupported contracts retain native torch.compile behavior; native compiler
         # failures deliberately propagate instead of becoming hidden eager fallbacks.
-        fallback._fusion_static_rejection = str(exc)
+        fallback._f06_static_rejection = str(exc)
         return fallback
 
 

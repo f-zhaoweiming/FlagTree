@@ -21,7 +21,7 @@ def preserve_bf16_rounding(mod, special_values=True):
     exact_values = set()
 
     def classify(op):
-        if op.get_name() == 'arith.maxnumf' and op.get_bool_attr('fusion.bf16_exact'):
+        if op.get_name() == 'arith.maxnumf' and op.get_bool_attr('f06.bf16_exact'):
             exact_values.add(op.get_result(0).id())
 
     mod.walk(classify)
@@ -96,7 +96,7 @@ def _compilation_scope():
         mod = original(mod, metadata, options)
         if not _ACTIVE.get() or options.arch != 3:
             return mod
-        if not (options.is_sdnn or xpu.is_sdnn_kernel(mod)):
+        if not (getattr(options, 'resource_kind', None) == 'sdnn' or options.is_sdnn or xpu.is_sdnn_kernel(mod)):
             from ._p800_native_activation import bound_tanh_inputs
             with tempfile.TemporaryDirectory(prefix='cluster-tanh-', dir=os.environ['TRITON_CACHE_DIR']) as directory:
                 mod, records = bound_tanh_inputs(mod, directory, triton_bitcast=True)

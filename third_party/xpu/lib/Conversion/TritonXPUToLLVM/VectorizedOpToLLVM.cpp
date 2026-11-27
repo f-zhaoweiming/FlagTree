@@ -102,9 +102,13 @@ struct XPUVectorizedOpsConversionBase {
     if (!vectorTy)
       return 1;
     auto elemTy = vectorTy.getElementType();
+    auto shape = vectorTy.getShape();
+    // i1 masks come from vectorized compares; their lane count is the mask
+    // width itself (matches the companion data vector), not 512/bitwidth.
+    if (elemTy.isInteger(1))
+      return shape[0];
     auto width = elemTy.getIntOrFloatBitWidth();
 
-    auto shape = vectorTy.getShape();
     if (shape[0] != 16) { // return vecSize = numElems for vector<numElemsxf32>
       return shape[0];
     }
@@ -120,6 +124,9 @@ struct XPUVectorizedOpsConversionBase {
       return LLVM::getVectorType(LLVM::type::f16Ty(ctx), getVectorSize(type));
     else if (elemTy.isF32())
       return LLVM::getVectorType(LLVM::type::f32Ty(ctx), getVectorSize(type));
+    else if (elemTy.isInteger(1))
+      return LLVM::getVectorType(mlir::IntegerType::get(ctx, 1),
+                                 getVectorSize(type));
     else if (elemTy.isInteger(8))
       return LLVM::getVectorType(LLVM::type::i8Ty(ctx), getVectorSize(type));
     else if (elemTy.isInteger(16))
@@ -322,11 +329,20 @@ struct UnaryOpConversion : public ConvertOpToLLVMPattern<SrcOp>,
 
     auto valueElems = unpackLLElements(loc, llvalue, rewriter);
 
+    auto vectorTy = cast<VectorType>(convertVectorType(resultElemTy));
     SmallVector<Value> calculatedVals;
-    for (size_t vecStart = 0; vecStart < numElems; vecStart += 1) {
-      Value vexpOp = rewriter.create<DstOp>(
-          loc, convertVectorType(resultElemTy), valueElems[vecStart]);
-      calculatedVals.push_back(vexpOp);
+    for (unsigned i = 0; i < numElems; ++i) {
+      Value input = valueElems[i];
+      if constexpr (std::is_same_v<SrcOp, triton::xpu::VExpFOp>) {
+        // Keep natural exp distinct from base-two exp in LLVM IR. The KL3
+        // LLVM pass consumes this exact packet type before code generation.
+        if (xpuArch == 3 && !vectorTy.isScalable() && vectorTy.getRank() == 1 &&
+            vectorTy.getNumElements() == 16 && vectorTy.getElementType().isF32()) {
+          calculatedVals.push_back(rewriter.create<LLVM::ExpOp>(loc, vectorTy, input));
+          continue;
+        }
+      }
+      calculatedVals.push_back(rewriter.create<DstOp>(loc, vectorTy, input));
     }
 
     Type llvmResultStructTy = getTypeConverter()->convertType(resultTy);

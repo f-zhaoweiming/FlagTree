@@ -1,0 +1,301 @@
+diff --git a/benchmark/test_scaled_dot_product_efficient_attention.py b/benchmark/test_scaled_dot_product_efficient_attention.py
+index a1fba3c607dcf1009d12cb8b2d5e62d97998fcd4..a7ac3e02b8b1fb3ca41bb2bd489b3bac23f3bc66 100644
+--- a/benchmark/test_scaled_dot_product_efficient_attention.py
++++ b/benchmark/test_scaled_dot_product_efficient_attention.py
+@@ -1,6 +1,8 @@
+ import pytest
+ import torch
+ 
++import flag_gems
++
+ from . import base, consts
+ 
+ # Attention benchmark shapes: (batch, heads, seq_len, head_dim)
+@@ -40,3 +42,28 @@ def test_scaled_dot_product_efficient_attention():
+         dtypes=consts.FLOAT_DTYPES,
+     )
+     bench.run()
++
++
++class KunlunxinMaskedAttentionBenchmark(ScaledDotProductEfficientAttentionBenchmark):
++    def set_shapes(self, shape_file_path=None):
++        self.shapes = [(10, 12, 54, 32)]
++
++    def get_input_iter(self, cur_dtype):
++        for query, key, value, _, _ in super().get_input_iter(cur_dtype):
++            batch, _, length, _ = query.shape
++            mask = query.new_zeros((batch, 1, length, length))
++            mask[..., -3:] = torch.finfo(cur_dtype).min
++            yield query, key, value, mask
++
++
++@pytest.mark.skipif(
++    flag_gems.vendor_name != "kunlunxin", reason="Kunlunxin masked SDPA"
++)
++@pytest.mark.scaled_dot_product_efficient_attention
++def test_kunlunxin_masked_efficient_attention():
++    bench = KunlunxinMaskedAttentionBenchmark(
++        op_name="scaled_dot_product_efficient_attention",
++        torch_op=torch.nn.functional.scaled_dot_product_attention,
++        dtypes=[torch.float16, torch.float32],
++    )
++    bench.run()
+diff --git a/src/flag_gems/runtime/backend/_kunlunxin/ops/_scaled_dot_product_efficient_attention.py b/src/flag_gems/runtime/backend/_kunlunxin/ops/_scaled_dot_product_efficient_attention.py
+index 0a7edb8b7ebed0eadb8edd1dbd2a581dcb168646..f327fe4099a51b5b59f55ec6758ec4deaed46848 100644
+--- a/src/flag_gems/runtime/backend/_kunlunxin/ops/_scaled_dot_product_efficient_attention.py
++++ b/src/flag_gems/runtime/backend/_kunlunxin/ops/_scaled_dot_product_efficient_attention.py
+@@ -52,8 +52,8 @@ logger = logging.getLogger(__name__)
+ _LOG2E = tl.constexpr(1.4426950408889634)
+ 
+ # Dropout is forced to 0.0, so the philox RNG state is never consumed.
+-_PHILOX_SEED = torch.tensor(0, dtype=torch.long)
+-_PHILOX_OFFSET = torch.tensor(0, dtype=torch.long)
++_PHILOX_SEED = torch.tensor(0, dtype=torch.long, device="cpu")
++_PHILOX_OFFSET = torch.tensor(0, dtype=torch.long, device="cpu")
+ 
+ _SUPPORTED_HEAD_DIM = {16, 32, 64, 96, 128, 192, 256}
+ 
+@@ -88,7 +88,7 @@ def _kl_sdpa_qk_m(
+     """Pass 1: qk' = (Q @ K^T) * scale - cmask, m = max(rowmax(qk'), 0).
+ 
+     QK is executed on TF32 tensor cores to match the efficient-attention
+-    reference.  QK is prefilled with -1e30 so padded cells exponentiate to 0.
++    reference.  QK is prefilled with negative infinity for padded keys.
+     """
+     start_m = tl.program_id(0)
+     off_hz = tl.program_id(1)
+@@ -117,7 +117,8 @@ def _kl_sdpa_qk_m(
+         m_i = tl.maximum(m_i, tl.max(qk, 1))
+         qk_ptrs = qk_base + offs_m[:, None] * K_PAD + offs_n[None, :]
+         tl.store(qk_ptrs, qk, mask=q_mask[:, None] & (offs_n[None, :] < KV_CTX))
+-    m_safe = tl.maximum(m_i, 0.0)
++    # Preserve negative row maxima; only replace -inf for fully masked rows.
++    m_safe = tl.maximum(m_i, -3.4028234663852886e38)
+     m_ptrs = M + off_hz * Q_CTX + offs_m
+     tl.store(m_ptrs, m_safe, mask=q_mask)
+ 
+@@ -218,7 +219,8 @@ def _kl_lse_finalize(L, M, LSE, NELEM, BLOCK: tl.constexpr):
+     sum_mask = off < NELEM
+     denom = tl.load(L + off, mask=sum_mask, other=1.0)
+     m = tl.load(M + off, mask=sum_mask, other=0.0)
+-    tl.store(LSE + off, m + tl.log(denom), mask=sum_mask)
++    lse = tl.where(denom > 0.0, m + tl.log(denom), -float("inf"))
++    tl.store(LSE + off, lse, mask=sum_mask)
+ 
+ 
+ def _pad_d(t, padded):
+@@ -227,7 +229,9 @@ def _pad_d(t, padded):
+     return tp
+ 
+ 
+-def _sdpa_forward_bshd(query, key, value, is_causal, scale, compute_lse=True):
++def _sdpa_forward_bshd(
++    query, key, value, is_causal, scale, compute_lse=True, attn_bias=None
++):
+     """BSHD-layout two-pass SDPA forward.  Returns (out_bshd, lse_natural)."""
+     batch, q_len, q_head_num, head_dim = query.shape
+     k_len = key.shape[1]
+@@ -257,19 +261,51 @@ def _sdpa_forward_bshd(query, key, value, is_causal, scale, compute_lse=True):
+         q_in, k_in, v_in = query, key, value
+ 
+     cmask = None
+-    if is_causal:
+-        cmask2d = torch.full((q_len, k_pad), 50.0, dtype=torch.float32, device=device)
+-        rows = torch.arange(q_len, device=device)[:, None]
+-        cols = torch.arange(k_pad, device=device)[None, :]
+-        off = k_len - q_len
+-        valid = cols <= (rows + off)
+-        cmask2d[valid] = 0.0
+-        cmask = (
+-            cmask2d.unsqueeze(0).expand(batch * q_head_num, q_len, k_pad).contiguous()
++    use_cmask = is_causal or attn_bias is not None
++    if use_cmask:
++        from .attention import _fa_cmask_kernel, _mask_strides
++
++        cmask = torch.full(
++            (batch * q_head_num, q_len, k_pad),
++            float("inf"),
++            dtype=torch.float32,
++            device=device,
+         )
++        if attn_bias is not None:
++            if attn_bias.device != device:
++                raise ValueError("attn_bias must be on the query device")
++            mask_arg = attn_bias
++            mask_strides = _mask_strides(attn_bias, batch, q_head_num, q_len, k_len)
++        else:
++            mask_arg = query
++            mask_strides = (0, 0, 0, 0)
++        with torch_device_fn.device(device):
++            _fa_cmask_kernel[
++                (triton.cdiv(q_len, 64), batch * q_head_num, triton.cdiv(k_pad, 64))
++            ](
++                cmask,
++                mask_arg,
++                *mask_strides,
++                q_len,
++                k_len,
++                k_pad,
++                q_head_num,
++                USE_MASK=attn_bias is not None,
++                MASK_IS_BOOL=attn_bias is not None and attn_bias.dtype == torch.bool,
++                IS_CAUSAL=is_causal,
++                CAUSAL_OFFSET=k_len - q_len,
++                BLOCK_M=64,
++                BLOCK_N=64,
++                PRESERVE_INF=True,
++                num_warps=4,
++                num_stages=1,
++            )
+ 
+     qk_buf = torch.full(
+-        (batch * q_head_num, q_len, k_pad), -1e30, dtype=torch.float32, device=device
++        (batch * q_head_num, q_len, k_pad),
++        -float("inf"),
++        dtype=torch.float32,
++        device=device,
+     )
+     m_buf = torch.empty((batch, q_head_num, q_len), dtype=torch.float32, device=device)
+     grid = (triton.cdiv(q_len, BLOCK_M), batch * q_head_num)
+@@ -286,7 +322,7 @@ def _sdpa_forward_bshd(query, key, value, is_causal, scale, compute_lse=True):
+             k_in,
+             qk_buf,
+             m_buf,
+-            cmask if is_causal else qk_buf,
++            cmask if use_cmask else qk_buf,
+             softmax_scale,
+             q_in.stride(0),
+             q_in.stride(1),
+@@ -300,7 +336,7 @@ def _sdpa_forward_bshd(query, key, value, is_causal, scale, compute_lse=True):
+             k_len,
+             k_pad,
+             q_head_num,
+-            USE_CMASK=is_causal,
++            USE_CMASK=use_cmask,
+             num_warps=8,
+             num_stages=1,
+             **common,
+@@ -367,7 +403,6 @@ def _scaled_dot_product_efficient_attention(
+     logger.debug("GEMS_KUNLUNXIN _SCALED_DOT_PRODUCT_EFFICIENT_ATTENTION")
+ 
+     assert dropout_p == 0.0, "Currently only support dropout_p=0.0"
+-    assert attn_bias is None, "attn_bias is not supported by this entry point"
+ 
+     HEAD_DIM_Q, HEAD_DIM_K = query.shape[-1], key.shape[-1]
+     HEAD_DIM_V = value.shape[-1]
+@@ -380,7 +415,7 @@ def _scaled_dot_product_efficient_attention(
+     v = value.transpose(1, 2)
+ 
+     out_bshd, log_sumexp = _sdpa_forward_bshd(
+-        q, k, v, is_causal, scale, compute_lse=compute_log_sumexp
++        q, k, v, is_causal, scale, compute_lse=compute_log_sumexp, attn_bias=attn_bias
+     )
+ 
+     # BSHD -> BHSD view; the lse is already the natural-log base.
+diff --git a/src/flag_gems/runtime/backend/_kunlunxin/ops/attention.py b/src/flag_gems/runtime/backend/_kunlunxin/ops/attention.py
+index 6eea4740eb7397b91a4ea4e3729886ca0420ba4e..4d2396aef92e93cf99e5240eb1afa0f62417c037 100644
+--- a/src/flag_gems/runtime/backend/_kunlunxin/ops/attention.py
++++ b/src/flag_gems/runtime/backend/_kunlunxin/ops/attention.py
+@@ -1820,6 +1820,7 @@ def _fa_cmask_kernel(
+     CAUSAL_OFFSET: tl.constexpr,
+     BLOCK_M: tl.constexpr,
+     BLOCK_N: tl.constexpr,
++    PRESERVE_INF: tl.constexpr = False,
+ ):
+     """Materialize the dense additive mask consumed by the qk kernel.
+ 
+@@ -1836,7 +1837,8 @@ def _fa_cmask_kernel(
+     offs_n = pid_n * BLOCK_N + tl.arange(0, BLOCK_N)
+     q_mask = offs_m < Q_CTX
+     kv_mask = offs_n < KV_CTX
+-    cm = tl.full([BLOCK_M, BLOCK_N], 1e30, dtype=tl.float32)
++    blocked: tl.constexpr = float("inf") if PRESERVE_INF else 1e30
++    cm = tl.full([BLOCK_M, BLOCK_N], blocked, dtype=tl.float32)
+     if USE_MASK:
+         m_ptrs = (
+             MASK
+@@ -1847,14 +1849,15 @@ def _fa_cmask_kernel(
+         )
+         mv = tl.load(m_ptrs, mask=q_mask[:, None] & kv_mask[None, :], other=0.0)
+         if MASK_IS_BOOL:
+-            cm = tl.where(mv != 0, 0.0, 1e30)
++            cm = tl.where(mv != 0, 0.0, blocked)
+         else:
+             mv = mv.to(tl.float32)
+-            mv = tl.where(mv == float("-inf"), -1e30, mv)
++            if not PRESERVE_INF:
++                mv = tl.where(mv == float("-inf"), -1e30, mv)
+             cm = -mv
+     if IS_CAUSAL:
+         causal = offs_n[None, :] <= offs_m[:, None] + CAUSAL_OFFSET
+-        cm = tl.where(causal, 0.0, 1e30)
++        cm = tl.where(causal, cm if USE_MASK else 0.0, blocked)
+     ptrs = CMASK + off_hz * Q_CTX * K_PAD + offs_m[:, None] * K_PAD + offs_n[None, :]
+     tl.store(ptrs, cm, mask=q_mask[:, None] & kv_mask[None, :])
+ 
+diff --git a/tests/test_scaled_dot_product_efficient_attention.py b/tests/test_scaled_dot_product_efficient_attention.py
+index e86714c481792d23e557ba90771770d9dcbcbae2..fa7b22151f1401a56fe3f730d1f34abf2df32645 100644
+--- a/tests/test_scaled_dot_product_efficient_attention.py
++++ b/tests/test_scaled_dot_product_efficient_attention.py
+@@ -149,3 +149,61 @@ def test_scaled_dot_product_efficient_attention_logsumexp(shape, dtype):
+     utils.gems_assert_close(
+         res_log_sumexp, ref_log_sumexp, torch.float32, atol=_get_atol_for_dtype(dtype)
+     )
++
++
++@pytest.mark.skipif(
++    flag_gems.vendor_name != "kunlunxin", reason="Kunlunxin masked SDPA"
++)
++@pytest.mark.scaled_dot_product_efficient_attention
++@pytest.mark.parametrize("dtype", [torch.float16, torch.float32])
++@pytest.mark.parametrize("length", [17, 54])
++@pytest.mark.parametrize(
++    "mask_kind",
++    ["none", "padding", "strided", "shift", "fully_masked", "causal_bias", "bool"],
++)
++def test_masked_efficient_attention(dtype, length, mask_kind):
++    generator = torch.Generator(device="cpu").manual_seed(91)
++    shape = (2, 3, length, 32)
++    q, k, v = [torch.randn(shape, generator=generator).to(dtype) for _ in range(3)]
++    bias = None
++    if mask_kind != "none":
++        bias = torch.zeros((2, 1, length, length), dtype=dtype)
++        bias[..., -3:] = float("-inf")
++        if mask_kind == "strided":
++            backing = torch.zeros((2, 1, length, 2 * length), dtype=dtype)
++            backing[..., ::2] = bias
++            bias = backing[..., ::2]
++        elif mask_kind == "shift":
++            bias[..., :-3] = -20.0
++        elif mask_kind == "fully_masked":
++            bias[:, :, 3, :] = float("-inf")
++        elif mask_kind == "causal_bias":
++            bias[..., :-3] = torch.linspace(-1.0, 1.0, length - 3).to(dtype)
++        elif mask_kind == "bool":
++            bias = bias.isfinite()
++    causal = mask_kind == "causal_bias"
++    scores = q.double() @ k.double().transpose(-2, -1) / (32**0.5)
++    if bias is not None:
++        scores = (
++            scores.masked_fill(~bias, float("-inf"))
++            if bias.dtype == torch.bool
++            else scores + bias.double()
++        )
++    if causal:
++        allowed = torch.ones((length, length), dtype=torch.bool).tril()
++        scores = scores.masked_fill(~allowed, float("-inf"))
++    ref = scores.softmax(-1).nan_to_num(0.0) @ v.double()
++    lse_ref = torch.logsumexp(scores, dim=-1)
++    qd, kd, vd = [x.cuda() for x in (q, k, v)]
++    if mask_kind == "strided":
++        bd = backing.cuda()[..., ::2]
++        assert bd.stride(-1) == 2
++    else:
++        bd = bias.cuda() if bias is not None else None
++    with flag_gems.use_gems(exclude=[]):
++        out, lse, _, _ = torch.ops.aten._scaled_dot_product_efficient_attention.default(
++            qd, kd, vd, bd, True, 0.0, causal
++        )
++        torch.cuda.synchronize()
++    torch.testing.assert_close(out.cpu().double(), ref, atol=2e-3, rtol=5e-3)
++    torch.testing.assert_close(lse.cpu().double(), lse_ref, atol=2e-3, rtol=5e-3)

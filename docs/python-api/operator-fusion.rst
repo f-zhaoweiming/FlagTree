@@ -35,6 +35,8 @@ sample inputs. The returned object is PyTorch's compiled callable directly.
 Architecture and ownership
 --------------------------
 
+For the F06 capability audit, reuse boundaries and implementation sequence, see
+:doc:`f06-inductor-assessment`.
 
 Dynamo captures tensor operators and maintains input guards. Inductor chooses
 fusion regions, iteration schedules, tiling and layouts, using its resource

@@ -50,6 +50,7 @@ __all__ = [
 
 _MAX_COMPUTE_NODES = 16
 _ALLOWED_METHODS = frozenset({
+    'float', 'half', 'bfloat16', 'to',
     "add",
     "mul",
     "div",
@@ -83,6 +84,18 @@ _ALLOWED_ATEN_OVERLOADS = frozenset({
     ("silu", "default"),
     ("layer_norm", "default"),
 })
+
+
+def unsafe_sdnn_sum(nodes, inputs):
+    """The KL3 SDNN reduction launch faults on narrow inputs or a partial row pair."""
+    tensors = [x for x in inputs if isinstance(x, torch.Tensor)]
+    if not any(x.dtype in (torch.float16, torch.bfloat16) or
+               (x.ndim == 2 and type(x.shape[0]) is int and x.shape[0] % 2)
+               for x in tensors):
+        return False
+    targets = (torch.sum, torch.ops.aten.sum.dim_IntList, torch.ops.aten.sum.default)
+    return any((n.op == 'call_method' and n.target == 'sum') or
+               (n.op == 'call_function' and n.target in targets) for n in nodes)
 
 
 def _optional_function(owner: Any, name: str) -> Any:
@@ -191,6 +204,10 @@ def _aten_parts(target: Any) -> tuple[str, str] | None:
 def _is_supported_function(target: Any) -> bool:
     aten = _aten_parts(target)
     if aten is not None:
+        if getattr(target._schema, 'name', '') in (
+                'flagtree_p800::round_output', 'flagtree_p800::fp32_input', 'flagtree_p800::fp32_product',
+                'flagtree_p800::fp32_epilogue', 'flagtree_p800::fp32_row_sum'):
+            return True
         return aten in _ALLOWED_ATEN_OVERLOADS
     try:
         return target in _ALLOWED_FUNCTION_TARGETS
@@ -224,6 +241,9 @@ def _validate_call_target(node: torch.fx.Node) -> None:
 
     if node.op == "call_method":
         target = node.target
+        if target == "to" and not (len(node.args) == 2 and isinstance(node.args[1], torch.dtype) and not kwargs
+                                   or len(node.args) == 1 and set(kwargs) == {'dtype'} and isinstance(kwargs['dtype'], torch.dtype)):
+            raise UnsupportedGraph("only dtype-only Tensor.to is supported")
         if not isinstance(target, str):
             raise UnsupportedGraph(f"{node.name!r}: method target is not a string")
         if target.endswith("_") or target not in _ALLOWED_METHODS:
@@ -267,8 +287,9 @@ def _analyze_graph(gm: torch.fx.GraphModule) -> _GraphInfo:
             raise UnsupportedGraph(f"{node.name!r}: unsupported FX node kind {node.op!r}")
 
     compute_nodes = tuple(node for node in nodes if node.op in ("call_function", "call_method"))
-    if len(compute_nodes) > _MAX_COMPUTE_NODES:
-        raise UnsupportedGraph(f"graph has {len(compute_nodes)} compute nodes; "
+    original_count = sum(node.meta.get('f06_precision_boundary') not in ('input', 'output') for node in compute_nodes)
+    if original_count > _MAX_COMPUTE_NODES:
+        raise UnsupportedGraph(f"graph has {original_count} compute nodes; "
                                f"offline enumeration supports at most {_MAX_COMPUTE_NODES}")
     if not compute_nodes:
         raise UnsupportedGraph("graph has no call_function/call_method compute nodes")

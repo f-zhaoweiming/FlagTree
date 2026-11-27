@@ -34,6 +34,10 @@ std::unique_ptr<mlir::Pass> createTritonXPUMaterializeDeferredRawWithSources(
 std::unique_ptr<mlir::Pass> createCaptureRank1WrapPass();
 std::unique_ptr<mlir::Pass> createRepairRank1WrapPass();
 
+// Preserve logical FP32 dot reduction extents across prebuilt SDNN lowering.
+std::unique_ptr<mlir::Pass> createCaptureSDNNKExtentPass();
+std::unique_ptr<mlir::Pass> createPreserveSDNNKExtentPass();
+
 } // namespace xpu
 } // namespace triton
 } // namespace mlir

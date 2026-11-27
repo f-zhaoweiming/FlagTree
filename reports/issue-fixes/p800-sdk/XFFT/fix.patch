@@ -1,0 +1,218 @@
+diff --git a/reports/issue-fixes/p800-sdk/XFFT/verify_xfft.py b/reports/issue-fixes/p800-sdk/XFFT/verify_xfft.py
+new file mode 100644
+index 0000000..998eae1
+--- /dev/null
++++ b/reports/issue-fixes/p800-sdk/XFFT/verify_xfft.py
+@@ -0,0 +1,62 @@
++"""Test raw plan status and actual P800 output against CPU FP64 on identical FP16 samples."""
++import argparse
++import ctypes as C
++import hashlib
++import json
++import statistics
++import time
++from pathlib import Path
++
++import torch
++from xfft_fp16 import fp16_c2c_plan
++
++
++def verify(lib_path, lengths=(128, 512, 1024)):
++    lib = C.CDLL(str(lib_path))
++    cases = []
++    for n in lengths:
++        gen = torch.Generator().manual_seed(20261126 + n)
++        random = torch.randn(n, 2, generator=gen).half()
++        impulse = torch.zeros_like(random)
++        impulse[1, 0], impulse[1, 1] = 1.0, -0.5
++        with fp16_c2c_plan(lib, n, torch.device("cuda", torch.cuda.current_device())) as (execute, route, status):
++            for pattern, host in (("random", random), ("impulse", impulse)):
++                samples = host.cuda()
++                for sign in (-1, 1):
++                    z = torch.view_as_complex(host.double())
++                    expected = torch.fft.fft(z) if sign == -1 else torch.fft.ifft(z, norm="forward")
++                    reference = torch.view_as_real(expected)
++                    result = execute(samples, sign).cpu()
++                    # One binary16 ULP (take the larger neighbor at powers of two).
++                    rounded = reference.half()
++                    up = torch.nextafter(rounded, torch.full_like(rounded, float("inf")))
++                    down = torch.nextafter(rounded, torch.full_like(rounded, -float("inf")))
++                    ulp = torch.maximum(up.double()-rounded.double(), rounded.double()-down.double())
++                    error = (result.double()-reference).abs()
++                    # Account for FP32 roundoff near exact zeros.
++                    tolerance = ulp + 4 * torch.finfo(torch.float32).eps * host.abs().double().sum()
++                    torch.cuda.synchronize()
++                    times = []
++                    for _ in range(5):
++                        start = time.perf_counter_ns()
++                        execute(samples, sign)
++                        torch.cuda.synchronize()
++                        times.append((time.perf_counter_ns()-start)/1000)
++                    cases.append(dict(length=n, pattern=pattern, direction=sign, route=route,
++                                      native_status=status, dtype=str(result.dtype),
++                                      samples=result.numel(), finite=bool(result.isfinite().all()),
++                                      max_abs=error.max().item(), rmse=error.square().mean().sqrt().item(),
++                                      different_from_fp64_rounded=int((result != rounded).sum()),
++                                      beyond_tolerance=int((error > tolerance).sum()),
++                                      median_wall_us=statistics.median(times),
++                                      passed=bool(result.dtype==torch.float16 and result.isfinite().all() and (error<=tolerance).all())))
++    return dict(library_sha256=hashlib.sha256(Path(lib_path).read_bytes()).hexdigest(), cases=cases)
++
++
++if __name__ == "__main__":
++    p = argparse.ArgumentParser()
++    p.add_argument("library", type=Path)
++    a = p.parse_args()
++    result = verify(a.library)
++    print(json.dumps(result, indent=2))
++    raise SystemExit(0 if all(row["passed"] for row in result["cases"]) else 1)
+diff --git a/reports/issue-fixes/p800-sdk/XFFT/xfft_fp16.py b/reports/issue-fixes/p800-sdk/XFFT/xfft_fp16.py
+new file mode 100644
+index 0000000..e372c08
+--- /dev/null
++++ b/reports/issue-fixes/p800-sdk/XFFT/xfft_fp16.py
+@@ -0,0 +1,100 @@
++"""One contiguous, interleaved FP16 C2C transform on the current P800 stream."""
++import ctypes as C
++from contextlib import contextmanager
++
++import torch
++
++NOT_IMPLEMENTED = 14
++COMPLEX_HALF = 6
++COMPLEX_FLOAT = 4
++
++
++def _call(lib, name, argtypes):
++    function = getattr(lib, name)
++    function.argtypes = argtypes
++    function.restype = C.c_int
++    return function
++
++
++def _check(name, status):
++    if status:
++        raise RuntimeError(f"{name} returned XFFT status {status}")
++
++
++@contextmanager
++def _handle(lib):
++    handle = C.c_void_p()
++    _check("cufftCreate", _call(lib, "cufftCreate", [C.POINTER(C.c_void_p)])(C.byref(handle)))
++    try:
++        yield handle
++    finally:
++        status = _call(lib, "cufftDestroy", [C.c_void_p])(handle)
++        handle.value = None
++        _check("cufftDestroy", status)
++
++
++def _plan(lib, handle, length, dtype):
++    dim = (C.c_longlong * 1)(length)
++    dimptr = C.POINTER(C.c_longlong)
++    wide = C.c_longlong
++    size = C.c_size_t()
++    plan = _call(lib, "cufftXtMakePlanMany", [
++        C.c_void_p, C.c_int, dimptr, dimptr, wide, wide, C.c_int,
++        dimptr, wide, wide, C.c_int, wide, C.POINTER(C.c_size_t), C.c_int,
++    ])
++    return plan(handle, 1, dim, dim, 1, length, dtype, dim, 1, length, dtype,
++                1, C.byref(size), dtype)
++
++
++@contextmanager
++def fp16_c2c_plan(lib, length, device):
++    """Yield (execute, route, native_status). Both directions use XFFT's unnormalized convention."""
++    if length < 1:
++        raise ValueError("length must be positive")
++    device = torch.device(device)
++    if device.type != "cuda":
++        raise ValueError("expected an XPyTorch accelerator device")
++    with torch.cuda.device(device):
++        stream = torch.cuda.current_stream()
++        def bind(handle):
++            if stream.cuda_stream:
++                _check("cufftSetStream", _call(lib, "cufftSetStream", [C.c_void_p, C.c_void_p])(
++                    handle, stream.cuda_stream))
++        with _handle(lib) as native:
++            status = _plan(lib, native, length, COMPLEX_HALF)
++            if status == 0:
++                bind(native)
++                try:
++                    yield _executor(lib, native, length, stream, False), "native_fp16", status
++                finally:
++                    stream.synchronize()
++                return
++            if status != NOT_IMPLEMENTED:
++                _check("cufftXtMakePlanMany(FP16)", status)
++        with _handle(lib) as promoted:
++            _check("cufftXtMakePlanMany(FP32)", _plan(lib, promoted, length, COMPLEX_FLOAT))
++            bind(promoted)
++            try:
++                yield _executor(lib, promoted, length, stream, True), "xfft_fp32_final_fp16", status
++            finally:
++                stream.synchronize()
++
++
++def _executor(lib, handle, length, stream, promoted):
++    name = "cufftExecC2C" if promoted else "cufftXtExec"
++    run = _call(lib, name, [C.c_void_p, C.c_void_p, C.c_void_p, C.c_int])
++    def execute(values, direction=-1):
++        if not handle.value:
++            raise RuntimeError("the XFFT plan has already been destroyed")
++        if direction not in (-1, 1):
++            raise ValueError("direction must be -1 or +1")
++        if (values.device != stream.device or values.dtype != torch.float16 or
++                tuple(values.shape) not in ((length, 2), (1, length, 2)) or not values.is_contiguous()):
++            raise ValueError("expected contiguous FP16 real/imaginary pairs for one plan on its device")
++        if torch.cuda.current_stream(values.device) != stream:
++            raise ValueError("execute on the stream used to create the plan")
++        source = values.float() if promoted else values
++        output = torch.empty_like(source)
++        _check(name, run(handle, source.data_ptr(), output.data_ptr(), direction))
++        return output.half() if promoted else output
++    return execute
+diff --git a/review-local/p800-interface-benchmark-20261126/fourier.py b/review-local/p800-interface-benchmark-20261126/fourier.py
+index 5d4c1c4..fdb154d 100644
+--- a/review-local/p800-interface-benchmark-20261126/fourier.py
++++ b/review-local/p800-interface-benchmark-20261126/fourier.py
+@@ -33 +33,8 @@ def execute(root,report,save,compare,args,check):
+         report['cases'].append(row);save()
++    from verify_xfft import verify
++    report['stage'] = 'single-card-fp16-c2c-compatibility'
++    save()
++    report['fp16_c2c_verification'] = verify(so)
++    save()
++    if not all(case['passed'] for case in report['fp16_c2c_verification']['cases']):
++        raise RuntimeError('XFFT compatibility output failed FP64 reference')
+diff --git a/review-local/p800-interface-benchmark-20261126/run.py b/review-local/p800-interface-benchmark-20261126/run.py
+index 1c5a087..da40ddc 100644
+--- a/review-local/p800-interface-benchmark-20261126/run.py
++++ b/review-local/p800-interface-benchmark-20261126/run.py
+@@ -41,3 +41,3 @@ files=json.loads(zlib.decompress(base64.b64decode(sys.argv[3])))
+ for name,content in files.items():
+- assert name in ('benchmark.py','bridge.cc','extra_cases.py','torch_entries.py','manual_names.json','fourier.py','collectives.py','modules.py','spatial.py','inplace.py','more_entries.py');(p/name).write_text(content)
++ assert name in ('benchmark.py','bridge.cc','extra_cases.py','torch_entries.py','manual_names.json','fourier.py','verify_xfft.py','xfft_fp16.py','collectives.py','modules.py','spatial.py','inplace.py','more_entries.py');(p/name).write_text(content)
+ env=dict(os.environ,HOME=str(p),BENCH_OUT=str(p),BENCH_PCI=sys.argv[5],PYTHONDONTWRITEBYTECODE='1',XPU_VISIBLE_DEVICES=sys.argv[4],CUDA_VISIBLE_DEVICES=sys.argv[4],OMP_NUM_THREADS='1',MKL_NUM_THREADS='1')
+@@ -118,3 +118,6 @@ for group in a.groups:
+         src['collectives.py']=(D/'collectives.py').read_text();src['bridge.cc']=(D/'bkcl_bridge.cc').read_text()
+-    if group=='xfft':src['fourier.py']=(D/'fourier.py').read_text()
++    if group=='xfft':
++        src['fourier.py']=(D/'fourier.py').read_text()
++        for name in ('xfft_fp16.py', 'verify_xfft.py'):
++            src[name]=(D.parents[1]/'reports/issue-fixes/p800-sdk/XFFT'/name).read_text()
+     if group.startswith('torch_'):
+diff --git a/review-local/p800-interface-benchmark-20261126/summarize.py b/review-local/p800-interface-benchmark-20261126/summarize.py
+index 2cb3eca..e1c6cac 100644
+--- a/review-local/p800-interface-benchmark-20261126/summarize.py
++++ b/review-local/p800-interface-benchmark-20261126/summarize.py
+@@ -62,2 +62,4 @@ for g,title in family_titles.items():
+     meta={'label':title,'host':v['host'],'physical_card':v['physical_card'],'pci':v['pci'],'image':v['image'],'torch':d['torch_version'],'source_sha256':v['sources'],'guard':v['guard'],'occupancy_samples':len(v['occupancy']),'foreign_samples':0,'receipt':rel(p),'other_receipts':[rel(q) for q,w in entries if q!=p],'exit':v['docker']['code'],'stage':d['stage'],'attempted_rows':len(cases),'measured':len(measured),'api_labels':sorted(set(q['api'] for q in measured)),'failed_rows':len(cases)-len(measured)}
++    if g == 'xfft' and d.get('fp16_c2c_verification'):
++        meta['fp16_io_compatibility'] = d['fp16_c2c_verification']
+     if g.startswith('torch_'):
+@@ -114,3 +116,3 @@ report['unmeasured']+=[
+     dict(group='comm',apis=['bkcl_all_reduce','bkcl_all_gather','bkcl_reduce_scatter','bkcl_broadcast','bkcl_reduce','bkcl_all_to_all'],reason='当前个人容器仅有 lo 且没有默认 IPv4 路由。通过 SDK 头文件绑定后，自动选择和显式 lo 下双卡通信初始化均返回 3；日志记录 no ipv4/ipv6 net card found，尚无通信执行样本。',scope=rel(here/'xccl-network.json'),additional_container_inspection=rel(here/'xccl-network-other.json')),
+-    dict(group='xfft',reason='公开 XFFT 的 1D 复数 FP16 正变换在 128、512、1024 三个长度均在 cufftXtMakePlanMany 返回 14 (CUFFT_NOT_IMPLEMENTED)，尚未执行 FFT。',scope=rel(here/'xfft-staging.json')),
++    dict(group='xfft',reason='公开 XFFT 的 1D 复数 FP16 正变换在 128、512、1024 三个长度均在 cufftXtMakePlanMany 返回 14 (CUFFT_NOT_IMPLEMENTED)，原生 FP16 计划未执行 FFT。若启用 FP32 兼容路径，正逆变换和数值结果单列于 groups.xfft.fp16_io_compatibility。',scope=rel(here/'xfft-staging.json')),
+     dict(group='manual',reason='其余手册入口含 XTDK 设备内联指令、运行时管理与诊断、训练/反向以及本次未覆盖的 dtype、重载和形状。底层指令、API 别名及上层模型不共用同一覆盖分母。',inventory='reports/P800开发者手册接口目录.json')]

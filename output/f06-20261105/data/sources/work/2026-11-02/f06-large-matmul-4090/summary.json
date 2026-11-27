@@ -1,0 +1,5325 @@
+{
+  "overall": {
+    "count": 216,
+    "statuses": {
+      "eager": {
+        "passed": 216
+      },
+      "inductor": {
+        "passed": 155,
+        "numerical_failure": 61
+      },
+      "f06": {
+        "passed": 213,
+        "numerical_failure": 3
+      }
+    },
+    "gpu_us": {
+      "eager": {
+        "n": 213,
+        "speedup": 2.269289786735285,
+        "wins": 213,
+        "round_speedups": [
+          2.270754991300578,
+          2.2676954561462783
+        ]
+      },
+      "inductor": {
+        "n": 155,
+        "speedup": 0.9559565120893745,
+        "wins": 41,
+        "round_speedups": [
+          0.9557913033648961,
+          0.9554277648030362
+        ]
+      }
+    },
+    "e2e_us": {
+      "eager": {
+        "n": 213,
+        "speedup": 1.066867448266513,
+        "wins": 104,
+        "round_speedups": [
+          1.0731738303161866,
+          1.0607577446920762
+        ]
+      },
+      "inductor": {
+        "n": 155,
+        "speedup": 1.9622849503802215,
+        "wins": 155,
+        "round_speedups": [
+          1.961435891894114,
+          1.9639691748565131
+        ]
+      }
+    },
+    "host_batch_us": {
+      "eager": {
+        "n": 213,
+        "speedup": 1.2187654297407073,
+        "wins": 186,
+        "round_speedups": [
+          1.2322483622115807,
+          1.2052489404410156
+        ]
+      },
+      "inductor": {
+        "n": 155,
+        "speedup": 2.2414126328019144,
+        "wins": 148,
+        "round_speedups": [
+          2.2396593552826256,
+          2.243241264422759
+        ]
+      }
+    }
+  },
+  "families": {
+    "matmul_bias": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.671967413271715,
+            "wins": 9,
+            "round_speedups": [
+              2.6965471420122373,
+              2.647462592534487
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.03155327265267,
+            "wins": 3,
+            "round_speedups": [
+              1.0321322172928258,
+              1.0309757586261623
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1521063226351371,
+            "wins": 9,
+            "round_speedups": [
+              1.1304012214907448,
+              1.1710621346971102
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.459848253765811,
+            "wins": 6,
+            "round_speedups": [
+              2.4943711468210488,
+              2.429680094234669
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.2194675524235772,
+            "wins": 9,
+            "round_speedups": [
+              1.183720642244105,
+              1.2507212457565624
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.7096683511215502,
+            "wins": 6,
+            "round_speedups": [
+              2.760869172231388,
+              2.6629413021375083
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 6,
+            "numerical_failure": 3
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 6,
+            "speedup": 1.2369551973030681,
+            "wins": 6,
+            "round_speedups": [
+              1.239859770451556,
+              1.2339779088969212
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 0.9240506391414368,
+            "wins": 1,
+            "round_speedups": [
+              0.9201382394594878,
+              0.9281328073739838
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 6,
+            "speedup": 0.9241046487485737,
+            "wins": 2,
+            "round_speedups": [
+              0.939346174062575,
+              0.9097530111146269
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.37699977823531,
+            "wins": 6,
+            "round_speedups": [
+              1.386241647026289,
+              1.3690667215623473
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 6,
+            "speedup": 0.9797120673438577,
+            "wins": 3,
+            "round_speedups": [
+              0.997592618391308,
+              0.9619747016756839
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.362993142234212,
+            "wins": 4,
+            "round_speedups": [
+              1.3571643940831664,
+              1.368920186426876
+            ]
+          }
+        }
+      }
+    },
+    "matmul_bias_relu": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 3.222229724050529,
+            "wins": 9,
+            "round_speedups": [
+              3.2333870790636725,
+              3.2111246778986366
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 0.9824410416671006,
+            "wins": 2,
+            "round_speedups": [
+              0.9813728153975219,
+              0.9835218905737383
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.4816337348534219,
+            "wins": 9,
+            "round_speedups": [
+              1.461803666220988,
+              1.5005191044571708
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.5094839973075653,
+            "wins": 6,
+            "round_speedups": [
+              2.540946336561375,
+              2.4792600638238396
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.6802822223960132,
+            "wins": 9,
+            "round_speedups": [
+              1.6562490109787804,
+              1.7031602190651527
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.7472518305098386,
+            "wins": 6,
+            "round_speedups": [
+              2.787889895135646,
+              2.7085376972908373
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 7,
+            "numerical_failure": 2
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.4182488095038872,
+            "wins": 9,
+            "round_speedups": [
+              1.4213997102628493,
+              1.4150632065078803
+            ]
+          },
+          "inductor": {
+            "n": 7,
+            "speedup": 0.9829331120424026,
+            "wins": 5,
+            "round_speedups": [
+              0.9824837911810633,
+              0.9833811895316953
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.0324172922301977,
+            "wins": 6,
+            "round_speedups": [
+              1.0435289500605067,
+              1.0212730700127821
+            ]
+          },
+          "inductor": {
+            "n": 7,
+            "speedup": 1.4092171447091622,
+            "wins": 7,
+            "round_speedups": [
+              1.4115096216919618,
+              1.4069735636184966
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1688884799769976,
+            "wins": 7,
+            "round_speedups": [
+              1.184182553672315,
+              1.1531978646522658
+            ]
+          },
+          "inductor": {
+            "n": 7,
+            "speedup": 1.528266449994985,
+            "wins": 7,
+            "round_speedups": [
+              1.5425376555399362,
+              1.51162360937719
+            ]
+          }
+        }
+      }
+    },
+    "matmul_bias_gelu_exact": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.954783811802086,
+            "wins": 9,
+            "round_speedups": [
+              2.9157156060432317,
+              2.992747871676111
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 0.9762494439653597,
+            "wins": 1,
+            "round_speedups": [
+              0.9599625459064332,
+              0.9921991045147855
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.479092183009295,
+            "wins": 9,
+            "round_speedups": [
+              1.5192866611007432,
+              1.4418037850828487
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.46940931414343,
+            "wins": 6,
+            "round_speedups": [
+              2.5337175772439835,
+              2.410071637219967
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.695726988436378,
+            "wins": 9,
+            "round_speedups": [
+              1.7344885787298614,
+              1.6588419085001695
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.7860886922896833,
+            "wins": 6,
+            "round_speedups": [
+              2.773716121905695,
+              2.7931882564835626
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.3800493884879996,
+            "wins": 9,
+            "round_speedups": [
+              1.38196944713902,
+              1.3780956692972461
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.00213471470094,
+            "wins": 4,
+            "round_speedups": [
+              0.9993876904617098,
+              1.0048817262736234
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.0215728470795993,
+            "wins": 6,
+            "round_speedups": [
+              1.0276994998731528,
+              1.0153806350622958
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.4072200707434501,
+            "wins": 6,
+            "round_speedups": [
+              1.4051723746718516,
+              1.4092921763457897
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1269303255894347,
+            "wins": 7,
+            "round_speedups": [
+              1.1427962357219223,
+              1.1107901933394455
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.4248005207561105,
+            "wins": 5,
+            "round_speedups": [
+              1.4190895339971699,
+              1.4305240767211174
+            ]
+          }
+        }
+      }
+    },
+    "matmul_bias_gelu_tanh": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.3859293771084364,
+            "wins": 9,
+            "round_speedups": [
+              2.3801973607682103,
+              2.389216409773704
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 0.9932567499368019,
+            "wins": 2,
+            "round_speedups": [
+              0.994205431399318,
+              0.9923214602670981
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.477048097875703,
+            "wins": 9,
+            "round_speedups": [
+              1.501974697548415,
+              1.4536187414976776
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.4874640644079964,
+            "wins": 6,
+            "round_speedups": [
+              2.5215166059398904,
+              2.455596178771571
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.695661221184837,
+            "wins": 9,
+            "round_speedups": [
+              1.7261034171426333,
+              1.6665429259138347
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.747890297965507,
+            "wins": 6,
+            "round_speedups": [
+              2.7815756468130544,
+              2.7158242449705807
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.3094491178097276,
+            "wins": 9,
+            "round_speedups": [
+              1.3114838503937913,
+              1.3073733759966952
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 0.9997254083746031,
+            "wins": 3,
+            "round_speedups": [
+              0.999243828956184,
+              1.0001931290928454
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.0200392911605483,
+            "wins": 6,
+            "round_speedups": [
+              1.0272672648278613,
+              1.012740983564171
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.427298033160704,
+            "wins": 6,
+            "round_speedups": [
+              1.4253810230999218,
+              1.429227030583939
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1546363138693385,
+            "wins": 7,
+            "round_speedups": [
+              1.165677625633222,
+              1.143173806601381
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.4867559818258556,
+            "wins": 5,
+            "round_speedups": [
+              1.4758152025354312,
+              1.4977683825340362
+            ]
+          }
+        }
+      }
+    },
+    "matmul_bias_silu": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 3.2419888334287204,
+            "wins": 9,
+            "round_speedups": [
+              3.2055166508372746,
+              3.2764653608328134
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 0.9923236488479167,
+            "wins": 1,
+            "round_speedups": [
+              0.9926051563904784,
+              0.9920440516282988
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.4763659000241118,
+            "wins": 9,
+            "round_speedups": [
+              1.481771413871172,
+              1.4712232888742296
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.484908680927826,
+            "wins": 6,
+            "round_speedups": [
+              2.485656021113791,
+              2.4842170814462694
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.6928859773834835,
+            "wins": 9,
+            "round_speedups": [
+              1.711749915453336,
+              1.674527822238286
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.726651067065935,
+            "wins": 6,
+            "round_speedups": [
+              2.74228905758066,
+              2.7112673395922227
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.4347366367139345,
+            "wins": 9,
+            "round_speedups": [
+              1.4359907831911256,
+              1.4334540591721467
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.0061763779889121,
+            "wins": 5,
+            "round_speedups": [
+              1.0035309305052404,
+              1.008826711798356
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.0507449027863944,
+            "wins": 7,
+            "round_speedups": [
+              1.0647937998804593,
+              1.0380937390439544
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.4467291862293754,
+            "wins": 6,
+            "round_speedups": [
+              1.457428081912651,
+              1.4388945391683101
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1581837922403597,
+            "wins": 7,
+            "round_speedups": [
+              1.153043526147574,
+              1.165055270678707
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.460732515206948,
+            "wins": 3,
+            "round_speedups": [
+              1.4282595408953063,
+              1.4980299580429384
+            ]
+          }
+        }
+      }
+    },
+    "add_layernorm": {
+      "small": {
+        "count": 36,
+        "statuses": {
+          "eager": {
+            "passed": 36
+          },
+          "inductor": {
+            "passed": 30,
+            "numerical_failure": 6
+          },
+          "f06": {
+            "passed": 36
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 2.7617100507464474,
+            "wins": 36,
+            "round_speedups": [
+              2.7539584720438692,
+              2.7693221757482283
+            ]
+          },
+          "inductor": {
+            "n": 30,
+            "speedup": 0.9156179160370861,
+            "wins": 0,
+            "round_speedups": [
+              0.9123600105532148,
+              0.9178586633265589
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 0.9823918153546648,
+            "wins": 9,
+            "round_speedups": [
+              1.0046271419090067,
+              0.9606966704036196
+            ]
+          },
+          "inductor": {
+            "n": 30,
+            "speedup": 2.0405587635091593,
+            "wins": 30,
+            "round_speedups": [
+              2.0423844147824086,
+              2.0390104630557584
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 1.1307904497111902,
+            "wins": 35,
+            "round_speedups": [
+              1.1641710918315868,
+              1.097786466825109
+            ]
+          },
+          "inductor": {
+            "n": 30,
+            "speedup": 2.321531180308392,
+            "wins": 30,
+            "round_speedups": [
+              2.315096920171324,
+              2.327811113284933
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 36,
+        "statuses": {
+          "eager": {
+            "passed": 36
+          },
+          "inductor": {
+            "passed": 30,
+            "numerical_failure": 6
+          },
+          "f06": {
+            "passed": 36
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 2.11967821143395,
+            "wins": 36,
+            "round_speedups": [
+              2.1270113846062206,
+              2.1126208625697123
+            ]
+          },
+          "inductor": {
+            "n": 30,
+            "speedup": 0.9433031890665606,
+            "wins": 10,
+            "round_speedups": [
+              0.9483497717846496,
+              0.9363363867561167
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 1.0059572693807273,
+            "wins": 14,
+            "round_speedups": [
+              0.9985711010466469,
+              1.0138187708661568
+            ]
+          },
+          "inductor": {
+            "n": 30,
+            "speedup": 1.8779328645857198,
+            "wins": 30,
+            "round_speedups": [
+              1.8533875528450723,
+              1.9034995256501557
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 1.268437228301857,
+            "wins": 36,
+            "round_speedups": [
+              1.279296495219871,
+              1.2573054321701118
+            ]
+          },
+          "inductor": {
+            "n": 30,
+            "speedup": 2.375972335852276,
+            "wins": 30,
+            "round_speedups": [
+              2.3688119630025826,
+              2.3834250159138124
+            ]
+          }
+        }
+      }
+    },
+    "add_softmax": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 9
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.5892328920140333,
+            "wins": 9,
+            "round_speedups": [
+              2.589116546021256,
+              2.5893684321773565
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 0.9298216375993753,
+            "wins": 0,
+            "round_speedups": [
+              0.9118335858412039,
+              0.9475323294958776
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 0.923928248772098,
+            "wins": 0,
+            "round_speedups": [
+              0.9253524542722467,
+              0.9226707619967366
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 2.25373894891225,
+            "wins": 9,
+            "round_speedups": [
+              2.2663357437916916,
+              2.2421669542767626
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 0.9784026701507418,
+            "wins": 1,
+            "round_speedups": [
+              0.9778163830086994,
+              0.9787106350693507
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 2.5779711000169017,
+            "wins": 9,
+            "round_speedups": [
+              2.5899852916662285,
+              2.5663788467820976
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 9
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.1280663013168546,
+            "wins": 9,
+            "round_speedups": [
+              2.156122974098955,
+              2.101417279441605
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 0.9545270183758114,
+            "wins": 3,
+            "round_speedups": [
+              0.9863307512224154,
+              0.923599589368467
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 0.9823221811120663,
+            "wins": 3,
+            "round_speedups": [
+              0.9669638727665053,
+              0.9985144950664963
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 2.0126343169555705,
+            "wins": 9,
+            "round_speedups": [
+              1.9729305847381193,
+              2.054145453532862
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1370176355145525,
+            "wins": 3,
+            "round_speedups": [
+              1.160723585872684,
+              1.1131585025295123
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 2.5068051826068545,
+            "wins": 9,
+            "round_speedups": [
+              2.48704394122391,
+              2.527160193657727
+            ]
+          }
+        }
+      }
+    },
+    "mul_sum": {
+      "small": {
+        "count": 18,
+        "statuses": {
+          "eager": {
+            "passed": 18
+          },
+          "inductor": {
+            "passed": 10,
+            "numerical_failure": 8
+          },
+          "f06": {
+            "passed": 18
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 18,
+            "speedup": 2.965163008912446,
+            "wins": 18,
+            "round_speedups": [
+              2.956093633441275,
+              2.974355588714201
+            ]
+          },
+          "inductor": {
+            "n": 10,
+            "speedup": 0.9584725468666123,
+            "wins": 1,
+            "round_speedups": [
+              0.9366204492471701,
+              0.9802341025643768
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 18,
+            "speedup": 0.9413932703290877,
+            "wins": 0,
+            "round_speedups": [
+              0.9629101773265437,
+              0.9203800296921614
+            ]
+          },
+          "inductor": {
+            "n": 10,
+            "speedup": 2.234197080546578,
+            "wins": 10,
+            "round_speedups": [
+              2.229516526691794,
+              2.239078310882992
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 18,
+            "speedup": 1.0287883722237812,
+            "wins": 18,
+            "round_speedups": [
+              1.0616783541543242,
+              0.9962305368383428
+            ]
+          },
+          "inductor": {
+            "n": 10,
+            "speedup": 2.5695420928169397,
+            "wins": 10,
+            "round_speedups": [
+              2.5510328537805305,
+              2.5878371085597713
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 18,
+        "statuses": {
+          "eager": {
+            "passed": 18
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 12
+          },
+          "f06": {
+            "passed": 18
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 18,
+            "speedup": 2.362174311091547,
+            "wins": 18,
+            "round_speedups": [
+              2.3770958884105062,
+              2.3477528310078033
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 0.9369450895995844,
+            "wins": 0,
+            "round_speedups": [
+              0.9674167994044095,
+              0.9073831667372242
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 18,
+            "speedup": 1.010631889383038,
+            "wins": 6,
+            "round_speedups": [
+              1.0034889819163715,
+              1.0182985588901712
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.1322791988117236,
+            "wins": 6,
+            "round_speedups": [
+              2.123759791821572,
+              2.1408349668944666
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 18,
+            "speedup": 1.1182372957409805,
+            "wins": 17,
+            "round_speedups": [
+              1.1046303133292945,
+              1.1354690616925154
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.61204707780185,
+            "wins": 6,
+            "round_speedups": [
+              2.6282104869434044,
+              2.593770260241308
+            ]
+          }
+        }
+      }
+    }
+  },
+  "variants": {
+    "matmul_bias": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.671967413271715,
+            "wins": 9,
+            "round_speedups": [
+              2.6965471420122373,
+              2.647462592534487
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.03155327265267,
+            "wins": 3,
+            "round_speedups": [
+              1.0321322172928258,
+              1.0309757586261623
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1521063226351371,
+            "wins": 9,
+            "round_speedups": [
+              1.1304012214907448,
+              1.1710621346971102
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.459848253765811,
+            "wins": 6,
+            "round_speedups": [
+              2.4943711468210488,
+              2.429680094234669
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.2194675524235772,
+            "wins": 9,
+            "round_speedups": [
+              1.183720642244105,
+              1.2507212457565624
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.7096683511215502,
+            "wins": 6,
+            "round_speedups": [
+              2.760869172231388,
+              2.6629413021375083
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 6,
+            "numerical_failure": 3
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 6,
+            "speedup": 1.2369551973030681,
+            "wins": 6,
+            "round_speedups": [
+              1.239859770451556,
+              1.2339779088969212
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 0.9240506391414368,
+            "wins": 1,
+            "round_speedups": [
+              0.9201382394594878,
+              0.9281328073739838
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 6,
+            "speedup": 0.9241046487485737,
+            "wins": 2,
+            "round_speedups": [
+              0.939346174062575,
+              0.9097530111146269
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.37699977823531,
+            "wins": 6,
+            "round_speedups": [
+              1.386241647026289,
+              1.3690667215623473
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 6,
+            "speedup": 0.9797120673438577,
+            "wins": 3,
+            "round_speedups": [
+              0.997592618391308,
+              0.9619747016756839
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.362993142234212,
+            "wins": 4,
+            "round_speedups": [
+              1.3571643940831664,
+              1.368920186426876
+            ]
+          }
+        }
+      }
+    },
+    "matmul_bias_relu": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 3.222229724050529,
+            "wins": 9,
+            "round_speedups": [
+              3.2333870790636725,
+              3.2111246778986366
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 0.9824410416671006,
+            "wins": 2,
+            "round_speedups": [
+              0.9813728153975219,
+              0.9835218905737383
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.4816337348534219,
+            "wins": 9,
+            "round_speedups": [
+              1.461803666220988,
+              1.5005191044571708
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.5094839973075653,
+            "wins": 6,
+            "round_speedups": [
+              2.540946336561375,
+              2.4792600638238396
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.6802822223960132,
+            "wins": 9,
+            "round_speedups": [
+              1.6562490109787804,
+              1.7031602190651527
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.7472518305098386,
+            "wins": 6,
+            "round_speedups": [
+              2.787889895135646,
+              2.7085376972908373
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 7,
+            "numerical_failure": 2
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.4182488095038872,
+            "wins": 9,
+            "round_speedups": [
+              1.4213997102628493,
+              1.4150632065078803
+            ]
+          },
+          "inductor": {
+            "n": 7,
+            "speedup": 0.9829331120424026,
+            "wins": 5,
+            "round_speedups": [
+              0.9824837911810633,
+              0.9833811895316953
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.0324172922301977,
+            "wins": 6,
+            "round_speedups": [
+              1.0435289500605067,
+              1.0212730700127821
+            ]
+          },
+          "inductor": {
+            "n": 7,
+            "speedup": 1.4092171447091622,
+            "wins": 7,
+            "round_speedups": [
+              1.4115096216919618,
+              1.4069735636184966
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1688884799769976,
+            "wins": 7,
+            "round_speedups": [
+              1.184182553672315,
+              1.1531978646522658
+            ]
+          },
+          "inductor": {
+            "n": 7,
+            "speedup": 1.528266449994985,
+            "wins": 7,
+            "round_speedups": [
+              1.5425376555399362,
+              1.51162360937719
+            ]
+          }
+        }
+      }
+    },
+    "matmul_bias_gelu_exact": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.954783811802086,
+            "wins": 9,
+            "round_speedups": [
+              2.9157156060432317,
+              2.992747871676111
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 0.9762494439653597,
+            "wins": 1,
+            "round_speedups": [
+              0.9599625459064332,
+              0.9921991045147855
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.479092183009295,
+            "wins": 9,
+            "round_speedups": [
+              1.5192866611007432,
+              1.4418037850828487
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.46940931414343,
+            "wins": 6,
+            "round_speedups": [
+              2.5337175772439835,
+              2.410071637219967
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.695726988436378,
+            "wins": 9,
+            "round_speedups": [
+              1.7344885787298614,
+              1.6588419085001695
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.7860886922896833,
+            "wins": 6,
+            "round_speedups": [
+              2.773716121905695,
+              2.7931882564835626
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.3800493884879996,
+            "wins": 9,
+            "round_speedups": [
+              1.38196944713902,
+              1.3780956692972461
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.00213471470094,
+            "wins": 4,
+            "round_speedups": [
+              0.9993876904617098,
+              1.0048817262736234
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.0215728470795993,
+            "wins": 6,
+            "round_speedups": [
+              1.0276994998731528,
+              1.0153806350622958
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.4072200707434501,
+            "wins": 6,
+            "round_speedups": [
+              1.4051723746718516,
+              1.4092921763457897
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1269303255894347,
+            "wins": 7,
+            "round_speedups": [
+              1.1427962357219223,
+              1.1107901933394455
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.4248005207561105,
+            "wins": 5,
+            "round_speedups": [
+              1.4190895339971699,
+              1.4305240767211174
+            ]
+          }
+        }
+      }
+    },
+    "matmul_bias_gelu_tanh": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.3859293771084364,
+            "wins": 9,
+            "round_speedups": [
+              2.3801973607682103,
+              2.389216409773704
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 0.9932567499368019,
+            "wins": 2,
+            "round_speedups": [
+              0.994205431399318,
+              0.9923214602670981
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.477048097875703,
+            "wins": 9,
+            "round_speedups": [
+              1.501974697548415,
+              1.4536187414976776
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.4874640644079964,
+            "wins": 6,
+            "round_speedups": [
+              2.5215166059398904,
+              2.455596178771571
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.695661221184837,
+            "wins": 9,
+            "round_speedups": [
+              1.7261034171426333,
+              1.6665429259138347
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.747890297965507,
+            "wins": 6,
+            "round_speedups": [
+              2.7815756468130544,
+              2.7158242449705807
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.3094491178097276,
+            "wins": 9,
+            "round_speedups": [
+              1.3114838503937913,
+              1.3073733759966952
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 0.9997254083746031,
+            "wins": 3,
+            "round_speedups": [
+              0.999243828956184,
+              1.0001931290928454
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.0200392911605483,
+            "wins": 6,
+            "round_speedups": [
+              1.0272672648278613,
+              1.012740983564171
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.427298033160704,
+            "wins": 6,
+            "round_speedups": [
+              1.4253810230999218,
+              1.429227030583939
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1546363138693385,
+            "wins": 7,
+            "round_speedups": [
+              1.165677625633222,
+              1.143173806601381
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.4867559818258556,
+            "wins": 5,
+            "round_speedups": [
+              1.4758152025354312,
+              1.4977683825340362
+            ]
+          }
+        }
+      }
+    },
+    "matmul_bias_silu": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 3.2419888334287204,
+            "wins": 9,
+            "round_speedups": [
+              3.2055166508372746,
+              3.2764653608328134
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 0.9923236488479167,
+            "wins": 1,
+            "round_speedups": [
+              0.9926051563904784,
+              0.9920440516282988
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.4763659000241118,
+            "wins": 9,
+            "round_speedups": [
+              1.481771413871172,
+              1.4712232888742296
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.484908680927826,
+            "wins": 6,
+            "round_speedups": [
+              2.485656021113791,
+              2.4842170814462694
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.6928859773834835,
+            "wins": 9,
+            "round_speedups": [
+              1.711749915453336,
+              1.674527822238286
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.726651067065935,
+            "wins": 6,
+            "round_speedups": [
+              2.74228905758066,
+              2.7112673395922227
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.4347366367139345,
+            "wins": 9,
+            "round_speedups": [
+              1.4359907831911256,
+              1.4334540591721467
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.0061763779889121,
+            "wins": 5,
+            "round_speedups": [
+              1.0035309305052404,
+              1.008826711798356
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.0507449027863944,
+            "wins": 7,
+            "round_speedups": [
+              1.0647937998804593,
+              1.0380937390439544
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.4467291862293754,
+            "wins": 6,
+            "round_speedups": [
+              1.457428081912651,
+              1.4388945391683101
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1581837922403597,
+            "wins": 7,
+            "round_speedups": [
+              1.153043526147574,
+              1.165055270678707
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.460732515206948,
+            "wins": 3,
+            "round_speedups": [
+              1.4282595408953063,
+              1.4980299580429384
+            ]
+          }
+        }
+      }
+    },
+    "add_layernorm": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 9
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.6905161214265583,
+            "wins": 9,
+            "round_speedups": [
+              2.664020332983828,
+              2.7168855447583242
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 0.9290831461539195,
+            "wins": 0,
+            "round_speedups": [
+              0.8986675810930806,
+              0.9593081197712489
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1220550749001763,
+            "wins": 9,
+            "round_speedups": [
+              1.1428799203595517,
+              1.101869237185215
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 2.254574285851292,
+            "wins": 9,
+            "round_speedups": [
+              2.252453097379536,
+              2.2567914948155288
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.3025093936848422,
+            "wins": 9,
+            "round_speedups": [
+              1.3237036635846429,
+              1.2812981956472054
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 2.5774233655071668,
+            "wins": 9,
+            "round_speedups": [
+              2.5518764545493924,
+              2.6026633973869506
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 9
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.0679244873761355,
+            "wins": 9,
+            "round_speedups": [
+              2.089417442611807,
+              2.0471489839058905
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 0.9364339273472616,
+            "wins": 2,
+            "round_speedups": [
+              0.9290896334463429,
+              0.9417227403394403
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1140619368354945,
+            "wins": 9,
+            "round_speedups": [
+              1.1079093714254564,
+              1.1208298687809313
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 2.0622790307925127,
+            "wins": 9,
+            "round_speedups": [
+              2.0256825716902327,
+              2.1005464458387193
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.4281789762671742,
+            "wins": 9,
+            "round_speedups": [
+              1.440082841894435,
+              1.416223796237754
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 2.647865124352666,
+            "wins": 9,
+            "round_speedups": [
+              2.6301631712369526,
+              2.6665933658743985
+            ]
+          }
+        }
+      }
+    },
+    "add_layernorm_affine": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.7529381515613456,
+            "wins": 9,
+            "round_speedups": [
+              2.7486723473077617,
+              2.7572436179739506
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 0.9044246584217595,
+            "wins": 0,
+            "round_speedups": [
+              0.9024859604524396,
+              0.9056029641323554
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 0.8852387000933946,
+            "wins": 0,
+            "round_speedups": [
+              0.9112394016232738,
+              0.8600909920788375
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.8475376333353655,
+            "wins": 6,
+            "round_speedups": [
+              1.8648750407049624,
+              1.8309596109013904
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.0053763795418953,
+            "wins": 8,
+            "round_speedups": [
+              1.0353433902572529,
+              0.9757501266422564
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.0710300086429974,
+            "wins": 6,
+            "round_speedups": [
+              2.05737549082166,
+              2.084544984186848
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.0547877570738824,
+            "wins": 9,
+            "round_speedups": [
+              2.06872019342303,
+              2.04115092869195
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 0.9599767399747855,
+            "wins": 3,
+            "round_speedups": [
+              0.9729853943162882,
+              0.9463919037294873
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 0.9235509063473012,
+            "wins": 1,
+            "round_speedups": [
+              0.9154345677830108,
+              0.9321404870341138
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.7258679556788512,
+            "wins": 6,
+            "round_speedups": [
+              1.7034888255602543,
+              1.7494660362122965
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1367580023108184,
+            "wins": 9,
+            "round_speedups": [
+              1.1444874276510175,
+              1.1287650821095636
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.1142946434718706,
+            "wins": 6,
+            "round_speedups": [
+              2.1138111632249794,
+              2.1147338116945544
+            ]
+          }
+        }
+      }
+    },
+    "add_layernorm_weight": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.794863190375916,
+            "wins": 9,
+            "round_speedups": [
+              2.7905761102203477,
+              2.799219673562485
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 0.9047604060024472,
+            "wins": 0,
+            "round_speedups": [
+              0.9050695354090976,
+              0.9041835339093209
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 0.9646921709349109,
+            "wins": 0,
+            "round_speedups": [
+              0.9885490413184177,
+              0.9414337572321254
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.0014063199412075,
+            "wins": 6,
+            "round_speedups": [
+              2.0110099905670973,
+              1.9925281498250647
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.113901183211521,
+            "wins": 9,
+            "round_speedups": [
+              1.1558820805902592,
+              1.072813153930804
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.281281062834141,
+            "wins": 6,
+            "round_speedups": [
+              2.294111943163572,
+              2.268740296459614
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 6,
+            "numerical_failure": 3
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.1806662072682967,
+            "wins": 9,
+            "round_speedups": [
+              2.169239695737228,
+              2.192238954789674
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 0.9657651947613116,
+            "wins": 3,
+            "round_speedups": [
+              0.9539330374593743,
+              0.9759776899804709
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 0.9932485564111433,
+            "wins": 1,
+            "round_speedups": [
+              0.9827686856759807,
+              1.004344265029814
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 1.8195803911346586,
+            "wins": 6,
+            "round_speedups": [
+              1.7811043787816305,
+              1.8601936821128562
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.2602150569828956,
+            "wins": 9,
+            "round_speedups": [
+              1.2745940756515208,
+              1.2455129124438609
+            ]
+          },
+          "inductor": {
+            "n": 6,
+            "speedup": 2.3278073380353876,
+            "wins": 6,
+            "round_speedups": [
+              2.3215198437825215,
+              2.3341789934215345
+            ]
+          }
+        }
+      }
+    },
+    "add_layernorm_bias": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 9
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.8100866705238197,
+            "wins": 9,
+            "round_speedups": [
+              2.814979055134757,
+              2.8048553459674377
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 0.917041600088426,
+            "wins": 0,
+            "round_speedups": [
+              0.9380085476336075,
+              0.8950177153114288
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 0.9720209427113679,
+            "wins": 0,
+            "round_speedups": [
+              0.9894373880556753,
+              0.9547307657357251
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 1.999002928399551,
+            "wins": 9,
+            "round_speedups": [
+              1.9880465980087034,
+              2.0099469335777216
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1209140702803193,
+            "wins": 9,
+            "round_speedups": [
+              1.1595207540562265,
+              1.082825737280817
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 2.282894546878711,
+            "wins": 9,
+            "round_speedups": [
+              2.2860488199439044,
+              2.279696760452456
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 9
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.1786572095081844,
+            "wins": 9,
+            "round_speedups": [
+              2.1829548076897627,
+              2.1745720274132383
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 0.9245683636237325,
+            "wins": 2,
+            "round_speedups": [
+              0.9478829797053406,
+              0.8991717911649475
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.0020514380853844,
+            "wins": 3,
+            "round_speedups": [
+              0.9975464316672596,
+              1.0067870949368698
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 1.8475671837125252,
+            "wins": 9,
+            "round_speedups": [
+              1.8420311701064407,
+              1.8529676355290268
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.2652623929681377,
+            "wins": 9,
+            "round_speedups": [
+              1.2750125002425001,
+              1.2551033240190999
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 2.3361481355628118,
+            "wins": 9,
+            "round_speedups": [
+              2.332886133380206,
+              2.3394922260485043
+            ]
+          }
+        }
+      }
+    },
+    "add_softmax": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 9
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.5892328920140333,
+            "wins": 9,
+            "round_speedups": [
+              2.589116546021256,
+              2.5893684321773565
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 0.9298216375993753,
+            "wins": 0,
+            "round_speedups": [
+              0.9118335858412039,
+              0.9475323294958776
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 0.923928248772098,
+            "wins": 0,
+            "round_speedups": [
+              0.9253524542722467,
+              0.9226707619967366
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 2.25373894891225,
+            "wins": 9,
+            "round_speedups": [
+              2.2663357437916916,
+              2.2421669542767626
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 0.9784026701507418,
+            "wins": 1,
+            "round_speedups": [
+              0.9778163830086994,
+              0.9787106350693507
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 2.5779711000169017,
+            "wins": 9,
+            "round_speedups": [
+              2.5899852916662285,
+              2.5663788467820976
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 9
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.1280663013168546,
+            "wins": 9,
+            "round_speedups": [
+              2.156122974098955,
+              2.101417279441605
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 0.9545270183758114,
+            "wins": 3,
+            "round_speedups": [
+              0.9863307512224154,
+              0.923599589368467
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 0.9823221811120663,
+            "wins": 3,
+            "round_speedups": [
+              0.9669638727665053,
+              0.9985144950664963
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 2.0126343169555705,
+            "wins": 9,
+            "round_speedups": [
+              1.9729305847381193,
+              2.054145453532862
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1370176355145525,
+            "wins": 3,
+            "round_speedups": [
+              1.160723585872684,
+              1.1131585025295123
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 2.5068051826068545,
+            "wins": 9,
+            "round_speedups": [
+              2.48704394122391,
+              2.527160193657727
+            ]
+          }
+        }
+      }
+    },
+    "mul_sum": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 5,
+            "numerical_failure": 4
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.967392564165128,
+            "wins": 9,
+            "round_speedups": [
+              2.957618549509898,
+              2.9773104537137765
+            ]
+          },
+          "inductor": {
+            "n": 5,
+            "speedup": 0.9377392209195073,
+            "wins": 0,
+            "round_speedups": [
+              0.90012034113987,
+              0.9757074057297478
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 0.9546051106552693,
+            "wins": 0,
+            "round_speedups": [
+              0.9753613190421978,
+              0.934445915670176
+            ]
+          },
+          "inductor": {
+            "n": 5,
+            "speedup": 2.2425684058529556,
+            "wins": 5,
+            "round_speedups": [
+              2.24407188051666,
+              2.241559050176765
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.0359840983923072,
+            "wins": 9,
+            "round_speedups": [
+              1.0690985123008314,
+              1.003253953248957
+            ]
+          },
+          "inductor": {
+            "n": 5,
+            "speedup": 2.571805735368508,
+            "wins": 5,
+            "round_speedups": [
+              2.549432069654591,
+              2.593926700539223
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 3,
+            "numerical_failure": 6
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.369011896912796,
+            "wins": 9,
+            "round_speedups": [
+              2.4030545749679524,
+              2.3364050982188362
+            ]
+          },
+          "inductor": {
+            "n": 3,
+            "speedup": 0.9323504567411743,
+            "wins": 0,
+            "round_speedups": [
+              0.988812986955874,
+              0.8790694173096814
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.0159429659565802,
+            "wins": 3,
+            "round_speedups": [
+              1.0088432023476637,
+              1.023618990749823
+            ]
+          },
+          "inductor": {
+            "n": 3,
+            "speedup": 2.147922042666746,
+            "wins": 3,
+            "round_speedups": [
+              2.108998030298202,
+              2.190444054195112
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1329038357660368,
+            "wins": 9,
+            "round_speedups": [
+              1.1374634170183868,
+              1.1280109386399273
+            ]
+          },
+          "inductor": {
+            "n": 3,
+            "speedup": 2.6416233205668327,
+            "wins": 3,
+            "round_speedups": [
+              2.606231956373844,
+              2.678251700929247
+            ]
+          }
+        }
+      }
+    },
+    "mul_sum_keepdim": {
+      "small": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 5,
+            "numerical_failure": 4
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.9629351288397467,
+            "wins": 9,
+            "round_speedups": [
+              2.9545695036028503,
+              2.971403656303384
+            ]
+          },
+          "inductor": {
+            "n": 5,
+            "speedup": 0.9796642846997077,
+            "wins": 1,
+            "round_speedups": [
+              0.974600645994793,
+              0.9847818005558202
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 0.928364283334463,
+            "wins": 0,
+            "round_speedups": [
+              0.9506179827897419,
+              0.9065258725526258
+            ]
+          },
+          "inductor": {
+            "n": 5,
+            "speedup": 2.225857004716115,
+            "wins": 5,
+            "round_speedups": [
+              2.2150555808610775,
+              2.236600317029917
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.0216426260454623,
+            "wins": 9,
+            "round_speedups": [
+              1.0543096961701368,
+              0.9892562888141748
+            ]
+          },
+          "inductor": {
+            "n": 5,
+            "speedup": 2.5672804426699805,
+            "wins": 5,
+            "round_speedups": [
+              2.55263464303614,
+              2.581761812716933
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 9,
+        "statuses": {
+          "eager": {
+            "passed": 9
+          },
+          "inductor": {
+            "passed": 3,
+            "numerical_failure": 6
+          },
+          "f06": {
+            "passed": 9
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 2.355356460325207,
+            "wins": 9,
+            "round_speedups": [
+              2.351417617210583,
+              2.359155678827784
+            ]
+          },
+          "inductor": {
+            "n": 3,
+            "speedup": 0.9415623648570526,
+            "wins": 0,
+            "round_speedups": [
+              0.9464835880150471,
+              0.9366088673609526
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.0053485776893316,
+            "wins": 3,
+            "round_speedups": [
+              0.9981631778696675,
+              1.0130057808699158
+            ]
+          },
+          "inductor": {
+            "n": 3,
+            "speedup": 2.116750278348245,
+            "wins": 3,
+            "round_speedups": [
+              2.138624877103496,
+              2.0923494241728715
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 9,
+            "speedup": 1.1037606283154475,
+            "wins": 8,
+            "round_speedups": [
+              1.072744943590789,
+              1.1429764959685695
+            ]
+          },
+          "inductor": {
+            "n": 3,
+            "speedup": 2.5828019776828617,
+            "wins": 3,
+            "round_speedups": [
+              2.6503743639495383,
+              2.511953660135094
+            ]
+          }
+        }
+      }
+    }
+  },
+  "dtypes": {
+    "float32": {
+      "small": {
+        "count": 36,
+        "statuses": {
+          "eager": {
+            "passed": 36
+          },
+          "inductor": {
+            "passed": 36
+          },
+          "f06": {
+            "passed": 36
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 2.7029770477430395,
+            "wins": 36,
+            "round_speedups": [
+              2.6931554719596367,
+              2.712292127270798
+            ]
+          },
+          "inductor": {
+            "n": 36,
+            "speedup": 0.9542689256029205,
+            "wins": 5,
+            "round_speedups": [
+              0.9464855950513492,
+              0.9614621452421647
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 1.116642581290567,
+            "wins": 18,
+            "round_speedups": [
+              1.129678550018216,
+              1.1034061857684174
+            ]
+          },
+          "inductor": {
+            "n": 36,
+            "speedup": 2.2559486231025,
+            "wins": 36,
+            "round_speedups": [
+              2.278437332304476,
+              2.235069471738522
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 1.254630046401534,
+            "wins": 33,
+            "round_speedups": [
+              1.2676156689414653,
+              1.24015278618479
+            ]
+          },
+          "inductor": {
+            "n": 36,
+            "speedup": 2.549110339662967,
+            "wins": 36,
+            "round_speedups": [
+              2.551711622721017,
+              2.546163298915778
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 36,
+        "statuses": {
+          "eager": {
+            "passed": 36
+          },
+          "inductor": {
+            "passed": 36
+          },
+          "f06": {
+            "passed": 36
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 1.815602164680674,
+            "wins": 36,
+            "round_speedups": [
+              1.822153407392905,
+              1.809288662233527
+            ]
+          },
+          "inductor": {
+            "n": 36,
+            "speedup": 0.9941794167391038,
+            "wins": 20,
+            "round_speedups": [
+              0.9992033390146203,
+              0.9879031375128604
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 1.0279350585204303,
+            "wins": 20,
+            "round_speedups": [
+              1.0285369669495696,
+              1.0280868441860553
+            ]
+          },
+          "inductor": {
+            "n": 36,
+            "speedup": 1.6452057712251307,
+            "wins": 36,
+            "round_speedups": [
+              1.6430585886699327,
+              1.6481785676895084
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 1.227969615966542,
+            "wins": 33,
+            "round_speedups": [
+              1.2366620307224394,
+              1.2194847852842687
+            ]
+          },
+          "inductor": {
+            "n": 36,
+            "speedup": 1.850405486346811,
+            "wins": 31,
+            "round_speedups": [
+              1.8503030728096912,
+              1.8505605968018835
+            ]
+          }
+        }
+      }
+    },
+    "float16": {
+      "small": {
+        "count": 36,
+        "statuses": {
+          "eager": {
+            "passed": 36
+          },
+          "inductor": {
+            "passed": 34,
+            "numerical_failure": 2
+          },
+          "f06": {
+            "passed": 36
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 2.8350397361446666,
+            "wins": 36,
+            "round_speedups": [
+              2.8101902540080634,
+              2.8593244532691564
+            ]
+          },
+          "inductor": {
+            "n": 34,
+            "speedup": 0.9568803924709247,
+            "wins": 5,
+            "round_speedups": [
+              0.9520901512184324,
+              0.961126885911524
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 1.1318872217498435,
+            "wins": 18,
+            "round_speedups": [
+              1.1464665104154523,
+              1.1176169867717143
+            ]
+          },
+          "inductor": {
+            "n": 34,
+            "speedup": 2.261309972763367,
+            "wins": 34,
+            "round_speedups": [
+              2.268485364709721,
+              2.2547558026319243
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 1.2719304523613415,
+            "wins": 34,
+            "round_speedups": [
+              1.294332832182471,
+              1.2495000785136208
+            ]
+          },
+          "inductor": {
+            "n": 34,
+            "speedup": 2.535857328463705,
+            "wins": 34,
+            "round_speedups": [
+              2.5449125905003758,
+              2.5271905398005323
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 36,
+        "statuses": {
+          "eager": {
+            "passed": 36
+          },
+          "inductor": {
+            "passed": 30,
+            "numerical_failure": 6
+          },
+          "f06": {
+            "passed": 36
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 1.823308033068555,
+            "wins": 36,
+            "round_speedups": [
+              1.8335825043152418,
+              1.8132712742589943
+            ]
+          },
+          "inductor": {
+            "n": 30,
+            "speedup": 0.9343748123543747,
+            "wins": 10,
+            "round_speedups": [
+              0.9431544696288516,
+              0.9253487347011248
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 0.9981584167349155,
+            "wins": 15,
+            "round_speedups": [
+              0.998839383074976,
+              0.9975812338502432
+            ]
+          },
+          "inductor": {
+            "n": 30,
+            "speedup": 1.70045488585659,
+            "wins": 30,
+            "round_speedups": [
+              1.685134252385506,
+              1.7163930954090811
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 1.141790112115785,
+            "wins": 28,
+            "round_speedups": [
+              1.1543275229213283,
+              1.1289466075799468
+            ]
+          },
+          "inductor": {
+            "n": 30,
+            "speedup": 1.9736485503941774,
+            "wins": 28,
+            "round_speedups": [
+              1.9606488721013773,
+              1.9869642827726877
+            ]
+          }
+        }
+      }
+    },
+    "bfloat16": {
+      "small": {
+        "count": 36,
+        "statuses": {
+          "eager": {
+            "passed": 36
+          },
+          "inductor": {
+            "numerical_failure": 27,
+            "passed": 9
+          },
+          "f06": {
+            "passed": 36
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 2.9484193624180572,
+            "wins": 36,
+            "round_speedups": [
+              2.9616770664964887,
+              2.9347630200980355
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 0.9261084416244731,
+            "wins": 0,
+            "round_speedups": [
+              0.9113490980834997,
+              0.9406140532039061
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 1.132574620469847,
+            "wins": 18,
+            "round_speedups": [
+              1.1477826088529568,
+              1.1175509799698957
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 2.1747278416486195,
+            "wins": 9,
+            "round_speedups": [
+              2.171643659456915,
+              2.1782186929489846
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 36,
+            "speedup": 1.2703234522211244,
+            "wins": 32,
+            "round_speedups": [
+              1.2943669325530267,
+              1.2463280488947253
+            ]
+          },
+          "inductor": {
+            "n": 9,
+            "speedup": 2.481032342858992,
+            "wins": 9,
+            "round_speedups": [
+              2.4836553646077277,
+              2.478509832437402
+            ]
+          }
+        }
+      },
+      "large": {
+        "count": 36,
+        "statuses": {
+          "eager": {
+            "passed": 36
+          },
+          "inductor": {
+            "numerical_failure": 26,
+            "passed": 10
+          },
+          "f06": {
+            "numerical_failure": 3,
+            "passed": 33
+          }
+        },
+        "gpu_us": {
+          "eager": {
+            "n": 33,
+            "speedup": 1.790129541318225,
+            "wins": 33,
+            "round_speedups": [
+              1.7951269219603079,
+              1.7852886270881612
+            ]
+          },
+          "inductor": {
+            "n": 10,
+            "speedup": 0.9175464837235366,
+            "wins": 1,
+            "round_speedups": [
+              0.9287376449024508,
+              0.9059372290048632
+            ]
+          }
+        },
+        "e2e_us": {
+          "eager": {
+            "n": 33,
+            "speedup": 0.9984210763146094,
+            "wins": 15,
+            "round_speedups": [
+              0.9939224969595161,
+              1.003242492904713
+            ]
+          },
+          "inductor": {
+            "n": 10,
+            "speedup": 1.9375373732623418,
+            "wins": 10,
+            "round_speedups": [
+              1.8990603648875353,
+              1.9780822469457027
+            ]
+          }
+        },
+        "host_batch_us": {
+          "eager": {
+            "n": 33,
+            "speedup": 1.1472699607699992,
+            "wins": 26,
+            "round_speedups": [
+              1.1480390049502094,
+              1.1481839459675867
+            ]
+          },
+          "inductor": {
+            "n": 10,
+            "speedup": 2.4712982961313235,
+            "wins": 10,
+            "round_speedups": [
+              2.4495314567964774,
+              2.4933567357727213
+            ]
+          }
+        }
+      }
+    }
+  },
+  "matrix_shapes": {
+    "(16, 128, 64)": {
+      "count": 15,
+      "statuses": {
+        "eager": {
+          "passed": 15
+        },
+        "inductor": {
+          "passed": 10,
+          "numerical_failure": 5
+        },
+        "f06": {
+          "passed": 15
+        }
+      },
+      "gpu_us": {
+        "eager": {
+          "n": 15,
+          "speedup": 2.5811530714987714,
+          "wins": 15,
+          "round_speedups": [
+            2.588027867016101,
+            2.5730505867406506
+          ]
+        },
+        "inductor": {
+          "n": 10,
+          "speedup": 1.001290432802195,
+          "wins": 4,
+          "round_speedups": [
+            0.9973885409754991,
+            1.0050606951415386
+          ]
+        }
+      },
+      "e2e_us": {
+        "eager": {
+          "n": 15,
+          "speedup": 1.3747491231304665,
+          "wins": 15,
+          "round_speedups": [
+            1.37751268984609,
+            1.3705932855488223
+          ]
+        },
+        "inductor": {
+          "n": 10,
+          "speedup": 2.4786146504563598,
+          "wins": 10,
+          "round_speedups": [
+            2.5193740642916693,
+            2.441716868034012
+          ]
+        }
+      },
+      "host_batch_us": {
+        "eager": {
+          "n": 15,
+          "speedup": 1.5422333235269794,
+          "wins": 15,
+          "round_speedups": [
+            1.5356597592129477,
+            1.5454259631669383
+          ]
+        },
+        "inductor": {
+          "n": 10,
+          "speedup": 2.747340612489485,
+          "wins": 10,
+          "round_speedups": [
+            2.7843509012071905,
+            2.7132306621214095
+          ]
+        }
+      }
+    },
+    "(32, 256, 64)": {
+      "count": 15,
+      "statuses": {
+        "eager": {
+          "passed": 15
+        },
+        "inductor": {
+          "passed": 10,
+          "numerical_failure": 5
+        },
+        "f06": {
+          "passed": 15
+        }
+      },
+      "gpu_us": {
+        "eager": {
+          "n": 15,
+          "speedup": 3.680678225531544,
+          "wins": 15,
+          "round_speedups": [
+            3.6761045585682943,
+            3.6840765773431037
+          ]
+        },
+        "inductor": {
+          "n": 10,
+          "speedup": 0.9831225577864324,
+          "wins": 3,
+          "round_speedups": [
+            0.9810095195584984,
+            0.9851506539601258
+          ]
+        }
+      },
+      "e2e_us": {
+        "eager": {
+          "n": 15,
+          "speedup": 1.4576619980790646,
+          "wins": 15,
+          "round_speedups": [
+            1.4642398050650596,
+            1.4513288707087784
+          ]
+        },
+        "inductor": {
+          "n": 10,
+          "speedup": 2.4841213940444,
+          "wins": 10,
+          "round_speedups": [
+            2.5113103401554926,
+            2.4585362990139816
+          ]
+        }
+      },
+      "host_batch_us": {
+        "eager": {
+          "n": 15,
+          "speedup": 1.6542427466440588,
+          "wins": 15,
+          "round_speedups": [
+            1.6643584306301358,
+            1.6440858612524598
+          ]
+        },
+        "inductor": {
+          "n": 10,
+          "speedup": 2.74870747633751,
+          "wins": 10,
+          "round_speedups": [
+            2.7498001479741188,
+            2.74477831480266
+          ]
+        }
+      }
+    },
+    "(64, 1024, 64)": {
+      "count": 15,
+      "statuses": {
+        "eager": {
+          "passed": 15
+        },
+        "inductor": {
+          "passed": 10,
+          "numerical_failure": 5
+        },
+        "f06": {
+          "passed": 15
+        }
+      },
+      "gpu_us": {
+        "eager": {
+          "n": 15,
+          "speedup": 2.504078086974182,
+          "wins": 15,
+          "round_speedups": [
+            2.47899885575205,
+            2.5278654092557273
+          ]
+        },
+        "inductor": {
+          "n": 10,
+          "speedup": 1.000637021570898,
+          "wins": 2,
+          "round_speedups": [
+            0.9970299104107913,
+            1.0041390445950356
+          ]
+        }
+      },
+      "e2e_us": {
+        "eager": {
+          "n": 15,
+          "speedup": 1.3887053183639906,
+          "wins": 15,
+          "round_speedups": [
+            1.3919233293234206,
+            1.385605523134976
+          ]
+        },
+        "inductor": {
+          "n": 10,
+          "speedup": 2.4837622331415234,
+          "wins": 10,
+          "round_speedups": [
+            2.514765771589275,
+            2.4545769218052387
+          ]
+        }
+      },
+      "host_batch_us": {
+        "eager": {
+          "n": 15,
+          "speedup": 1.5580299574579433,
+          "wins": 15,
+          "round_speedups": [
+            1.5620329495291274,
+            1.5537646732867059
+          ]
+        },
+        "inductor": {
+          "n": 10,
+          "speedup": 2.7341483308697834,
+          "wins": 10,
+          "round_speedups": [
+            2.7736230598889913,
+            2.6963013129467734
+          ]
+        }
+      }
+    },
+    "(128, 1024, 128)": {
+      "count": 15,
+      "statuses": {
+        "eager": {
+          "passed": 15
+        },
+        "inductor": {
+          "passed": 10,
+          "numerical_failure": 5
+        },
+        "f06": {
+          "passed": 14,
+          "numerical_failure": 1
+        }
+      },
+      "gpu_us": {
+        "eager": {
+          "n": 14,
+          "speedup": 1.9049595592465,
+          "wins": 14,
+          "round_speedups": [
+            1.9079530030219516,
+            1.9019582838438143
+          ]
+        },
+        "inductor": {
+          "n": 10,
+          "speedup": 0.9676095404449292,
+          "wins": 4,
+          "round_speedups": [
+            0.9645722876808657,
+            0.9707260717005997
+          ]
+        }
+      },
+      "e2e_us": {
+        "eager": {
+          "n": 14,
+          "speedup": 1.123673103616382,
+          "wins": 12,
+          "round_speedups": [
+            1.14056898510691,
+            1.1066981871735055
+          ]
+        },
+        "inductor": {
+          "n": 10,
+          "speedup": 2.008301483034326,
+          "wins": 10,
+          "round_speedups": [
+            1.9965503671743026,
+            2.0204329883903833
+          ]
+        }
+      },
+      "host_batch_us": {
+        "eager": {
+          "n": 14,
+          "speedup": 1.2769138375490903,
+          "wins": 12,
+          "round_speedups": [
+            1.3078846813732903,
+            1.2456719684608102
+          ]
+        },
+        "inductor": {
+          "n": 10,
+          "speedup": 2.22249295268794,
+          "wins": 10,
+          "round_speedups": [
+            2.214743397519145,
+            2.2303022764406744
+          ]
+        }
+      }
+    },
+    "(512, 1024, 1024)": {
+      "count": 15,
+      "statuses": {
+        "eager": {
+          "passed": 15
+        },
+        "inductor": {
+          "passed": 11,
+          "numerical_failure": 4
+        },
+        "f06": {
+          "passed": 14,
+          "numerical_failure": 1
+        }
+      },
+      "gpu_us": {
+        "eager": {
+          "n": 14,
+          "speedup": 1.23133949665523,
+          "wins": 14,
+          "round_speedups": [
+            1.2366223557893097,
+            1.2259761448818283
+          ]
+        },
+        "inductor": {
+          "n": 11,
+          "speedup": 0.9825161637208768,
+          "wins": 9,
+          "round_speedups": [
+            0.980177624498539,
+            0.9848847855662358
+          ]
+        }
+      },
+      "e2e_us": {
+        "eager": {
+          "n": 14,
+          "speedup": 0.8961658717343669,
+          "wins": 1,
+          "round_speedups": [
+            0.9124832798829832,
+            0.8811223699280893
+          ]
+        },
+        "inductor": {
+          "n": 11,
+          "speedup": 1.314447530787813,
+          "wins": 11,
+          "round_speedups": [
+            1.3307431554361475,
+            1.300233176097027
+          ]
+        }
+      },
+      "host_batch_us": {
+        "eager": {
+          "n": 14,
+          "speedup": 1.0251929759523466,
+          "wins": 5,
+          "round_speedups": [
+            1.0307849595420688,
+            1.020404596147553
+          ]
+        },
+        "inductor": {
+          "n": 11,
+          "speedup": 1.3886850516932299,
+          "wins": 7,
+          "round_speedups": [
+            1.3742524202798307,
+            1.4038985891755205
+          ]
+        }
+      }
+    },
+    "(2048, 2048, 2048)": {
+      "count": 15,
+      "statuses": {
+        "eager": {
+          "passed": 15
+        },
+        "inductor": {
+          "passed": 10,
+          "numerical_failure": 5
+        },
+        "f06": {
+          "passed": 14,
+          "numerical_failure": 1
+        }
+      },
+      "gpu_us": {
+        "eager": {
+          "n": 14,
+          "speedup": 1.0785927016463324,
+          "wins": 14,
+          "round_speedups": [
+            1.0775514213129742,
+            1.0796265545588428
+          ]
+        },
+        "inductor": {
+          "n": 10,
+          "speedup": 0.9976977553669212,
+          "wins": 5,
+          "round_speedups": [
+            0.9970830208000224,
+            0.9982974686506185
+          ]
+        }
+      },
+      "e2e_us": {
+        "eager": {
+          "n": 14,
+          "speedup": 1.0387370565905891,
+          "wins": 14,
+          "round_speedups": [
+            1.0365016363369335,
+            1.040977101939287
+          ]
+        },
+        "inductor": {
+          "n": 10,
+          "speedup": 1.0768537733283066,
+          "wins": 10,
+          "round_speedups": [
+            1.077076982243184,
+            1.0766284262847368
+          ]
+        }
+      },
+      "host_batch_us": {
+        "eager": {
+          "n": 14,
+          "speedup": 1.0896620005585549,
+          "wins": 14,
+          "round_speedups": [
+            1.0885179968749636,
+            1.0908065791118957
+          ]
+        },
+        "inductor": {
+          "n": 10,
+          "speedup": 1.0006212055533128,
+          "wins": 7,
+          "round_speedups": [
+            0.999211182475494,
+            1.0020297166303858
+          ]
+        }
+      }
+    }
+  },
+  "failures": [
+    {
+      "case_id": "report117:matmul_bias:bfloat16:16x128:64",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 85 / 2048 (4.2%)\nGreatest absolute difference: 0.125 at index (0, 54) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (9, 65) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 85 / 2048 (4.2%)\nGreatest absolute difference: 0.125 at index (0, 54) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (9, 65) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.125,
+        0.125
+      ]
+    },
+    {
+      "case_id": "report117:matmul_bias:bfloat16:32x256:64",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 358 / 8192 (4.4%)\nGreatest absolute difference: 0.125 at index (0, 10) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (1, 167) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 358 / 8192 (4.4%)\nGreatest absolute difference: 0.125 at index (0, 10) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (1, 167) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.125,
+        0.125
+      ]
+    },
+    {
+      "case_id": "report117:matmul_bias:bfloat16:64x1024:64",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 2854 / 65536 (4.4%)\nGreatest absolute difference: 0.25 at index (17, 487) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (3, 868) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 2854 / 65536 (4.4%)\nGreatest absolute difference: 0.25 at index (17, 487) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (3, 868) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "case_id": "report117:matmul_bias_relu:bfloat16:16x128:64",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 47 / 2048 (2.3%)\nGreatest absolute difference: 0.125 at index (0, 54) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (9, 65) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 47 / 2048 (2.3%)\nGreatest absolute difference: 0.125 at index (0, 54) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (9, 65) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.125,
+        0.125
+      ]
+    },
+    {
+      "case_id": "report117:matmul_bias_relu:bfloat16:32x256:64",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 173 / 8192 (2.1%)\nGreatest absolute difference: 0.125 at index (0, 10) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (14, 179) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 173 / 8192 (2.1%)\nGreatest absolute difference: 0.125 at index (0, 10) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (14, 179) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.125,
+        0.125
+      ]
+    },
+    {
+      "case_id": "report117:matmul_bias_relu:bfloat16:64x1024:64",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1411 / 65536 (2.2%)\nGreatest absolute difference: 0.25 at index (17, 487) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (3, 868) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1411 / 65536 (2.2%)\nGreatest absolute difference: 0.25 at index (17, 487) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (3, 868) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "case_id": "report117:matmul_bias_gelu_exact:bfloat16:16x128:64",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 47 / 2048 (2.3%)\nGreatest absolute difference: 0.125 at index (0, 54) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (9, 65) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 47 / 2048 (2.3%)\nGreatest absolute difference: 0.125 at index (0, 54) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (9, 65) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.125,
+        0.125
+      ]
+    },
+    {
+      "case_id": "report117:matmul_bias_gelu_exact:bfloat16:32x256:64",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 173 / 8192 (2.1%)\nGreatest absolute difference: 0.125 at index (0, 10) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (14, 179) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 173 / 8192 (2.1%)\nGreatest absolute difference: 0.125 at index (0, 10) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (14, 179) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.125,
+        0.125
+      ]
+    },
+    {
+      "case_id": "report117:matmul_bias_gelu_exact:bfloat16:64x1024:64",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1411 / 65536 (2.2%)\nGreatest absolute difference: 0.25 at index (17, 487) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (3, 868) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1411 / 65536 (2.2%)\nGreatest absolute difference: 0.25 at index (17, 487) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (3, 868) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "case_id": "report117:matmul_bias_gelu_tanh:bfloat16:16x128:64",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 47 / 2048 (2.3%)\nGreatest absolute difference: 0.125 at index (0, 54) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (9, 65) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 47 / 2048 (2.3%)\nGreatest absolute difference: 0.125 at index (0, 54) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (9, 65) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.125,
+        0.125
+      ]
+    },
+    {
+      "case_id": "report117:matmul_bias_gelu_tanh:bfloat16:32x256:64",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 173 / 8192 (2.1%)\nGreatest absolute difference: 0.125 at index (0, 10) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (14, 179) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 173 / 8192 (2.1%)\nGreatest absolute difference: 0.125 at index (0, 10) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (14, 179) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.125,
+        0.125
+      ]
+    },
+    {
+      "case_id": "report117:matmul_bias_gelu_tanh:bfloat16:64x1024:64",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1411 / 65536 (2.2%)\nGreatest absolute difference: 0.25 at index (17, 487) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (3, 868) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1411 / 65536 (2.2%)\nGreatest absolute difference: 0.25 at index (17, 487) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (3, 868) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "case_id": "report117:matmul_bias_silu:bfloat16:16x128:64",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 47 / 2048 (2.3%)\nGreatest absolute difference: 0.125 at index (0, 54) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (9, 65) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 47 / 2048 (2.3%)\nGreatest absolute difference: 0.125 at index (0, 54) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (9, 65) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.125,
+        0.125
+      ]
+    },
+    {
+      "case_id": "report117:matmul_bias_silu:bfloat16:32x256:64",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 177 / 8192 (2.2%)\nGreatest absolute difference: 0.125 at index (0, 10) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (14, 179) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 177 / 8192 (2.2%)\nGreatest absolute difference: 0.125 at index (0, 10) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (14, 179) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.125,
+        0.125
+      ]
+    },
+    {
+      "case_id": "report117:matmul_bias_silu:bfloat16:64x1024:64",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1427 / 65536 (2.2%)\nGreatest absolute difference: 0.25 at index (17, 487) (up to 0.03 allowed)\nGreatest relative difference: 0.00982666015625 at index (29, 339) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1427 / 65536 (2.2%)\nGreatest absolute difference: 0.25 at index (17, 487) (up to 0.03 allowed)\nGreatest relative difference: 0.00982666015625 at index (29, 339) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "case_id": "report117:add_layernorm_affine:bfloat16:16x128",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 2 / 2048 (0.1%)\nGreatest absolute difference: 0.0625 at index (2, 107) (up to 0.03 allowed)\nGreatest relative difference: 0.007293701171875 at index (2, 107) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 2 / 2048 (0.1%)\nGreatest absolute difference: 0.0625 at index (2, 107) (up to 0.03 allowed)\nGreatest relative difference: 0.007293701171875 at index (2, 107) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.0625,
+        0.0625
+      ]
+    },
+    {
+      "case_id": "report117:add_layernorm_affine:bfloat16:32x256",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 4 / 8192 (0.0%)\nGreatest absolute difference: 0.0625 at index (2, 107) (up to 0.03 allowed)\nGreatest relative difference: 0.00775146484375 at index (21, 209) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 4 / 8192 (0.0%)\nGreatest absolute difference: 0.0625 at index (2, 107) (up to 0.03 allowed)\nGreatest relative difference: 0.00775146484375 at index (21, 209) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.0625,
+        0.0625
+      ]
+    },
+    {
+      "case_id": "report117:add_layernorm_affine:bfloat16:64x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 13 / 65536 (0.0%)\nGreatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (7, 318) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 13 / 65536 (0.0%)\nGreatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (7, 318) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.0625,
+        0.0625
+      ]
+    },
+    {
+      "case_id": "report117:mul_sum:float16:64x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1 / 64 (1.6%)\nGreatest absolute difference: 0.012939453125 at index (22,) (up to 0.003 allowed)\nGreatest relative difference: 0.1231689453125 at index (22,) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1 / 64 (1.6%)\nGreatest absolute difference: 0.012939453125 at index (22,) (up to 0.003 allowed)\nGreatest relative difference: 0.1231689453125 at index (22,) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.015625,
+        0.015625
+      ]
+    },
+    {
+      "case_id": "report117:mul_sum:bfloat16:16x128",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "changed_address_numerics",
+        "changed_address_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 3 / 16 (18.8%)\nGreatest absolute difference: 0.0625 at index (3,) (up to 0.03 allowed)\nGreatest relative difference: 0.01544189453125 at index (12,) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 3 / 16 (18.8%)\nGreatest absolute difference: 0.0625 at index (3,) (up to 0.03 allowed)\nGreatest relative difference: 0.01544189453125 at index (12,) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.0625,
+        0.0625
+      ]
+    },
+    {
+      "case_id": "report117:mul_sum:bfloat16:32x256",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 6 / 32 (18.8%)\nGreatest absolute difference: 0.125 at index (26,) (up to 0.03 allowed)\nGreatest relative difference: 0.034423828125 at index (15,) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 6 / 32 (18.8%)\nGreatest absolute difference: 0.125 at index (26,) (up to 0.03 allowed)\nGreatest relative difference: 0.034423828125 at index (15,) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.125,
+        0.125
+      ]
+    },
+    {
+      "case_id": "report117:mul_sum:bfloat16:64x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 25 / 64 (39.1%)\nGreatest absolute difference: 0.25 at index (6,) (up to 0.03 allowed)\nGreatest relative difference: 1.609375 at index (22,) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 25 / 64 (39.1%)\nGreatest absolute difference: 0.25 at index (6,) (up to 0.03 allowed)\nGreatest relative difference: 1.609375 at index (22,) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "case_id": "report117:mul_sum_keepdim:float16:64x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1 / 64 (1.6%)\nGreatest absolute difference: 0.012939453125 at index (22, 0) (up to 0.003 allowed)\nGreatest relative difference: 0.1231689453125 at index (22, 0) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1 / 64 (1.6%)\nGreatest absolute difference: 0.012939453125 at index (22, 0) (up to 0.003 allowed)\nGreatest relative difference: 0.1231689453125 at index (22, 0) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.015625,
+        0.015625
+      ]
+    },
+    {
+      "case_id": "report117:mul_sum_keepdim:bfloat16:16x128",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "changed_address_numerics",
+        "changed_address_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 3 / 16 (18.8%)\nGreatest absolute difference: 0.0625 at index (3, 0) (up to 0.03 allowed)\nGreatest relative difference: 0.01544189453125 at index (12, 0) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 3 / 16 (18.8%)\nGreatest absolute difference: 0.0625 at index (3, 0) (up to 0.03 allowed)\nGreatest relative difference: 0.01544189453125 at index (12, 0) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.0625,
+        0.0625
+      ]
+    },
+    {
+      "case_id": "report117:mul_sum_keepdim:bfloat16:32x256",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 6 / 32 (18.8%)\nGreatest absolute difference: 0.125 at index (26, 0) (up to 0.03 allowed)\nGreatest relative difference: 0.034423828125 at index (15, 0) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 6 / 32 (18.8%)\nGreatest absolute difference: 0.125 at index (26, 0) (up to 0.03 allowed)\nGreatest relative difference: 0.034423828125 at index (15, 0) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.125,
+        0.125
+      ]
+    },
+    {
+      "case_id": "report117:mul_sum_keepdim:bfloat16:64x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 25 / 64 (39.1%)\nGreatest absolute difference: 0.25 at index (6, 0) (up to 0.03 allowed)\nGreatest relative difference: 1.609375 at index (22, 0) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 25 / 64 (39.1%)\nGreatest absolute difference: 0.25 at index (6, 0) (up to 0.03 allowed)\nGreatest relative difference: 1.609375 at index (22, 0) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "case_id": "supplement:add_layernorm_weight:bfloat16:16x128",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: 0.0625 at index (4, 107) (up to 0.03 allowed)\nGreatest relative difference: 0.007476806640625 at index (4, 107) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1 / 2048 (0.0%)\nGreatest absolute difference: 0.0625 at index (4, 107) (up to 0.03 allowed)\nGreatest relative difference: 0.007476806640625 at index (4, 107) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.0625,
+        0.0625
+      ]
+    },
+    {
+      "case_id": "supplement:add_layernorm_weight:bfloat16:32x256",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 3 / 8192 (0.0%)\nGreatest absolute difference: 0.0625 at index (3, 209) (up to 0.03 allowed)\nGreatest relative difference: 0.0069580078125 at index (5, 209) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 3 / 8192 (0.0%)\nGreatest absolute difference: 0.0625 at index (3, 209) (up to 0.03 allowed)\nGreatest relative difference: 0.0069580078125 at index (5, 209) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.0625,
+        0.0625
+      ]
+    },
+    {
+      "case_id": "supplement:add_layernorm_weight:bfloat16:64x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 15 / 65536 (0.0%)\nGreatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)\nGreatest relative difference: 0.00775146484375 at index (4, 992) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 15 / 65536 (0.0%)\nGreatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)\nGreatest relative difference: 0.00775146484375 at index (4, 992) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.0625,
+        0.0625
+      ]
+    },
+    {
+      "case_id": "large:matmul_bias:bfloat16:128x1024x128",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 31014 / 131072 (23.7%)\nGreatest absolute difference: 0.25 at index (0, 74) (up to 0.003 allowed)\nGreatest relative difference: inf at index (38, 543) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 31014 / 131072 (23.7%)\nGreatest absolute difference: 0.25 at index (0, 74) (up to 0.003 allowed)\nGreatest relative difference: inf at index (38, 543) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "case_id": "large:matmul_bias:bfloat16:128x1024x128",
+      "route": "f06",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 31015 / 131072 (23.7%)\nGreatest absolute difference: 0.25 at index (0, 74) (up to 0.003 allowed)\nGreatest relative difference: inf at index (38, 543) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 31015 / 131072 (23.7%)\nGreatest absolute difference: 0.25 at index (0, 74) (up to 0.003 allowed)\nGreatest relative difference: inf at index (38, 543) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "case_id": "large:matmul_bias:bfloat16:512x1024x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 129479 / 524288 (24.7%)\nGreatest absolute difference: 1.0 at index (46, 589) (up to 0.003 allowed)\nGreatest relative difference: inf at index (11, 432) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 129479 / 524288 (24.7%)\nGreatest absolute difference: 1.0 at index (46, 589) (up to 0.003 allowed)\nGreatest relative difference: inf at index (11, 432) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "case_id": "large:matmul_bias:bfloat16:512x1024x1024",
+      "route": "f06",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 129479 / 524288 (24.7%)\nGreatest absolute difference: 1.0 at index (46, 589) (up to 0.003 allowed)\nGreatest relative difference: inf at index (11, 432) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 129479 / 524288 (24.7%)\nGreatest absolute difference: 1.0 at index (46, 589) (up to 0.003 allowed)\nGreatest relative difference: inf at index (11, 432) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "case_id": "large:matmul_bias:bfloat16:2048x2048x2048",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1036851 / 4194304 (24.7%)\nGreatest absolute difference: 1.0 at index (0, 150) (up to 0.003 allowed)\nGreatest relative difference: inf at index (155, 1303) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1036851 / 4194304 (24.7%)\nGreatest absolute difference: 1.0 at index (0, 150) (up to 0.003 allowed)\nGreatest relative difference: inf at index (155, 1303) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "case_id": "large:matmul_bias:bfloat16:2048x2048x2048",
+      "route": "f06",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1036851 / 4194304 (24.7%)\nGreatest absolute difference: 1.0 at index (0, 150) (up to 0.003 allowed)\nGreatest relative difference: inf at index (155, 1303) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1036851 / 4194304 (24.7%)\nGreatest absolute difference: 1.0 at index (0, 150) (up to 0.003 allowed)\nGreatest relative difference: inf at index (155, 1303) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "case_id": "large:matmul_bias_relu:bfloat16:128x1024x128",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 15454 / 131072 (11.8%)\nGreatest absolute difference: 0.25 at index (4, 628) (up to 0.003 allowed)\nGreatest relative difference: inf at index (85, 300) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 15454 / 131072 (11.8%)\nGreatest absolute difference: 0.25 at index (4, 628) (up to 0.003 allowed)\nGreatest relative difference: inf at index (85, 300) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "case_id": "large:matmul_bias_relu:bfloat16:2048x2048x2048",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 518350 / 4194304 (12.4%)\nGreatest absolute difference: 1.0 at index (0, 1629) (up to 0.003 allowed)\nGreatest relative difference: inf at index (425, 994) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 518350 / 4194304 (12.4%)\nGreatest absolute difference: 1.0 at index (0, 1629) (up to 0.003 allowed)\nGreatest relative difference: inf at index (425, 994) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "case_id": "large:matmul_bias_gelu_exact:bfloat16:128x1024x128",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 16388 / 131072 (12.5%)\nGreatest absolute difference: 0.25 at index (4, 628) (up to 0.003 allowed)\nGreatest relative difference: inf at index (78, 366) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 16388 / 131072 (12.5%)\nGreatest absolute difference: 0.25 at index (4, 628) (up to 0.003 allowed)\nGreatest relative difference: inf at index (78, 366) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "case_id": "large:matmul_bias_gelu_exact:bfloat16:512x1024x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 4059 / 524288 (0.8%)\nGreatest absolute difference: 0.03125 at index (1, 860) (up to 0.003 allowed)\nGreatest relative difference: 0.0087890625 at index (134, 1020) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 4059 / 524288 (0.8%)\nGreatest absolute difference: 0.03125 at index (1, 860) (up to 0.003 allowed)\nGreatest relative difference: 0.0087890625 at index (134, 1020) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.03125,
+        0.03125
+      ]
+    },
+    {
+      "case_id": "large:matmul_bias_gelu_exact:bfloat16:2048x2048x2048",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 525865 / 4194304 (12.5%)\nGreatest absolute difference: 1.0 at index (0, 1629) (up to 0.003 allowed)\nGreatest relative difference: inf at index (467, 755) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 525865 / 4194304 (12.5%)\nGreatest absolute difference: 1.0 at index (0, 1629) (up to 0.003 allowed)\nGreatest relative difference: inf at index (467, 755) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "case_id": "large:matmul_bias_gelu_tanh:bfloat16:128x1024x128",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 16377 / 131072 (12.5%)\nGreatest absolute difference: 0.25 at index (4, 628) (up to 0.003 allowed)\nGreatest relative difference: inf at index (78, 366) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 16377 / 131072 (12.5%)\nGreatest absolute difference: 0.25 at index (4, 628) (up to 0.003 allowed)\nGreatest relative difference: inf at index (78, 366) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "case_id": "large:matmul_bias_gelu_tanh:bfloat16:512x1024x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 3844 / 524288 (0.7%)\nGreatest absolute difference: 0.03125 at index (1, 860) (up to 0.003 allowed)\nGreatest relative difference: 0.00823974609375 at index (75, 724) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 3844 / 524288 (0.7%)\nGreatest absolute difference: 0.03125 at index (1, 860) (up to 0.003 allowed)\nGreatest relative difference: 0.00823974609375 at index (75, 724) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.03125,
+        0.03125
+      ]
+    },
+    {
+      "case_id": "large:matmul_bias_gelu_tanh:bfloat16:2048x2048x2048",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 525716 / 4194304 (12.5%)\nGreatest absolute difference: 1.0 at index (0, 1629) (up to 0.003 allowed)\nGreatest relative difference: inf at index (467, 755) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 525716 / 4194304 (12.5%)\nGreatest absolute difference: 1.0 at index (0, 1629) (up to 0.003 allowed)\nGreatest relative difference: inf at index (467, 755) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "case_id": "large:matmul_bias_silu:bfloat16:128x1024x128",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 18263 / 131072 (13.9%)\nGreatest absolute difference: 0.25 at index (4, 628) (up to 0.003 allowed)\nGreatest relative difference: inf at index (78, 366) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 18263 / 131072 (13.9%)\nGreatest absolute difference: 0.25 at index (4, 628) (up to 0.003 allowed)\nGreatest relative difference: inf at index (78, 366) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "case_id": "large:matmul_bias_silu:bfloat16:512x1024x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 12497 / 524288 (2.4%)\nGreatest absolute difference: 0.125 at index (2, 684) (up to 0.003 allowed)\nGreatest relative difference: 0.0089111328125 at index (8, 828) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 12497 / 524288 (2.4%)\nGreatest absolute difference: 0.125 at index (2, 684) (up to 0.003 allowed)\nGreatest relative difference: 0.0089111328125 at index (8, 828) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.125,
+        0.125
+      ]
+    },
+    {
+      "case_id": "large:matmul_bias_silu:bfloat16:2048x2048x2048",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 541677 / 4194304 (12.9%)\nGreatest absolute difference: 1.0 at index (0, 1629) (up to 0.003 allowed)\nGreatest relative difference: inf at index (467, 755) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 541677 / 4194304 (12.9%)\nGreatest absolute difference: 1.0 at index (0, 1629) (up to 0.003 allowed)\nGreatest relative difference: inf at index (467, 755) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "case_id": "large:add_layernorm_weight:bfloat16:128x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 32 / 131072 (0.0%)\nGreatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)\nGreatest relative difference: 0.00775146484375 at index (4, 992) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 32 / 131072 (0.0%)\nGreatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)\nGreatest relative difference: 0.00775146484375 at index (4, 992) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.0625,
+        0.0625
+      ]
+    },
+    {
+      "case_id": "large:add_layernorm_weight:bfloat16:512x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 107 / 524288 (0.0%)\nGreatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (170, 696) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 107 / 524288 (0.0%)\nGreatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (170, 696) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.0625,
+        0.0625
+      ]
+    },
+    {
+      "case_id": "large:add_layernorm_weight:bfloat16:2048x2048",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1310 / 4194304 (0.0%)\nGreatest absolute difference: 0.0625 at index (1, 1217) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (113, 209) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1310 / 4194304 (0.0%)\nGreatest absolute difference: 0.0625 at index (1, 1217) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (113, 209) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.0625,
+        0.0625
+      ]
+    },
+    {
+      "case_id": "large:add_layernorm_affine:bfloat16:128x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 28 / 131072 (0.0%)\nGreatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (7, 318) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 28 / 131072 (0.0%)\nGreatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (7, 318) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.0625,
+        0.0625
+      ]
+    },
+    {
+      "case_id": "large:add_layernorm_affine:bfloat16:512x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 111 / 524288 (0.0%)\nGreatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (7, 318) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 111 / 524288 (0.0%)\nGreatest absolute difference: 0.0625 at index (4, 992) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (7, 318) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.0625,
+        0.0625
+      ]
+    },
+    {
+      "case_id": "large:add_layernorm_affine:bfloat16:2048x2048",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1320 / 4194304 (0.0%)\nGreatest absolute difference: 0.125 at index (48, 1094) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (64, 1088) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 1320 / 4194304 (0.0%)\nGreatest absolute difference: 0.125 at index (48, 1094) (up to 0.03 allowed)\nGreatest relative difference: 0.0078125 at index (64, 1088) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.125,
+        0.125
+      ]
+    },
+    {
+      "case_id": "large:mul_sum:float16:128x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 3 / 128 (2.3%)\nGreatest absolute difference: 0.015625 at index (87,) (up to 0.003 allowed)\nGreatest relative difference: 0.1231689453125 at index (22,) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 3 / 128 (2.3%)\nGreatest absolute difference: 0.014404296875 at index (116,) (up to 0.003 allowed)\nGreatest relative difference: 0.1231689453125 at index (22,) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.03125,
+        0.03125
+      ]
+    },
+    {
+      "case_id": "large:mul_sum:float16:512x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 19 / 512 (3.7%)\nGreatest absolute difference: 0.01953125 at index (216,) (up to 0.003 allowed)\nGreatest relative difference: 0.55908203125 at index (226,) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 19 / 512 (3.7%)\nGreatest absolute difference: 0.01953125 at index (216,) (up to 0.003 allowed)\nGreatest relative difference: 0.55908203125 at index (226,) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.03125,
+        0.03125
+      ]
+    },
+    {
+      "case_id": "large:mul_sum:float16:2048x2048",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 63 / 2048 (3.1%)\nGreatest absolute difference: 0.03125 at index (307,) (up to 0.003 allowed)\nGreatest relative difference: 0.231689453125 at index (1246,) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 63 / 2048 (3.1%)\nGreatest absolute difference: 0.03125 at index (307,) (up to 0.003 allowed)\nGreatest relative difference: 0.231689453125 at index (1246,) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.0625,
+        0.0625
+      ]
+    },
+    {
+      "case_id": "large:mul_sum:bfloat16:128x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 45 / 128 (35.2%)\nGreatest absolute difference: 0.5 at index (73,) (up to 0.03 allowed)\nGreatest relative difference: 1.609375 at index (22,) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 45 / 128 (35.2%)\nGreatest absolute difference: 0.5 at index (73,) (up to 0.03 allowed)\nGreatest relative difference: 1.609375 at index (22,) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "case_id": "large:mul_sum:bfloat16:512x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 136 / 512 (26.6%)\nGreatest absolute difference: 0.5 at index (73,) (up to 0.03 allowed)\nGreatest relative difference: 1.609375 at index (22,) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 136 / 512 (26.6%)\nGreatest absolute difference: 0.5 at index (73,) (up to 0.03 allowed)\nGreatest relative difference: 1.609375 at index (22,) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "case_id": "large:mul_sum:bfloat16:2048x2048",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 659 / 2048 (32.2%)\nGreatest absolute difference: 1.0 at index (491,) (up to 0.03 allowed)\nGreatest relative difference: 19.875 at index (703,) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 659 / 2048 (32.2%)\nGreatest absolute difference: 1.0 at index (491,) (up to 0.03 allowed)\nGreatest relative difference: 19.875 at index (703,) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "case_id": "large:mul_sum_keepdim:float16:128x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 3 / 128 (2.3%)\nGreatest absolute difference: 0.014404296875 at index (116, 0) (up to 0.003 allowed)\nGreatest relative difference: 0.1231689453125 at index (22, 0) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 3 / 128 (2.3%)\nGreatest absolute difference: 0.014404296875 at index (116, 0) (up to 0.003 allowed)\nGreatest relative difference: 0.1231689453125 at index (22, 0) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.03125,
+        0.03125
+      ]
+    },
+    {
+      "case_id": "large:mul_sum_keepdim:float16:512x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 19 / 512 (3.7%)\nGreatest absolute difference: 0.01953125 at index (216, 0) (up to 0.003 allowed)\nGreatest relative difference: 0.55908203125 at index (226, 0) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 19 / 512 (3.7%)\nGreatest absolute difference: 0.01953125 at index (216, 0) (up to 0.003 allowed)\nGreatest relative difference: 0.55908203125 at index (226, 0) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.03125,
+        0.03125
+      ]
+    },
+    {
+      "case_id": "large:mul_sum_keepdim:float16:2048x2048",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 63 / 2048 (3.1%)\nGreatest absolute difference: 0.03125 at index (307, 0) (up to 0.003 allowed)\nGreatest relative difference: 0.231689453125 at index (1246, 0) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 63 / 2048 (3.1%)\nGreatest absolute difference: 0.03125 at index (307, 0) (up to 0.003 allowed)\nGreatest relative difference: 0.231689453125 at index (1246, 0) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.0625,
+        0.0625
+      ]
+    },
+    {
+      "case_id": "large:mul_sum_keepdim:bfloat16:128x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 45 / 128 (35.2%)\nGreatest absolute difference: 0.5 at index (73, 0) (up to 0.03 allowed)\nGreatest relative difference: 1.609375 at index (22, 0) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 45 / 128 (35.2%)\nGreatest absolute difference: 0.5 at index (73, 0) (up to 0.03 allowed)\nGreatest relative difference: 1.609375 at index (22, 0) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "case_id": "large:mul_sum_keepdim:bfloat16:512x1024",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 136 / 512 (26.6%)\nGreatest absolute difference: 0.5 at index (73, 0) (up to 0.03 allowed)\nGreatest relative difference: 1.609375 at index (22, 0) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 136 / 512 (26.6%)\nGreatest absolute difference: 0.5 at index (73, 0) (up to 0.03 allowed)\nGreatest relative difference: 1.609375 at index (22, 0) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "case_id": "large:mul_sum_keepdim:bfloat16:2048x2048",
+      "route": "inductor",
+      "statuses": [
+        "numerical_failure",
+        "numerical_failure"
+      ],
+      "stages": [
+        "initial_numerics",
+        "initial_numerics"
+      ],
+      "errors": [
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 659 / 2048 (32.2%)\nGreatest absolute difference: 1.0 at index (491, 0) (up to 0.03 allowed)\nGreatest relative difference: 19.875 at index (703, 0) (up to 0.003 allowed)",
+        "AssertionError: Tensor-likes are not close!\n\nMismatched elements: 659 / 2048 (32.2%)\nGreatest absolute difference: 1.0 at index (491, 0) (up to 0.03 allowed)\nGreatest relative difference: 19.875 at index (703, 0) (up to 0.003 allowed)"
+      ],
+      "max_abs_errors": [
+        1.0,
+        1.0
+      ]
+    }
+  ],
+  "statuses_stable": true,
+  "round_relative_differences": {
+    "gpu_us": {
+      "median": 0.006856169869998802,
+      "max": 0.2544187966200009
+    },
+    "e2e_us": {
+      "median": 0.022803659213159067,
+      "max": 0.3690185056758039
+    },
+    "host_batch_us": {
+      "median": 0.02298306112837576,
+      "max": 0.45501874411720783
+    }
+  }
+}

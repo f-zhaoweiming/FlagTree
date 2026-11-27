@@ -1,0 +1,3894 @@
+{
+  "as_of": "2026-11-25",
+  "title": "昆仑芯 P800 公开接口手册、SDK 和源码索引",
+  "scope": "按公开资料的版本和接口层级记录 FP16 使用条件。芯片实测未包含在本索引中。",
+  "previous_manual_catalog": {
+    "path": "reports/P800开发者手册接口目录.json",
+    "sha256": "d86df7a32e7ecd9f001a63ed8669cd77747620ea0cdf242f57d6bf1bdd8d12f4",
+    "fixed_document_count": 11,
+    "supported_named_interfaces": 1907,
+    "count_note": "原目录的计数范围是原有固定版本文件，本补遗单列新来源。"
+  },
+  "public_documents": [
+    {
+      "url": "https://www.kunlunxin.com/download?cat_id=5",
+      "description": "昆仑芯官方下载专区的公开页面。本次未从该页面取得 P800 全套逐函数参考。"
+    },
+    {
+      "url": "https://paddlepaddle-static.cdn.bcebos.com/documentation/docs/zh/develop/hardware_support/xpu/xpu-p800_paddle_tutorial_cn.html",
+      "description": "飞桨 P800 单卡训练教程，以 ResNet50 为例，包含 XBLAS 及并行配置示例。"
+    }
+  ],
+  "source_files": [
+    {
+      "id": "cmake",
+      "url": "https://github.com/PaddlePaddle/Paddle/blob/527b4c02ce85c2400fcf72a0f92a7a97ca4653e2/cmake/external/xpu.cmake",
+      "sha256": "8554126180f76540ac73f6b85c11d07a82ef647c66fb9107593be2b58c129219",
+      "evidence": "XRE5 对应的 XHPC、XCCL 和 FFT 构建依赖、版本与发布地址。"
+    },
+    {
+      "id": "pack",
+      "url": "https://github.com/PaddlePaddle/Paddle/blob/527b4c02ce85c2400fcf72a0f92a7a97ca4653e2/tools/xpu/pack_paddle_dependence.sh",
+      "sha256": "4e84801390a7c1e481c6a184f66f33a41b572b4290fb60e5260d219845b1c937",
+      "evidence": "打包校验列出 XDNN、XBLAS、XFA、XPUDNN 和通信库头文件，并显式列出 P800 Cluster、SDNN 的 builtins。"
+    },
+    {
+      "id": "matmul",
+      "url": "https://github.com/PaddlePaddle/Paddle/blob/527b4c02ce85c2400fcf72a0f92a7a97ca4653e2/paddle/phi/kernels/xpu/matmul_kernel.cc",
+      "sha256": "419b8fa1e822f5a48b0e6bced521ce5267b68f24572334b23e1b3656f0a678b2",
+      "evidence": "FP16 在矩阵乘入口注册，同一入口分派至 MatMulXPUFunction。"
+    },
+    {
+      "id": "wrapper",
+      "url": "https://github.com/PaddlePaddle/Paddle/blob/527b4c02ce85c2400fcf72a0f92a7a97ca4653e2/paddle/phi/kernels/xpu/xpu_api_wrapper.h",
+      "sha256": "ebfcf7f61c417cf2c3df7103e21a8a268391e6edb0c349f6d2c4149ddc12c774",
+      "evidence": "XRE5 分支对 FP16 默认选 FC_FLOAT16。批量乘将输入、输出、计算类型和 TGEMM_OUT 分开传给 xblas::fc_batched；默认 FP16 行的 TGEMM_OUT 为 float，显式设置 XPU_PADDLE_FC_FLOAT16 时可改为 XPUTypeFP16。仅证明飞桨的主机分派。"
+    },
+    {
+      "id": "quant",
+      "url": "https://github.com/PaddlePaddle/FastDeploy/blob/d923caf15e1eb0da8e2efd75b0152e65cefeeddd/custom_ops/xpu_ops/src/plugin/src/kernel/kunlun3cpp/quant2d_per_channel.xpu",
+      "sha256": "4836d1b5111a2cfb82af65dbecaac7a31b9fedc9b5bf4ec98ca03c7256dbaed1",
+      "evidence": "Cluster 的逐通道量化源码提供 FP16 输入实例。缓存分支将数据载入 float32x16_t，执行 vvmul_float32x16，再舍入为 INT8。"
+    },
+    {
+      "id": "deps",
+      "url": "https://github.com/PaddlePaddle/FastDeploy/blob/d923caf15e1eb0da8e2efd75b0152e65cefeeddd/custom_ops/xpu_ops/download_dependencies.sh",
+      "sha256": "2a656e71de8049d57d62205ace52892baafe4195c9aa68acf5a2137b86622a7b",
+      "evidence": "给出 stable 和 develop 两组 XTDK 版本及公开获取方式。"
+    },
+    {
+      "id": "bkcl",
+      "url": "https://github.com/PaddlePaddle/Paddle/blob/527b4c02ce85c2400fcf72a0f92a7a97ca4653e2/paddle/phi/core/distributed/bkcl_comm_context.cc",
+      "sha256": "4fdc05b2521d9a8c761ec8844cc6ee80000c2592078677c0c77772c77e1ebed0",
+      "evidence": "集合通信适配可追到 bkcl_broadcast、bkcl_all_gather、bkcl_reduce_scatter 等调用。"
+    },
+    {
+      "id": "gemma",
+      "url": "https://github.com/baidu/vLLM-Kunlun/blob/2b7c6f6979e824298bdfb375ff5e403386e44dae/vllm_kunlun/ops/layernorm.py",
+      "sha256": "cbe24d979056ee131ddba1d231ee67773a70ca092fa698696a2ad482a77ed325",
+      "evidence": "该提交的 Gemma RMSNorm 会处理非连续输入，并按 residual 分派至 gemma_add_rmsnorm 或 gemma_rmsnorm。属于推理插件入口。"
+    }
+  ],
+  "xccl": {
+    "url": "https://klx-sdk-release-public.su.bcebos.com/xccl/release/3.0.8.0/xccl_Linux_x86_64.tar.gz",
+    "archive_sha256": "793806072291fbd173ac64168450d8e07fdf44ede2aa916a7ce96526e9fb4aff",
+    "archive_bytes": 13085564,
+    "package_version": "3.0.8.0",
+    "package_commit": "1888be8ec837f3ecd6dc839a05ec723ef37da025",
+    "archive_path_prefix": "xccl_Linux_x86_64/",
+    "hardware_guide": "doc/topics/XCCL_Overview_Hardwareinterconnectionmode.md",
+    "hardware_note": "手册列出 P800 OAM 单机 8 卡和 P800 PCIe 单机 8/16 卡。",
+    "api_reference": "doc/topics/XCCL_API_interface.md",
+    "fp16_support_table": "doc/topics/XCCL_Userguide_Setcommunicationoperation.md",
+    "header": "include/bkcl.h",
+    "totals": {
+      "names_declared_in_reference": 24,
+      "unique_bkcl_names_declared_in_header": 44,
+      "declarations_in_header": 45,
+      "fp16_communication_operations_in_table": 10,
+      "additional_fp16_parameter_examples_in_api_reference": 4
+    },
+    "note": "header_lines 与 manual_line 均从 1 起算。10 个通信操作的依据是手册中的类型支持表。另 4 个 DeepEP 接口仅有参数类型示例。跨卡规约的内部累加精度须另证。",
+    "interfaces": [
+      {
+        "name": "bkcl_get_unique_id",
+        "header_lines": [
+          63
+        ],
+        "manual_section": "通信资源创建及管理接口",
+        "manual_line": 11
+      },
+      {
+        "name": "bkcl_init_rank",
+        "header_lines": [
+          72
+        ],
+        "manual_section": "通信资源创建及管理接口",
+        "manual_line": 20
+      },
+      {
+        "name": "bkcl_comm_init_all",
+        "header_lines": [
+          82
+        ]
+      },
+      {
+        "name": "bkcl_destroy_context",
+        "header_lines": [
+          88
+        ],
+        "manual_section": "通信资源创建及管理接口",
+        "manual_line": 26
+      },
+      {
+        "name": "bkcl_all_reduce",
+        "header_lines": [
+          103
+        ],
+        "manual_section": "通信接口",
+        "manual_line": 41,
+        "table_line": 10,
+        "operation": "AllReduce",
+        "documented_fp16": "支持 FP16 数据类型"
+      },
+      {
+        "name": "bkcl_all_reduce_stable",
+        "header_lines": [
+          124
+        ],
+        "manual_section": "通信接口",
+        "manual_line": 57
+      },
+      {
+        "name": "bkcl_broadcast",
+        "header_lines": [
+          140
+        ],
+        "manual_section": "通信接口",
+        "manual_line": 69,
+        "table_line": 11,
+        "operation": "Broadcast",
+        "documented_fp16": "支持 FP16 数据类型"
+      },
+      {
+        "name": "bkcl_reduce",
+        "header_lines": [
+          156
+        ],
+        "manual_section": "通信接口",
+        "manual_line": 83,
+        "table_line": 12,
+        "operation": "Reduce",
+        "documented_fp16": "支持 FP16 数据类型"
+      },
+      {
+        "name": "bkcl_all_gather",
+        "header_lines": [
+          172
+        ],
+        "manual_section": "通信接口",
+        "manual_line": 94,
+        "table_line": 13,
+        "operation": "AllGather",
+        "documented_fp16": "支持 FP16 数据类型"
+      },
+      {
+        "name": "bkcl_all_gather_v",
+        "header_lines": [
+          189
+        ],
+        "manual_section": "通信接口",
+        "manual_line": 110,
+        "table_line": 14,
+        "operation": "AllGatherV",
+        "documented_fp16": "支持 FP16 数据类型"
+      },
+      {
+        "name": "bkcl_reduce_scatter",
+        "header_lines": [
+          203
+        ],
+        "manual_section": "通信接口",
+        "manual_line": 122,
+        "table_line": 15,
+        "operation": "ReduceScatter",
+        "documented_fp16": "支持 FP16 数据类型"
+      },
+      {
+        "name": "bkcl_all_to_all",
+        "header_lines": [
+          221
+        ],
+        "manual_section": "通信接口",
+        "manual_line": 134,
+        "table_line": 16,
+        "operation": "AllToAll",
+        "documented_fp16": "支持 FP16 数据类型"
+      },
+      {
+        "name": "bkcl_all_to_all_v",
+        "header_lines": [
+          242
+        ],
+        "manual_section": "通信接口",
+        "manual_line": 153,
+        "table_line": 17,
+        "operation": "AllToAllV",
+        "documented_fp16": "支持 FP16 数据类型",
+        "signature_difference": "头文件的计数和位移数组指针为 const，接收缓冲区为 void*。手册示例声明的限定符不同。"
+      },
+      {
+        "name": "bkcl_notify_dispatch_standard",
+        "header_lines": [
+          261
+        ],
+        "manual_section": "XCCL DeepEp Normal通信接口",
+        "manual_line": 280,
+        "fp16_parameter_example_line": 278,
+        "fp16_parameter_example": "API 参数说明列举 FP16"
+      },
+      {
+        "name": "bkcl_notify_dispatch_standard_with_num_recv_tokens_per_expert_list_cpu",
+        "header_lines": [
+          267
+        ]
+      },
+      {
+        "name": "bkcl_low_latency_dispatch",
+        "header_lines": [
+          294
+        ],
+        "manual_section": "XCCL DeepEp Low-latency通信接口",
+        "manual_line": 225
+      },
+      {
+        "name": "bkcl_get_next_low_latency_combine_buffer",
+        "header_lines": [
+          302
+        ]
+      },
+      {
+        "name": "bkcl_set_deepep_moe_fc_flag",
+        "header_lines": [
+          304
+        ]
+      },
+      {
+        "name": "bkcl_low_latency_combine",
+        "header_lines": [
+          306
+        ],
+        "manual_section": "XCCL DeepEp Low-latency通信接口",
+        "manual_line": 249,
+        "signature_difference": "头文件的 return_recv_hook 与 stream 之间另有 bool zero_copy 参数。"
+      },
+      {
+        "name": "bkcl_normal_dispatch_standard",
+        "header_lines": [
+          313
+        ],
+        "manual_section": "XCCL DeepEp Normal通信接口",
+        "manual_line": 306,
+        "fp16_parameter_example_line": 303,
+        "fp16_parameter_example": "API 参数说明列举 FP16"
+      },
+      {
+        "name": "bkcl_normal_combine_standard",
+        "header_lines": [
+          319
+        ],
+        "manual_section": "XCCL DeepEp Normal通信接口",
+        "manual_line": 328,
+        "fp16_parameter_example_line": 324,
+        "fp16_parameter_example": "API 参数说明列举 FP16"
+      },
+      {
+        "name": "bkcl_send",
+        "header_lines": [
+          336
+        ],
+        "manual_section": "通信接口",
+        "manual_line": 166,
+        "table_line": 18,
+        "operation": "Send",
+        "documented_fp16": "支持 FP16 数据类型"
+      },
+      {
+        "name": "bkcl_recv",
+        "header_lines": [
+          350
+        ],
+        "manual_section": "通信接口",
+        "manual_line": 178,
+        "table_line": 19,
+        "operation": "Recv",
+        "documented_fp16": "支持 FP16 数据类型"
+      },
+      {
+        "name": "bkcl_group_start",
+        "header_lines": [
+          354
+        ],
+        "manual_section": "Group操作接口",
+        "manual_line": 189
+      },
+      {
+        "name": "bkcl_group_end",
+        "header_lines": [
+          358
+        ],
+        "manual_section": "Group操作接口",
+        "manual_line": 192
+      },
+      {
+        "name": "bkcl_barrier",
+        "header_lines": [
+          361
+        ],
+        "manual_section": "通信接口",
+        "manual_line": 182
+      },
+      {
+        "name": "bkcl_redop_create_pre_mul_sum",
+        "header_lines": [
+          365
+        ]
+      },
+      {
+        "name": "bkcl_redop_destroy",
+        "header_lines": [
+          372
+        ]
+      },
+      {
+        "name": "bkcl_comm_user_rank",
+        "header_lines": [
+          375
+        ]
+      },
+      {
+        "name": "bkcl_comm_count",
+        "header_lines": [
+          378
+        ]
+      },
+      {
+        "name": "bkcl_comm_abort",
+        "header_lines": [
+          382
+        ]
+      },
+      {
+        "name": "bkcl_xshmem_malloc",
+        "header_lines": [
+          386,
+          395
+        ]
+      },
+      {
+        "name": "bkcl_xshmem_init",
+        "header_lines": [
+          402
+        ]
+      },
+      {
+        "name": "bkcl_xshmem_free",
+        "header_lines": [
+          405
+        ]
+      },
+      {
+        "name": "bkcl_init_low_latency_buffer",
+        "header_lines": [
+          407
+        ],
+        "manual_section": "XCCL DeepEp Low-latency通信接口",
+        "manual_line": 206
+      },
+      {
+        "name": "bkcl_init_normal_buffer",
+        "header_lines": [
+          409
+        ],
+        "manual_section": "XCCL DeepEp Normal通信接口",
+        "manual_line": 267,
+        "fp16_parameter_example_line": 266,
+        "fp16_parameter_example": "API 参数说明列举 FP16"
+      },
+      {
+        "name": "bkcl_xshmem_get_nranks",
+        "header_lines": [
+          411
+        ]
+      },
+      {
+        "name": "bkcl_xshmem_get_xshmem_info",
+        "header_lines": [
+          413
+        ]
+      },
+      {
+        "name": "bkcl_get_flag_offset",
+        "header_lines": [
+          420
+        ]
+      },
+      {
+        "name": "bkcl_set_flag_offset",
+        "header_lines": [
+          427
+        ]
+      },
+      {
+        "name": "bkcl_get_device_params",
+        "header_lines": [
+          433
+        ]
+      },
+      {
+        "name": "bkcl_get_xlink_params",
+        "header_lines": [
+          439
+        ]
+      },
+      {
+        "name": "bkcl_get_num_ring",
+        "header_lines": [
+          445
+        ]
+      },
+      {
+        "name": "bkcl_get_ring_buf_size",
+        "header_lines": [
+          451
+        ]
+      }
+    ],
+    "documents_and_headers": [
+      {
+        "path": "doc/topics/P800_XDRCopy_user_guide.md",
+        "sha256": "50d85034ee46f7e21eaeed2d9240aa5e84ad246709cec496e79881ac496f9e55"
+      },
+      {
+        "path": "doc/topics/XCCL_API_interface.md",
+        "sha256": "674742bd239ac6f649b808b068bb80f8e64fc8149c929627ed1f77107b382eff"
+      },
+      {
+        "path": "doc/topics/XCCL_Overview_CommunicationPrimitive.md",
+        "sha256": "74640fcf5524b051de84d93ebf85c79cbc109ab092718ea442a9f2eb5952b721"
+      },
+      {
+        "path": "doc/topics/XCCL_Overview_Hardwareinterconnectionmode.md",
+        "sha256": "b4ce2b7f1f6e4fdf007c1c1b98dcad5a87862d7e2ca36ed9a54b33e098d3270b"
+      },
+      {
+        "path": "doc/topics/XCCL_Overview_Issuenote.md",
+        "sha256": "f96013969cddfcef3ad2826958905dde399747ece3bdffb9ee56dd40fb467591"
+      },
+      {
+        "path": "doc/topics/XCCL_Overview_summarize.md",
+        "sha256": "49ff2bc73ebe635c911a303713fe38e0a73b373341de1d15ee2d6984c51382af"
+      },
+      {
+        "path": "doc/topics/XCCL_Userguide_DeepEP_Use.md",
+        "sha256": "735119c4e825f4aa6c8cba2595ed176fee2f5cb21573755e7e555c1146e3fc64"
+      },
+      {
+        "path": "doc/topics/XCCL_Userguide_Error code.md",
+        "sha256": "97e5acad3082f211dd129e95efd696843d28efdadbdf21243108d69ccaaabf98"
+      },
+      {
+        "path": "doc/topics/XCCL_Userguide_Error_code.md",
+        "sha256": "4cbf77fbdbee21778c5af67ebce9326f59e82dfe28a3349318244d268c4f5425"
+      },
+      {
+        "path": "doc/topics/XCCL_Userguide_Groupoperation.md",
+        "sha256": "e877220dee2677c37c6827d528495ff8e77fc308b4ab7fa108d61b8754c80e9b"
+      },
+      {
+        "path": "doc/topics/XCCL_Userguide_In-placeoperation.md",
+        "sha256": "e9a1989e8e3848a902602fd27f08af7f2deddcb6c334cc715589a3d66e0f15db"
+      },
+      {
+        "path": "doc/topics/XCCL_Userguide_Installationandcompilation.md",
+        "sha256": "d232603c432126eda86a907fdbc878ca8303c3728edc59b79e3983db379eeeab"
+      },
+      {
+        "path": "doc/topics/XCCL_Userguide_Setcommunicationoperation.md",
+        "sha256": "444d5e0f59d6799824bbbaed49511f397a17a2fd39d95cf7567697d8dbe6ee7c"
+      },
+      {
+        "path": "doc/topics/XCCL_Userguide_UnitTest.md",
+        "sha256": "430425a6fe0c2dc52427724c4dc2bd8ced0c6dc2c80fe932b1eb8c3fae6b23f1"
+      },
+      {
+        "path": "doc/topics/XCCL_Userguide_Use.md",
+        "sha256": "de86e0bb55dccc328c1685b7000885a65ab4650c8015a4cc587dc71d0fe22c54"
+      },
+      {
+        "path": "doc/topics/XCCL_environment_variable.dita",
+        "sha256": "58302d81a5e4f5cc8907e81872184664cb66a9f881b839eee1d0e6f00e60d890"
+      },
+      {
+        "path": "doc/topics/XCCL_install_setup.md",
+        "sha256": "c4501dac59fd2e7caca1d1d6e81a33db85d1bb3a6bdb3cf7852e16756d94959e"
+      },
+      {
+        "path": "doc/topics/bkcl.md",
+        "sha256": "dc76d1f8d8d190dad16f25f8faccf908dfcf939800c5f13d6c6e996dc8814145"
+      },
+      {
+        "path": "include/bkcl.h",
+        "sha256": "afa91f059b4ec8acfc3ddc4d7d0efa084d75f5caeed53c4ffc9a3abe25e71539"
+      },
+      {
+        "path": "include/deep_ep.h",
+        "sha256": "e30c7489c7056f977d1208fe28878910e45712600962e1559abeb2b9f2961c05"
+      },
+      {
+        "path": "include/xccl.h",
+        "sha256": "da875c018dbc7264762802e04ab799159092fdca65579292e5a48ab085bf4acc"
+      },
+      {
+        "path": "include/xccl_common.h",
+        "sha256": "f84598883f8ccbae3a99d706eb2cf9f1dbd0cfa99f0cc39852fa14b4a1ea29d3"
+      },
+      {
+        "path": "version.txt",
+        "sha256": "e4ca6b883904439f1073e17d513cdb8b2058d0b63f5d22f848f144914c720e57"
+      }
+    ],
+    "usage_conditions": [
+      {
+        "interface": "bkcl_all_reduce_stable",
+        "rule": "blocksize 应为 1024 的整数倍。其他大小会转为普通 AllReduce。手册给出跨设备相同的累加顺序；累加位宽仍需单独验证。",
+        "source": "doc/topics/XCCL_API_interface.md",
+        "lines": [
+          44,
+          48
+        ]
+      },
+      {
+        "interfaces": [
+          "bkcl_all_reduce",
+          "bkcl_broadcast",
+          "bkcl_reduce"
+        ],
+        "rule": "发送和接收指针相等时可原地执行。",
+        "source": "doc/topics/XCCL_Userguide_In-placeoperation.md"
+      },
+      {
+        "interface": "bkcl_all_to_all",
+        "rule": "通信原语章节列出的互联方式是 XPU Link。",
+        "source": "doc/topics/XCCL_Overview_CommunicationPrimitive.md"
+      }
+    ],
+    "api_names_already_in_previous_catalog": [],
+    "fp16_interpretation": "AllReduce、Reduce、ReduceScatter 进行跨设备规约。Broadcast、Gather、AllToAll 和点对点收发的 FP16 支持描述传输数据类型。二者分别核实。"
+  },
+  "xfft": {
+    "url": "https://klx-sdk-release-public.su.bcebos.com/xpufft/kl3/20251230/xpufft_ubuntu2004-x86_64.tar.gz",
+    "archive_bytes": 85851701,
+    "distribution": "KL3 / Ubuntu 20.04 x86_64 / 20251230",
+    "verified_file_evidence": [
+      {
+        "path": "xpufft_ubuntu2004-x86_64/benchmark/nxpu_fft_benchmark.cpp",
+        "sha256": "cc895fb12c8dc176a2ed17912b999e2ce8988841beb6f966333f711c7706ba96"
+      }
+    ],
+    "example": "benchmark 调用 cufftXtMakePlanMany、cufftXtExec 和 cufftXtDestroy；示例使用 CUDA_C_32F。",
+    "verification": "完整读取发布包并校验 gzip。核对包内版本、头文件、benchmark 源文件、默认构建脚本和共享库的动态导出。",
+    "archive_sha256": "43db0f3a4d9434f48407927ea363e622e7fff4c8bc06f533391bc9405989f45f",
+    "package_commit": "d63286983a3c7774badd6753a737e734d4cea655",
+    "reference_files": [
+      {
+        "path": "xpufft_ubuntu2004-x86_64/version.txt",
+        "sha256": "d6abb506a6526b48dbaf2f6cd084c2caa0645dbf051a0866714210b192a83d27"
+      },
+      {
+        "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+        "sha256": "a26bc8cb8e4a2ac9e408685ea608c2cee3af6984514be023b7c299dd22211d6f"
+      },
+      {
+        "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+        "sha256": "2bcd514f9cad3bb22c8bebf1ef8c15593a83adf4ef57c157a0f9cf6159389023"
+      },
+      {
+        "path": "xpufft_ubuntu2004-x86_64/include/cufftw.h",
+        "sha256": "0c1ac941ff9d9c2583f8e6207619c4ce7f0e8805f4537c5db5e11a35d86cee65"
+      },
+      {
+        "path": "xpufft_ubuntu2004-x86_64/lib64/libcufft.so.10.7.2.91",
+        "sha256": "0967c2d223c1d15b53f4eac4e47f44299857a58af43fc168e6e62cca54bd3ea3"
+      },
+      {
+        "path": "xpufft_ubuntu2004-x86_64/benchmark/build_benchmark.sh",
+        "sha256": "fb66e2795db3fc30bdf1c70a8a9018e1b8e0c3186171c6621fe2328c544eb450"
+      },
+      {
+        "path": "xpufft_ubuntu2004-x86_64/benchmark/nxpu_fft_benchmark.cpp",
+        "sha256": "cc895fb12c8dc176a2ed17912b999e2ce8988841beb6f966333f711c7706ba96"
+      },
+      {
+        "path": "xpufft_ubuntu2004-x86_64/benchmark/fft_benchmark_single.cpp",
+        "sha256": "5cecc693da4a73b2c7786d7f23bb2b919b69678b251c19dcccb266d333c78f5f"
+      },
+      {
+        "path": "xpufft_ubuntu2004-x86_64/benchmark/fft_benchmark_double.cpp",
+        "sha256": "d6f1bea9db400f3576207cbd2caca9d23a9a6c4ef5e6b4d416bf048803b92761"
+      }
+    ],
+    "default_benchmark": "build_benchmark.sh 编译单精度和双精度源文件。单精度路径调用 cufftExecC2C 等入口。nxpu_fft_benchmark.cpp 作为额外样例分发，未被默认编译脚本纳入。",
+    "header_and_symbol_comparison": {
+      "scope": "cufft.h 和 cufftXt.h 中返回 cufftResult 且标记 CUFFTAPI 的声明与本包共享库直接导出交叉核对。",
+      "declared_names": 52,
+      "same_name_exported": 32,
+      "names": [
+        {
+          "name": "cufftPlan1d",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 160,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftPlan2d",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 165,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftPlan3d",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 169,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftPlanMany",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 173,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftMakePlan1d",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 181,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftMakePlan2d",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 187,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftMakePlan3d",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 192,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftMakePlanMany",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 197,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftMakePlanMany64",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 206,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftGetSizeMany64",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 218,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftEstimate1d",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 232,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftEstimate2d",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 237,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftEstimate3d",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 241,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftEstimateMany",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 245,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftCreate",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 253,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftGetSize1d",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 255,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftGetSize2d",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 261,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftGetSize3d",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 266,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftGetSizeMany",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 271,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftGetSize",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 277,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftSetWorkArea",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 279,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftSetAutoAllocation",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 281,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftExecC2C",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 283,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftExecR2C",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 288,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftExecC2R",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 292,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftExecZ2Z",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 296,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftExecD2Z",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 301,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftExecZ2D",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 305,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftSetStream",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 311,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftDestroy",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 314,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftGetVersion",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 316,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftGetProperty",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufft.h",
+          "line": 318,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtSetGPUs",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 133,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtMalloc",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 135,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtMemcpy",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 139,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtFree",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 144,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtSetWorkArea",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 146,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtExecDescriptorC2C",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 148,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtExecDescriptorR2C",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 153,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtExecDescriptorC2R",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 157,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtExecDescriptorZ2Z",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 161,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtExecDescriptorD2Z",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 166,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtExecDescriptorZ2D",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 170,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtQueryPlan",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 176,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtSetCallback",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 206,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtClearCallback",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 207,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtSetCallbackSharedSize",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 208,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtMakePlanMany",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 210,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftXtGetSizeMany",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 225,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtExec",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 241,
+          "same_name_exported": true
+        },
+        {
+          "name": "cufftXtExecDescriptor",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 246,
+          "same_name_exported": false
+        },
+        {
+          "name": "cufftXtSetWorkAreaPolicy",
+          "path": "xpufft_ubuntu2004-x86_64/include/cufftXt.h",
+          "line": 251,
+          "same_name_exported": false
+        }
+      ]
+    },
+    "sample_linkage_note": "额外多卡样例出现 cufftXtDestroy；同包 libcufft.so 的动态导出可见 cufftDestroy、cufftXtMakePlanMany 和 cufftXtExec，未见名为 cufftXtDestroy 的导出。",
+    "fp16": "本次查阅的 XFFT 资料未给出可用于确认 P800 FP16 FFT 的逐接口支持表。"
+  },
+  "xhpc": {
+    "url": "https://klx-sdk-release-public.su.bcebos.com/xhpc/dev/20260523/xhpc-ubuntu2004_x86_64.tar.gz",
+    "archive_bytes": 2491112722,
+    "distribution": "dev/20260523 / Ubuntu 20.04 x86_64",
+    "verification": "核对 XHPC 发布脚本和压缩包开头可完整读取的三个卷积样例。本轮扩大到前 16,205,965 字节，未遍历全部 2.49 GB。community_sdk 独立核实官方 P800 wheel 中的头文件。",
+    "samples": [
+      {
+        "path": "xhpc-ubuntu2004_x86_64/xpudnn/samples/sample_conv_bwd_data.cpp",
+        "sha256": "231fbe454bfba8a9fea4232a5240949ac4bcd4236df54bc56164ed81a33603c3"
+      },
+      {
+        "path": "xhpc-ubuntu2004_x86_64/xpudnn/samples/sample_conv_bwd_weight.cpp",
+        "sha256": "bba940e058c513a8b369043204c728562fdbc888dea444091a4a54a6685a10e1"
+      },
+      {
+        "path": "xhpc-ubuntu2004_x86_64/xpudnn/samples/sample_conv_fwd.cpp",
+        "sha256": "acfce0c8056b7977e0da0a0abb9f566dde5d818bc7d0390c1a91936a7118e40a"
+      }
+    ],
+    "sample_precision": "三个卷积示例使用 CUDNN_DATA_FLOAT。",
+    "packaged_by_build_script": {
+      "XDNN": [
+        "xdnn/include/xpu/xdnn.h",
+        "xdnn/so/libxpuapi.so"
+      ],
+      "XBLAS": [
+        "xblas/include/cublasLt.h",
+        "xblas/so/libxpu_blas.so",
+        "xblas/dependency_so/sdnn_builtins_p800.enc",
+        "xblas/dependency_so/cluster_builtins_p800.enc"
+      ],
+      "XFA": [
+        "xfa/include/flash_api.h"
+      ],
+      "XPUDNN": [
+        "xpudnn/include/xpudnn.h"
+      ]
+    }
+  },
+  "xtdk": {
+    "url": "https://klx-sdk-release-public.su.bcebos.com/xtdk_15fusion/dev/3.8.48.1/xtdk-llvm15-ubuntu2004_x86_64.tar.gz",
+    "archive_bytes": 430073820,
+    "verified_file_evidence": [
+      {
+        "path": "xtdk-llvm15-ubuntu2004_x86_64/version.txt",
+        "sha256": "724e1324cd244c9a1d57cb4f4218ae1009afb12610615f11311b1d3d1715c93b"
+      }
+    ],
+    "version": "3.8.48.1",
+    "commit": "98a8fece9870379568f2359d983d80aaec36db51",
+    "verification": "读取包内 version.txt，与 FastDeploy develop 依赖记录核对。"
+  },
+  "remaining": [
+    "XBLAS、SDNN 设备原语和完整 XDNN 算子的 P800 逐接口 FP16 支持矩阵以及乘法、累加、写回精度。",
+    "XTLASS、THRUST/CUB、XECV、XFA、XFT 尚缺在本次检索中核实的完整逐接口手册。",
+    "Paddle 与 vLLM 源码可说明各自的入口。当前 XPyTorch eager 加载的 SDK 版本、形状分派和设备执行精度需逐条匹配。"
+  ],
+  "source_anchors": {
+    "wrapper": [
+      [
+        78,
+        91
+      ],
+      [
+        493,
+        534
+      ],
+      [
+        620,
+        654
+      ]
+    ],
+    "quant": [
+      [
+        634,
+        646
+      ],
+      [
+        750,
+        755
+      ],
+      [
+        1055,
+        1065
+      ]
+    ],
+    "matmul": [
+      [
+        48,
+        59
+      ],
+      [
+        104,
+        111
+      ]
+    ],
+    "pack": [
+      [
+        79,
+        117
+      ]
+    ],
+    "gemma": [
+      [
+        67,
+        96
+      ]
+    ]
+  },
+  "community_sdk": {
+    "checked_on": "2026-11-25",
+    "paddle_official_index": "https://www.paddlepaddle.org.cn/packages/stable/xpu-p800/paddlepaddle-xpu/",
+    "wheel": "https://paddle-whl.cdn.bcebos.com/stable/xpu-p800/paddlepaddle-xpu/paddlepaddle_xpu-3.3.1-cp310-cp310-linux_x86_64.whl",
+    "wheel_bytes": 3697059384,
+    "wheel_etag": "\"-b13455fb17f1140a2301c69879ac9c72\"",
+    "distribution": "paddlepaddle-xpu 3.3.1 / CPython 3.10 / Linux x86_64 / xpu-p800",
+    "scope": "完整查阅该 wheel 的 paddle/include/xhpc/ 与 paddle/include/xpu/ 两个目录，以包内路径定位。文件数包含内部、旧版和兼容头；本字段统计发布文件，不代表逐接口支持数。",
+    "archive_prefix": "paddle/include/",
+    "header_counts": {
+      "xblas": 82,
+      "xfa": 39,
+      "xpu": 218,
+      "xpudnn": 195
+    },
+    "header_total": 534,
+    "sdnn3_header_count": 15,
+    "previous_p800_header_crosscheck": {
+      "report": "reports/P800_FP16接口核实结果.json",
+      "comparison": "按文件名与 SHA-256 对照原 P800 容器接口记录 declaration_identity 中的头文件。其余文件可能未被原记录收录，不据此断定版本差异。",
+      "matched_paths": 67,
+      "matched_distinct_contents": 61
+    },
+    "lookup": [
+      {
+        "path": "xhpc/xblas/xblas_api.h",
+        "name": "xblasSgemmEx",
+        "line": 1996,
+        "evidence": "相邻注释说明 FP16/FP32 输入输出，计算使用 float。这是该接口的文档约定。"
+      },
+      {
+        "path": "xhpc/xblas/xblas_api.h",
+        "name": "xblasGemmEx",
+        "line": 2014,
+        "evidence": "在同一声明中分别传 Atype、Btype、Ctype、computeType 和 algo。具体组合须以版本和库实现为准。"
+      },
+      {
+        "path": "xhpc/xblas/xblas_lt_api.h",
+        "name": "xblasLtMatmul",
+        "line": 337,
+        "evidence": "可通过描述符表达矩阵布局、计算和算法。"
+      },
+      {
+        "path": "xpu/xdnn.h",
+        "name": "XDNN",
+        "line": 8,
+        "evidence": "XDNN 的公共入口包含分主题声明。"
+      },
+      {
+        "path": "xpu/refactor/nn_activation.h",
+        "name": "gelu",
+        "line": 10,
+        "evidence": "XDNN 的模板声明包含输入、输出和长度。"
+      },
+      {
+        "path": "xpu/refactor/aten_api.h",
+        "name": "layer_norm",
+        "line": 198,
+        "evidence": "可读取形状、权重和输出参数约定。"
+      },
+      {
+        "path": "xpu/refactor/fusion.h",
+        "name": "add_layer_norm_fusion",
+        "line": 298,
+        "evidence": "XDNN 融合 Add 和 LayerNorm 的声明。"
+      },
+      {
+        "path": "xhpc/xfa/flash_api.h",
+        "name": "mha_fwd",
+        "line": 13,
+        "evidence": "模板参数分别命名为 T、TACCUM 和 TGEMM。声明本身没有给出 P800 的完整可用类型矩阵。"
+      },
+      {
+        "path": "xhpc/xpudnn/xpu/kernel/sdnn3_ew.h",
+        "name": "ew_type_trait<float16>",
+        "line": 31,
+        "evidence": "逐点数据模式中 float16 和 ew_float16_32 有独立类型映射。"
+      },
+      {
+        "path": "xhpc/xpudnn/xpu/kernel/sdnn3_mac.h",
+        "name": "mac_in_type_trait<float16>",
+        "line": 46,
+        "evidence": "FP16 矩阵输入分派到 MAC_INPUT_FP16，输出模式另行选择。"
+      },
+      {
+        "path": "xhpc/xpudnn/xpu/kernel/sdnn3_rs.h",
+        "name": "rs_row_instr<float16>",
+        "line": 23,
+        "evidence": "FP16 行归约的设备内联特化调用 rs_row_fp16，参数为 v64fp16 指针。"
+      },
+      {
+        "path": "xhpc/xpudnn/xpu/kernel/sdnn3_rs.h",
+        "name": "rs_col_instr<float16>",
+        "line": 37,
+        "evidence": "FP16 列归约的设备内联特化调用 rs_col_fp16_mode0。"
+      }
+    ],
+    "files": [
+      {
+        "file": "xhpc/xblas/cuComplex.h",
+        "sha256": "58e8c121d9060fe4ead2075f03e74e9becf52ac0edd9a34f3b02e2ed10995e2d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/cublasLt.h",
+        "sha256": "cc90a61c6eac5eda405b6a47f09b167bd74b853b698bda08fc1ff629724b4c90",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/cublas_api.h",
+        "sha256": "d352c4267e5429e133d61962359d9ed37f07d1d17035fa4e05fc020b9bf75ed0",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/cublas_v2.h",
+        "sha256": "3d1f9bb20ddfa18570019a039be8d41f569bc69a61850601458a05ed6aca4db1",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/internal_library_types.h",
+        "sha256": "4816210d71f847c5606e7913bea43c6c5f45ad78baea9a26a748bab1cc52f30d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/newcontext.h",
+        "sha256": "8f835187419caeccff866df65f8aa2471c0387da476f15d1596d37f9ecaed299",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xblas_api.h",
+        "sha256": "c495fd8a69574795aea2accb5d7ca105204c0ecbb4c150319bdf5a1cbb292a41",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xblas/xblas_legacy_api.h",
+        "sha256": "4a96954328ac38f7e4d4f78a0933185946699e547190fff7e7e2bc69a68f2390",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xblas_legacy_common.h",
+        "sha256": "b943090c037d8ebca154e4dc71afa7ec3d0b6d18a49fd2372789179bf912ed5a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xblas_legacy_deprecated_api.h",
+        "sha256": "2b560c9ec2eb6d4424f7f6c068e7d72e3e17b31a1df03bc833770d64fe58e050",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xblas_lt_api.h",
+        "sha256": "2c3bd24a6897c48d0ffa49207aa8108322bc7ef6c071404ebb1664c92d9922e9",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xblas/xblas_multistream_api.h",
+        "sha256": "cb3b7f7edada1160c93ad792c7fae9ac99ad3930be28873350bd3b84bfedf3a5",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xblas_version.h",
+        "sha256": "f12bd87431cc1b062b55b1b16854c0acb28b47f119d9b8d3ded005d396e76af1",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/dll_export.h",
+        "sha256": "63982640959c6cb06ceeb1d043738ca78d531fa37d9a09ef16e4533564a223aa",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/internal/infra_op.h",
+        "sha256": "f8665cb4dd8a8dc18fda2f4f81f411cf941a8869149f655d646374b2142cac36",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/api_header/api_logging_lt.h",
+        "sha256": "690f94206e81c3b3a203467a430a5720a283e71a8927649bcf17b458f902827e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/api_header/api_stack_guard.h",
+        "sha256": "a0111ae8e462ab12ae9e1aba3609611bf8f381d8a5a70adc99674bf0beff5c50",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/api_header/api_test_case_loader.h",
+        "sha256": "ac927e93f5b0df26bfc8bae6e94ec1ca496eec69132156cdee1901edfa1fd5e8",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/api_header/api_to_json.h",
+        "sha256": "d1b214ae7cec37285fbb1435b3974c94068f72dc783f2abea02805c973ba7b27",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/api_header/api_wrapper_dump.h",
+        "sha256": "5e07abfb95189562cb3cd2ca3d2abf1299eb00baf582395d1d024f6f7a1575e2",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/api_header/api_wrapper_dump_util.h",
+        "sha256": "909335ddce211c1cb068562f5537180b29bd0769732136c3af9fd5f87b013b51",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/attention.h",
+        "sha256": "55ac288f0389066dafe4c39763aa58647e8760f956a93f32e2c3ea21ef03b865",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/context/buffer_mgr.h",
+        "sha256": "49887d2eef4f75412eaf442985a4ce693647d01c687e0418cdf8ae2be614a0f2",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/context/context.h",
+        "sha256": "73e26d2fee1c767bb637b84881ae3235094d531aab36bc8e8d6b95c834e147ee",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/context/launch_cfg.h",
+        "sha256": "d6996ac5e4c7e5509d2bff05671a70b1c7735bad5a91b072efb7dcf93edead08",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/context/xpu1_act_table.h",
+        "sha256": "e325f4a097b09eb811098f69c8ddca5824c0d33fc3f30c84898df9bf4720a666",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/context/xpu2_act_table.h",
+        "sha256": "23711bda2570bf3dfbb70664b96b3db7ec3bfdae61090c7460e548fad03a0785",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/context/xpu3_act_table.h",
+        "sha256": "22f942c1dbbbe8d03fc19c7395d26ec935d1397ba3b740630103c54bc559d620",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/context/xpu5_act_table.h",
+        "sha256": "db312d6d83812c7a7bbaa4765944b3fbe10eef4a8531a134def4228fd3f97cb6",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/context/xpu_act_type.h",
+        "sha256": "e3791bb02f3a85d878c60c6f8371871c39b9c32d83102e2532091ff16dd8dbdd",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/core/args.h",
+        "sha256": "afed13985a7c37c5d168e39013f6bf3ae0f227f41680da7f2540d2f47269c0c8",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/core/device.h",
+        "sha256": "7c932addc3f47e89df73e0929d823d43e294dddd7cd4cff84a8eb55e30403e1d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/core/dtype.h",
+        "sha256": "9dc2324aa6fbdb0fea6167bb3e43a4a0454728cc7fea2e0f3149bfb932ea63c8",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/core/hardware_type.h",
+        "sha256": "0dc140f860a9b4a68f0c47572740956664fdf8c744beaf349fd3abe3b844984d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/core/infra_version.h",
+        "sha256": "9b87e43ccc98390bd761af75189f9a64433bac02a2f93d8d24c3d3efcfa3ec42",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/core/quant.h",
+        "sha256": "7ab57deec6858533abacd9a371c11cb94dc60d751c7c0f325ee037de6ed6e36e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/fusion_cv_param.h",
+        "sha256": "7f88b2b5388af2561c6c86aec095bccdf21f8be2d2e7e2113224e1c573bca294",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/gtest/gtest_util.h",
+        "sha256": "6c68db27b5b6e5eb2e11174cf2c3caed2e3005606fe9580b3861fbf4edcdc573",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/gtest/quant_tensor.h",
+        "sha256": "b32ba97b225be62f1fb473882727a0d60a4d2cd4e69a08348887cebb232f6ddc",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/gtest/tensor.h",
+        "sha256": "53ab676e5fe97fec006c4dd304a72a5b525802338dd49379e342ae3c4f3185d2",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/gtest/xdnn_gtest.h",
+        "sha256": "65f7ab348c78fbddfe76e98b6dfd17de25873830f41d89ffa98c17b94df64a63",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/gtest/xdnn_gtest_attention.h",
+        "sha256": "d654aa8cf0dc5b2972ff49b6c2489f527844f09583dc7dde3ac4e2dba1771f62",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/impl/context_impl.h",
+        "sha256": "7b137d55114e9627f15ebdec477f0113cbcb10a6ca00ca4b9df1850a10cf0a5e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/impl/cpu/parallel-incl.h",
+        "sha256": "2e9defe5fbe384b8678fa0f7f46deb43844aaac9d17c234181c7423b18b58649",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/impl/cpu/parallel.h",
+        "sha256": "bf18b7f4e395c65824a46f50ccf5e7176676d83527b564c32cf18e0377ef3443",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/impl/cpu/thread_pool.h",
+        "sha256": "ad3a51ba964c80b4d79eb120b2ce3496d92b63791123213a77e6c2672b4968e5",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/impl_public/function_info.h",
+        "sha256": "bebe255032840758d7f4d292eadefd8dc2dbebbd2cac440f3c0674926cd61c6c",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/impl_public/json.h",
+        "sha256": "64429d0811958f2d04729a235fe2340660c4dfe23c2226ca16c33e1bb2db6435",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/impl_public/json_dump_lt.h",
+        "sha256": "a1e0723a083ff0ef11c92bddb6580d1f293f571137a6eb44fb410599ed7f815e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/impl_public/memory_region.h",
+        "sha256": "fe8811fafef48577be4c95718161857ead331ffec4eb6f7dd13e5cdfeb41bf5a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/impl_public/npy_dump.h",
+        "sha256": "e412ab3a10cea5e9f86b7a285b52a33cf32b6dc2edfa80aed7df3896c8cd2907",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/impl_public/profiling.h",
+        "sha256": "022410127eaeb9d1a5f8523ae0f486cf3d2f1af212b9e1a675189b00a9a98184",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/impl_public/wrapper_check.h",
+        "sha256": "290a88146c3fa7e08ff6cad9af945962a6ae422d8b96e087f61560cbc1c1a0b8",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/impl_public/xdnn_debug.h",
+        "sha256": "643f64c210ee8d38e249c97712b2fdbbd4fa9128e1f8ffaa220e327d39610e8a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/impl_public/xdnn_pointer.h",
+        "sha256": "1a72824a4d79069483b2650676f436bdcb9d05985dc0106244a1ea04e65adbdd",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/impl_public/xdnn_time.h",
+        "sha256": "8791466f36311e1496f2affe14a924d8af568e90a2162e5628a259f931de5927",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/impl_public/xdnn_to_str.h",
+        "sha256": "5018353b0e69d4825eef5ecf29b885b48005a036bba3f0ef0fa4478c15b966cd",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/page_attention.h",
+        "sha256": "b1f83b19f4595f6a34695d2848c578c5c847a8fe1d39dbb9d5246924c0799487",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/bfloat16.h",
+        "sha256": "5ab46f9539236769f4e28cf745ba413132f786019ee8d280a02cf15419334d7f",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/bit16.h",
+        "sha256": "3587de7c32e80ee3625132012edf418bec38627773591877dd8066ca40ae29d7",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/denormal_disabler.h",
+        "sha256": "08de007c1c8d1102db805650694afa96f542d588e99f920227e818af077f0f94",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/double_int4.h",
+        "sha256": "e2d1a52c13d0ce9d821eff79ab8ff5e538238457ac3f0a3d0bcd0ee6af14c886",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/env.h",
+        "sha256": "cef51d1840eb89ecc489c692660cb9a03bcbaec9ee8ba21208132b8e86e8a923",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/exmy_base.h",
+        "sha256": "f31502f5173389823a4b5d3fbfd4588e837a82747fc462a646dd2926e48ca2d5",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/float16.h",
+        "sha256": "6178ac35ec76bb9f20a49c10dd39e4a3f86d29cfb2d8e76cd358c4da5763c02a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/float8.h",
+        "sha256": "89075ef8d9c1c79e9c1a05acd2099a4ed938ac8581257c78e8f4a650b3e63ae2",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/float8_mx.h",
+        "sha256": "5663ba9c981c0d98b9754543bdeb634584e6ee1670f3e6f594ff1fac8e80ae52",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/float_subbyte.h",
+        "sha256": "82758bb805efec2b2538e665ac1ab7e939646f4879ca80537ce0535f1fa9c43e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/int15_wo_t.h",
+        "sha256": "32a771a759863dc4fe2370ec7c56a92434f2d8c8b784a9f4d44cb8768c3c052e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/int4.h",
+        "sha256": "0d7604d4aea4a74d0b4249dc9a201b4950445d624345d6165c4f16c6dd47f9ea",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/int4_wo_int15.h",
+        "sha256": "557aab3896b0272c8442f0ddc2a4b770c9b50bac077a4447e3964e2e71244c36",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/int4_wo_int8.h",
+        "sha256": "4795513604d3b81bcf077400648a31a57bb5cb0881fd285faa95645a7b9e5409",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/int8_wo_t.h",
+        "sha256": "3b658bfc723728b9580a4e469d5ecbd86874b78c382236d7f68267fccb398d69",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/int_with_ll_t.h",
+        "sha256": "c599fa4cfbb333fef5e08e23679795733bbc061c5924f0df3e09a0a5ffc5cafc",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/math_round.h",
+        "sha256": "bd318682f63e2760b388d3bc8491ec63dce5b65b1211a7feed4eccdfe31dfd5d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/mx_type_util.h",
+        "sha256": "737acf94bc446c20429d166152dc181d971ce02ef10592b582396edcd683ce10",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/precision_check_tool.h",
+        "sha256": "626e1d1ba5a84cd9930a89f26a488ec6592f20a7849f4df409c7281eb8d04f60",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/tfloat32.h",
+        "sha256": "bab4670095b041d73848f005ca0ee0d881a4a30b5402cc6dc198fd610c8bcb44",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/vector_util.h",
+        "sha256": "03ce3118e2b3eed9605d8b4052e5bc62186d4e5cb6925195506a2c402de8af08",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/refactor/util/xbfloat16.h",
+        "sha256": "67e271246fb0eec27a06903d9e20d8d3811b2b8293f24fb1090bad628783adad",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/xdnn_error.h",
+        "sha256": "531e1888bb74236bf2eb6ab3480bf8e126faf931f6d73c121f59c77f436347fe",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xblas/xpu/xdnn_types.h",
+        "sha256": "167131806930ad829a4315fda44fe8e8c213e5cb3aae9cb4fe4fdcfef2a54f1e",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xfa/flash_api.h",
+        "sha256": "ac52cbee73056d733f46944ff9954d8cf8aefda081bccd7d3a2a51c766380313",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/flash_infer_api.h",
+        "sha256": "6e51fd94891e0db70df233b3ab7963267906bb4c87757ac2c8469e397e0f2613",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xfa/xpu/context_infer_params.h",
+        "sha256": "a91adbe2345940e61997ec6195ee9a8af84e6e368ec8e9a7d5ab729f9dee2665",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/decoder_launch_kernel.h",
+        "sha256": "c332541cd005952eb4adc903a441bfa64c62f70eb0d640692e6755ad696f902f",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/decoder_params.h",
+        "sha256": "4eda0bcefca8555b397ada63733312246fd9fb9943ba4a5df2ae460c90e24995",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/decoder_solver.h",
+        "sha256": "a7f5a243fbe89ff744ad830ebcc36434b530b938cab7610f7d93cc4b583466eb",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/decoder_types.h",
+        "sha256": "a5684a9d0abb15627d5d4cf33404886508f7f3943a19eefdf8a2f7757fb02a2a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/environment.h",
+        "sha256": "7864e91387ce7d9e3d629384ad688f195733b93afd11b40f2d824d64407b132e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/flash_attention_bwd_solver.h",
+        "sha256": "3d183d7e6f4735d63c5ddb4c809551989862aba1cc82a42ceea2c57eeb07bb9c",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/flash_attention_bwd_solver_xpu4.h",
+        "sha256": "33c0f9bd316078b11b6d48557058aee5108f917be0908417cbcee81be5de2192",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/flash_attention_bwd_solver_xpu5.h",
+        "sha256": "017182121a41c180da1bb5ea0b532e2b1817900983cb2c39dc88ed29da4e05ec",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/flash_attention_context.h",
+        "sha256": "0837667c9f936145fbcda859b4d636900f63f8de5dd9ff452cc17f97d3c0e8f8",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/flash_attention_context_helper.h",
+        "sha256": "c114ac42458f300ceefb78ddec56406dc32c6d787da8580af4d84daca1071507",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/flash_attention_context_two_loop_q_sram.h",
+        "sha256": "7f63710873ee1f813c84fcd53c7f7ca4a8f2179724827af7ae358fb7a2bd5f39",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/flash_attention_context_xpu4.h",
+        "sha256": "4bac42ddb57bb9f8ef34097733e58d4cdb9a274f093c09d211c7c04e32f28e3c",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/flash_attention_context_xpu5.h",
+        "sha256": "0c68778d63b6ecae02c5e676e12f1be8f480781b14787fbfb20afef7425c5efc",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/flash_attention_fwd_2_sram_param.h",
+        "sha256": "ad715c18c0d9ea6027748052e3133366e44cdc8734688e8a3a58b5d8a3d9bf5d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/flash_attention_fwd_2_sram_param_xpu4.h",
+        "sha256": "c91dfccd410645b86cdd1708c2310cd4126a9fed8a058da33d86bc65fa35bc5f",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/flash_attention_fwd_2_sram_param_xpu5.h",
+        "sha256": "d7a670fc64304c65cdfe2d02824f6fcbd5d171d8890b6e103cae89e70577e73e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/flash_impl.h",
+        "sha256": "b7f26dfe090c58eba0bfc0a706adaad0b9609f817adf37677da3f4722f475139",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/gated_delta_net.h",
+        "sha256": "42453757aa190fc6b92e5f4ad27ff9f2586dd8d08e6038a13d66f77f3153c62a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/gated_delta_net_sram_param.h",
+        "sha256": "6c93cc05dc04585581b5c969190e8dcef2e3130247101d5960544e3b4d70fde2",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/hstu_attn_bwd_solver.h",
+        "sha256": "8a816c206d21c8c2f7a80707b28f5130292caddc2adaa48051e9b66362062e2c",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/internal.h",
+        "sha256": "d8dd3ac0fe35df07803c8836ba598e7b754d91119747352c762d7d68f169de4e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/internal/attention/attention_types.h",
+        "sha256": "dcafcc8a275536f6b71edd989e8ccc4127718e267fee24e56570797f0744284a",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xfa/xpu/internal_op.h",
+        "sha256": "1da4ad942ef20d75392b673e4dde04bda70cd5523d39fec955bf9ecbcf89110b",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xfa/xpu/kernel/bn_common/bn_common.h",
+        "sha256": "2059034399dfdaf90b786e8b5c7f3b9425fe9356f4eff5ad9d9a2acbcdcd4309",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/kernel/bn_common/bn_common2.h",
+        "sha256": "ea2e98c5e3eb1d484f57826dcb158e4ab45235da5895294bf57e65b1c39675de",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/kernel/bn_common/bn_common3.h",
+        "sha256": "cff9a3c3da4cd624e216194f08d785c71c8da9b3ab3db04e33c6d794dbe09c57",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/kernel/compare_common.h",
+        "sha256": "69759f1dd9c5a6cea01a8624342101b19905bddc18aad677dfd841d9955b58ad",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/namespace.h",
+        "sha256": "6bacf91535afc403c88e19905a93ae9f686b33d81aa64be78f46b6eda1e92a0a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/nsa_compressed_attention_prefill_sram_param.h",
+        "sha256": "79704c76ac6fa2d36c659fdac58585c2667be03d4f693d0c5fa5c33d78af3c1a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/nsa_selected_attention_sram_param.h",
+        "sha256": "286c6c2191ba5780932f8166a933a48dbb50bd88d5ae91627323490a62fc8105",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/refactor/impl/launch_strategy.h",
+        "sha256": "e5f9e62f65980a3d37ac06ef0e337804496fa67375feb4e110ba8e20c65bae92",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/refactor/xfa_version.h",
+        "sha256": "9998e0a4129ba62c40b893a0fd7f5dd7efab89fc7c8c4ba88b80dd54576af358",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/solver_cache.h",
+        "sha256": "1546ee60d5c023252839021a5c0e7275a54ba7aa30491ccd18a13ee7002386b0",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/solver_cache_json.h",
+        "sha256": "f19834e7ba7f30f34a614e38d9839f86dd9dc63fa3891bae43a45cdee107f428",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/staged_flash_attention_2.h",
+        "sha256": "f7bf5202d6f6841f39660d08e466b022ab832fc1f95fcd0e0364ff00ba0dc67f",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xfa/xpu/wrapper_common.h",
+        "sha256": "0f918e4baa84e5abeae771924a92f9688f048a439faeacfac6b920b77d9bdc2e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/cudnn.h",
+        "sha256": "1068ca4cda9c748669bbb6c7ab1c62eaab238066f5513a16d23bcaa94867c13e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/cudnn_backend.h",
+        "sha256": "341053bcc956ae4abf138a16b87b829d2c201162817159861b18ca3cd33fa431",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/cudnn_version.h",
+        "sha256": "aaaa917bc5d023828b14f346f9d766720f576a181cc9d9c8e4b4e7c620e0b150",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/dll_export.h",
+        "sha256": "984d8f20f4252f3e4650510eba1d13adf4a4cf63874cbe335d115e5f13877daa",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/autotune.h",
+        "sha256": "8cba513cb1ab2a03b56472dea19fb8066237dcfa7ec9c3e250be07067400d3cb",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/context_impl.h",
+        "sha256": "5024b18c35f9bc1d794af7d269f7ef5ee5803100b56c878c15012514ecd695a5",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_common.h",
+        "sha256": "d074dbe62ae15a9b93a42354d22e07def11afbe42d5a4e82aedd734c61659568",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/base.h",
+        "sha256": "469c48dffe0b5ff63b58ffc1f6dbadb23f5139636c58e26aa1fe208d5f4b5260",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/cost/cost.h",
+        "sha256": "8862ae345f6917b805bab780f06dd25ea9f2feff0aa339343c52443cb1cf7aac",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/cost/dma_cost.h",
+        "sha256": "94a6a1739c6ff34a003d2ecc8ab216c073d0afa988944b49c4e5ec18ca0a94bf",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/cost/dma_tuner.h",
+        "sha256": "3d2f493ba43c7648cb1ace4cf64f5d007011ddd87fc79bc7279e2908443568b6",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/cost/ds_cost.h",
+        "sha256": "f1e6c1b6dde17ecee50bff0b7916f0a9868e30c94f56e33f15fd465c8781b0c0",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/cost/hardware_cost.h",
+        "sha256": "92c36bea4575f7f5a99d05a54e4b5ea3c30a838a439b42e82d0bb977f194b3c2",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/cost/mac_cost.h",
+        "sha256": "11643301ad8d4cd2c8b65bc6b0a370af832aad6ec7182c0cfe2fa8fdae8eb82f",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/fwd/autotune_based.h",
+        "sha256": "c65503d61889566ab848a19ab26c99b19fa1a0c4e3622a1ca28fa527ce6df0a1",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/fwd/autotune_impl.h",
+        "sha256": "ee655e99f2f29543a9325bb41489434d1001f29ef62a3b0b00f1711780fb4612",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/fwd/cost_model.h",
+        "sha256": "77569e6b58e359c791929bf49dfe1b763925c0ac63dd954c71416a195ddf05cf",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/fwd/impl.h",
+        "sha256": "f8fd52bc57ecef4025606378ed90e7093037f125ef1bb2fccec52541671c52a9",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/fwd/l3_optimizer.h",
+        "sha256": "f565031f3b78f97f1d01cc6e01350266f7156862a848b31be0c34d640d33f320",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/fwd/lib_cost.h",
+        "sha256": "a600d180c4962a4044f01e890a60349b954a80f7f300c13b01b51cfa1c3ee523",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/fwd/lib_impl.h",
+        "sha256": "f2fd2d2d45c5b48c4e00b526a3f706a546985ef3d7e04644873ebb73f6e907cc",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/fwd/lib_limit.h",
+        "sha256": "59b00a754ff3c059f7b293d985e45488e7d2f98af6982f90ef29ea61f5ad3209",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/fwd/model_based.h",
+        "sha256": "6e93fd5d20e990fd68aff0ab4eba597314275c30eff7400435b3949ce13dac51",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/fwd/planner.h",
+        "sha256": "cd9845ea1c6c775de79b26706220d19e8b8b7a3e147fb08d80201bc3b991b4e2",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/fwd/type.h",
+        "sha256": "c134477bd4ae6720d2937f002e3f69e61bf9ffeca307ac9c4bbae58b9edd0f7e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/hardware_spec.h",
+        "sha256": "d3a755bfafea39c57299bc22da82af84e778ffcfe22def435436ca78f62d157e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/helper.h",
+        "sha256": "e659e8b0820aeed04bcecb14a4b6b740db2efe7b5c7ee96ba195935687920cdd",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/limit/hardware_limit.h",
+        "sha256": "1adaf099106635dc77cf9a2979948528c91d577eafdc15beaf07600ab387c56b",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/limit/limit_solver.h",
+        "sha256": "bafc6849603a3762347f05aaa6b39d7209e1a23c499de4948eb660a3f279d0dc",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/limit/solver_impl.h",
+        "sha256": "9d1d0f69e2229153ae0cb0a24b3a92da772a96701a196849ae73b9df05aff356",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/conv_planner/limit/solver_node.h",
+        "sha256": "3a987d437a0cbc6ca1b5802c57e1d1ee8bfb4f53950660817c57c6806f5efd04",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/launch_strategy.h",
+        "sha256": "63c454dcee04ad931b471b730fa673e2375b4cf076be6624e1e3713e4225647f",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/xdnn_impl.h",
+        "sha256": "e5687bf248084baca342f5c444686168986f2bfa86f40ea200795b13bb72bd98",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/xpu3_act_table.h",
+        "sha256": "6e761de21fb0d2138779590a97ce56a5ee8e9c7d4221e1e4dc385c182ddb2fe7",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/xpu3_conv_bwd_planner.h",
+        "sha256": "7aacdd7b1edf3bdb4c98700608dd30bc87f2885410bc8d929025234e9e250dc4",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/xpu4_conv_bwd_planner.h",
+        "sha256": "6f3c86f173f00d04de7a494ef35ae21aa1a1075203795e6e01cdae78d52a74f9",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/xpu5_act_table.h",
+        "sha256": "0439e431729d76d92ec763e40c38ef0953315215318587098ac469fa596111ba",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/xpu5_conv_bwd_planner.h",
+        "sha256": "abb792009cf000d51e4d9dc3d7b28df1e21b69753c874b488d3924661b6d82cc",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/impl/xpudnn_impl.h",
+        "sha256": "50b7a8e517c13ab924af7b0d87bea77a169c202b3221d924ca7c86ec6b8b7fff",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/name_map.h",
+        "sha256": "86c135282d4cbf95cb60aac1572bca1195dcd8b29f52a9b3bf72d3ebdd7ebc44",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/name_maps/nm_xpudnn_adv_infer.h",
+        "sha256": "d67f2c9790db237a861e06511726aba3f585a5014d151eaf9fee412f2a4790a3",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/name_maps/nm_xpudnn_adv_train.h",
+        "sha256": "31e802bf7046b2d308a8ef68ec6dc332e6c700f4075db77cb3768f498610a0b4",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/name_maps/nm_xpudnn_backend.h",
+        "sha256": "9c42c1ff28bd1585ae72ccc450849f750c956ec01b19b8a10d08ffe1e5a275de",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/name_maps/nm_xpudnn_cnn_infer.h",
+        "sha256": "b1d64ecefb95d6fd3e3aa6c88fa43edc9d7f483f1c275e9ed3445c838f1ca0fd",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/name_maps/nm_xpudnn_cnn_train.h",
+        "sha256": "7abb782003eb4ed273714c076b8c813e0e5213260031db6eefb0ba3725f1c81c",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/name_maps/nm_xpudnn_ops_infer.h",
+        "sha256": "688048c30b126db575e94b9c35ce22727d83aec7824ac3b12a2c50efab12d79e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/name_maps/nm_xpudnn_ops_train.h",
+        "sha256": "9104933a2503d91c8022ad7916e4d3da10cceb8b8704b68f739dfc6799e5e379",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/dll_export.h",
+        "sha256": "63982640959c6cb06ceeb1d043738ca78d531fa37d9a09ef16e4533564a223aa",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/internal/attention/attention_types.h",
+        "sha256": "514d1ea2d622358ca3100e9938f12963dcf61145b69d38842d8d0b64fc63b43b",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/internal/infra_op.h",
+        "sha256": "f8665cb4dd8a8dc18fda2f4f81f411cf941a8869149f655d646374b2142cac36",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/assert_device.h",
+        "sha256": "671096f4967e578121d2657ec65acf34489b9c93e21c0e026f482e59b98f3c04",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/assert_device_xpu3.h",
+        "sha256": "34ed2caa2bc54ea2f83963deb4b4ce0c263577fe43bfdf8323950e849cb483e4",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/atomic_flag_mgr.h",
+        "sha256": "6f03deb8c86423432d205fa0a0d4dcc97d6f940e1e1b221946088f2ddc3dc537",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/blockwise_atomic_flag_mgr.h",
+        "sha256": "2ee7fc06986153ed778ce5fe346bcfdc50ef1abe838825d2e6b68545cb0c6201",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/bsp_libs.h",
+        "sha256": "40eb7b08dee6c7f8183b3d8cd71eee6b968bad32794b840b8bf21a852a0a1fde",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/check_utils.h",
+        "sha256": "507841a949dfed61f5b328a81cfe0ed163fb8b34d025c6c0c9fd815bf98cab49",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/cluster.h",
+        "sha256": "f1203847d84968ef3e4fddcea1301508e8994312274a1144c4de54aeeefbb6bc",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/cluster1_type.h",
+        "sha256": "cb6028344fc5a673bfe1c3c16173c37db3b705d1dd9448c25fc07967c7501ff3",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/cluster2.h",
+        "sha256": "d54a4205734a28fd2fd0a048c18ce7ee96122e9239df659d40ab5de5368ed937",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/cluster2_simd.h",
+        "sha256": "31eef5bad2573963693780d10d25cc3f465eda1b3b2722290fcc4e4ad0858848",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/cluster2_type.h",
+        "sha256": "f2767a4804752af6aaf72395de5dd78396e583eba22dcd96f7fb858753ffb21b",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/cluster3.h",
+        "sha256": "a63069c5052caf6e581c6e7e4a5480b6690bede19d3efaec3881eb610bc9e630",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/cluster3_simd.h",
+        "sha256": "a2d66320799035ec4ee068ebb55a2f80e195e78d8acd9992a781a2ba1848beb0",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/cluster3_type.h",
+        "sha256": "c5cbc07581ea3714fc417ce0397ec6980e66c6cef02fe309ba5de0ce194fa63b",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/cluster4.h",
+        "sha256": "1e8c1b90e3ca48d10610c34e030f881452fc608a0db1b3d806cc6f4b1e82fec3",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/cluster5.h",
+        "sha256": "8bf6d14fbd9d045c50c93449ab36a13cbbb6dfbb4473e638fb4b59ab9bac971a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/cluster_debug.h",
+        "sha256": "24b99090ed41ccbb0961ccfb913eefe27e661f88c32bff8144329d61cd4f9633",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/cluster_math.h",
+        "sha256": "cd70644b7d0b58282637f5edc7dd680dae988fb1cfe33da0cc0e4a95132ca364",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/cluster_partition.h",
+        "sha256": "5f5fadafe81cfe9c9505f7c2901b566691a47c18886432606919d1fd5f1a95cd",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/cluster_primitive.h",
+        "sha256": "8832fb7efd3e4810e80ddca02dc9211c2b5cc7ff0ad02d6e49563e8d342a270f",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/cluster_primitive_template.h",
+        "sha256": "5ea55a439b5f0a1aaaf26af6e9fc066af3a7a9c7ceb2ef9d283f4c05769e7def",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/cluster_simd.h",
+        "sha256": "732bc72a84732f8c6bd198f4127733bfc74906e6430530447e86b3c344cd192d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/cluster_simd_with_template.h",
+        "sha256": "e57646b4f553bff2964693ac56256c6c4b185040eb05b0c78645a6ccf99de872",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/constant.h",
+        "sha256": "021c3400a36e23f91d97f29b653a170475777cf899a62d2e4be2d86782f0ced4",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/conv_libs.h",
+        "sha256": "f66c81d3547db9e5dc4afcda3a89824b14467fc8721f8039d312154e05c32445",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/findmax.h",
+        "sha256": "7a1542c1b11c5978545ed94b961dc2c8692da68b86950002f20ed30a6c9289f7",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/gemm_libs.h",
+        "sha256": "cb517f70cf66955201edc1b0016873f1ac382a2fc32b3e1c20d4b363870149dc",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/gemm_libs_impl.h",
+        "sha256": "1b27a6708528a8b05879e0c721fcaa17c93d10d4e54bc10311fe7e41c5b9064b",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/heap.h",
+        "sha256": "a316e5b761c95b094ef8469b187962f670be2ad5215c2dcbb04b8927fd61d8dd",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/heap_kl2.h",
+        "sha256": "071de0e3d3b3aca4d930a9b59097ddc21675d4b9b08ada1c4e34984e99396f97",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/normalization_libs.h",
+        "sha256": "4827c16a829e06a88a8be39c3bc312af86a7763472413a897dd9ac06728cbca1",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/partition.h",
+        "sha256": "75a0c005f54babccb3f04e1dedc62a676d0e52c3589938936fde4c88806907de",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/random_phliox.h",
+        "sha256": "c37d6b2575b2aab936b4f0aa4259a0a3202d5170ae474cdc4b5a2544300cc628",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn.h",
+        "sha256": "fef68a2932aa87b32e522e6297d7cc13d1c9bf2adfe97a95b448b14c53f2ec05",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn2.h",
+        "sha256": "91dadceccd1919fcc0bf3fab56eb468700f198d3665f26cba24a1f8410bf8286",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn2_act_table.h",
+        "sha256": "59f93e97e0c08932eed27743cae09ea68f52607cd98ad5f72c6417bb08659d89",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn2_base.h",
+        "sha256": "ec2c4b549498274703c980b9be253dac450b12466858a6662917d0dcf369e016",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn2_conv.h",
+        "sha256": "4d454d18df671278b03958524189121106506602cb40bc78389b2a334b675508",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn2_debug.h",
+        "sha256": "46f15e62206ea886817d9de6fca4e0d7aa815698f8bdf15cbf54d015e0c83fda",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn2_dmai.h",
+        "sha256": "3c26cbd545a96a73b7de4c9e0ffea80c623eec92e0c3279e14f884a90f8f9aee",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn2_dmao.h",
+        "sha256": "fbb06136d20a71243d4018ba281876f25929861e11cc73f4da7d371f81a77afd",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn2_ds.h",
+        "sha256": "3159fbc07b84095114d50e6e0dae7395271ab918930ad0f6cf0e66b268e7ef8d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn2_ew.h",
+        "sha256": "35578c2a731689b59a9fd52dc8802751761d98e92b6b00ec666f6974a1b077fa",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn2_findmax.h",
+        "sha256": "e4456cb52d8c82227a74ffbd94d75023c8315770ef8ed6c76aa8799b4f5dc7e7",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn2_mac.h",
+        "sha256": "42206acdcb8d1a387d8b34bd04ca1c29c11de012cc55fd2eaed27d376f9909f0",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn2_ndarray.h",
+        "sha256": "7cebc89986f299438fbf0cd20ccdabd0569f1aac117755833d174872e8f4fdde",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn2_rs.h",
+        "sha256": "3ccf01c92bae30291852f8986e3f87a535b085a68ed84cfd47e5aa732eb5f627",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn2_scheduler.h",
+        "sha256": "da2b75153795cef210791703c46907f0f5fdee4aed2591f782e4a8aa9922baba",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn2_utils.h",
+        "sha256": "b7c3aefe5b5167b17d7e62eaef86edfc40f0e4da880590ca4d5459eab783a708",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn3.h",
+        "sha256": "dce3a06a29dade98b5e72268e95c70edc216f889c68345a827e01ab8a19b9dbc",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn3_act_table.h",
+        "sha256": "f1c1c7117cd48c6ff726aa030635df77f170786f7083456812ac282a9a780531",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn3_base.h",
+        "sha256": "2e55ee0f8de965b41b460d25a4162f6eb9cf6464e6cc0fdd637e29e366432d63",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn3_conv.h",
+        "sha256": "1ca846f133eeab36082c737bb3fa8271213a8c20ecae7b5069a5d573dee0eb32",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn3_debug.h",
+        "sha256": "a12e3194e70c7ff76055a80bfecc85e0044086122f677771cce288de782933c8",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn3_dmai.h",
+        "sha256": "8594e9b1060bd990e0289063b8cb8d846c2b0d920ea5d3da14e6575ad6d20afc",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn3_dmao.h",
+        "sha256": "0c5fc6f0fc200e8b1479500e6862213047e92076c84f25defb06bc96b139933d",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn3_ds.h",
+        "sha256": "8ebe815270cb3bbf512521e03b9245462584d24147dfb41b8cabdbfdc0982652",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn3_ew.h",
+        "sha256": "7645a1cf26340395d58c428e344fb2b21bcac40929645f1ab2f6d1b5230b163b",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn3_findmax.h",
+        "sha256": "f086a30db5bd7c8e7fedd57ed4cc7dea6aaf3d225a08947d75c1288c8fc02979",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn3_mac.h",
+        "sha256": "9227821e7d4a91bc4c3f0ff14d676cc3dabcaaa7f15c08f471b0a1db9c705272",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn3_ndarray.h",
+        "sha256": "d4868a04d7f7d48f4f746b14e924518159ef0bf9798ffc3870267a4e59494177",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn3_rs.h",
+        "sha256": "70ac57a63f77f2ee5c29a3e035ed5158b35e4ddd20415c93359f30891b658579",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn3_scheduler.h",
+        "sha256": "e0a0054f517ebddd628842fb59c75af471ee8e91241952019e85e034a586edc5",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn3_spec.h",
+        "sha256": "c0dd5c01533747935b756a15969a6067bef787ee74b036caeab5a4d611dc29e4",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/kernel/sdnn_header.h",
+        "sha256": "df5dc8bafefa0a3406a7b0b52f8ec0c457fb9bb62617979d905e2fdba4880fcd",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/api_header/api_logging_lt.h",
+        "sha256": "690f94206e81c3b3a203467a430a5720a283e71a8927649bcf17b458f902827e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/api_header/api_stack_guard.h",
+        "sha256": "a0111ae8e462ab12ae9e1aba3609611bf8f381d8a5a70adc99674bf0beff5c50",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/api_header/api_test_case_loader.h",
+        "sha256": "ac927e93f5b0df26bfc8bae6e94ec1ca496eec69132156cdee1901edfa1fd5e8",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/api_header/api_to_json.h",
+        "sha256": "d1b214ae7cec37285fbb1435b3974c94068f72dc783f2abea02805c973ba7b27",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/api_header/api_wrapper_dump.h",
+        "sha256": "5e07abfb95189562cb3cd2ca3d2abf1299eb00baf582395d1d024f6f7a1575e2",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/api_header/api_wrapper_dump_util.h",
+        "sha256": "909335ddce211c1cb068562f5537180b29bd0769732136c3af9fd5f87b013b51",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/attention.h",
+        "sha256": "55ac288f0389066dafe4c39763aa58647e8760f956a93f32e2c3ea21ef03b865",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/context/buffer_mgr.h",
+        "sha256": "49887d2eef4f75412eaf442985a4ce693647d01c687e0418cdf8ae2be614a0f2",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/context/context.h",
+        "sha256": "73e26d2fee1c767bb637b84881ae3235094d531aab36bc8e8d6b95c834e147ee",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/context/launch_cfg.h",
+        "sha256": "d6996ac5e4c7e5509d2bff05671a70b1c7735bad5a91b072efb7dcf93edead08",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/context/xpu1_act_table.h",
+        "sha256": "e325f4a097b09eb811098f69c8ddca5824c0d33fc3f30c84898df9bf4720a666",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/context/xpu2_act_table.h",
+        "sha256": "23711bda2570bf3dfbb70664b96b3db7ec3bfdae61090c7460e548fad03a0785",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/context/xpu3_act_table.h",
+        "sha256": "22f942c1dbbbe8d03fc19c7395d26ec935d1397ba3b740630103c54bc559d620",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/context/xpu5_act_table.h",
+        "sha256": "db312d6d83812c7a7bbaa4765944b3fbe10eef4a8531a134def4228fd3f97cb6",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/context/xpu_act_type.h",
+        "sha256": "e3791bb02f3a85d878c60c6f8371871c39b9c32d83102e2532091ff16dd8dbdd",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/core/args.h",
+        "sha256": "afed13985a7c37c5d168e39013f6bf3ae0f227f41680da7f2540d2f47269c0c8",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/core/device.h",
+        "sha256": "7c932addc3f47e89df73e0929d823d43e294dddd7cd4cff84a8eb55e30403e1d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/core/dtype.h",
+        "sha256": "9dc2324aa6fbdb0fea6167bb3e43a4a0454728cc7fea2e0f3149bfb932ea63c8",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/core/hardware_type.h",
+        "sha256": "0dc140f860a9b4a68f0c47572740956664fdf8c744beaf349fd3abe3b844984d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/core/infra_version.h",
+        "sha256": "9b87e43ccc98390bd761af75189f9a64433bac02a2f93d8d24c3d3efcfa3ec42",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/core/quant.h",
+        "sha256": "7ab57deec6858533abacd9a371c11cb94dc60d751c7c0f325ee037de6ed6e36e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/fusion_cv_param.h",
+        "sha256": "7f88b2b5388af2561c6c86aec095bccdf21f8be2d2e7e2113224e1c573bca294",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/gtest/gtest_util.h",
+        "sha256": "6c68db27b5b6e5eb2e11174cf2c3caed2e3005606fe9580b3861fbf4edcdc573",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/gtest/quant_tensor.h",
+        "sha256": "b32ba97b225be62f1fb473882727a0d60a4d2cd4e69a08348887cebb232f6ddc",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/gtest/tensor.h",
+        "sha256": "53ab676e5fe97fec006c4dd304a72a5b525802338dd49379e342ae3c4f3185d2",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/gtest/xdnn_gtest.h",
+        "sha256": "65f7ab348c78fbddfe76e98b6dfd17de25873830f41d89ffa98c17b94df64a63",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/gtest/xdnn_gtest_attention.h",
+        "sha256": "d654aa8cf0dc5b2972ff49b6c2489f527844f09583dc7dde3ac4e2dba1771f62",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/impl/context_impl.h",
+        "sha256": "7b137d55114e9627f15ebdec477f0113cbcb10a6ca00ca4b9df1850a10cf0a5e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/impl/cpu/parallel-incl.h",
+        "sha256": "2e9defe5fbe384b8678fa0f7f46deb43844aaac9d17c234181c7423b18b58649",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/impl/cpu/parallel.h",
+        "sha256": "bf18b7f4e395c65824a46f50ccf5e7176676d83527b564c32cf18e0377ef3443",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/impl/cpu/thread_pool.h",
+        "sha256": "ad3a51ba964c80b4d79eb120b2ce3496d92b63791123213a77e6c2672b4968e5",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/impl_public/function_info.h",
+        "sha256": "bebe255032840758d7f4d292eadefd8dc2dbebbd2cac440f3c0674926cd61c6c",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/impl_public/json.h",
+        "sha256": "64429d0811958f2d04729a235fe2340660c4dfe23c2226ca16c33e1bb2db6435",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/impl_public/json_dump_lt.h",
+        "sha256": "a1e0723a083ff0ef11c92bddb6580d1f293f571137a6eb44fb410599ed7f815e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/impl_public/memory_region.h",
+        "sha256": "fe8811fafef48577be4c95718161857ead331ffec4eb6f7dd13e5cdfeb41bf5a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/impl_public/npy_dump.h",
+        "sha256": "e412ab3a10cea5e9f86b7a285b52a33cf32b6dc2edfa80aed7df3896c8cd2907",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/impl_public/profiling.h",
+        "sha256": "022410127eaeb9d1a5f8523ae0f486cf3d2f1af212b9e1a675189b00a9a98184",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/impl_public/wrapper_check.h",
+        "sha256": "290a88146c3fa7e08ff6cad9af945962a6ae422d8b96e087f61560cbc1c1a0b8",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/impl_public/xdnn_debug.h",
+        "sha256": "643f64c210ee8d38e249c97712b2fdbbd4fa9128e1f8ffaa220e327d39610e8a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/impl_public/xdnn_pointer.h",
+        "sha256": "1a72824a4d79069483b2650676f436bdcb9d05985dc0106244a1ea04e65adbdd",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/impl_public/xdnn_time.h",
+        "sha256": "8791466f36311e1496f2affe14a924d8af568e90a2162e5628a259f931de5927",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/impl_public/xdnn_to_str.h",
+        "sha256": "5018353b0e69d4825eef5ecf29b885b48005a036bba3f0ef0fa4478c15b966cd",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/page_attention.h",
+        "sha256": "b1f83b19f4595f6a34695d2848c578c5c847a8fe1d39dbb9d5246924c0799487",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/bfloat16.h",
+        "sha256": "5ab46f9539236769f4e28cf745ba413132f786019ee8d280a02cf15419334d7f",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/bit16.h",
+        "sha256": "3587de7c32e80ee3625132012edf418bec38627773591877dd8066ca40ae29d7",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/denormal_disabler.h",
+        "sha256": "08de007c1c8d1102db805650694afa96f542d588e99f920227e818af077f0f94",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/double_int4.h",
+        "sha256": "e2d1a52c13d0ce9d821eff79ab8ff5e538238457ac3f0a3d0bcd0ee6af14c886",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/env.h",
+        "sha256": "cef51d1840eb89ecc489c692660cb9a03bcbaec9ee8ba21208132b8e86e8a923",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/exmy_base.h",
+        "sha256": "f31502f5173389823a4b5d3fbfd4588e837a82747fc462a646dd2926e48ca2d5",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/float16.h",
+        "sha256": "6178ac35ec76bb9f20a49c10dd39e4a3f86d29cfb2d8e76cd358c4da5763c02a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/float8.h",
+        "sha256": "89075ef8d9c1c79e9c1a05acd2099a4ed938ac8581257c78e8f4a650b3e63ae2",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/float8_mx.h",
+        "sha256": "5663ba9c981c0d98b9754543bdeb634584e6ee1670f3e6f594ff1fac8e80ae52",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/float_subbyte.h",
+        "sha256": "82758bb805efec2b2538e665ac1ab7e939646f4879ca80537ce0535f1fa9c43e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/int15_wo_t.h",
+        "sha256": "32a771a759863dc4fe2370ec7c56a92434f2d8c8b784a9f4d44cb8768c3c052e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/int4.h",
+        "sha256": "0d7604d4aea4a74d0b4249dc9a201b4950445d624345d6165c4f16c6dd47f9ea",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/int4_wo_int15.h",
+        "sha256": "557aab3896b0272c8442f0ddc2a4b770c9b50bac077a4447e3964e2e71244c36",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/int4_wo_int8.h",
+        "sha256": "4795513604d3b81bcf077400648a31a57bb5cb0881fd285faa95645a7b9e5409",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/int8_wo_t.h",
+        "sha256": "3b658bfc723728b9580a4e469d5ecbd86874b78c382236d7f68267fccb398d69",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/int_with_ll_t.h",
+        "sha256": "c599fa4cfbb333fef5e08e23679795733bbc061c5924f0df3e09a0a5ffc5cafc",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/math_round.h",
+        "sha256": "bd318682f63e2760b388d3bc8491ec63dce5b65b1211a7feed4eccdfe31dfd5d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/mx_type_util.h",
+        "sha256": "737acf94bc446c20429d166152dc181d971ce02ef10592b582396edcd683ce10",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/precision_check_tool.h",
+        "sha256": "626e1d1ba5a84cd9930a89f26a488ec6592f20a7849f4df409c7281eb8d04f60",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/tfloat32.h",
+        "sha256": "bab4670095b041d73848f005ca0ee0d881a4a30b5402cc6dc198fd610c8bcb44",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/vector_util.h",
+        "sha256": "03ce3118e2b3eed9605d8b4052e5bc62186d4e5cb6925195506a2c402de8af08",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/refactor/util/xbfloat16.h",
+        "sha256": "67e271246fb0eec27a06903d9e20d8d3811b2b8293f24fb1090bad628783adad",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/xdnn_error.h",
+        "sha256": "531e1888bb74236bf2eb6ab3480bf8e126faf931f6d73c121f59c77f436347fe",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpu/xdnn_types.h",
+        "sha256": "167131806930ad829a4315fda44fe8e8c213e5cb3aae9cb4fe4fdcfef2a54f1e",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpudnn.h",
+        "sha256": "652efe6473438add20ca97d2e3f9fb90ee3065e9bf48b1774080c5f91d5cccda",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpudnn_adv_infer.h",
+        "sha256": "c41b8450ca2ea2ee97270f2fa6a010d405e28e5c55b14dbfb3d4d5918c98cf5d",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpudnn_adv_train.h",
+        "sha256": "37e584549d9b94d29b1c88184f0013051298cac9081fcf427f9ca1e463e992e1",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpudnn_algo.h",
+        "sha256": "6dff6d247953618ec0d8860df7ed1bea8a1eb495fc59300971c53e51f96c727c",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpudnn_api.h",
+        "sha256": "ad1d510dbabc10b4e6ea3dac89b501317d08a3800650d53f86a5bb4a45138364",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpudnn_backend.h",
+        "sha256": "7ca193ef6669212fbf27426231ffb4609ae675bcb7cfcfc7597db247a7fd80f0",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpudnn_cnn_infer.h",
+        "sha256": "6e6d3f17e3c20452a807c8bded4e78b7ba5aa63ab996a44fb46137e2e1fc7a59",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpudnn_cnn_train.h",
+        "sha256": "0647aaccfe7fe291587c44d5369e59f2ba0c7be53c28595069b9f1622f638dda",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpudnn_commit_info.h",
+        "sha256": "e6fcce6315b2d87cb271f274a2d9f82983edaf8f91e39f438ae889c4f5e44dba",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpudnn_cuda_types.h",
+        "sha256": "461c90dd4c426532fb246b4b808c89853dca584a37b3be72bd4d6cd6cf02ee4e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xhpc/xpudnn/xpudnn_ops_infer.h",
+        "sha256": "8a0f7fd2c762c262f8cb758f66762d7bfb326f020ce669d0aa98a40166b0ae68",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpudnn_ops_train.h",
+        "sha256": "1cd0aed1a1397b825f7ceea0bc3b76c0665eeed09ae82259eb74fab008cd4e95",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xhpc/xpudnn/xpudnn_version.h",
+        "sha256": "eb9739cadd275bdab92cadcf9eb648a731ede1c0892c9cfdf7913d2d371cb503",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/bkcl.h",
+        "sha256": "afa91f059b4ec8acfc3ddc4d7d0efa084d75f5caeed53c4ffc9a3abe25e71539",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/crt/host_defines.h",
+        "sha256": "62c1e6a96d30a7aaf7d8f8d144b2f74c92e6487311de121a2dabd90104d8c761",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/cuComplex.h",
+        "sha256": "5a9720a5a88f854fe8f6c4cf31c353119bb25c321cf31deccf8754592ced2f68",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/cufft.h",
+        "sha256": "a26bc8cb8e4a2ac9e408685ea608c2cee3af6984514be023b7c299dd22211d6f",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/cufftXt.h",
+        "sha256": "2bcd514f9cad3bb22c8bebf1ef8c15593a83adf4ef57c157a0f9cf6159389023",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/cufftw.h",
+        "sha256": "0c1ac941ff9d9c2583f8e6207619c4ce7f0e8805f4537c5db5e11a35d86cee65",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/deep_ep.h",
+        "sha256": "e30c7489c7056f977d1208fe28878910e45712600962e1559abeb2b9f2961c05",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/defs.h",
+        "sha256": "6ed4bc607a06f88d49a9b8480f83429c62c5a9e7d69e4e192bc7b7796752465d",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/dll_export.h",
+        "sha256": "63982640959c6cb06ceeb1d043738ca78d531fa37d9a09ef16e4533564a223aa",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/gpubuf.h",
+        "sha256": "a8746de0a608b75c6f41581df8400ad026b007b53345684415deaf5e4c0b4549",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/api.h",
+        "sha256": "646f651a8baf15bd98d9eb0db4585dbe61ad0cb095f6f40b84d9b4aa810d071e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/aten/broadcast_calc_common.h",
+        "sha256": "dbeff539d9a99902b87835ce114ac4033eb28163076928033a0043b0caafdc5a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/aten/fft_common.h",
+        "sha256": "710301cebace4d456ca2987bef27555727edcbbc2df816635e989e208081fc99",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/aten/pool_common.h",
+        "sha256": "b88ade7b711d582c43557b327e07846624c977fd7f314bcfa25c10d9bee2aeb8",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/aten/reduce_calc_common.h",
+        "sha256": "7ee3f60d60ad4842759714f95538cc9f485b4ff6d4abdedd711c7b9ce8d265fe",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/aten/scatter_calc_common.h",
+        "sha256": "35611aad88c594a49c8585370c2f4b979d0202f2474d273269514b5749f9e4db",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/aten/xrand_global.h",
+        "sha256": "843ac1ca18517313c41c0ce9fd3372302b9c026f6e0333dcb8b9a3821e4ea6a9",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/aten/xrand_philox4x32_10.h",
+        "sha256": "c651fda61d8aff74f658e222b2ab69c7072a4096eedc9dc4dd9a86bada1b8db2",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/aten/xrand_uniform.h",
+        "sha256": "e9ea647f55063e05246d79e3cb9e5768c4a818290131faeda54eadd24c1d90e9",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/aten/xrand_xoroshiro128.h",
+        "sha256": "2b763e4d608e4e2929fda88d091c74d2ec66a327056004cb19be2ba9e4bc0191",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/attention/attention_types.h",
+        "sha256": "514d1ea2d622358ca3100e9938f12963dcf61145b69d38842d8d0b64fc63b43b",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/attention/bert_batched_gemm_impl.h",
+        "sha256": "d66ff48a60a0092a2679e0f4f273d1d02e3127122d52df5f79a8742d622d7842",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/internal/attention/bert_batched_gemm_impl_common.h",
+        "sha256": "cfa689f7e4d98e30fbe8ac09688baeabe972d2c3e4c30225470213412a9cc8e1",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/attention/bert_batched_gemm_impl_kl1.h",
+        "sha256": "08b0d0c8d0a838ec667fb491b451249b33d5f93784dd00428cd56565f20b55a7",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/attention/bert_buffer_allocator.h",
+        "sha256": "ff6c735e61c834ad645e2462a053324fe013df4ef4211b599c7742327bbe46bd",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/attention/bert_fc_impl.h",
+        "sha256": "c091f3bde26698cbda6d6ffb92241d6f7e5c3d2d0629af0a09526153da04b97b",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/internal/attention/bert_impl.h",
+        "sha256": "c5d76ab849a12b8198e551e601a8a00187ede30522c6db5181e8b5ff97e6b59b",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/attention/bert_int16.h",
+        "sha256": "dd38b40d5ef10b2ea2163ff6e9db14599e0de4ce48d1aef420ca92c202b21536",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/attention/bert_int31.h",
+        "sha256": "da72236d247da718752751919a036eb3d793fa8fc5b2cc9f3927b01f1712d9cd",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/attention/bert_int8.h",
+        "sha256": "16d862f2ba669b243e170a727594249ecbb9b3f60c40ce6a940283761f8669ab",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/attention/bert_qkv_impl.h",
+        "sha256": "8e2c833ad8d59eade280947e5514b01bc0d0cce2c1f802fd7244f8d5c63ede6d",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/internal/attention/transformer_params.h",
+        "sha256": "795299c2c96eda5b20ba830cc1d786746e9a89f9bad25c37a2a8c008a9ac62f4",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/debug.h",
+        "sha256": "f4311e4390c9826c1a7dbd972d135e3298581da7fb01062bacc352ca94dcce0f",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/fc_charm/core/normal_candidates.h",
+        "sha256": "976bde6c50b5e3591dc814bdb4cee98402c98cd690adaa504723bd9ede9e4649",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/fc_charm/core/solver.h",
+        "sha256": "6f223e1e54d72e2b953afab031c5e7f525a55e8c06e81dee23265c2551c7060b",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/fc_charm/fc_planner.h",
+        "sha256": "4c91ada5e641d5827ee1f4689df06f4b5d126362b3aeabb5c7a06843ace897b4",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/fc_charm/hardware/kunlun_model.h",
+        "sha256": "d9939167fc6262c5ad6d77948eca5ed94f64b8dac0fc86cb979ce665b3c0e06a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/fc_charm/hardware/mac.h",
+        "sha256": "08f9cced3c07035d7ef20c6d0b23f584b3fedb6dc1cb20892a17a3753f952913",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/fc_charm/hardware/memory.h",
+        "sha256": "01977373aed4f4789a1a9687142e4aab928c0c4ef7d1cf5e4696fd16b3266f3a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/fc_charm/hardware/sram.h",
+        "sha256": "04f33f44cfd8796b40cfcaedd1e5263a4236c8fc54dd9cac9732d3c8d6822ec7",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/fc_charm/interface.h",
+        "sha256": "8ebea71b5cdeac6274d7cab07c34de9ce94fcbfbe3ce88ff3d9d13c6a8816934",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/fc_charm/launch_kernel.h",
+        "sha256": "8d36333b57bc6bc1f87918c54248498bcf1a606406ee535aab2937604bf2202d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/fc_charm/request/matrix_multiply_args.h",
+        "sha256": "b55531aab975b2dcb8c691d4de38ca19a29a5212b18325e0d12af60ced6cb212",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/fc_charm/request/tiling_config.h",
+        "sha256": "29cbe6540b59bd9b9f942dbbbaacf4b0d31c2c03f108bbb6cd8c31858c43a8f3",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/fc_charm/utility/base_args.h",
+        "sha256": "fc39e5a842b70a1ea6c60b025dbc92133b4a68976843b91397449c0117109b2e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/fc_charm/utility/common.h",
+        "sha256": "5f730de460eaab8c24e94ee56313999ef398059ed56bd76541231801d9249671",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/fc_charm/utility/data_type.h",
+        "sha256": "6da124d9a75a38c493ca5a57c9a3fa9876d10be75f08999fb58fe33524cfef41",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/fc_charm/utility/solver_type.h",
+        "sha256": "bc7f1262c44a1dd1e7b4d1b743f92514c4397b0ba089884b3991128893209f7d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/fc_planner_kl1.h",
+        "sha256": "2d8148ac50abe68503a8b21178ca786c660c673fdfbac4295d7e59b6ec022b3e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/func_dec.h",
+        "sha256": "c89fa3736d963d39f138bad30ec893f96b2635361bd6ca529fa697c66a2d342b",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/internal/gemm_bsp_config_solver.h",
+        "sha256": "b530d052d0b68e23c4a5e62b8c936be9cf498c8c08fb8f90bfe0ed5e1ab38462",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/gemm_bsp_config_solver_common.h",
+        "sha256": "a3e25b63db997c15a83d79e350faf2e3273266befc39d087ab491df90cf5b79b",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/gemm_bsp_config_solver_kl2.h",
+        "sha256": "4fbba77838ca9a380b6fa072a992799e428919d8fe6f2fb2b06c40ecd0bc84f7",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/gemm_bsp_config_solver_kl3.h",
+        "sha256": "49f06092e777220e297275769cc81171cc59266c85e32c0dd855bbfaba783023",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/gemm_impl.h",
+        "sha256": "da56c8dc9e25fa7bc0f7db1e8acc1b0c42887a0ecdcfba362cbb53bdd5202ba8",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/internal/infra_op.h",
+        "sha256": "f8665cb4dd8a8dc18fda2f4f81f411cf941a8869149f655d646374b2142cac36",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/internal/logging.h",
+        "sha256": "690f94206e81c3b3a203467a430a5720a283e71a8927649bcf17b458f902827e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/internal/te/thd_common.h",
+        "sha256": "9ad392bed3eb53013fe954d1bded7c17ea702abbe8caefd247c6ae4758518064",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/api_header/api_logging_lt.h",
+        "sha256": "690f94206e81c3b3a203467a430a5720a283e71a8927649bcf17b458f902827e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/api_header/api_stack_guard.h",
+        "sha256": "a0111ae8e462ab12ae9e1aba3609611bf8f381d8a5a70adc99674bf0beff5c50",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/api_header/api_test_case_loader.h",
+        "sha256": "ac927e93f5b0df26bfc8bae6e94ec1ca496eec69132156cdee1901edfa1fd5e8",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/api_header/api_to_json.h",
+        "sha256": "d1b214ae7cec37285fbb1435b3974c94068f72dc783f2abea02805c973ba7b27",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/api_header/api_wrapper_dump.h",
+        "sha256": "5e07abfb95189562cb3cd2ca3d2abf1299eb00baf582395d1d024f6f7a1575e2",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/api_header/api_wrapper_dump_util.h",
+        "sha256": "909335ddce211c1cb068562f5537180b29bd0769732136c3af9fd5f87b013b51",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/aten_api.h",
+        "sha256": "cfba215b85c704078087043c8f471631eece24c075d3711f169e346037b74ce1",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/attention.h",
+        "sha256": "55ac288f0389066dafe4c39763aa58647e8760f956a93f32e2c3ea21ef03b865",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/refactor/autotune/autotune.h",
+        "sha256": "1c7b9afcdfaff596625f7c82d08b4a42c7588a4c1fba354c2a58ce1acd7fec24",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/batchnorm.h",
+        "sha256": "11e3f1f6eecd2a3217ef48879018b83b3d5984a363207b4174b153c459915c22",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/context/buffer_mgr.h",
+        "sha256": "49887d2eef4f75412eaf442985a4ce693647d01c687e0418cdf8ae2be614a0f2",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/context/context.h",
+        "sha256": "73e26d2fee1c767bb637b84881ae3235094d531aab36bc8e8d6b95c834e147ee",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/context/launch_cfg.h",
+        "sha256": "d6996ac5e4c7e5509d2bff05671a70b1c7735bad5a91b072efb7dcf93edead08",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/context/newcontext.h",
+        "sha256": "361b27a42dfa21c8ad7f3820c12b2b746d1ead86d1356c839ae62cb27e7e46df",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/context/xdnn_version.h",
+        "sha256": "9ab125069e3a5fe05d4a90314f3517910f2fcf340e8fb90550eeb04952640b15",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/context/xpu1_act_table.h",
+        "sha256": "e325f4a097b09eb811098f69c8ddca5824c0d33fc3f30c84898df9bf4720a666",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/context/xpu2_act_table.h",
+        "sha256": "23711bda2570bf3dfbb70664b96b3db7ec3bfdae61090c7460e548fad03a0785",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/context/xpu3_act_table.h",
+        "sha256": "22f942c1dbbbe8d03fc19c7395d26ec935d1397ba3b740630103c54bc559d620",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/context/xpu5_act_table.h",
+        "sha256": "db312d6d83812c7a7bbaa4765944b3fbe10eef4a8531a134def4228fd3f97cb6",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/context/xpu_act_type.h",
+        "sha256": "e3791bb02f3a85d878c60c6f8371871c39b9c32d83102e2532091ff16dd8dbdd",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/core/args.h",
+        "sha256": "afed13985a7c37c5d168e39013f6bf3ae0f227f41680da7f2540d2f47269c0c8",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/core/device.h",
+        "sha256": "7c932addc3f47e89df73e0929d823d43e294dddd7cd4cff84a8eb55e30403e1d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/core/dtype.h",
+        "sha256": "9dc2324aa6fbdb0fea6167bb3e43a4a0454728cc7fea2e0f3149bfb932ea63c8",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/core/hardware_type.h",
+        "sha256": "0dc140f860a9b4a68f0c47572740956664fdf8c744beaf349fd3abe3b844984d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/core/infra_version.h",
+        "sha256": "9b87e43ccc98390bd761af75189f9a64433bac02a2f93d8d24c3d3efcfa3ec42",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/core/quant.h",
+        "sha256": "7ab57deec6858533abacd9a371c11cb94dc60d751c7c0f325ee037de6ed6e36e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/customized_api.h",
+        "sha256": "55c38a33b6df8b0c5874cde82e114fa546bd4298a0866fc9f6b668558e16673f",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/deprecation/deprecated.h",
+        "sha256": "38cdf3dfc8670ec6fcd3f9dc73f59e47dfc4ffc157fe4ed31edf67544296dc83",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/refactor/deprecation/fusion_vec_int.h",
+        "sha256": "01a5ddb4aa4095dfb7c86e80b67c2d22a6321fdee780be2325b88af29c3c9c0d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/deprecation/internal_vec_int.h",
+        "sha256": "d44905d87a729b42b7e87772ef99a42f56755e99185b70534aae61e8c4471057",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/deprecation/math_vec_int.h",
+        "sha256": "e0918c181277ef3d736511b7bf88354631d976272b22f0d462949a2426d32a9a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/deprecation/nn_activation_vec_int.h",
+        "sha256": "e5de8da83934776a5cbb58670dcb0f928614be4963d949e8ea1c064bfb5e8a24",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/deprecation/nn_loss_vec_int.h",
+        "sha256": "93a13d6eb9031c8d8c7fc7bd16764bc3727cd94775a585fa5ec605544a93a468",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/deprecation/nn_pad_vec_int.h",
+        "sha256": "cfc1a01c66d19dfea9b40846fa092ebd846e83526ac81a2dc56f7143ee6f97e1",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/deprecation/nn_pool_vec_int.h",
+        "sha256": "4e0c02da888e732f13270c5b62d5468d379274ea7521bac85cca9adce1b8e1b5",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/deprecation/nn_vec_int.h",
+        "sha256": "be64656973f322d048f8387d03697ebc261c5e1ca60bc76518cab5855a78e76c",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/refactor/fusion.h",
+        "sha256": "5a92ba172b291c0d3d7f7039d9777f57ab8da3473a774ff70ffdd2d8761fdb4f",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/refactor/fusion_cv_param.h",
+        "sha256": "7f88b2b5388af2561c6c86aec095bccdf21f8be2d2e7e2113224e1c573bca294",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/gtest_util.h",
+        "sha256": "6c68db27b5b6e5eb2e11174cf2c3caed2e3005606fe9580b3861fbf4edcdc573",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/quant_tensor.h",
+        "sha256": "b32ba97b225be62f1fb473882727a0d60a4d2cd4e69a08348887cebb232f6ddc",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/tensor.h",
+        "sha256": "53ab676e5fe97fec006c4dd304a72a5b525802338dd49379e342ae3c4f3185d2",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest.h",
+        "sha256": "65f7ab348c78fbddfe76e98b6dfd17de25873830f41d89ffa98c17b94df64a63",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_attention.h",
+        "sha256": "d654aa8cf0dc5b2972ff49b6c2489f527844f09583dc7dde3ac4e2dba1771f62",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_calc.h",
+        "sha256": "f9f0601e4ad7936bd520595cfc383a585663712069260493390a304070ef1f91",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_grad_ops_1_k.h",
+        "sha256": "121bf5877889079e4816f626c5f8ba6eabaadb408e4b5614f47c64544fdd3770",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_grad_ops_1_n.h",
+        "sha256": "d583fcc8a963f9914456ad66a71a6e30887edf7d44d9083865614b93f32bd032",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_grad_ops_basic.h",
+        "sha256": "cf9e8ec677eb2a6a4134f86693ddc74e87b62390df50e01c37a8810841af25e7",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_grad_ops_dx.h",
+        "sha256": "620eb1678fd3fed348fc391f0f3bf25c0a8c8ff928e2c3c42686de3e12c57c00",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_grad_ops_dy.h",
+        "sha256": "40d287fcf949caaa82e5537dea18f945af36f1224739670cd7d2fbf720deb05e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_grad_ops_mk_mnk.h",
+        "sha256": "67e0261ae56b696dbd9a68ea6aadf534dbee07a80366d9373f2c958be9df8b2f",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_grad_ops_n_nk.h.h",
+        "sha256": "dca3f86ae98d3f27d75b611b20109ee688ec58ad7cdcd2cbbe851e79f8eecd11",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_grad_ops_nk_k.h",
+        "sha256": "665e9235782c7e12802b64302462b2183848da81001541da3a5ea78ea7901a1d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_ops_1_k.h",
+        "sha256": "ae45ff37b92c01c9ba8e893f2a25b5573b9d09747289236ca60827de93ddbe2f",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_ops_1n1_mnk.h",
+        "sha256": "14197bac0323a8d0a0a4a60b712be97fc2a3d5be0560eb6cc02aa915264b7ebc",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_ops_basic.h",
+        "sha256": "47d2a55137c89329d11341b63dc0a69881b45b90030a8c54007dd02cf3cb2bf8",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_ops_m1k_1nk.h",
+        "sha256": "e5952132c9611b9cfb751049623cb33c84e2bf0729b2e3ffd5ab0fb15792e23c",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_ops_mk_mnk.h",
+        "sha256": "75881a21915e23c57fb24d183bdcf205282c66e213c5e631c7491456e249c9d8",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_ops_mn1_m1k.h",
+        "sha256": "b09a9b3d6f4e6617d0b262d9e583295610b494793ef6a9e44bab4ff2246fad52",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_ops_mn1_m1k_unalign.h",
+        "sha256": "fe15bd079d089cdd9094c2d2c9edf4dea5ca2aff5d5318f94a44090748af6caa",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_ops_n1_1k.h",
+        "sha256": "c02a26b1641b19a86c3f3e61703e5cf52772c80b2158e5f5e5f7bef3af8cf408",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_broadcast_ops_n_nk.h",
+        "sha256": "91796ccf7718abe8b6d9c958a3ea7402913fee32b5fb382b1816b0e6c410cb44",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_common_activation.h",
+        "sha256": "e6efbab3f314ed754dd3fc450894976a920f1d37281e355e7b4c145b24220660",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_common_binary_op.h",
+        "sha256": "9594b161d9a032ecb805c05b7104c4f396944204dbfc1f1bb53a75552d671b18",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_common_bitmask.h",
+        "sha256": "b94f6bd758c266c839d219aa14d07dd8b70214c6625f7732456441c54923539a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_common_reduce_op.h",
+        "sha256": "ea0c3ed134234dc7739e0162b5a114c56d0e536192d768a49c8b37ff9cbf4bef",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_common_unary_op.h",
+        "sha256": "4b775617fa0292dd10f8863793df94111f310823177e3061f26bd4acb651b2b9",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_reduce_testcase.h",
+        "sha256": "23469915069b9418c19fd8b8f2f52a06cdc0d6711e0bb71e30b3a3081fe8fffa",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/gtest/xdnn_gtest_softmax.h",
+        "sha256": "a8388c05245126dc069b656dc47d68e4d41a040be2753c3a0b877a6704e3400e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/context_impl.h",
+        "sha256": "7b137d55114e9627f15ebdec477f0113cbcb10a6ca00ca4b9df1850a10cf0a5e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_common.h",
+        "sha256": "c52460208b80a5c58e3437fd746181f8557979ff4f2524d4c2e261c74caeedd3",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/base.h",
+        "sha256": "5ef2e5129154f98c576422bc866c87eae3972ff9f322d19de98f6fc112e5bc33",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/cost/cost.h",
+        "sha256": "6338f2672c514fccc589169016a837bf577daa465631db3d4486d21b61d6878d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/cost/dma_cost.h",
+        "sha256": "556b470c1e5052f770a15f3c567756c6c736098714570d2ea9b724839a03d9a7",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/cost/dma_tuner.h",
+        "sha256": "cbfa36b0f133e7cc39e4849c53285a2ae8b370d0772697d0e299b41322040316",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/cost/ds_cost.h",
+        "sha256": "b8234e17bf26f5a626d7d0f4b7eb0fcb2196d8bde46163b2ddb757e0bfb29d3c",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/cost/hardware_cost.h",
+        "sha256": "c55585412df6ef24331ef027ead5055a022677105f0abd1bbd263a57b84b5a9e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/cost/mac_cost.h",
+        "sha256": "2987cbe51ef80afa9da19649fb9723c399a8de028fa741c9582875ca1cd6da01",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/fwd/autotune_based.h",
+        "sha256": "aa672319d517d3435eccb2e6baec95841d1be88bdc5ca5f737ba67d94be284de",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/fwd/autotune_impl.h",
+        "sha256": "5757c219d77e6276c99bf02a9f3a21c52bc66d218f04ae82ede20d315548b1e7",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/fwd/cost_model.h",
+        "sha256": "04df9783cd2dd6b1bf0a75083b5b07a1ae4304674e6a709d57d7a298073edecf",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/fwd/impl.h",
+        "sha256": "a173c40c0e7bdd636893b1b37c9b2bba58c054a149f022bf632843875ac88e3f",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/fwd/l3_optimizer.h",
+        "sha256": "9a9a62f254b4101d1dc8b95b8d63ab678a47596fb7b665c99ca3722bc5bb980d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/fwd/lib_cost.h",
+        "sha256": "2fae8f10888b7fb0937c1dd67f6fde038c9bd448f2c1ce3c3c3e22b490be3de4",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/fwd/lib_impl.h",
+        "sha256": "e13e7815e157829bb02d67500650cca7592adc8eb4e7fb48cd0711e9dd678bbf",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/fwd/lib_limit.h",
+        "sha256": "017219d98a60b9b323032753c74f17543207053763a113bd5902225805adcc59",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/fwd/model_based.h",
+        "sha256": "c2a99bd1eca1a21f942cbe5635ae4719513af502f9cfd0f33e1d34778ce637b0",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/fwd/planner.h",
+        "sha256": "aba69b0266afb5d776bc68a595fc10a44f6b3ebc97d5bc3c4c0240d6349ac0df",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/fwd/type.h",
+        "sha256": "bca74d91fcc5fac3994a93d07322c27cfffa3938e6645af8c2d7148859e23b6f",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/hardware_spec.h",
+        "sha256": "24f04e6ca0289fac27092c5c1c75ba298719436e2d75e3908502f02d191ba025",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/helper.h",
+        "sha256": "6fc52dafb7e44cfb961e16014eb21994f296c0965aac6c73664cd3a6c6dd50ef",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/limit/hardware_limit.h",
+        "sha256": "184759fd50411dfc31e9b6d312983a3a233b7a630d8c852a6eea0554ab45942f",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/limit/limit_solver.h",
+        "sha256": "012ced8854b9a8d457f755bfa9c3668b225550c66e2ff7e88ba2f78ecee65e8b",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/limit/solver_impl.h",
+        "sha256": "80a6e6a3665555170a9ea71fe07fe23d535fb1057df2fd4cefeb9ca60f0750a9",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/conv_planner/limit/solver_node.h",
+        "sha256": "48aadcd19ea10bdada9e38d3b32070c8a0f365e4bc206e4a9ba0cf4b225cf703",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/cpu/parallel-incl.h",
+        "sha256": "2e9defe5fbe384b8678fa0f7f46deb43844aaac9d17c234181c7423b18b58649",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/cpu/parallel.h",
+        "sha256": "bf18b7f4e395c65824a46f50ccf5e7176676d83527b564c32cf18e0377ef3443",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/cpu/thread_pool.h",
+        "sha256": "ad3a51ba964c80b4d79eb120b2ce3496d92b63791123213a77e6c2672b4968e5",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/launch_strategy.h",
+        "sha256": "d1bfbca70301f81f4e9f747aa7c66763c7448956202f59c039bd6a26ed76a366",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/macro_twoloop.h",
+        "sha256": "18c67e7349ae6478af0d3aea2fe4263b2b4a943d42e36868291f8e15db1df440",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/util_resize.h",
+        "sha256": "6180728d3134f10c7a8b3c1d1005fe7005a8bc5a49b28447d9e116901f54df89",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/xdnn_impl.h",
+        "sha256": "0fcd2cf327626688d5d0dd08512782f8c32c23a276d0456e8c37d9c4ea7af956",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/xpu1_conv_algo_selector.h",
+        "sha256": "195b6c5dd882716fdae2d5a8616e1b4963cdd7bf5b9253beb8bbdaee81382fef",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/xpu2_conv_bwd_planner.h",
+        "sha256": "e9a89fcd7f69f1629029e42c4be2f921c6a2bd761ef87651c610d940d58d16c4",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl/xpu3_conv_bwd_planner.h",
+        "sha256": "a7fd4eca2849ee8356f7b0f4171bb505f0ec9d133a402128825c8f0682f2915d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl_public/function_info.h",
+        "sha256": "bebe255032840758d7f4d292eadefd8dc2dbebbd2cac440f3c0674926cd61c6c",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl_public/json.h",
+        "sha256": "64429d0811958f2d04729a235fe2340660c4dfe23c2226ca16c33e1bb2db6435",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl_public/json_dump_lt.h",
+        "sha256": "a1e0723a083ff0ef11c92bddb6580d1f293f571137a6eb44fb410599ed7f815e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl_public/memory_region.h",
+        "sha256": "fe8811fafef48577be4c95718161857ead331ffec4eb6f7dd13e5cdfeb41bf5a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl_public/npy_dump.h",
+        "sha256": "e412ab3a10cea5e9f86b7a285b52a33cf32b6dc2edfa80aed7df3896c8cd2907",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl_public/profiling.h",
+        "sha256": "022410127eaeb9d1a5f8523ae0f486cf3d2f1af212b9e1a675189b00a9a98184",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl_public/wrapper_check.h",
+        "sha256": "290a88146c3fa7e08ff6cad9af945962a6ae422d8b96e087f61560cbc1c1a0b8",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl_public/xdnn_debug.h",
+        "sha256": "643f64c210ee8d38e249c97712b2fdbbd4fa9128e1f8ffaa220e327d39610e8a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl_public/xdnn_pointer.h",
+        "sha256": "1a72824a4d79069483b2650676f436bdcb9d05985dc0106244a1ea04e65adbdd",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl_public/xdnn_time.h",
+        "sha256": "8791466f36311e1496f2affe14a924d8af568e90a2162e5628a259f931de5927",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/impl_public/xdnn_to_str.h",
+        "sha256": "5018353b0e69d4825eef5ecf29b885b48005a036bba3f0ef0fa4478c15b966cd",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/internal.h",
+        "sha256": "493da166068eb74550a080950169b2e79e6d713cb7873defbd309691f0b23712",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/refactor/math.h",
+        "sha256": "778f91dfd965656dee73a635245b5eb048c3795704df531b8f0b7efba8b1b3ba",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/nn.h",
+        "sha256": "2849725deaf5d63aa2b1886b2546adf26e54f0c8fa9596b6410ff21923828072",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/refactor/nn_activation.h",
+        "sha256": "a670ae5ea7bda5346dc180157ff588242bc7d262d3c9937002fab7328ddb9fea",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/refactor/nn_loss.h",
+        "sha256": "87a3ffc0cce1697b87a5b61c0a528e960befa9922057098ba62f8b72a733ca5e",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/refactor/nn_pad.h",
+        "sha256": "7a3c86b2d8323c2a6db43423e3dcd70e27d3ae778848b53dc2bce22d9b40d07f",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/nn_pool.h",
+        "sha256": "e24aa7f9a70d76ed2e769aa6116a15cb7e63a14824a46616a06ae047ab89eb8b",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/refactor/paddle_api.h",
+        "sha256": "97fba1489f56c6abe58d4bfb754f8ffd5e954404be25795a06cc19ff87e66c80",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/page_attention.h",
+        "sha256": "b1f83b19f4595f6a34695d2848c578c5c847a8fe1d39dbb9d5246924c0799487",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/te_api.h",
+        "sha256": "fa0ef28d7e8efe0c489ab86c8c9bcf4de9f1bc17a1717bb796866d62a910e7ed",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/tensorflow_api.h",
+        "sha256": "ffd7db99e2ac711d5f44e517b5fa733bd9e6d35a9c7cee858fb48a3e15bb3b70",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/bfloat16.h",
+        "sha256": "5ab46f9539236769f4e28cf745ba413132f786019ee8d280a02cf15419334d7f",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/bit16.h",
+        "sha256": "3587de7c32e80ee3625132012edf418bec38627773591877dd8066ca40ae29d7",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/bitmask.h",
+        "sha256": "a5c0f0fa815e466e4c0a763adcf4a829f1175ebd2ac86c0f897d13957cec8dcb",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/denormal_disabler.h",
+        "sha256": "08de007c1c8d1102db805650694afa96f542d588e99f920227e818af077f0f94",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/double_int4.h",
+        "sha256": "e2d1a52c13d0ce9d821eff79ab8ff5e538238457ac3f0a3d0bcd0ee6af14c886",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/env.h",
+        "sha256": "cef51d1840eb89ecc489c692660cb9a03bcbaec9ee8ba21208132b8e86e8a923",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/exmy_base.h",
+        "sha256": "f31502f5173389823a4b5d3fbfd4588e837a82747fc462a646dd2926e48ca2d5",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/float16.h",
+        "sha256": "6178ac35ec76bb9f20a49c10dd39e4a3f86d29cfb2d8e76cd358c4da5763c02a",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/float8.h",
+        "sha256": "89075ef8d9c1c79e9c1a05acd2099a4ed938ac8581257c78e8f4a650b3e63ae2",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/float8_mx.h",
+        "sha256": "5663ba9c981c0d98b9754543bdeb634584e6ee1670f3e6f594ff1fac8e80ae52",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/float_subbyte.h",
+        "sha256": "82758bb805efec2b2538e665ac1ab7e939646f4879ca80537ce0535f1fa9c43e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/int15_wo_t.h",
+        "sha256": "32a771a759863dc4fe2370ec7c56a92434f2d8c8b784a9f4d44cb8768c3c052e",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/int4.h",
+        "sha256": "0d7604d4aea4a74d0b4249dc9a201b4950445d624345d6165c4f16c6dd47f9ea",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/int4_wo_int15.h",
+        "sha256": "557aab3896b0272c8442f0ddc2a4b770c9b50bac077a4447e3964e2e71244c36",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/int4_wo_int8.h",
+        "sha256": "4795513604d3b81bcf077400648a31a57bb5cb0881fd285faa95645a7b9e5409",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/int8_wo_t.h",
+        "sha256": "3b658bfc723728b9580a4e469d5ecbd86874b78c382236d7f68267fccb398d69",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/int_with_ll_t.h",
+        "sha256": "c599fa4cfbb333fef5e08e23679795733bbc061c5924f0df3e09a0a5ffc5cafc",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/math_round.h",
+        "sha256": "bd318682f63e2760b388d3bc8491ec63dce5b65b1211a7feed4eccdfe31dfd5d",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/mx_type_util.h",
+        "sha256": "737acf94bc446c20429d166152dc181d971ce02ef10592b582396edcd683ce10",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/namespace.h",
+        "sha256": "b5f5d78aafd4b9f87892f7ed1d48bbb535dc909206e29ac4ba736b0a38314fc8",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/precision_check_tool.h",
+        "sha256": "626e1d1ba5a84cd9930a89f26a488ec6592f20a7849f4df409c7281eb8d04f60",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/tfloat32.h",
+        "sha256": "bab4670095b041d73848f005ca0ee0d881a4a30b5402cc6dc198fd610c8bcb44",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/vector_util.h",
+        "sha256": "03ce3118e2b3eed9605d8b4052e5bc62186d4e5cb6925195506a2c402de8af08",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/refactor/util/xbfloat16.h",
+        "sha256": "67e271246fb0eec27a06903d9e20d8d3811b2b8293f24fb1090bad628783adad",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/runtime.h",
+        "sha256": "99dc5422733774daf6667420c190c990aad4516deafe474d5196edf0f5bd6d32",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/runtime_ex.h",
+        "sha256": "2e76f7b348413a351b6eae5c5d29f3e464864004b60abd4d91d1ec7d85e98227",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/shared/resnet_lib.h",
+        "sha256": "72f6aa34ed0794dca9ba5267101111fdd8e223530e29503f7f453cd9a11bd435",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/version.h",
+        "sha256": "e90ff2c0b2a4b9a50e1ab2bcec899a2ba316e617d26c5175743f4f4c9535c469",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/xccl.h",
+        "sha256": "da875c018dbc7264762802e04ab799159092fdca65579292e5a48ab085bf4acc",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/xccl_common.h",
+        "sha256": "f84598883f8ccbae3a99d706eb2cf9f1dbd0cfa99f0cc39852fa14b4a1ea29d3",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/xdnn.h",
+        "sha256": "223f993b5337cceb1c4fabeda7c81503580461cdef1bce17381b6e455fcc24e9",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/xdnn_error.h",
+        "sha256": "531e1888bb74236bf2eb6ab3480bf8e126faf931f6d73c121f59c77f436347fe",
+        "matches_p800_header": false
+      },
+      {
+        "file": "xpu/xdnn_types.h",
+        "sha256": "167131806930ad829a4315fda44fe8e8c213e5cb3aae9cb4fe4fdcfef2a54f1e",
+        "matches_p800_header": true
+      },
+      {
+        "file": "xpu/xpuml.h",
+        "sha256": "1589651415c612ee304cc97b1c37df5d1c27d679e53cfd5f31ea8e0f15d45009",
+        "matches_p800_header": false
+      }
+    ],
+    "sdnn_mm_mode": {
+      "scope": "SDNN3 mm/mm_acc 指令的模式立即数，只解释头文件定义的输入与输出模式。设备内部乘积与累加各阶段的舍入位宽、XPyTorch 在特定形状的实际发射均须另行取证。",
+      "file": "xhpc/xpudnn/xpu/kernel/sdnn3_base.h",
+      "input_enum_line": 241,
+      "output_enum_line": 262,
+      "fp16_macro_line": 289,
+      "fp32_macro_line": 283,
+      "decoded": [
+        {
+          "value": 37,
+          "input_mode": "FP16",
+          "output_mode": "FP16",
+          "expression": "5 | 32"
+        },
+        {
+          "value": 8,
+          "input_mode": "FP32",
+          "output_mode": "FP32",
+          "expression": "8 | 0"
+        },
+        {
+          "value": 5,
+          "input_mode": "FP16",
+          "output_mode": "FP32",
+          "expression": "5 | 0"
+        }
+      ]
+    },
+    "python_api": {
+      "wheel": "https://baidu-kunlun-customer.su.bcebos.com/aiak/mimo/20260227/kunlun_ops-0.1.58+ee39020a-cp310-cp310-linux_x86_64.whl",
+      "version": "0.1.58+ee39020a",
+      "scope": "四个示例来自公开 wheel 的 Python 参数文档和包顶层导出。未运行该 wheel。",
+      "examples": [
+        {
+          "function": "kunlun_ops.add_layernorm",
+          "path": "kunlun_ops/_norm.py",
+          "line": 36,
+          "evidence": "注意输入为二维 [m,n]。FP16 输入时两个输入同类型，权重同为 FP16。可传 residual_output 返回 x+y，类型与 x 相同。",
+          "sha256": "cfdc7a50c9562eb35a757ba91dad839965f00a2dd0f51878ec9844a4612bcfe3"
+        },
+        {
+          "function": "kunlun_ops.matmul",
+          "path": "kunlun_ops/_gemm.py",
+          "line": 15,
+          "evidence": "文档列出不同输入和权重的数据类型组合，以及可选 FP32 bias。",
+          "sha256": "687b9f0e4b4252969cb949d3f291546a318653576b7ce2ef817156cceb2c5b00"
+        },
+        {
+          "function": "kunlun_ops.bmm",
+          "path": "kunlun_ops/_gemm.py",
+          "line": 93,
+          "evidence": "批量矩阵乘文档给出形状、可选缩放和输出类型。",
+          "sha256": "687b9f0e4b4252969cb949d3f291546a318653576b7ce2ef817156cceb2c5b00"
+        },
+        {
+          "function": "kunlun_ops.gelu",
+          "path": "kunlun_ops/_activation.py",
+          "line": 33,
+          "evidence": "文档明确列出 FP16 输入，输出与输入同类型。",
+          "sha256": "323a17e0b2916c2cf4f0a332ad68a530fa57a6d2774a863bfff09e7c178070c3"
+        }
+      ]
+    },
+    "community_build": {
+      "baidu_guide": "https://github.com/baidu/vLLM-Kunlun/blob/main/docs/source/installation.md",
+      "fastdeploy_p800_guide": "https://paddlepaddle.github.io/FastDeploy/get_started/installation/kunlunxin_xpu/",
+      "standalone_build": "https://github.com/PaddlePaddle/Paddle/blob/527b4c02ce85c2400fcf72a0f92a7a97ca4653e2/paddle/phi/kernels/xpu/plugin/README.md",
+      "host_dispatch": "https://github.com/PaddlePaddle/FastDeploy/blob/d923caf15e1eb0da8e2efd75b0152e65cefeeddd/custom_ops/xpu_ops/src/plugin/src/wrapper/quant2d_per_channel.cpp#L183-L195",
+      "device_source": "https://github.com/PaddlePaddle/FastDeploy/blob/d923caf15e1eb0da8e2efd75b0152e65cefeeddd/custom_ops/xpu_ops/src/plugin/src/kernel/kunlun3cpp/quant2d_per_channel.xpu#L634-L646",
+      "procedure": "官方示例提供独立 build 和 run 脚本。构建插件时指定 XDNN、XRE 和 XTDK；主机 wrapper 完成设备选择、检查和发射，设备计算可在 .xpu 源文件中实现。"
+    }
+  }
+}
